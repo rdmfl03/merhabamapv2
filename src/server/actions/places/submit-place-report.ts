@@ -1,0 +1,78 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+
+import { auth } from "@/auth";
+import { prisma } from "@/lib/prisma";
+import { placeReportSchema } from "@/lib/validators/places";
+
+import {
+  idlePlaceActionState,
+  sanitizeReturnPath,
+  type PlaceActionState,
+} from "./shared";
+
+export async function submitPlaceReport(
+  _previousState: PlaceActionState = idlePlaceActionState,
+  formData: FormData,
+): Promise<PlaceActionState> {
+  const parsed = placeReportSchema.safeParse({
+    locale: formData.get("locale"),
+    placeId: formData.get("placeId"),
+    returnPath: formData.get("returnPath"),
+    reason: formData.get("reason"),
+    details: formData.get("details"),
+  });
+
+  if (!parsed.success) {
+    return {
+      status: "error",
+      message: "validation_error",
+    };
+  }
+
+  const session = await auth();
+  const returnPath = sanitizeReturnPath(parsed.data.locale, parsed.data.returnPath);
+
+  if (!session?.user?.id) {
+    redirect(
+      `/${parsed.data.locale}/auth/signin?next=${encodeURIComponent(returnPath)}`,
+    );
+  }
+
+  const place = await prisma.place.findFirst({
+    where: {
+      id: parsed.data.placeId,
+      isPublished: true,
+      moderationStatus: "APPROVED",
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!place) {
+    return {
+      status: "error",
+      message: "place_not_found",
+    };
+  }
+
+  await prisma.report.create({
+    data: {
+      userId: session.user.id,
+      targetType: "PLACE",
+      placeId: place.id,
+      reason: parsed.data.reason,
+      details: parsed.data.details,
+    },
+  });
+
+  revalidatePath(returnPath);
+
+  return {
+    status: "success",
+    message: "report_submitted",
+  };
+}

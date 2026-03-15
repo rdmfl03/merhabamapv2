@@ -1,0 +1,113 @@
+import type { Metadata } from "next";
+import { getTranslations, setRequestLocale } from "next-intl/server";
+
+import { PublicCtaSection } from "@/components/marketing/public-cta-section";
+import { HowItWorksSection } from "@/components/marketing/how-it-works-section";
+import { PilotCitiesSection } from "@/components/marketing/pilot-cities-section";
+import { PublicHero } from "@/components/marketing/public-hero";
+import { TrustSection } from "@/components/marketing/trust-section";
+import { ValueGrid } from "@/components/marketing/value-grid";
+import { JsonLd } from "@/components/seo/json-ld";
+import { buildLandingMetadata } from "@/lib/metadata/public";
+import { buildOrganizationSchema } from "@/lib/seo/structured-data";
+import { getPilotCities } from "@/server/queries/cities/get-pilot-cities";
+
+type LandingPageProps = {
+  params: Promise<{ locale: "de" | "tr" }>;
+};
+
+export async function generateMetadata({
+  params,
+}: LandingPageProps): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "landing" });
+
+  return buildLandingMetadata({
+    locale,
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+  });
+}
+
+export default async function LandingPage({ params }: LandingPageProps) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+
+  const [t, pilotCities] = await Promise.all([
+    getTranslations("landing"),
+    getPilotCities(),
+  ]);
+
+  return (
+    <div className="pb-16">
+      <JsonLd data={buildOrganizationSchema(locale)} />
+
+      <PublicHero
+        eyebrow={t("eyebrow")}
+        title={t("title")}
+        description={t("subtitle")}
+        primaryCta={t("explorePlaces")}
+        secondaryCta={t("browseEvents")}
+        trustTitle={t("heroTrust.title")}
+        trustPoints={[
+          t("heroTrust.curated"),
+          t("heroTrust.cityFirst"),
+          t("heroTrust.reportable"),
+        ]}
+      />
+
+      <ValueGrid
+        items={["places", "events", "cities"].map((key) => ({
+          eyebrow: t(`cards.${key}.eyebrow`),
+          title: t(`cards.${key}.title`),
+          description: t(`cards.${key}.description`),
+        }))}
+      />
+
+      <PilotCitiesSection
+        eyebrow={t("pilotSection.eyebrow")}
+        title={t("pilotSection.title")}
+        description={t("pilotSection.description")}
+        ctaLabel={t("pilotSection.cta")}
+        placesLabel={t("pilotSection.placesLabel")}
+        eventsLabel={t("pilotSection.eventsLabel")}
+        cities={pilotCities.map((city) => ({
+          slug: city.slug,
+          name: locale === "tr" ? city.nameTr : city.nameDe,
+          placesCount: city.placesCount,
+          eventsCount: city.eventsCount,
+        }))}
+      />
+
+      <HowItWorksSection
+        eyebrow={t("howItWorks.eyebrow")}
+        title={t("howItWorks.title")}
+        description={t("howItWorks.description")}
+        steps={["one", "two", "three"].map((stepKey, index) => ({
+          step: String(index + 1),
+          title: t(`howItWorks.steps.${stepKey}.title`),
+          description: t(`howItWorks.steps.${stepKey}.description`),
+        }))}
+      />
+
+      <TrustSection
+        eyebrow={t("trust.eyebrow")}
+        title={t("trust.title")}
+        description={t("trust.description")}
+        items={["quality", "reports", "claims"].map((key) => ({
+          title: t(`trust.items.${key}.title`),
+          description: t(`trust.items.${key}.description`),
+        }))}
+      />
+
+      <PublicCtaSection
+        eyebrow={t("cta.eyebrow")}
+        title={t("cta.title")}
+        description={t("cta.description")}
+        primaryCta={t("cta.primary")}
+        secondaryCta={t("cta.secondary")}
+        tertiaryCta={t("cta.tertiary")}
+      />
+    </div>
+  );
+}

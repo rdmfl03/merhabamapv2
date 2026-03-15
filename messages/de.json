@@ -1,0 +1,611 @@
+{
+  "common": {
+    "brandName": "MerhabaMap",
+    "taglineShort": "Türkische Orte und Events",
+    "cities": "Städte",
+    "places": "Orte",
+    "events": "Events",
+    "business": "Business",
+    "signUp": "Registrieren",
+    "signIn": "Anmelden",
+    "account": "Konto",
+    "save": "Speichern",
+    "saved": "Gespeichert"
+  },
+  "landing": {
+    "metaTitle": "Türkische Orte und Events in Deutschland",
+    "metaDescription": "Entdecke türkische Orte, Events und lokale Businesses in Berlin und Köln.",
+    "eyebrow": "Bilingualer Start in Deutschland",
+    "title": "Türkische Orte, Events und lokale Relevanz in Deutschland entdecken.",
+    "subtitle": "MerhabaMap ist dein zweisprachiger Einstieg in türkische Restaurants, Cafés, Community-Events und vertrauenswürdige lokale Informationen in Berlin und Köln.",
+    "explorePlaces": "Orte entdecken",
+    "browseEvents": "Events ansehen",
+    "heroTrust": {
+      "title": "Deutschland Start",
+      "curated": "Kuratiertes Discovery-Fundament statt unklarer Sammelplattform.",
+      "cityFirst": "Berlin und Köln als klare Pilotmärkte mit lokaler Relevanz.",
+      "reportable": "Meldungen, Claims und Moderation sind von Anfang an mitgedacht."
+    },
+    "cards": {
+      "places": {
+        "eyebrow": "Places",
+        "title": "Kuratiert statt beliebig",
+        "description": "Türkische Restaurants, Bäckereien, Supermärkte, Moscheen und Dienstleister mit klaren Kategorien und späterer Verifizierung."
+      },
+      "events": {
+        "eyebrow": "Events",
+        "title": "Lokale Relevanz",
+        "description": "Kulturabende, Treffen und Veranstaltungen mit klarer Stadt- und Ortszuordnung für eine suchbare MVP-Struktur."
+      },
+      "cities": {
+        "eyebrow": "Städte",
+        "title": "City-first Discovery",
+        "description": "Öffentliche City-Seiten bündeln Orte, Events und nächste Schritte für Berlin und Köln in suchfreundlicher Struktur."
+      }
+    },
+    "pilotSection": {
+      "eyebrow": "Pilotstädte",
+      "title": "Starte mit den stärksten lokalen Einstiegspunkten.",
+      "description": "Berlin und Köln bilden den öffentlichen Discovery-Kern für den MVP. Von dort aus wachsen Places, Events und vertrauenswürdige lokale Signale weiter.",
+      "cta": "Stadt entdecken",
+      "placesLabel": "Orte",
+      "eventsLabel": "Events"
+    },
+    "howItWorks": {
+      "eyebrow": "So funktioniert es",
+      "title": "Ein klarer Einstieg statt Plattformrauschen.",
+      "description": "MerhabaMap führt Besucher zuerst über Stadt und Relevanz zu konkreten Orten und Events.",
+      "steps": {
+        "one": {
+          "title": "Stadt wählen",
+          "description": "Beginne mit Berlin oder Köln und öffne eine Discovery-Seite mit lokalem Fokus."
+        },
+        "two": {
+          "title": "Orte und Events entdecken",
+          "description": "Suche nach Restaurants, Cafés, Märkten, Community-Events und weiteren relevanten Treffpunkten."
+        },
+        "three": {
+          "title": "Speichern und zurückkommen",
+          "description": "Mit Account kannst du Favoriten sichern und deinen Einstieg über Stadt und Interessen personalisieren."
+        }
+      }
+    },
+    "trust": {
+      "eyebrow": "Vertrauen",
+      "title": "Öffentliche Discovery mit klaren Grenzen und sauberen Signalen.",
+      "description": "MerhabaMap soll nützlich und glaubwürdig sein, ohne mehr zu behaupten als die Daten tatsächlich hergeben.",
+      "items": {
+        "quality": {
+          "title": "Kuratiertes MVP",
+          "description": "Es werden nur veröffentlichte und freigegebene Orte und Events öffentlich gezeigt."
+        },
+        "reports": {
+          "title": "Melden statt ignorieren",
+          "description": "Nutzer können problematische Einträge melden, damit Informationen schneller überprüft werden."
+        },
+        "claims": {
+          "title": "Claimbare Businesses",
+          "description": "Unternehmen können Besitzansprüche einreichen, ohne dass daraus bereits falsche Verifizierungsversprechen entstehen."
+        }
+      }
+    },
+    "cta": {
+      "eyebrow": "Nächster Schritt",
+      "title": "Entdecke zuerst, registriere dich wenn es für dich nützlich ist.",
+      "description": "Die Plattform bleibt öffentlich suchbar. Ein Account hilft dir beim Speichern, Personalisieren und beim vertrauensvollen Mitwirken.",
+      "primary": "Places ansehen",
+      "secondary": "Events ansehen",
+      "tertiary": "Account erstellen"
+    }
+  },
+  "auth": {
+    "eyebrow": "Authentifizierung",
+    "signInTitle": "Mit deinem Demo- oder Entwicklungsaccount anmelden.",
+    "signInDescription": "Für lokale und Staging-Tests steht ein einfacher Credentials-Login mit gehashten Passwörtern bereit, wenn die Demo-Auth explizit aktiviert ist.",
+    "signUpTitle": "Registrierung wird als sicherer, verifizierter Flow aufgebaut.",
+    "signUpDescription": "Die Datenmodelle für Accounts, Sessions und Verification Tokens sind angelegt. Die Produkt-UI bleibt für diesen Schritt bewusst schlank.",
+    "verifyEmailTitle": "E-Mail-Verifizierung ist vorbereitet.",
+    "verifyEmailDescription": "Der Verifizierungs-Flow wird im nächsten Inkrement mit echtem Mail-Versand und Zustandsseiten ergänzt.",
+    "emailLoginSoon": "E-Mail-Login folgt",
+    "accountCreationSoon": "Registrierung folgt",
+    "emailLabel": "E-Mail",
+    "passwordLabel": "Passwort",
+    "signInButton": "Anmelden",
+    "signInError": "Die Anmeldung ist fehlgeschlagen. Bitte prüfe E-Mail, Passwort und Demo-Auth-Konfiguration.",
+    "demoAccountsTitle": "Demo-Accounts für lokale Tests",
+    "demoAccountsDescription": "Diese Hinweise erscheinen nur in Development/Staging, wenn die Demo-Auth und die Demo-UI ausdrücklich aktiviert sind.",
+    "demoAccountsRole": "Rolle",
+    "demoAccountsPasswordHint": "Das gemeinsame Demo-Passwort steht in der lokalen README und Seed-Ausgabe.",
+    "goToSignup": "Zur Registrierung",
+    "goToSignin": "Zur Anmeldung"
+  },
+  "onboarding": {
+    "eyebrow": "Onboarding",
+    "title": "Richte MerhabaMap auf dich aus.",
+    "description": "Wähle Sprache, Stadt und Interessen, damit dein Einstieg direkt relevanter wird.",
+    "languageTitle": "Sprache",
+    "languageDescription": "Deutsch und Türkisch sind als gleichwertige First-Class-Lokalisierungen eingerichtet.",
+    "cityTitle": "Stadt",
+    "cityDescription": "Pilotstädte: {cities}. Weitere Städte können später ohne Strukturbruch ergänzt werden.",
+    "interestsTitle": "Interessen",
+    "interestsDescription": "Interessen werden bewusst flexibel gespeichert, damit der MVP ohne starres Profilmodell starten kann.",
+    "submit": "Weiter zu MerhabaMap",
+    "success": "Deine Einstellungen wurden gespeichert.",
+    "error": "Die Einstellungen konnten nicht gespeichert werden.",
+    "existingSelections": "Aktuell gespeicherte Interessen",
+    "interests": {
+      "food": "Essen",
+      "events": "Events",
+      "family": "Familie",
+      "students": "Studierende",
+      "business": "Business",
+      "shopping": "Shopping",
+      "community": "Community"
+    }
+  },
+  "placeholders": {
+    "placesEyebrow": "Places",
+    "placesTitle": "Die Places-Listenansicht wird im nächsten Schritt umgesetzt.",
+    "placesDescription": "Schema, Seed-Daten und Routing sind vorhanden. Als Nächstes folgen Queries, Kartenintegration und erste Listenansichten.",
+    "eventsEyebrow": "Events",
+    "eventsTitle": "Die Events-Listenansicht wird im nächsten Schritt umgesetzt.",
+    "eventsDescription": "Die Event-Entität, Zeitfelder und Moderationsstruktur stehen. UI und Datenzugriff folgen inkrementell.",
+    "claimsEyebrow": "Claims",
+    "claimsTitle": "Business Claims sind als Workflow vorbereitet.",
+    "claimsDescription": "Modelle, Rollen und Statuswerte existieren bereits. Formulare und Review-Flows werden separat aufgebaut.",
+    "reportsEyebrow": "Reports",
+    "reportsTitle": "Reports sind als Moderationsgrundlage vorbereitet.",
+    "reportsDescription": "Die Basismodelle für Meldungen und Moderationszustände stehen, ohne die Admin-Oberfläche schon aufzublähen.",
+    "cityTitle": "Die städtische Discovery-Seite wird im nächsten Schritt ergänzt.",
+    "cityDescription": "City-Routing und Lokalisierung sind vorbereitet. Als Nächstes folgen city-basierte Queries und SEO-Detailseiten.",
+    "categoryTitle": "Die Kategorie-Seite wird im nächsten Schritt ergänzt.",
+    "categoryDescription": "Kategorien sind im Seed und Prisma-Modell vorhanden. Filter und Listenlogik folgen separat.",
+    "placeDetailTitle": "Die Place-Detailseite wird im nächsten Schritt ergänzt.",
+    "placeDetailDescription": "Slug-Routing, Datenmodell und spätere Claim-/Report-Anknüpfungspunkte stehen bereits."
+  },
+  "places": {
+    "metaTitle": "Türkische Orte in Deutschland",
+    "metaDescription": "Entdecke Restaurants, Cafés, Märkte und weitere türkische Orte in Berlin und Köln.",
+    "metaTitleCity": "Türkische Orte in {city}",
+    "metaTitleCategory": "{category} für die türkische Community",
+    "metaDescriptionCity": "Entdecke türkische Orte, Restaurants, Märkte und Services in {city}.",
+    "eyebrow": "Places",
+    "title": "Türkische Orte mit lokalem Kontext.",
+    "description": "Finde Restaurants, Cafés, Bäckereien, Märkte und Services aus der türkischen Community in Berlin und Köln.",
+    "resultsCount": "{count, number} Ergebnisse",
+    "filters": {
+      "searchPlaceholder": "Nach Name, Straße oder Ort suchen",
+      "city": "Stadt",
+      "category": "Kategorie",
+      "allCities": "Alle Städte",
+      "allCategories": "Alle Kategorien",
+      "apply": "Filtern",
+      "reset": "Zurücksetzen"
+    },
+    "badges": {
+      "verified": "Verifiziert",
+      "claimed": "Business beansprucht"
+    },
+    "trust": {
+      "claimedTitle": "Beanspruchtes Business-Profil",
+      "claimedDescription": "Dieses Profil ist mit einem genehmigten Business-Claim verknüpft. Das bedeutet noch nicht automatisch, dass alle Angaben von MerhabaMap verifiziert wurden.",
+      "verifiedTitle": "Informationen von MerhabaMap verifiziert",
+      "verifiedDescription": "Wichtige Angaben dieses Ortes wurden zusätzlich von MerhabaMap geprüft oder bestätigt."
+    },
+    "card": {
+      "details": "Details ansehen",
+      "save": "Speichern",
+      "saved": "Gespeichert",
+      "saving": "Wird aktualisiert",
+      "signIn": "Anmelden",
+      "fallbackDescription": "Weitere Informationen folgen."
+    },
+    "empty": {
+      "title": "Keine Orte für diese Auswahl gefunden.",
+      "description": "Versuche eine andere Stadt, eine andere Kategorie oder entferne den Suchbegriff, um mehr Ergebnisse zu sehen.",
+      "reset": "Filter zurücksetzen"
+    },
+    "detail": {
+      "fallbackDescription": "Für diesen Ort ist noch keine Beschreibung verfügbar.",
+      "infoTitle": "Informationen",
+      "address": "Adresse",
+      "missingAddress": "Adresse wird ergänzt.",
+      "phone": "Telefon",
+      "website": "Website",
+      "hoursTitle": "Öffnungszeiten",
+      "hoursUnavailable": "Für diesen Ort liegen noch keine Öffnungszeiten vor.",
+      "mapTitle": "Standort",
+      "mapDescription": "Leichte Karten-Vorschau für den MVP. Externer Kartendienst öffnet bei Bedarf.",
+      "mapUnavailable": "Für diesen Ort sind noch keine Koordinaten hinterlegt. Die Adresse kann trotzdem in OpenStreetMap geöffnet werden.",
+      "openMap": "In Karte öffnen"
+    },
+    "claim": {
+      "title": "Dieses Business beanspruchen",
+      "description": "Wenn du Inhaber oder verantwortlich für diesen Ort bist, sende eine kurze Anfrage an das Moderationsteam.",
+      "nameLabel": "Name",
+      "emailLabel": "E-Mail",
+      "phoneLabel": "Telefon (optional)",
+      "messageLabel": "Nachricht",
+      "messagePlaceholder": "Beschreibe kurz deine Verbindung zu diesem Ort.",
+      "evidenceLabel": "Nachweise (optional)",
+      "evidencePlaceholder": "Zum Beispiel Website, Impressum oder weitere Hinweise in Textform.",
+      "submit": "Claim senden",
+      "signIn": "Zum Claim anmelden",
+      "success": "Dein Claim wurde eingereicht.",
+      "error": "Der Claim konnte nicht gesendet werden. Bitte prüfe deine Angaben."
+    },
+    "report": {
+      "title": "Ort melden",
+      "description": "Hilf mit, die Informationen aktuell und vertrauenswürdig zu halten.",
+      "reasonLabel": "Grund",
+      "detailsLabel": "Details (optional)",
+      "detailsPlaceholder": "Was ist falsch oder problematisch?",
+      "submit": "Meldung senden",
+      "signIn": "Zum Melden anmelden",
+      "success": "Danke, deine Meldung wurde gespeichert.",
+      "error": "Die Meldung konnte nicht gesendet werden. Bitte versuche es erneut.",
+      "reasons": {
+        "inaccurateInformation": "Informationen sind falsch",
+        "duplicate": "Doppelter Eintrag",
+        "closedOrUnavailable": "Geschlossen oder nicht mehr verfügbar",
+        "inappropriateContent": "Unangemessener Inhalt",
+        "spamOrAbuse": "Spam oder Missbrauch",
+        "other": "Etwas anderes"
+      }
+    }
+  },
+  "events": {
+    "metaTitle": "Türkische Events in Deutschland",
+    "metaDescription": "Entdecke Community-Events, Konzerte und kulturelle Veranstaltungen in Berlin und Köln.",
+    "metaTitleCity": "Türkische Events in {city}",
+    "metaTitleCategory": "{category} Events in Deutschland",
+    "metaDescriptionCity": "Entdecke türkische und community-relevante Events in {city}.",
+    "eyebrow": "Events",
+    "title": "Relevante Events für die türkische Community.",
+    "description": "Finde Konzerte, Kulturabende, Community-Treffen und weitere Veranstaltungen mit lokalem Kontext in Berlin und Köln.",
+    "resultsCount": "{count, number} Ergebnisse",
+    "filters": {
+      "searchPlaceholder": "Nach Titel, Venue oder Adresse suchen",
+      "allCities": "Alle Städte",
+      "allCategories": "Alle Kategorien",
+      "allDates": "Alle Zeiträume",
+      "apply": "Filtern",
+      "reset": "Zurücksetzen"
+    },
+    "dateFilters": {
+      "today": "Heute",
+      "thisWeek": "Diese Woche",
+      "thisMonth": "Dieser Monat",
+      "upcoming": "Kommend"
+    },
+    "categories": {
+      "concert": "Konzert",
+      "culture": "Kultur",
+      "student": "Studierende",
+      "community": "Community",
+      "family": "Familie",
+      "business": "Business",
+      "religious": "Religiös"
+    },
+    "card": {
+      "details": "Details ansehen",
+      "external": "Externer Link",
+      "save": "Speichern",
+      "saved": "Gespeichert",
+      "saving": "Wird aktualisiert",
+      "signIn": "Anmelden",
+      "fallbackDescription": "Weitere Eventinformationen folgen."
+    },
+    "empty": {
+      "title": "Keine Events für diese Auswahl gefunden.",
+      "description": "Passe Filter oder Suchbegriff an, um weitere kommende Events zu sehen.",
+      "reset": "Filter zurücksetzen"
+    },
+    "detail": {
+      "fallbackDescription": "Für dieses Event ist noch keine Beschreibung verfügbar.",
+      "infoTitle": "Informationen",
+      "organizer": "Veranstalter",
+      "venue": "Venue",
+      "missingVenue": "Venue wird ergänzt.",
+      "address": "Adresse",
+      "missingAddress": "Adresse wird ergänzt.",
+      "website": "Externer Link",
+      "externalLink": "Zum Event",
+      "mapTitle": "Standort",
+      "mapDescription": "Leichte Karten-Vorschau für den MVP. Externer Kartendienst öffnet bei Bedarf.",
+      "mapUnavailable": "Für dieses Event sind noch keine Koordinaten hinterlegt. Die Adresse kann trotzdem in OpenStreetMap geöffnet werden.",
+      "openMap": "In Karte öffnen",
+      "noticeTitle": "Hinweis zu externen Links",
+      "noticeDescription": "Wenn ein externer Link vorhanden ist, führt er zu einer Drittseite des Veranstalters. MerhabaMap verkauft keine Tickets in diesem MVP."
+    },
+    "report": {
+      "title": "Event melden",
+      "description": "Hilf mit, Eventinformationen aktuell und vertrauenswürdig zu halten.",
+      "reasonLabel": "Grund",
+      "detailsLabel": "Details (optional)",
+      "detailsPlaceholder": "Was ist falsch oder problematisch?",
+      "submit": "Meldung senden",
+      "signIn": "Zum Melden anmelden",
+      "success": "Danke, deine Meldung wurde gespeichert.",
+      "error": "Die Meldung konnte nicht gesendet werden. Bitte versuche es erneut.",
+      "reasons": {
+        "inaccurateInformation": "Informationen sind falsch",
+        "duplicate": "Doppelter Eintrag",
+        "closedOrUnavailable": "Abgesagt oder nicht mehr verfügbar",
+        "inappropriateContent": "Unangemessener Inhalt",
+        "spamOrAbuse": "Spam oder Missbrauch",
+        "other": "Etwas anderes"
+      }
+    }
+  },
+  "admin": {
+    "nav": {
+      "overview": "Übersicht",
+      "reports": "Meldungen",
+      "claims": "Claims",
+      "places": "Places",
+      "logs": "Logs"
+    },
+    "overview": {
+      "title": "Moderation und Trust",
+      "description": "Kompakte interne Übersicht für Claims, Meldungen und letzte Moderationsaktionen.",
+      "openReports": "Offene Meldungen",
+      "pendingClaims": "Offene Claims",
+      "recentActions": "Letzte Aktionen",
+      "noActions": "Noch keine Moderationsaktionen vorhanden."
+    },
+    "reports": {
+      "title": "Meldungen prüfen",
+      "description": "Alle eingehenden Place- und Event-Meldungen mit einfachem Review-Workflow.",
+      "empty": "Keine Meldungen gefunden.",
+      "filters": {
+        "reset": "Alle Meldungen",
+        "open": "Nur offen",
+        "placeOnly": "Nur Places"
+      }
+    },
+    "reportDetail": {
+      "title": "Meldungsdetails",
+      "description": "Prüfe die gemeldeten Inhalte und setze den passenden Status.",
+      "reason": "Grund",
+      "details": "Details",
+      "noDetails": "Keine zusätzlichen Details angegeben.",
+      "author": "Gemeldet von",
+      "target": "Ziel",
+      "unknown": "Unbekannt",
+      "reviewActions": "Review-Aktionen",
+      "actions": {
+        "inReview": "In Prüfung",
+        "resolve": "Lösen",
+        "reject": "Ablehnen",
+        "success": "Der Status wurde aktualisiert.",
+        "error": "Die Aktion konnte nicht gespeichert werden."
+      }
+    },
+    "claims": {
+      "title": "Business Claims prüfen",
+      "description": "Prüfe Place-Claims und bestätige oder lehne sie ab.",
+      "empty": "Keine Claims gefunden.",
+      "filters": {
+        "reset": "Alle Claims",
+        "pending": "Nur offen",
+        "approved": "Nur genehmigt"
+      }
+    },
+    "claimDetail": {
+      "title": "Claim-Details",
+      "description": "Prüfe die eingereichten Angaben und entscheide über die Place-Verifizierung.",
+      "place": "Place",
+      "user": "Nutzerkonto",
+      "phone": "Telefon",
+      "message": "Nachricht",
+      "evidence": "Nachweise",
+      "currentOwner": "Aktueller Owner",
+      "trustState": "Trust-Status",
+      "noPhone": "Keine Telefonnummer angegeben.",
+      "noMessage": "Keine Nachricht angegeben.",
+      "noEvidence": "Keine Nachweise angegeben.",
+      "noOwner": "Noch kein aktiver Owner verknüpft.",
+      "unknown": "Unbekannt",
+      "goToPlace": "Place-Trust öffnen",
+      "reviewActions": "Review-Aktionen",
+      "actions": {
+        "approve": "Claim genehmigen",
+        "reject": "Claim ablehnen",
+        "success": "Der Claim wurde aktualisiert.",
+        "error": "Die Aktion konnte nicht gespeichert werden."
+      }
+    },
+    "logs": {
+      "title": "Admin-Logs",
+      "description": "Letzte Moderations- und Admin-Aktionen für Nachvollziehbarkeit.",
+      "empty": "Noch keine Logs vorhanden."
+    },
+    "reportStatuses": {
+      "open": "Offen",
+      "in_review": "In Prüfung",
+      "resolved": "Gelöst",
+      "rejected": "Abgelehnt"
+    },
+    "claimStatuses": {
+      "pending": "Offen",
+      "approved": "Genehmigt",
+      "rejected": "Abgelehnt"
+    },
+    "verificationStatuses": {
+      "unverified": "Unverifiziert",
+      "claimed": "Beansprucht",
+      "verified": "Verifiziert"
+    },
+    "places": {
+      "title": "Places und Ownership",
+      "description": "Prüfe Owner-Zuordnung, Trust-Status und zuletzt gepflegte Business-Daten.",
+      "empty": "Keine Places gefunden.",
+      "noOwner": "Kein verknüpfter Owner"
+    },
+    "placeDetail": {
+      "title": "Place-Trust steuern",
+      "description": "Verwalte Owner-Zuordnung und Trust-Status dieses Places mit klaren, nicht irreführenden Zuständen.",
+      "publicPage": "Öffentliche Seite",
+      "owner": "Owner",
+      "noOwner": "Kein Owner verknüpft.",
+      "phone": "Telefon",
+      "noPhone": "Keine Telefonnummer gepflegt.",
+      "website": "Website",
+      "noWebsite": "Keine Website gepflegt.",
+      "lastVerified": "Zuletzt verifiziert",
+      "notVerified": "Bisher nicht verifiziert.",
+      "trustActions": "Trust-Aktionen",
+      "actions": {
+        "unverified": "Als unverifiziert markieren",
+        "claimed": "Als beansprucht markieren",
+        "verified": "Als verifiziert markieren",
+        "success": "Der Trust-Status wurde aktualisiert.",
+        "error": "Der Trust-Status konnte nicht gespeichert werden."
+      }
+    }
+  },
+  "footer": {
+    "tagline": "Discovery-Plattform für türkische Orte und Events in Deutschland.",
+    "berlin": "Berlin entdecken",
+    "koeln": "Köln entdecken",
+    "copyright": "© MerhabaMap. Alle Rechte vorbehalten."
+  },
+  "cities": {
+    "metaTitle": "Türkische Orte und Events in {city}",
+    "metaDescription": "Entdecke türkische Orte, Events und lokale Einstiegspunkte in {city}.",
+    "eyebrow": "Stadt entdecken",
+    "title": "{city} auf MerhabaMap",
+    "description": "Starte deine Discovery in {city} mit kuratierten Orten, relevanten Events und klaren nächsten Schritten.",
+    "stats": {
+      "places": "Veröffentlichte Orte",
+      "events": "Veröffentlichte Events",
+      "status": "MVP Status",
+      "statusValue": "Live"
+    },
+    "ctas": {
+      "places": "Orte in {city} ansehen",
+      "events": "Events in {city} ansehen",
+      "signUp": "Registrieren und speichern"
+    },
+    "sections": {
+      "places": "Ausgewählte Orte",
+      "events": "Kommende Events",
+      "viewAllPlaces": "Alle Orte der Stadt",
+      "viewAllEvents": "Alle Events der Stadt"
+    },
+    "emptyPlaces": "Für diese Stadt sind noch keine hervorgehobenen Orte sichtbar. Nutze trotzdem die Places-Liste für neue Einträge.",
+    "emptyEvents": "Für diese Stadt sind aktuell keine kommenden Events sichtbar. Über die Events-Liste findest du neue Einträge, sobald sie veröffentlicht werden."
+  },
+  "saved": {
+    "common": {
+      "details": "Details ansehen",
+      "save": "Speichern",
+      "saved": "Gespeichert",
+      "saving": "Wird aktualisiert",
+      "signIn": "Anmelden",
+      "verified": "Verifiziert",
+      "claimed": "Beansprucht",
+      "external": "Externer Link"
+    },
+    "places": {
+      "eyebrow": "Gespeicherte Orte",
+      "title": "Deine gespeicherten Orte",
+      "description": "Orte, die du für später markiert hast.",
+      "emptyTitle": "Noch keine Orte gespeichert",
+      "emptyDescription": "Speichere Restaurants, Cafés oder Services, um sie hier schnell wiederzufinden.",
+      "cta": "Orte entdecken",
+      "fallbackDescription": "Weitere Informationen folgen."
+    },
+    "events": {
+      "eyebrow": "Gespeicherte Events",
+      "title": "Deine gespeicherten Events",
+      "description": "Events, die du für später markiert hast.",
+      "emptyTitle": "Noch keine Events gespeichert",
+      "emptyDescription": "Speichere kommende Events, um sie hier wiederzufinden.",
+      "cta": "Events entdecken",
+      "fallbackDescription": "Weitere Eventinformationen folgen."
+    }
+  },
+  "profile": {
+    "eyebrow": "Profil",
+    "title": "Dein MerhabaMap Profil",
+    "description": "Verwalte deine grundlegenden Einstellungen, damit Orte und Events besser zu dir passen.",
+    "fallbackName": "MerhabaMap Nutzer",
+    "summary": {
+      "language": "Sprache",
+      "city": "Stadt",
+      "noCity": "Noch keine Stadt gewählt"
+    },
+    "nextSteps": {
+      "title": "Empfohlene nächste Schritte",
+      "places": "Orte in deiner Stadt entdecken",
+      "events": "Events in deiner Stadt entdecken",
+      "saved": "Gespeicherte Orte ansehen"
+    },
+    "form": {
+      "name": "Name",
+      "username": "Username",
+      "email": "E-Mail",
+      "language": "Bevorzugte Sprache",
+      "city": "Stadt",
+      "interests": "Interessen",
+      "submit": "Profil speichern",
+      "success": "Dein Profil wurde aktualisiert.",
+      "error": "Das Profil konnte nicht gespeichert werden.",
+      "validationError": "Bitte pruefe deine Angaben und versuche es erneut.",
+      "usernameTaken": "Dieser Username ist bereits vergeben."
+    },
+    "interests": {
+      "food": "Essen",
+      "events": "Events",
+      "family": "Familie",
+      "students": "Studierende",
+      "business": "Business",
+      "shopping": "Shopping",
+      "community": "Community"
+    }
+  },
+  "business": {
+    "eyebrow": "Business",
+    "title": "Deine beanspruchten Places",
+    "description": "Verwalte eine kleine, sichere Teilmenge deiner Business-Informationen. Trust- und Systemstatus bleiben getrennt und kontrolliert.",
+    "empty": {
+      "title": "Noch keine verwaltbaren Places",
+      "description": "Sobald ein Claim genehmigt und dir ein Place zugeordnet wurde, erscheint er hier."
+    },
+    "card": {
+      "city": "Stadt",
+      "manage": "Place verwalten",
+      "openPublic": "Öffentliche Seite",
+      "lastUpdated": "Letztes Business-Update",
+      "notUpdated": "Noch kein Update"
+    },
+    "trust": {
+      "claimedBadge": "Beansprucht",
+      "verifiedBadge": "Verifiziert",
+      "claimedTitle": "Beanspruchtes Business-Profil",
+      "claimedDescription": "Dieser Place ist einem genehmigten Owner zugeordnet. Das ist getrennt von einer zusätzlichen MerhabaMap-Verifizierung.",
+      "verifiedTitle": "Zusätzlich verifiziert",
+      "verifiedDescription": "Dieser Place wurde nach dem Claim zusätzlich von MerhabaMap geprüft."
+    },
+    "placePage": {
+      "subtitle": "Nur für den verknüpften Owner sichtbar.",
+      "boundariesTitle": "Was du hier ändern kannst",
+      "boundariesDescription": "Du kannst nur risikoarme Profilfelder wie Telefon, Website, Beschreibungen und Öffnungszeiten pflegen. Status, Ownership, Standort und Moderation bleiben geschützt."
+    },
+    "form": {
+      "title": "Business-Profil pflegen",
+      "description": "Aktualisiere sichtbare Basisinformationen für dein Place-Profil.",
+      "phone": "Telefon",
+      "website": "Website",
+      "descriptionDe": "Beschreibung (DE)",
+      "descriptionTr": "Beschreibung (TR)",
+      "openingHours": "Öffnungszeiten JSON",
+      "openingHoursHint": "Für den MVP werden Öffnungszeiten als einfaches JSON-Array gepflegt.",
+      "submit": "Änderungen speichern",
+      "success": "Die Business-Informationen wurden aktualisiert.",
+      "error": "Die Änderungen konnten nicht gespeichert werden."
+    }
+  }
+}

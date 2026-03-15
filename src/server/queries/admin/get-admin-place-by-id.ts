@@ -1,0 +1,50 @@
+import { prisma } from "@/lib/prisma";
+
+export async function getAdminPlaceById(id: string) {
+  return prisma.place.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      slug: true,
+      name: true,
+      verificationStatus: true,
+      moderationStatus: true,
+      phone: true,
+      websiteUrl: true,
+      lastBusinessUpdateAt: true,
+      owner: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+        },
+      },
+      verifiedAt: true,
+      verifiedBy: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+      city: {
+        select: {
+          nameDe: true,
+          nameTr: true,
+        },
+      },
+      claims: {
+        orderBy: { createdAt: "desc" },
+        take: 5,
+        select: {
+          id: true,
+          status: true,
+          claimantName: true,
+          claimantEmail: true,
+          createdAt: true,
+        },
+      },
+    },
+  });
+}

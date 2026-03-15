@@ -1,0 +1,611 @@
+{
+  "common": {
+    "brandName": "MerhabaMap",
+    "taglineShort": "Turk mekanlari ve etkinlikler",
+    "cities": "Sehirler",
+    "places": "Mekanlar",
+    "events": "Etkinlikler",
+    "business": "Business",
+    "signUp": "Kayit ol",
+    "signIn": "Giris yap",
+    "account": "Hesap",
+    "save": "Kaydet",
+    "saved": "Kaydedildi"
+  },
+  "landing": {
+    "metaTitle": "Almanya'da Turk mekanlari ve etkinlikler",
+    "metaDescription": "Berlin ve Koln odakli Turk mekanlarini, etkinlikleri ve yerel isletmeleri kesfet.",
+    "eyebrow": "Almanya icin iki dilli baslangic",
+    "title": "Almanya'da Turk mekanlarini, etkinliklerini ve yerel ilgiyi kesfet.",
+    "subtitle": "MerhabaMap; Berlin ve Koln icin Turk restoranlarini, kafeleri, topluluk etkinliklerini ve guvenilir yerel bilgileri iki dilli olarak bir araya getirir.",
+    "explorePlaces": "Mekanlari kesfet",
+    "browseEvents": "Etkinlikleri gor",
+    "heroTrust": {
+      "title": "Almanya cikisi",
+      "curated": "Belirsiz bir liste yerine secilmis bir kesif temeli.",
+      "cityFirst": "Berlin ve Koln icin acik, yerel odakli MVP cikisi.",
+      "reportable": "Bildirimler, claim akisi ve moderasyon en bastan dusunuluyor."
+    },
+    "cards": {
+      "places": {
+        "eyebrow": "Mekanlar",
+        "title": "Rastgele degil, secilmis",
+        "description": "Turk restoranlari, firinlar, marketler, camiler ve hizmetler net kategoriler ve ileride dogrulama destegiyle listelenecek."
+      },
+      "events": {
+        "eyebrow": "Etkinlikler",
+        "title": "Yerel olarak anlamli",
+        "description": "Kultur bulusmalari, topluluk etkinlikleri ve sehre bagli organizasyonlar aranabilir bir MVP yapisiyla sunulacak."
+      },
+      "cities": {
+        "eyebrow": "Sehirler",
+        "title": "Sehir odakli kesif",
+        "description": "Public city sayfalari Berlin ve Koln icin mekanlari, etkinlikleri ve sonraki adimlari arama dostu bir yapida toplar."
+      }
+    },
+    "pilotSection": {
+      "eyebrow": "Pilot sehirler",
+      "title": "En guclu yerel giris noktalarindan basla.",
+      "description": "Berlin ve Koln, MVP icin public discovery cekirdegini olusturur. Mekanlar, etkinlikler ve guvenilir yerel sinyaller buradan buyur.",
+      "cta": "Sehri kesfet",
+      "placesLabel": "Mekanlar",
+      "eventsLabel": "Etkinlikler"
+    },
+    "howItWorks": {
+      "eyebrow": "Nasil calisir",
+      "title": "Platform karmasasi yerine net bir giris.",
+      "description": "MerhabaMap ziyaretciyi once sehir ve ilgi alanindan somut mekanlara ve etkinliklere yonlendirir.",
+      "steps": {
+        "one": {
+          "title": "Sehir sec",
+          "description": "Berlin veya Koln ile basla ve yerel odakli bir kesif sayfasi ac."
+        },
+        "two": {
+          "title": "Mekan ve etkinlikleri bul",
+          "description": "Restoran, kafe, market, topluluk etkinligi ve diger ilgili bulusma noktalarina goz at."
+        },
+        "three": {
+          "title": "Kaydet ve geri don",
+          "description": "Hesapla favorilerini saklayabilir, sehir ve ilgi alanina gore deneyimini duzenleyebilirsin."
+        }
+      }
+    },
+    "trust": {
+      "eyebrow": "Guven",
+      "title": "Sinirlari net, sinyalleri temiz public discovery.",
+      "description": "MerhabaMap ancak verilerin destekledigi kadar iddiali olmali; daha fazlasini vaat etmemeli.",
+      "items": {
+        "quality": {
+          "title": "Secilmis MVP",
+          "description": "Sadece yayinlanmis ve onaylanmis mekanlar ile etkinlikler herkese acik gosterilir."
+        },
+        "reports": {
+          "title": "Gorme gelme, bildir",
+          "description": "Kullanicilar sorunlu kayitlari bildirerek bilgilerin daha hizli incelenmesine yardim eder."
+        },
+        "claims": {
+          "title": "Claim edilebilir isletmeler",
+          "description": "Isletmeler sahiplik talebi gonderebilir; bu da yaniltici dogrulama vaatlerine donusmez."
+        }
+      }
+    },
+    "cta": {
+      "eyebrow": "Siradaki adim",
+      "title": "Once kesfet, sana faydaliysa kayit ol.",
+      "description": "Platform aramaya acik kalir. Hesap ise kaydetme, kisisellestirme ve guvenli katkilar icin yardimci olur.",
+      "primary": "Mekanlari gor",
+      "secondary": "Etkinlikleri gor",
+      "tertiary": "Hesap olustur"
+    }
+  },
+  "auth": {
+    "eyebrow": "Kimlik dogrulama",
+    "signInTitle": "Demo veya gelistirme hesabinla giris yap.",
+    "signInDescription": "Demo auth acikca etkinlestirildiginde, local ve staging testleri icin hash'lenmis sifrelerle basit bir credentials girisi kullanilabilir.",
+    "signUpTitle": "Kayit akisi guvenli ve dogrulanmis sekilde kurulacak.",
+    "signUpDescription": "Account, session ve verification token modelleri hazir. Bu adimda urun arayuzu bilincli olarak sade tutuldu.",
+    "verifyEmailTitle": "E-posta dogrulama altyapisi hazir.",
+    "verifyEmailDescription": "Gercek e-posta gonderimi ve durum sayfalari bir sonraki inkrementte eklenecek.",
+    "emailLoginSoon": "E-posta girisi yakinda",
+    "accountCreationSoon": "Kayit yakinda",
+    "emailLabel": "E-posta",
+    "passwordLabel": "Sifre",
+    "signInButton": "Giris yap",
+    "signInError": "Giris basarisiz oldu. E-posta, sifre ve demo auth ayarlarini kontrol et.",
+    "demoAccountsTitle": "Local testler icin demo hesaplar",
+    "demoAccountsDescription": "Bu bilgiler yalnizca demo auth ve demo UI acikca etkinlestirildiginde development/staging ortaminda gosterilir.",
+    "demoAccountsRole": "Rol",
+    "demoAccountsPasswordHint": "Ortak demo sifresi local README ve seed cikisinda yer alir.",
+    "goToSignup": "Kayit sayfasina git",
+    "goToSignin": "Giris sayfasina git"
+  },
+  "onboarding": {
+    "eyebrow": "Onboarding",
+    "title": "MerhabaMap'i kendine gore ayarla.",
+    "description": "Dilini, sehrini ve ilgi alanlarini sec; boylece ilk deneyim daha ilgili olsun.",
+    "languageTitle": "Dil",
+    "languageDescription": "Almanca ve Turkce esdeger birinci sinif lokalizasyon olarak kuruldu.",
+    "cityTitle": "Sehir",
+    "cityDescription": "Pilot sehirler: {cities}. Daha fazla sehir yapiyi bozmadan daha sonra eklenebilir.",
+    "interestsTitle": "Ilgi alanlari",
+    "interestsDescription": "Ilgi alanlari MVP boyunca esnek tutuluyor; kati bir profil modeli zorunlu degil.",
+    "submit": "MerhabaMap'e devam et",
+    "success": "Tercihlerin kaydedildi.",
+    "error": "Tercihler kaydedilemedi.",
+    "existingSelections": "Kayitli ilgi alanlari",
+    "interests": {
+      "food": "Yeme icme",
+      "events": "Etkinlikler",
+      "family": "Aile",
+      "students": "Ogrenciler",
+      "business": "Is dunyasi",
+      "shopping": "Alisveris",
+      "community": "Topluluk"
+    }
+  },
+  "placeholders": {
+    "placesEyebrow": "Mekanlar",
+    "placesTitle": "Mekan listeleme ekrani sonraki adimda gelistirilecek.",
+    "placesDescription": "Schema, seed verileri ve routing hazir. Sonraki adimda query katmani, harita entegrasyonu ve ilk liste ekranlari gelecek.",
+    "eventsEyebrow": "Etkinlikler",
+    "eventsTitle": "Etkinlik listeleme ekrani sonraki adimda gelistirilecek.",
+    "eventsDescription": "Event modeli, zaman alanlari ve moderasyon yapisi hazir. UI ve veri erisimi kademeli olarak eklenecek.",
+    "claimsEyebrow": "Claim",
+    "claimsTitle": "Isletme claim akisi altyapi olarak hazir.",
+    "claimsDescription": "Modeller, roller ve durumlar mevcut. Formlar ve inceleme akislari ayri bir adimda kurulacak.",
+    "reportsEyebrow": "Raporlar",
+    "reportsTitle": "Raporlama moderasyon temeli olarak hazir.",
+    "reportsDescription": "Bildirim ve moderasyon durumlari icin temel modeller var; admin arayuzu simdilik bilincli olarak dar tutuldu.",
+    "cityTitle": "Sehir bazli kesif sayfasi sonraki adimda eklenecek.",
+    "cityDescription": "Sehir routing yapisi ve lokalizasyon hazir. Sonraki adimda sehir tabanli queryler ve SEO detay sayfalari gelecek.",
+    "categoryTitle": "Kategori sayfasi sonraki adimda eklenecek.",
+    "categoryDescription": "Kategoriler seed ve Prisma modelinde mevcut. Filtreleme ve listeleme mantigi ayri bir adimda gelecek.",
+    "placeDetailTitle": "Mekan detay sayfasi sonraki adimda eklenecek.",
+    "placeDetailDescription": "Slug routing, veri modeli ve ilerideki claim/rapor baglanti noktalari simdiden hazir."
+  },
+  "places": {
+    "metaTitle": "Almanya'daki Turk mekanlari",
+    "metaDescription": "Berlin ve Koln'de restoran, kafe, market ve diger Turk mekanlarini kesfet.",
+    "metaTitleCity": "{city} icin Turk mekanlari",
+    "metaTitleCategory": "Turk toplulugu icin {category}",
+    "metaDescriptionCity": "{city} icindeki Turk mekanlarini, restoranlari, marketleri ve hizmetleri kesfet.",
+    "eyebrow": "Mekanlar",
+    "title": "Yerel baglami olan Turk mekanlari.",
+    "description": "Berlin ve Koln'de Turk topluluguna yakin restoranlari, kafeleri, firinlari, marketleri ve hizmetleri bul.",
+    "resultsCount": "{count, number} sonuc",
+    "filters": {
+      "searchPlaceholder": "Isim, sokak veya mekan ara",
+      "city": "Sehir",
+      "category": "Kategori",
+      "allCities": "Tum sehirler",
+      "allCategories": "Tum kategoriler",
+      "apply": "Filtrele",
+      "reset": "Sifirla"
+    },
+    "badges": {
+      "verified": "Dogrulandi",
+      "claimed": "Isletme claim edildi"
+    },
+    "trust": {
+      "claimedTitle": "Claim edilmis isletme profili",
+      "claimedDescription": "Bu profil onayli bir business claim ile baglantiya sahip. Bu durum, tum bilgilerin MerhabaMap tarafindan ayrica dogrulandigi anlamina gelmez.",
+      "verifiedTitle": "Bilgiler MerhabaMap tarafindan dogrulandi",
+      "verifiedDescription": "Bu mekanin temel bilgileri MerhabaMap tarafindan ayrica incelendi veya onaylandi."
+    },
+    "card": {
+      "details": "Detaylari gor",
+      "save": "Kaydet",
+      "saved": "Kaydedildi",
+      "saving": "Guncelleniyor",
+      "signIn": "Giris yap",
+      "fallbackDescription": "Bu mekan icin yakinda daha fazla bilgi eklenecek."
+    },
+    "empty": {
+      "title": "Bu secim icin mekan bulunamadi.",
+      "description": "Daha fazla sonuc icin farkli bir sehir veya kategori sec ya da arama kelimesini kaldir.",
+      "reset": "Filtreleri sifirla"
+    },
+    "detail": {
+      "fallbackDescription": "Bu mekan icin henuz aciklama bulunmuyor.",
+      "infoTitle": "Bilgiler",
+      "address": "Adres",
+      "missingAddress": "Adres daha sonra eklenecek.",
+      "phone": "Telefon",
+      "website": "Web sitesi",
+      "hoursTitle": "Acilis saatleri",
+      "hoursUnavailable": "Bu mekan icin henuz acilis saati bilgisi yok.",
+      "mapTitle": "Konum",
+      "mapDescription": "MVP icin hafif bir harita onizlemesi sunuluyor. Gerekirse harici harita servisi acilir.",
+      "mapUnavailable": "Bu mekan icin henuz koordinat yok. Yine de adres OpenStreetMap uzerinde acilabilir.",
+      "openMap": "Haritada ac"
+    },
+    "claim": {
+      "title": "Bu isletmeyi sahiplen",
+      "description": "Bu mekanin sahibi ya da sorumlusuysan, moderasyon ekibine kisa bir basvuru gonder.",
+      "nameLabel": "Isim",
+      "emailLabel": "E-posta",
+      "phoneLabel": "Telefon (istege bagli)",
+      "messageLabel": "Mesaj",
+      "messagePlaceholder": "Bu mekanla baglantini kisaca acikla.",
+      "evidenceLabel": "Kanıtlar (istege bagli)",
+      "evidencePlaceholder": "Ornegin web sitesi, yasal bilgiler veya metin olarak ek notlar.",
+      "submit": "Claim gonder",
+      "signIn": "Claim icin giris yap",
+      "success": "Claim basarinla gonderildi.",
+      "error": "Claim gonderilemedi. Lutfen bilgileri kontrol et."
+    },
+    "report": {
+      "title": "Mekani bildir",
+      "description": "Bilgilerin guncel ve guvenilir kalmasina yardim et.",
+      "reasonLabel": "Sebep",
+      "detailsLabel": "Detaylar (istege bagli)",
+      "detailsPlaceholder": "Sorun veya yanlis bilgi nedir?",
+      "submit": "Bildirimi gonder",
+      "signIn": "Bildirim icin giris yap",
+      "success": "Tesekkurler, bildirimin kaydedildi.",
+      "error": "Bildirim gonderilemedi. Lutfen tekrar dene.",
+      "reasons": {
+        "inaccurateInformation": "Bilgiler yanlis",
+        "duplicate": "Mukerrer kayit",
+        "closedOrUnavailable": "Kapali veya artik mevcut degil",
+        "inappropriateContent": "Uygunsuz icerik",
+        "spamOrAbuse": "Spam veya kotuye kullanim",
+        "other": "Baska bir sey"
+      }
+    }
+  },
+  "events": {
+    "metaTitle": "Almanya'daki Turk etkinlikleri",
+    "metaDescription": "Berlin ve Koln'de topluluk etkinliklerini, konserleri ve kultur programlarini kesfet.",
+    "metaTitleCity": "{city} icin Turk etkinlikleri",
+    "metaTitleCategory": "Almanya'da {category} etkinlikleri",
+    "metaDescriptionCity": "{city} icindeki Turk ve topluluk odakli etkinlikleri kesfet.",
+    "eyebrow": "Etkinlikler",
+    "title": "Turk toplulugu icin anlamli etkinlikler.",
+    "description": "Berlin ve Koln'de konserler, kultur geceleri, topluluk bulusmalari ve diger yerel etkinlikleri bul.",
+    "resultsCount": "{count, number} sonuc",
+    "filters": {
+      "searchPlaceholder": "Baslik, venue veya adres ara",
+      "allCities": "Tum sehirler",
+      "allCategories": "Tum kategoriler",
+      "allDates": "Tum zamanlar",
+      "apply": "Filtrele",
+      "reset": "Sifirla"
+    },
+    "dateFilters": {
+      "today": "Bugun",
+      "thisWeek": "Bu hafta",
+      "thisMonth": "Bu ay",
+      "upcoming": "Yaklasan"
+    },
+    "categories": {
+      "concert": "Konser",
+      "culture": "Kultur",
+      "student": "Ogrenci",
+      "community": "Topluluk",
+      "family": "Aile",
+      "business": "Is dunyasi",
+      "religious": "Dini"
+    },
+    "card": {
+      "details": "Detaylari gor",
+      "external": "Harici link",
+      "save": "Kaydet",
+      "saved": "Kaydedildi",
+      "saving": "Guncelleniyor",
+      "signIn": "Giris yap",
+      "fallbackDescription": "Bu etkinlik icin yakinda daha fazla bilgi eklenecek."
+    },
+    "empty": {
+      "title": "Bu secim icin etkinlik bulunamadi.",
+      "description": "Daha fazla yaklasan etkinlik gormek icin filtreleri veya arama kelimesini degistir.",
+      "reset": "Filtreleri sifirla"
+    },
+    "detail": {
+      "fallbackDescription": "Bu etkinlik icin henuz aciklama bulunmuyor.",
+      "infoTitle": "Bilgiler",
+      "organizer": "Duzenleyen",
+      "venue": "Venue",
+      "missingVenue": "Venue bilgisi daha sonra eklenecek.",
+      "address": "Adres",
+      "missingAddress": "Adres daha sonra eklenecek.",
+      "website": "Harici link",
+      "externalLink": "Etkinlige git",
+      "mapTitle": "Konum",
+      "mapDescription": "MVP icin hafif bir harita onizlemesi sunuluyor. Gerekirse harici harita servisi acilir.",
+      "mapUnavailable": "Bu etkinlik icin henuz koordinat yok. Yine de adres OpenStreetMap uzerinde acilabilir.",
+      "openMap": "Haritada ac",
+      "noticeTitle": "Harici link notu",
+      "noticeDescription": "Harici link varsa, etkinlik duzenleyicisinin ucuncu taraf sayfasina gider. Bu MVP'de MerhabaMap bilet satmaz."
+    },
+    "report": {
+      "title": "Etkinligi bildir",
+      "description": "Etkinlik bilgilerinin guncel ve guvenilir kalmasina yardim et.",
+      "reasonLabel": "Sebep",
+      "detailsLabel": "Detaylar (istege bagli)",
+      "detailsPlaceholder": "Sorun veya yanlis bilgi nedir?",
+      "submit": "Bildirimi gonder",
+      "signIn": "Bildirim icin giris yap",
+      "success": "Tesekkurler, bildirimin kaydedildi.",
+      "error": "Bildirim gonderilemedi. Lutfen tekrar dene.",
+      "reasons": {
+        "inaccurateInformation": "Bilgiler yanlis",
+        "duplicate": "Mukerrer kayit",
+        "closedOrUnavailable": "Iptal edildi veya artik mevcut degil",
+        "inappropriateContent": "Uygunsuz icerik",
+        "spamOrAbuse": "Spam veya kotuye kullanim",
+        "other": "Baska bir sey"
+      }
+    }
+  },
+  "admin": {
+    "nav": {
+      "overview": "Genel bakis",
+      "reports": "Bildirimler",
+      "claims": "Claimler",
+      "places": "Placeler",
+      "logs": "Loglar"
+    },
+    "overview": {
+      "title": "Moderasyon ve guven",
+      "description": "Claimler, bildirimler ve son moderasyon aksiyonlari icin kompakt dahili gorunum.",
+      "openReports": "Acik bildirimler",
+      "pendingClaims": "Bekleyen claimler",
+      "recentActions": "Son aksiyonlar",
+      "noActions": "Henuz moderasyon aksiyonu yok."
+    },
+    "reports": {
+      "title": "Bildirimleri incele",
+      "description": "Place ve event bildirimlerini basit bir inceleme akisi ile yonet.",
+      "empty": "Bildirim bulunamadi.",
+      "filters": {
+        "reset": "Tum bildirimler",
+        "open": "Sadece acik",
+        "placeOnly": "Sadece place"
+      }
+    },
+    "reportDetail": {
+      "title": "Bildirim detaylari",
+      "description": "Bildirilen icerigi incele ve uygun durumu sec.",
+      "reason": "Sebep",
+      "details": "Detaylar",
+      "noDetails": "Ek detay girilmemis.",
+      "author": "Bildiren",
+      "target": "Hedef",
+      "unknown": "Bilinmiyor",
+      "reviewActions": "Inceleme aksiyonlari",
+      "actions": {
+        "inReview": "Incelemede",
+        "resolve": "Cozuldu",
+        "reject": "Reddet",
+        "success": "Durum guncellendi.",
+        "error": "Aksiyon kaydedilemedi."
+      }
+    },
+    "claims": {
+      "title": "Business claimleri incele",
+      "description": "Place claimlerini kontrol et ve onayla veya reddet.",
+      "empty": "Claim bulunamadi.",
+      "filters": {
+        "reset": "Tum claimler",
+        "pending": "Sadece bekleyen",
+        "approved": "Sadece onaylanan"
+      }
+    },
+    "claimDetail": {
+      "title": "Claim detaylari",
+      "description": "Gonderilen bilgileri incele ve place dogrulamasina karar ver.",
+      "place": "Place",
+      "user": "Kullanici hesabi",
+      "phone": "Telefon",
+      "message": "Mesaj",
+      "evidence": "Kanıtlar",
+      "currentOwner": "Guncel owner",
+      "trustState": "Trust durumu",
+      "noPhone": "Telefon numarasi girilmemis.",
+      "noMessage": "Mesaj girilmemis.",
+      "noEvidence": "Kanıt girilmemis.",
+      "noOwner": "Henuz aktif bir owner baglanmamis.",
+      "unknown": "Bilinmiyor",
+      "goToPlace": "Place trust ekranina git",
+      "reviewActions": "Inceleme aksiyonlari",
+      "actions": {
+        "approve": "Claimi onayla",
+        "reject": "Claimi reddet",
+        "success": "Claim guncellendi.",
+        "error": "Aksiyon kaydedilemedi."
+      }
+    },
+    "logs": {
+      "title": "Admin loglari",
+      "description": "Izlenebilirlik icin son moderasyon ve admin aksiyonlari.",
+      "empty": "Henuz log yok."
+    },
+    "reportStatuses": {
+      "open": "Acik",
+      "in_review": "Incelemede",
+      "resolved": "Cozuldu",
+      "rejected": "Reddedildi"
+    },
+    "claimStatuses": {
+      "pending": "Bekliyor",
+      "approved": "Onaylandi",
+      "rejected": "Reddedildi"
+    },
+    "verificationStatuses": {
+      "unverified": "Dogrulanmamis",
+      "claimed": "Claim edildi",
+      "verified": "Dogrulandi"
+    },
+    "places": {
+      "title": "Placeler ve ownership",
+      "description": "Owner baglantisini, trust durumunu ve son guncellenen business alanlarini incele.",
+      "empty": "Place bulunamadi.",
+      "noOwner": "Bagli owner yok"
+    },
+    "placeDetail": {
+      "title": "Place trust yonetimi",
+      "description": "Bu place icin owner baglantisini ve trust durumunu acik, yaniltici olmayan durumlarla yonet.",
+      "publicPage": "Public sayfa",
+      "owner": "Owner",
+      "noOwner": "Bagli owner yok.",
+      "phone": "Telefon",
+      "noPhone": "Telefon numarasi girilmemis.",
+      "website": "Web sitesi",
+      "noWebsite": "Web sitesi girilmemis.",
+      "lastVerified": "Son dogrulama",
+      "notVerified": "Henuz dogrulanmadi.",
+      "trustActions": "Trust aksiyonlari",
+      "actions": {
+        "unverified": "Dogrulanmamis olarak isaretle",
+        "claimed": "Claim edildi olarak isaretle",
+        "verified": "Dogrulandi olarak isaretle",
+        "success": "Trust durumu guncellendi.",
+        "error": "Trust durumu kaydedilemedi."
+      }
+    }
+  },
+  "footer": {
+    "tagline": "Almanya'daki Turk mekanlari ve etkinlikleri icin kesif platformu.",
+    "berlin": "Berlin'i kesfet",
+    "koeln": "Koln'u kesfet",
+    "copyright": "© MerhabaMap. Tum haklari saklidir."
+  },
+  "cities": {
+    "metaTitle": "{city} icin Turk mekanlari ve etkinlikleri",
+    "metaDescription": "{city} icinde Turk mekanlarini, etkinliklerini ve yerel giris noktalarini kesfet.",
+    "eyebrow": "Sehir kesfi",
+    "title": "MerhabaMap'te {city}",
+    "description": "{city} icin secilmis mekanlar, ilgili etkinlikler ve net sonraki adimlarla kesfe basla.",
+    "stats": {
+      "places": "Yayinlanan mekanlar",
+      "events": "Yayinlanan etkinlikler",
+      "status": "MVP durumu",
+      "statusValue": "Yayinda"
+    },
+    "ctas": {
+      "places": "{city} mekanlarini gor",
+      "events": "{city} etkinliklerini gor",
+      "signUp": "Kayit ol ve kaydet"
+    },
+    "sections": {
+      "places": "One cikan mekanlar",
+      "events": "Yaklasan etkinlikler",
+      "viewAllPlaces": "Sehrin tum mekanlari",
+      "viewAllEvents": "Sehrin tum etkinlikleri"
+    },
+    "emptyPlaces": "Bu sehir icin henuz one cikan mekan gorunmuyor. Yine de yeni kayitlar icin mekan listesine gecebilirsin.",
+    "emptyEvents": "Bu sehir icin simdilik yaklasan etkinlik gorunmuyor. Yeni yayinlanan etkinlikler icin etkinlik listesine bakabilirsin."
+  },
+  "saved": {
+    "common": {
+      "details": "Detaylari gor",
+      "save": "Kaydet",
+      "saved": "Kaydedildi",
+      "saving": "Guncelleniyor",
+      "signIn": "Giris yap",
+      "verified": "Dogrulandi",
+      "claimed": "Claim edildi",
+      "external": "Harici link"
+    },
+    "places": {
+      "eyebrow": "Kaydedilen mekanlar",
+      "title": "Kaydettigin mekanlar",
+      "description": "Daha sonra bakmak icin isaretledigin mekanlar.",
+      "emptyTitle": "Henuz mekan kaydetmedin",
+      "emptyDescription": "Restoran, kafe veya hizmetleri kaydedip burada hizlica tekrar bulabilirsin.",
+      "cta": "Mekanlari kesfet",
+      "fallbackDescription": "Yakinda daha fazla bilgi eklenecek."
+    },
+    "events": {
+      "eyebrow": "Kaydedilen etkinlikler",
+      "title": "Kaydettigin etkinlikler",
+      "description": "Daha sonra bakmak icin isaretledigin etkinlikler.",
+      "emptyTitle": "Henuz etkinlik kaydetmedin",
+      "emptyDescription": "Yaklasan etkinlikleri kaydedip burada tekrar bulabilirsin.",
+      "cta": "Etkinlikleri kesfet",
+      "fallbackDescription": "Yakinda daha fazla etkinlik bilgisi eklenecek."
+    }
+  },
+  "profile": {
+    "eyebrow": "Profil",
+    "title": "MerhabaMap profilin",
+    "description": "Mekanlarin ve etkinliklerin sana daha iyi uymasi icin temel ayarlarini yonet.",
+    "fallbackName": "MerhabaMap kullanicisi",
+    "summary": {
+      "language": "Dil",
+      "city": "Sehir",
+      "noCity": "Henuz sehir secilmedi"
+    },
+    "nextSteps": {
+      "title": "Onerilen sonraki adimlar",
+      "places": "Sehrindeki mekanlari kesfet",
+      "events": "Sehrindeki etkinlikleri kesfet",
+      "saved": "Kaydettigin mekanlara bak"
+    },
+    "form": {
+      "name": "Isim",
+      "username": "Kullanici adi",
+      "email": "E-posta",
+      "language": "Tercih edilen dil",
+      "city": "Sehir",
+      "interests": "Ilgi alanlari",
+      "submit": "Profili kaydet",
+      "success": "Profilin guncellendi.",
+      "error": "Profil kaydedilemedi.",
+      "validationError": "Lutfen bilgilerini kontrol edip tekrar dene.",
+      "usernameTaken": "Bu kullanici adi zaten alinmis."
+    },
+    "interests": {
+      "food": "Yeme icme",
+      "events": "Etkinlikler",
+      "family": "Aile",
+      "students": "Ogrenciler",
+      "business": "Is dunyasi",
+      "shopping": "Alisveris",
+      "community": "Topluluk"
+    }
+  },
+  "business": {
+    "eyebrow": "Business",
+    "title": "Claim ettigin placeler",
+    "description": "Business bilgilerin icin kucuk ve guvenli bir yonetim alani. Trust ve sistem durumu ayrica kontrol edilir.",
+    "empty": {
+      "title": "Henuz yonetilebilir place yok",
+      "description": "Bir claim onaylanip bir place hesabina baglandiginda burada gorunur."
+    },
+    "card": {
+      "city": "Sehir",
+      "manage": "Place'i yonet",
+      "openPublic": "Public sayfa",
+      "lastUpdated": "Son business guncellemesi",
+      "notUpdated": "Henuz guncellenmedi"
+    },
+    "trust": {
+      "claimedBadge": "Claim edildi",
+      "verifiedBadge": "Dogrulandi",
+      "claimedTitle": "Claim edilmis business profili",
+      "claimedDescription": "Bu place onayli bir owner hesabi ile eslestirildi. Bu durum, ek MerhabaMap dogrulamasindan ayridir.",
+      "verifiedTitle": "Ek olarak dogrulandi",
+      "verifiedDescription": "Bu place, claim sonrasinda MerhabaMap tarafindan ayrica incelendi."
+    },
+    "placePage": {
+      "subtitle": "Sadece bagli owner tarafindan gorulebilir.",
+      "boundariesTitle": "Burada neleri degistirebilirsin",
+      "boundariesDescription": "Sadece telefon, web sitesi, aciklamalar ve acilis saatleri gibi dusuk riskli alanlari guncelleyebilirsin. Durum, ownership, konum ve moderasyon korumali kalir."
+    },
+    "form": {
+      "title": "Business profilini guncelle",
+      "description": "Place profilin icin gorunen temel bilgileri guncelle.",
+      "phone": "Telefon",
+      "website": "Web sitesi",
+      "descriptionDe": "Aciklama (DE)",
+      "descriptionTr": "Aciklama (TR)",
+      "openingHours": "Acilis saatleri JSON",
+      "openingHoursHint": "MVP icin acilis saatleri basit bir JSON dizi yapisiyla tutulur.",
+      "submit": "Degisiklikleri kaydet",
+      "success": "Business bilgileri guncellendi.",
+      "error": "Degisiklikler kaydedilemedi."
+    }
+  }
+}

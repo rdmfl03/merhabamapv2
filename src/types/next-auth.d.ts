@@ -1,0 +1,19 @@
+import type { Role } from "@prisma/client";
+import type { DefaultSession } from "next-auth";
+
+declare module "next-auth" {
+  interface Session {
+    user: DefaultSession["user"] & {
+      id: string;
+      role: Role;
+      onboardingCompletedAt: Date | null;
+      preferredLocale?: "de" | "tr" | null;
+    };
+  }
+
+  interface User {
+    role: Role;
+    onboardingCompletedAt: Date | null;
+    preferredLocale?: "de" | "tr" | null;
+  }
+}
