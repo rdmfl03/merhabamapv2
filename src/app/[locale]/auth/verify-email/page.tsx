@@ -1,8 +1,10 @@
+import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { RequestVerificationForm } from "@/components/auth/request-verification-form";
 import { Card, CardContent } from "@/components/ui/card";
 import { PlaceholderState } from "@/components/ui/placeholder-state";
+import { isAppLocale } from "@/i18n/routing";
 import { Link } from "@/i18n/navigation";
 
 type VerifyEmailPageProps = {
@@ -15,10 +17,15 @@ export default async function VerifyEmailPage({
   searchParams,
 }: VerifyEmailPageProps) {
   const { locale } = await params;
+
+  if (!isAppLocale(locale)) {
+    notFound();
+  }
+
   setRequestLocale(locale);
 
   const rawSearchParams = await searchParams;
-  const t = await getTranslations("auth");
+  const t = await getTranslations({ locale, namespace: "auth" });
   const email =
     typeof rawSearchParams.email === "string" ? rawSearchParams.email : undefined;
 
@@ -38,7 +45,7 @@ export default async function VerifyEmailPage({
             </div>
 
             <RequestVerificationForm
-              locale={locale as "de" | "tr"}
+              locale={locale}
               email={email}
               labels={{
                 email: t("emailLabel"),

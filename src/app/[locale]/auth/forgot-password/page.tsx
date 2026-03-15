@@ -1,7 +1,9 @@
+import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { ForgotPasswordForm } from "@/components/auth/forgot-password-form";
 import { Card, CardContent } from "@/components/ui/card";
+import { isAppLocale } from "@/i18n/routing";
 import { Link } from "@/i18n/navigation";
 
 type ForgotPasswordPageProps = {
@@ -14,12 +16,17 @@ export default async function ForgotPasswordPage({
   searchParams,
 }: ForgotPasswordPageProps) {
   const { locale } = await params;
+
+  if (!isAppLocale(locale)) {
+    notFound();
+  }
+
   setRequestLocale(locale);
 
   const rawSearchParams = await searchParams;
   const email =
     typeof rawSearchParams.email === "string" ? rawSearchParams.email : undefined;
-  const t = await getTranslations("auth");
+  const t = await getTranslations({ locale, namespace: "auth" });
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-12">
@@ -36,7 +43,7 @@ export default async function ForgotPasswordPage({
           </div>
 
           <ForgotPasswordForm
-            locale={locale as "de" | "tr"}
+            locale={locale}
             email={email}
             labels={{
               email: t("emailLabel"),

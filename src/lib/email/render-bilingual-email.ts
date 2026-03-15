@@ -73,6 +73,10 @@ export function renderBilingualEmail({
   tr,
   de,
 }: RenderBilingualEmailOptions) {
+  const brandSubtitle =
+    "Türkiye ile Almanya arasında mekanlar, etkinlikler ve yerel güven sinyalleri. / Orte, Events und lokale Vertrauenssignale zwischen der Türkei und Deutschland.";
+  const footerNotice =
+    "MerhabaMap işlem e-postası. Bu mesaj hesap veya platform etkinliği nedeniyle gönderildi. / MerhabaMap Transaktions-E-Mail. Diese Nachricht wurde wegen einer Konto- oder Plattformaktivität gesendet.";
   const html = `
     <!DOCTYPE html>
     <html lang="tr">
@@ -89,7 +93,7 @@ export function renderBilingualEmail({
           <div style="overflow:hidden;border:1px solid #e4e4e7;border-radius:28px;background:#ffffff;box-shadow:0 18px 50px rgba(15,23,42,0.08);">
             <header style="padding:28px 28px 24px;background:linear-gradient(180deg,#fff6f6 0%,#ffffff 100%);border-bottom:1px solid #f1f1f3;">
               <p style="margin:0;color:#cf2129;font-size:13px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;">MerhabaMap</p>
-              <p style="margin:10px 0 0;color:#52525b;font-size:14px;line-height:1.7;">Turkish places, events and local trust signals in Germany.</p>
+              <p style="margin:10px 0 0;color:#52525b;font-size:14px;line-height:1.7;">${escapeHtml(brandSubtitle)}</p>
             </header>
             <main style="padding:0 28px;">
               ${renderSectionHtml("Türkçe", tr)}
@@ -97,7 +101,7 @@ export function renderBilingualEmail({
               ${renderSectionHtml("Deutsch", de)}
             </main>
             <footer style="padding:22px 28px 28px;color:#71717a;font-size:12px;line-height:1.7;border-top:1px solid #f1f1f3;background:#fafafa;">
-              <p style="margin:0 0 10px;">MerhabaMap transactional email. This message was sent for account or platform activity.</p>
+              <p style="margin:0 0 10px;">${escapeHtml(footerNotice)}</p>
               <p style="margin:0;">Reply-To: info@merhabamap.com</p>
             </footer>
           </div>
@@ -108,10 +112,12 @@ export function renderBilingualEmail({
 
   const text = [
     "MerhabaMap",
+    brandSubtitle,
     "",
     renderSectionText("Türkçe", tr),
     "---",
     renderSectionText("Deutsch", de),
+    footerNotice,
     "Reply-To: info@merhabamap.com",
   ].join("\n");
 

@@ -1,8 +1,10 @@
+import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { ResetPasswordForm } from "@/components/auth/reset-password-form";
 import { Card, CardContent } from "@/components/ui/card";
 import { PlaceholderState } from "@/components/ui/placeholder-state";
+import { isAppLocale } from "@/i18n/routing";
 import { Link } from "@/i18n/navigation";
 import { getPasswordResetTokenStatus } from "@/lib/auth/password-reset";
 
@@ -16,12 +18,17 @@ export default async function ResetPasswordPage({
   searchParams,
 }: ResetPasswordPageProps) {
   const { locale } = await params;
+
+  if (!isAppLocale(locale)) {
+    notFound();
+  }
+
   setRequestLocale(locale);
 
   const rawSearchParams = await searchParams;
   const token =
     typeof rawSearchParams.token === "string" ? rawSearchParams.token : undefined;
-  const t = await getTranslations("auth");
+  const t = await getTranslations({ locale, namespace: "auth" });
 
   if (!token) {
     return (
@@ -77,7 +84,7 @@ export default async function ResetPasswordPage({
           </div>
 
           <ResetPasswordForm
-            locale={locale as "de" | "tr"}
+            locale={locale}
             token={token}
             labels={{
               password: t("passwordLabel"),
