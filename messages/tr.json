@@ -270,7 +270,8 @@
       "submit": "Claim gonder",
       "signIn": "Claim icin giris yap",
       "success": "Claim basarinla gonderildi.",
-      "error": "Claim gonderilemedi. Lutfen bilgileri kontrol et."
+      "error": "Claim gonderilemedi. Lutfen bilgileri kontrol et.",
+      "cooldown": "Bu mekan icin hesabinizdan yakin zamanda zaten bir claim gonderildi. Lutfen yeniden gondermeden once biraz bekleyin."
     },
     "report": {
       "title": "Mekani bildir",
@@ -282,6 +283,8 @@
       "signIn": "Bildirim icin giris yap",
       "success": "Tesekkurler, bildirimin kaydedildi.",
       "error": "Bildirim gonderilemedi. Lutfen tekrar dene.",
+      "cooldown": "Bu kaydi yakin zamanda zaten bildirdin. Ayni icerigi yeniden bildirmeden once lutfen biraz bekle.",
+      "dailyLimit": "Bugun zaten birden fazla bildirim gonderdin. Yeni bir bildirim gondermeden once lutfen kisa bir sure bekle.",
       "reasons": {
         "inaccurateInformation": "Bilgiler yanlis",
         "duplicate": "Mukerrer kayit",
@@ -366,6 +369,8 @@
       "signIn": "Bildirim icin giris yap",
       "success": "Tesekkurler, bildirimin kaydedildi.",
       "error": "Bildirim gonderilemedi. Lutfen tekrar dene.",
+      "cooldown": "Bu etkinligi yakin zamanda zaten bildirdin. Ayni icerigi yeniden bildirmeden once lutfen biraz bekle.",
+      "dailyLimit": "Bugun zaten birden fazla bildirim gonderdin. Yeni bir bildirim gondermeden once lutfen kisa bir sure bekle.",
       "reasons": {
         "inaccurateInformation": "Bilgiler yanlis",
         "duplicate": "Mukerrer kayit",
@@ -389,6 +394,20 @@
       "description": "Claimler, bildirimler ve son moderasyon aksiyonlari icin kompakt dahili gorunum.",
       "openReports": "Acik bildirimler",
       "pendingClaims": "Bekleyen claimler",
+      "inReviewReports": "Incelemedeki bildirimler",
+      "verifiedPlaces": "Dogrulanan placeler",
+      "launchTitle": "Soft launch odagi",
+      "launchDescription": "Acik moderasyon islerini oncele, trust durumlarini dikkatli kullan ve daha genis acilimdan once siradisi aktiviteyi kontrol et.",
+      "openReportsAction": "Acik bildirimleri incele",
+      "pendingClaimsAction": "Bekleyen claimleri incele",
+      "trustQueueAction": "{count, number} claim edilmis place'i incele",
+      "playbookTitle": "Moderasyon notlari",
+      "playbook": {
+        "reviewClaims": "Claimleri once tutarlilik ve mevcut owner ile cakisiyor mu diye kontrol et.",
+        "useVerifiedCarefully": "VERIFIED durumunu sadece temel bilgiler ayrica teyit edildiginde kullan.",
+        "handleSpam": "Kisa surede tekrar eden claim veya bildirimleri olasi kotuye kullanim sinyali olarak ele al.",
+        "checkLinks": "Harici linkleri sadece gosterilen event veya business ile acikca ilgiliyse tut."
+      },
       "recentActions": "Son aksiyonlar",
       "noActions": "Henuz moderasyon aksiyonu yok."
     },

@@ -295,6 +295,7 @@ export default async function PlaceDetailPage({
               signIn: t("claim.signIn"),
               success: t("claim.success"),
               error: t("claim.error"),
+              cooldown: t("claim.cooldown"),
             }}
           />
 
@@ -314,6 +315,8 @@ export default async function PlaceDetailPage({
               signIn: t("report.signIn"),
               success: t("report.success"),
               error: t("report.error"),
+              cooldown: t("report.cooldown"),
+              dailyLimit: t("report.dailyLimit"),
               reasons: [
                 {
                   value: "INACCURATE_INFORMATION",

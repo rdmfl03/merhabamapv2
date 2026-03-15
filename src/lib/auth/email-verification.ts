@@ -3,6 +3,7 @@ import "server-only";
 import { prisma } from "@/lib/prisma";
 import { env } from "@/lib/env";
 import { sendVerificationEmail } from "@/lib/email/notifications";
+import { shouldSendVerificationEmail } from "@/lib/rate-limit/submission-guard";
 import {
   consumeUserActionToken,
   createUserActionToken,
@@ -73,6 +74,10 @@ export async function resendVerificationForEmail(args: {
   });
 
   if (!user?.email || user.emailVerified) {
+    return;
+  }
+
+  if (!(await shouldSendVerificationEmail(user.id))) {
     return;
   }
 

@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { sendReportReceivedEmail } from "@/lib/email/notifications";
 import { prisma } from "@/lib/prisma";
+import { getReportSubmissionGuard } from "@/lib/rate-limit/submission-guard";
 import { placeReportSchema } from "@/lib/validators/places";
 
 import {
@@ -60,6 +61,19 @@ export async function submitPlaceReport(
     return {
       status: "error",
       message: "place_not_found",
+    };
+  }
+
+  const reportGuard = await getReportSubmissionGuard({
+    userId: session.user.id,
+    targetType: "PLACE",
+    placeId: place.id,
+  });
+
+  if (reportGuard) {
+    return {
+      status: "error",
+      message: reportGuard,
     };
   }
 

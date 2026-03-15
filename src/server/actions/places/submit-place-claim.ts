@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { sendClaimSubmittedEmail } from "@/lib/email/notifications";
 import { prisma } from "@/lib/prisma";
+import { getClaimSubmissionGuard } from "@/lib/rate-limit/submission-guard";
 import { placeClaimSchema } from "@/lib/validators/places";
 
 import {
@@ -82,6 +83,18 @@ export async function submitPlaceClaim(
     return {
       status: "error",
       message: "claim_exists",
+    };
+  }
+
+  const claimGuard = await getClaimSubmissionGuard({
+    userId: session.user.id,
+    placeId: place.id,
+  });
+
+  if (claimGuard) {
+    return {
+      status: "error",
+      message: claimGuard,
     };
   }
 

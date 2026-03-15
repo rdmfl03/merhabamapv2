@@ -32,6 +32,7 @@ type PlaceClaimFormProps = {
     signIn: string;
     success: string;
     error: string;
+    cooldown: string;
   };
 };
 
@@ -117,7 +118,9 @@ export function PlaceClaimForm({
               <p className="text-sm text-green-700">{labels.success}</p>
             ) : null}
             {state.status === "error" ? (
-              <p className="text-sm text-brand">{labels.error}</p>
+              <p className="text-sm text-brand">
+                {state.message === "claim_cooldown" ? labels.cooldown : labels.error}
+              </p>
             ) : null}
 
             <div className="flex justify-end">

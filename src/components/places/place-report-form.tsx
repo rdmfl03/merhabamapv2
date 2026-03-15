@@ -25,6 +25,8 @@ type PlaceReportFormProps = {
     signIn: string;
     success: string;
     error: string;
+    cooldown: string;
+    dailyLimit: string;
     reasons: Array<{ value: string; label: string }>;
   };
 };
@@ -88,7 +90,13 @@ export function PlaceReportForm({
               <p className="text-sm text-green-700">{labels.success}</p>
             ) : null}
             {state.status === "error" ? (
-              <p className="text-sm text-brand">{labels.error}</p>
+              <p className="text-sm text-brand">
+                {state.message === "report_cooldown"
+                  ? labels.cooldown
+                  : state.message === "report_daily_limit"
+                    ? labels.dailyLimit
+                    : labels.error}
+              </p>
             ) : null}
 
             <div className="flex justify-end">

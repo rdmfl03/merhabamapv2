@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { sendReportReceivedEmail } from "@/lib/email/notifications";
 import { prisma } from "@/lib/prisma";
+import { getReportSubmissionGuard } from "@/lib/rate-limit/submission-guard";
 import { eventReportSchema } from "@/lib/validators/events";
 
 import {
@@ -55,6 +56,19 @@ export async function submitEventReport(
     return {
       status: "error",
       message: "event_not_found",
+    };
+  }
+
+  const reportGuard = await getReportSubmissionGuard({
+    userId: session.user.id,
+    targetType: "EVENT",
+    eventId: event.id,
+  });
+
+  if (reportGuard) {
+    return {
+      status: "error",
+      message: reportGuard,
     };
   }
 

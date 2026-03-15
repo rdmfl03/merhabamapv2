@@ -270,7 +270,8 @@
       "submit": "Claim senden",
       "signIn": "Zum Claim anmelden",
       "success": "Dein Claim wurde eingereicht.",
-      "error": "Der Claim konnte nicht gesendet werden. Bitte prüfe deine Angaben."
+      "error": "Der Claim konnte nicht gesendet werden. Bitte prüfe deine Angaben.",
+      "cooldown": "Für diesen Ort wurde vor Kurzem bereits ein Claim von deinem Konto gesendet. Bitte warte, bevor du erneut einreichst."
     },
     "report": {
       "title": "Ort melden",
@@ -282,6 +283,8 @@
       "signIn": "Zum Melden anmelden",
       "success": "Danke, deine Meldung wurde gespeichert.",
       "error": "Die Meldung konnte nicht gesendet werden. Bitte versuche es erneut.",
+      "cooldown": "Du hast diesen Eintrag vor Kurzem bereits gemeldet. Bitte warte, bevor du denselben Inhalt erneut meldest.",
+      "dailyLimit": "Du hast heute bereits mehrere Meldungen gesendet. Bitte warte kurz, bevor du weitere Meldungen einreichst.",
       "reasons": {
         "inaccurateInformation": "Informationen sind falsch",
         "duplicate": "Doppelter Eintrag",
@@ -366,6 +369,8 @@
       "signIn": "Zum Melden anmelden",
       "success": "Danke, deine Meldung wurde gespeichert.",
       "error": "Die Meldung konnte nicht gesendet werden. Bitte versuche es erneut.",
+      "cooldown": "Du hast dieses Event vor Kurzem bereits gemeldet. Bitte warte, bevor du denselben Inhalt erneut meldest.",
+      "dailyLimit": "Du hast heute bereits mehrere Meldungen gesendet. Bitte warte kurz, bevor du weitere Meldungen einreichst.",
       "reasons": {
         "inaccurateInformation": "Informationen sind falsch",
         "duplicate": "Doppelter Eintrag",
@@ -389,6 +394,20 @@
       "description": "Kompakte interne Übersicht für Claims, Meldungen und letzte Moderationsaktionen.",
       "openReports": "Offene Meldungen",
       "pendingClaims": "Offene Claims",
+      "inReviewReports": "Meldungen in Prüfung",
+      "verifiedPlaces": "Verifizierte Places",
+      "launchTitle": "Soft-Launch Fokus",
+      "launchDescription": "Priorisiere offene Moderationsarbeit, halte Trust-Status konservativ und prüfe ungewöhnliche Aktivität vor einer breiteren Freigabe.",
+      "openReportsAction": "Offene Meldungen prüfen",
+      "pendingClaimsAction": "Offene Claims prüfen",
+      "trustQueueAction": "{count, number} beanspruchte Places prüfen",
+      "playbookTitle": "Moderationsleitlinien",
+      "playbook": {
+        "reviewClaims": "Claims zuerst auf Plausibilität und Konflikte mit bestehendem Owner prüfen.",
+        "useVerifiedCarefully": "VERIFIED nur setzen, wenn zentrale Informationen zusätzlich bestätigt wurden.",
+        "handleSpam": "Wiederholte Claims oder Meldungen in kurzer Zeit als mögliches Missbrauchssignal behandeln.",
+        "checkLinks": "Externe Links nur behalten, wenn sie klar zum angezeigten Event oder Business gehören."
+      },
       "recentActions": "Letzte Aktionen",
       "noActions": "Noch keine Moderationsaktionen vorhanden."
     },

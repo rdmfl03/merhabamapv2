@@ -254,6 +254,8 @@ export default async function EventDetailPage({
               signIn: t("report.signIn"),
               success: t("report.success"),
               error: t("report.error"),
+              cooldown: t("report.cooldown"),
+              dailyLimit: t("report.dailyLimit"),
               reasons: [
                 {
                   value: "INACCURATE_INFORMATION",

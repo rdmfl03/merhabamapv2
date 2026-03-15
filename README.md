@@ -142,3 +142,15 @@ Health and readiness endpoints:
 - Transactional emails use `noreply@merhabamap.com` with `Reply-To: info@merhabamap.com`.
 - All transactional emails are bilingual with Turkish first and German second.
 - Password reset and email verification use hashed one-time tokens with expiry.
+
+## Launch operations
+
+- Go-live checklist: `docs/go-live-checklist.md`
+- Moderation runbook: `docs/moderation-runbook.md`
+
+For the MVP soft launch, keep rollout intentionally narrow and review these queues daily:
+
+- open reports
+- pending claims
+- claimed places that may need verification review
+- transactional email health

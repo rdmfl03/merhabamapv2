@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { env } from "@/lib/env";
 import { hashPassword } from "@/lib/auth/password";
 import { sendPasswordResetEmail } from "@/lib/email/notifications";
+import { shouldSendPasswordReset } from "@/lib/rate-limit/submission-guard";
 import {
   consumeUserActionToken,
   createUserActionToken,
@@ -25,6 +26,10 @@ export async function createAndSendPasswordReset(args: {
   });
 
   if (!user?.email) {
+    return;
+  }
+
+  if (!(await shouldSendPasswordReset(user.id))) {
     return;
   }
 
