@@ -107,6 +107,7 @@ Required production variables:
 - `AUTH_ENABLE_PASSWORD_LOGIN=true`
 - `EMAIL_TRANSPORT=resend`
 - `RESEND_API_KEY` when `EMAIL_TRANSPORT=resend`
+- `NODE_VERSION=20`
 
 Recommended runtime variables:
 
@@ -131,6 +132,18 @@ Health and readiness endpoints:
 
 `/api/health` is a lightweight liveness check.
 `/api/ready` optionally verifies database connectivity and returns `503` if the app is not ready.
+
+## Netlify deployment
+
+- Canonical production env template: `.env.production.example`
+- Add real production secrets manually in the Netlify UI
+- Recommended Netlify build command:
+  - `npm install && npx prisma generate && npm run build`
+- Do not set a manual publish directory like `.next` for the Netlify Next.js runtime
+- Use Node `20`
+- For DigitalOcean PostgreSQL, set `DATABASE_URL` with `sslmode=require`
+- Keep demo flags disabled in production
+- Full deployment notes: `docs/netlify-deploy.md`
 
 ## Production notes
 
