@@ -4,6 +4,7 @@ import { useActionState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Link } from "@/i18n/navigation";
 import { registerUser } from "@/server/actions/auth/register-user";
 import { idleAuthActionState } from "@/server/actions/auth/state";
 
@@ -19,6 +20,11 @@ type SignUpFormProps = {
     validationError: string;
     emailInUse: string;
     passwordMismatch: string;
+    legalAcknowledgementPrefix: string;
+    legalAcknowledgementTerms: string;
+    legalAcknowledgementConnector: string;
+    legalAcknowledgementPrivacy: string;
+    legalAcknowledgementSuffix: string;
   };
 };
 
@@ -70,6 +76,18 @@ export function SignUpForm({ locale, labels }: SignUpFormProps) {
       <Button className="w-full" type="submit" disabled={pending}>
         {labels.submit}
       </Button>
+
+      <p className="text-xs leading-6 text-muted-foreground">
+        {labels.legalAcknowledgementPrefix}{" "}
+        <Link href="/terms" className="font-medium text-brand">
+          {labels.legalAcknowledgementTerms}
+        </Link>{" "}
+        {labels.legalAcknowledgementConnector}{" "}
+        <Link href="/privacy" className="font-medium text-brand">
+          {labels.legalAcknowledgementPrivacy}
+        </Link>
+        {labels.legalAcknowledgementSuffix}
+      </p>
     </form>
   );
 }

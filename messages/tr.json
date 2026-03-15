@@ -121,6 +121,9 @@
     "signUpError": "Kayit tamamlanamadi. Lutfen girdilerinizi kontrol edin.",
     "signUpEmailInUse": "Bu e-posta adresi icin zaten bir hesap var.",
     "passwordMismatch": "Girdiginiz sifreler birbiriyle eslesmiyor.",
+    "legalAcknowledgementPrefix": "Hesap olusturarak MerhabaMap'i",
+    "legalAcknowledgementConnector": "ve",
+    "legalAcknowledgementSuffix": " temelinde kullanirsiniz.",
     "demoAccountsTitle": "Local testler icin demo hesaplar",
     "demoAccountsDescription": "Bu bilgiler yalnizca demo auth ve demo UI acikca etkinlestirildiginde development/staging ortaminda gosterilir.",
     "demoAccountsRole": "Rol",
@@ -504,7 +507,39 @@
     "tagline": "Almanya'daki Turk mekanlari ve etkinlikleri icin kesif platformu.",
     "berlin": "Berlin'i kesfet",
     "koeln": "Koln'u kesfet",
+    "essentialNotice": "Mevcut MVP yapisinda bugun itibariyla yalnizca gerekli oturum mekanizmalari kullanilir; istege bagli reklam veya pazarlama izleyicileri yer almaz.",
     "copyright": "© MerhabaMap. Tum haklari saklidir."
+  },
+  "legal": {
+    "eyebrow": "Hukuki bilgiler",
+    "draftNotice": "Not: Bu sayfa yapilandirilmis bir urun ve lansman taslagi olarak hazirlanmistir; bireysel hukuki danismanlik yerine gecmez. Canliya cikmadan once metinlerin ve sirket bilgilerinin ayrica gozden gecirilmesi gerekir.",
+    "navigation": {
+      "impressum": "Impressum",
+      "privacy": "Gizlilik",
+      "terms": "Kullanim kosullari",
+      "communityRules": "Topluluk kurallari"
+    },
+    "essentialServices": {
+      "title": "Cookie ve benzeri teknolojiler notu",
+      "description": "MerhabaMap'in mevcut MVP surumunde bugun itibariyla yalnizca giris ve hesap kullanimi icin gerekli oturum mekanizmalari bulunur. Ayri bir \"hepsini kabul et\" akisi gerektiren istege bagli reklam veya pazarlama izleyicileri su anda kullanilmamaktadir.",
+      "linkLabel": "Gizlilik sayfasina git"
+    },
+    "impressum": {
+      "metaTitle": "Impressum",
+      "metaDescription": "MerhabaMap icin saglayici bilgileri ve iletisim detaylari."
+    },
+    "privacy": {
+      "metaTitle": "Gizlilik politikasi",
+      "metaDescription": "MerhabaMap'te veri isleme konusunda seffaf genel bakis."
+    },
+    "terms": {
+      "metaTitle": "Kullanim kosullari",
+      "metaDescription": "MerhabaMap kullanimi icin temel kurallar ve kosullar."
+    },
+    "communityRules": {
+      "metaTitle": "Topluluk kurallari",
+      "metaDescription": "MerhabaMap uzerindeki temel davranis beklentileri."
+    }
   },
   "cities": {
     "metaTitle": "{city} icin Turk mekanlari ve etkinlikleri",

@@ -1,8 +1,11 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { SignUpForm } from "@/components/auth/sign-up-form";
+import { EssentialServicesNotice } from "@/components/legal/essential-services-notice";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "@/i18n/navigation";
+import { isAppLocale } from "@/i18n/routing";
+import { notFound } from "next/navigation";
 
 type SignUpPageProps = {
   params: Promise<{ locale: string }>;
@@ -10,9 +13,17 @@ type SignUpPageProps = {
 
 export default async function SignUpPage({ params }: SignUpPageProps) {
   const { locale } = await params;
+
+  if (!isAppLocale(locale)) {
+    notFound();
+  }
+
   setRequestLocale(locale);
 
-  const t = await getTranslations("auth");
+  const [t, legal] = await Promise.all([
+    getTranslations({ locale, namespace: "auth" }),
+    getTranslations({ locale, namespace: "legal" }),
+  ]);
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-12">
@@ -30,7 +41,7 @@ export default async function SignUpPage({ params }: SignUpPageProps) {
             </div>
 
             <SignUpForm
-              locale={locale as "de" | "tr"}
+              locale={locale}
               labels={{
                 name: t("nameLabel"),
                 email: t("emailLabel"),
@@ -41,7 +52,18 @@ export default async function SignUpPage({ params }: SignUpPageProps) {
                 validationError: t("signUpError"),
                 emailInUse: t("signUpEmailInUse"),
                 passwordMismatch: t("passwordMismatch"),
+                legalAcknowledgementPrefix: t("legalAcknowledgementPrefix"),
+                legalAcknowledgementTerms: legal("navigation.terms"),
+                legalAcknowledgementConnector: t("legalAcknowledgementConnector"),
+                legalAcknowledgementPrivacy: legal("navigation.privacy"),
+                legalAcknowledgementSuffix: t("legalAcknowledgementSuffix"),
               }}
+            />
+
+            <EssentialServicesNotice
+              title={legal("essentialServices.title")}
+              description={legal("essentialServices.description")}
+              privacyLabel={legal("navigation.privacy")}
             />
 
             <div className="flex justify-start">

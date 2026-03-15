@@ -121,6 +121,9 @@
     "signUpError": "Die Registrierung konnte nicht abgeschlossen werden. Bitte prüfe deine Angaben.",
     "signUpEmailInUse": "Für diese E-Mail-Adresse existiert bereits ein Konto.",
     "passwordMismatch": "Die eingegebenen Passwörter stimmen nicht überein.",
+    "legalAcknowledgementPrefix": "Mit der Kontoerstellung nutzt du MerhabaMap auf Basis der",
+    "legalAcknowledgementConnector": "und",
+    "legalAcknowledgementSuffix": ".",
     "demoAccountsTitle": "Demo-Accounts für lokale Tests",
     "demoAccountsDescription": "Diese Hinweise erscheinen nur in Development/Staging, wenn die Demo-Auth und die Demo-UI ausdrücklich aktiviert sind.",
     "demoAccountsRole": "Rolle",
@@ -504,7 +507,39 @@
     "tagline": "Discovery-Plattform für türkische Orte und Events in Deutschland.",
     "berlin": "Berlin entdecken",
     "koeln": "Köln entdecken",
+    "essentialNotice": "Der aktuelle MVP verwendet nach heutigem Stand nur notwendige Sitzungsmechanismen und keine optionalen Marketing- oder Werbetracker.",
     "copyright": "© MerhabaMap. Alle Rechte vorbehalten."
+  },
+  "legal": {
+    "eyebrow": "Rechtliches",
+    "draftNotice": "Hinweis: Diese Seite ist als strukturierter Produkt- und Launch-Entwurf umgesetzt und ersetzt keine individuelle Rechtsberatung. Vor dem Livegang sollte der Text rechtlich geprüft und mit den finalen Unternehmensdaten ergänzt werden.",
+    "navigation": {
+      "impressum": "Impressum",
+      "privacy": "Datenschutz",
+      "terms": "Nutzungsbedingungen",
+      "communityRules": "Community-Regeln"
+    },
+    "essentialServices": {
+      "title": "Hinweis zu Cookies und ähnlichen Technologien",
+      "description": "MerhabaMap nutzt im aktuellen MVP nach heutigem Stand nur technisch notwendige Sitzungsmechanismen für Anmeldung und Kontonutzung. Es gibt derzeit keine optionalen Marketing- oder Werbetracker, für die ein separates \"Alles akzeptieren\" erforderlich wäre.",
+      "linkLabel": "Zur Datenschutzerklärung"
+    },
+    "impressum": {
+      "metaTitle": "Impressum",
+      "metaDescription": "Anbieterangaben und Kontaktinformationen für MerhabaMap."
+    },
+    "privacy": {
+      "metaTitle": "Datenschutzerklärung",
+      "metaDescription": "Transparente Übersicht zur Datenverarbeitung bei MerhabaMap."
+    },
+    "terms": {
+      "metaTitle": "Nutzungsbedingungen",
+      "metaDescription": "Grundregeln und Nutzungsbedingungen für MerhabaMap."
+    },
+    "communityRules": {
+      "metaTitle": "Community-Regeln",
+      "metaDescription": "Grundlegende Verhaltensregeln für die Nutzung von MerhabaMap."
+    }
   },
   "cities": {
     "metaTitle": "Türkische Orte und Events in {city}",
