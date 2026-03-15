@@ -1,4 +1,8 @@
-import { PrismaClient, type EventCategory } from "@prisma/client";
+import {
+  Prisma,
+  PrismaClient,
+  type EventCategory,
+} from "@prisma/client";
 
 import { hashPassword } from "../src/lib/auth/password";
 import { demoAccounts } from "../src/lib/dev/demo-accounts";
@@ -28,6 +32,7 @@ async function resetDatabase() {
   await prisma.adminActionLog.deleteMany();
   await prisma.report.deleteMany();
   await prisma.businessClaim.deleteMany();
+  await prisma.userActionToken.deleteMany();
   await prisma.savedEvent.deleteMany();
   await prisma.savedPlace.deleteMany();
   await prisma.session.deleteMany();
@@ -63,7 +68,7 @@ async function seedCities() {
 }
 
 async function seedCategories() {
-  const categories = [
+  const categories: Prisma.PlaceCategoryCreateManyInput[] = [
     { slug: "restaurants", nameDe: "Restaurants", nameTr: "Restoranlar", icon: "utensils", sortOrder: 10 },
     { slug: "cafes", nameDe: "Cafes", nameTr: "Kafeler", icon: "coffee", sortOrder: 20 },
     { slug: "bakeries", nameDe: "Baeckereien", nameTr: "Firinlar", icon: "bread", sortOrder: 30 },
@@ -74,7 +79,7 @@ async function seedCategories() {
     { slug: "services", nameDe: "Dienstleister", nameTr: "Hizmetler", icon: "briefcase", sortOrder: 80 },
   ] as const;
 
-  await prisma.placeCategory.createMany({ data: categories as any[] });
+  await prisma.placeCategory.createMany({ data: categories });
 
   const stored = await prisma.placeCategory.findMany();
   return Object.fromEntries(stored.map((category) => [category.slug, category]));
@@ -165,7 +170,7 @@ async function seedPlaces(args: {
   businessOwnerId: string;
   adminId: string;
 }) {
-  const data = [
+  const data: Prisma.PlaceCreateManyInput[] = [
     {
       slug: "nar-lokantasi-berlin",
       name: "Nar Lokantasi Berlin",
@@ -342,14 +347,13 @@ async function seedPlaces(args: {
     },
   ];
 
-  await prisma.place.createMany({ data: data as any[] });
+  await prisma.place.createMany({ data });
   const places = await prisma.place.findMany();
   return Object.fromEntries(places.map((place) => [place.slug, place]));
 }
 
 async function seedEvents(args: { berlinId: string; koelnId: string }) {
-  const now = new Date();
-  const events = [
+  const events: Prisma.EventCreateManyInput[] = [
     {
       slug: "anatolia-late-session-berlin",
       title: "Anatolia Late Session Berlin",
@@ -484,7 +488,7 @@ async function seedEvents(args: { berlinId: string; koelnId: string }) {
     },
   ];
 
-  await prisma.event.createMany({ data: events as any[] });
+  await prisma.event.createMany({ data: events });
   const stored = await prisma.event.findMany();
   return Object.fromEntries(stored.map((event) => [event.slug, event]));
 }

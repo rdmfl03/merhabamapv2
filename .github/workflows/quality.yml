@@ -1,0 +1,116 @@
+name: Quality
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: merhabamap
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d merhabamap"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/merhabamap
+      AUTH_SECRET: this-is-a-long-ci-auth-secret-for-merhabamap
+      AUTH_URL: http://127.0.0.1:3000
+      AUTH_ENABLE_PASSWORD_LOGIN: "true"
+      AUTH_DEMO_CREDENTIALS_ENABLED: "false"
+      AUTH_ALLOW_CREDENTIALS_MOCK: "false"
+      APP_URL: http://127.0.0.1:3000
+      APP_ENV: development
+      LOG_LEVEL: warn
+      READINESS_ENABLE_DB_CHECK: "true"
+      EMAIL_TRANSPORT: log
+      EMAIL_VERIFICATION_TOKEN_TTL_HOURS: "24"
+      PASSWORD_RESET_TOKEN_TTL_MINUTES: "60"
+      NEXT_PUBLIC_ENABLE_DEV_DEMO_UI: "false"
+      NEXT_PUBLIC_MAP_PROVIDER: osm
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: npm install
+      - name: Prisma generate
+        run: npm run db:generate
+      - name: Prisma validate
+        run: npm run prisma:validate
+      - name: Sync schema to CI database
+        run: npm run db:push -- --skip-generate
+      - name: Seed database
+        run: npm run db:seed
+      - name: Lint
+        run: npm run lint
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Unit tests
+        run: npm run test:unit
+      - name: Build
+        run: npm run build
+
+  e2e:
+    runs-on: ubuntu-latest
+    needs: quality
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: merhabamap
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d merhabamap"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/merhabamap
+      AUTH_SECRET: this-is-a-long-ci-auth-secret-for-merhabamap
+      AUTH_URL: http://127.0.0.1:3000
+      AUTH_ENABLE_PASSWORD_LOGIN: "true"
+      AUTH_DEMO_CREDENTIALS_ENABLED: "false"
+      AUTH_ALLOW_CREDENTIALS_MOCK: "false"
+      APP_URL: http://127.0.0.1:3000
+      APP_ENV: development
+      LOG_LEVEL: warn
+      READINESS_ENABLE_DB_CHECK: "true"
+      EMAIL_TRANSPORT: log
+      EMAIL_VERIFICATION_TOKEN_TTL_HOURS: "24"
+      PASSWORD_RESET_TOKEN_TTL_MINUTES: "60"
+      NEXT_PUBLIC_ENABLE_DEV_DEMO_UI: "false"
+      NEXT_PUBLIC_MAP_PROVIDER: osm
+      CI: "true"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: npm install
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+      - name: Prisma generate
+        run: npm run db:generate
+      - name: Sync schema to CI database
+        run: npm run db:push -- --skip-generate
+      - name: Seed database
+        run: npm run db:seed
+      - name: Run Playwright
+        run: npm run test:e2e

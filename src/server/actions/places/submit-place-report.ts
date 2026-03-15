@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
+import { sendReportReceivedEmail } from "@/lib/email/notifications";
 import { prisma } from "@/lib/prisma";
 import { placeReportSchema } from "@/lib/validators/places";
 
@@ -17,6 +18,8 @@ export async function submitPlaceReport(
   _previousState: PlaceActionState = idlePlaceActionState,
   formData: FormData,
 ): Promise<PlaceActionState> {
+  void _previousState;
+
   const parsed = placeReportSchema.safeParse({
     locale: formData.get("locale"),
     placeId: formData.get("placeId"),
@@ -49,6 +52,7 @@ export async function submitPlaceReport(
     },
     select: {
       id: true,
+      name: true,
     },
   });
 
@@ -68,6 +72,13 @@ export async function submitPlaceReport(
       details: parsed.data.details,
     },
   });
+
+  if (session.user.email) {
+    await sendReportReceivedEmail({
+      to: session.user.email,
+      targetLabel: place.name,
+    });
+  }
 
   revalidatePath(returnPath);
 

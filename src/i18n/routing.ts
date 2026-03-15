@@ -7,3 +7,7 @@ export const routing = defineRouting({
 });
 
 export type AppLocale = (typeof routing.locales)[number];
+
+export function isAppLocale(locale: string | null | undefined): locale is AppLocale {
+  return locale === "de" || locale === "tr";
+}

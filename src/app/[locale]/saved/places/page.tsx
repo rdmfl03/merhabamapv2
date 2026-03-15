@@ -53,15 +53,15 @@ export default async function SavedPlacesPage({ params }: SavedPlacesPageProps) 
               cityLabel={locale === "tr" ? place.city.nameTr : place.city.nameDe}
               returnPath={`/${locale}/saved/places`}
               isAuthenticated
-                labels={{
-                  details: t("common.details"),
-                  save: t("common.save"),
-                  saved: t("common.saved"),
-                  saving: t("common.saving"),
-                  signIn: t("common.signIn"),
-                  verified: t("common.verified"),
-                  claimed: t("common.claimed"),
-                }}
+              labels={{
+                details: t("common.details"),
+                save: t("common.save"),
+                saved: t("common.saved"),
+                saving: t("common.saving"),
+                signIn: t("common.signIn"),
+                verified: t("common.verified"),
+                claimed: t("common.claimed"),
+              }}
               />
           ))}
         </div>

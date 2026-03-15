@@ -7,7 +7,7 @@ import { updatePlaceTrustStatus } from "@/server/actions/admin/update-place-trus
 import {
   idleAdminActionState,
   type AdminActionState,
-} from "@/server/actions/admin/shared";
+} from "@/server/actions/admin/state";
 
 type PlaceTrustStatusFormProps = {
   locale: "de" | "tr";

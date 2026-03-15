@@ -9,7 +9,6 @@ import { buildCityMetadata } from "@/lib/metadata/public";
 import { buildCityCollectionSchema } from "@/lib/seo/structured-data";
 import { getPublicCityPage } from "@/server/queries/cities/get-public-city-page";
 import { getPilotCities } from "@/server/queries/cities/get-pilot-cities";
-import { getEventCategoryLabelKey } from "@/lib/events";
 
 type CityPageProps = {
   params: Promise<{ locale: "de" | "tr"; slug: string }>;

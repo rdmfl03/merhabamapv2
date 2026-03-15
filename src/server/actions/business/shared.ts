@@ -1,19 +1,8 @@
-"use server";
-
 import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
 import { canAccessBusiness, canManageBusinessPlace } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
-
-export type BusinessActionState = {
-  status: "idle" | "success" | "error";
-  message?: string;
-};
-
-export const idleBusinessActionState: BusinessActionState = {
-  status: "idle",
-};
 
 export async function requireBusinessUser(locale: "de" | "tr") {
   const session = await auth();

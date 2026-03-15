@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
+import { sendReportReceivedEmail } from "@/lib/email/notifications";
 import { prisma } from "@/lib/prisma";
 import { eventReportSchema } from "@/lib/validators/events";
 
@@ -17,6 +18,8 @@ export async function submitEventReport(
   _previousState: EventActionState = idleEventActionState,
   formData: FormData,
 ): Promise<EventActionState> {
+  void _previousState;
+
   const parsed = eventReportSchema.safeParse({
     locale: formData.get("locale"),
     eventId: formData.get("eventId"),
@@ -45,7 +48,7 @@ export async function submitEventReport(
       isPublished: true,
       moderationStatus: "APPROVED",
     },
-    select: { id: true },
+    select: { id: true, title: true },
   });
 
   if (!event) {
@@ -64,6 +67,13 @@ export async function submitEventReport(
       details: parsed.data.details,
     },
   });
+
+  if (session.user.email) {
+    await sendReportReceivedEmail({
+      to: session.user.email,
+      targetLabel: event.title,
+    });
+  }
 
   revalidatePath(returnPath);
 

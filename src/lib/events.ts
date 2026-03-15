@@ -157,5 +157,20 @@ export function getEventCategoryLabelKey(category: EventCategory) {
 
 export function getSafeExternalUrl(value: string | null | undefined) {
   const parsed = z.string().url().safeParse(value);
-  return parsed.success ? parsed.data : null;
+
+  if (!parsed.success) {
+    return null;
+  }
+
+  try {
+    const url = new URL(parsed.data);
+
+    if (url.protocol !== "http:" && url.protocol !== "https:") {
+      return null;
+    }
+
+    return url.toString();
+  } catch {
+    return null;
+  }
 }

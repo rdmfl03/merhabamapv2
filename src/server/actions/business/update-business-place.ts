@@ -8,14 +8,18 @@ import { businessPlaceUpdateSchema } from "@/lib/validators/business";
 
 import {
   idleBusinessActionState,
-  requireOwnedPlaceAccess,
   type BusinessActionState,
+} from "./state";
+import {
+  requireOwnedPlaceAccess,
 } from "./shared";
 
 export async function updateBusinessPlace(
   _previousState: BusinessActionState = idleBusinessActionState,
   formData: FormData,
 ): Promise<BusinessActionState> {
+  void _previousState;
+
   try {
     const parsed = businessPlaceUpdateSchema.safeParse({
       locale: formData.get("locale"),

@@ -33,7 +33,7 @@ export function PublicCtaSection({
             </p>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row">
-            <Button size="lg" variant="secondary" asChild>
+            <Button size="lg" variant="outline" asChild>
               <Link href="/places">{primaryCta}</Link>
             </Button>
             <Button size="lg" variant="outline" asChild>

@@ -1,10 +1,12 @@
 import { setRequestLocale } from "next-intl/server";
+import { notFound } from "next/navigation";
 
+import { isAppLocale } from "@/i18n/routing";
 import { requireAdminAccess } from "@/server/actions/admin/shared";
 
 type LocaleAdminLayoutProps = {
   children: React.ReactNode;
-  params: Promise<{ locale: "de" | "tr" }>;
+  params: Promise<{ locale: string }>;
 };
 
 export default async function LocaleAdminLayout({
@@ -12,6 +14,11 @@ export default async function LocaleAdminLayout({
   params,
 }: LocaleAdminLayoutProps) {
   const { locale } = await params;
+
+  if (!isAppLocale(locale)) {
+    notFound();
+  }
+
   setRequestLocale(locale);
   await requireAdminAccess(locale);
 

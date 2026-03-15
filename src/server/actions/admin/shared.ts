@@ -1,18 +1,7 @@
-"use server";
-
 import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
 import { canAccessAdmin } from "@/lib/permissions";
-
-export type AdminActionState = {
-  status: "idle" | "success" | "error";
-  message?: string;
-};
-
-export const idleAdminActionState: AdminActionState = {
-  status: "idle",
-};
 
 export async function requireAdminAccess(locale: "de" | "tr") {
   const session = await auth();

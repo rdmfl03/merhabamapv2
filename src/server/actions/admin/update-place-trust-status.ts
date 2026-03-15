@@ -6,16 +6,17 @@ import { logAdminAction } from "@/lib/audit/log-admin-action";
 import { prisma } from "@/lib/prisma";
 import { updatePlaceTrustSchema } from "@/lib/validators/admin";
 
+import { idleAdminActionState, type AdminActionState } from "./state";
 import {
-  idleAdminActionState,
   requireAdminAccess,
-  type AdminActionState,
 } from "./shared";
 
 export async function updatePlaceTrustStatus(
   _previousState: AdminActionState = idleAdminActionState,
   formData: FormData,
 ): Promise<AdminActionState> {
+  void _previousState;
+
   const parsed = updatePlaceTrustSchema.safeParse({
     locale: formData.get("locale"),
     placeId: formData.get("placeId"),

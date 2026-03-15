@@ -1,5 +1,3 @@
-"use server";
-
 export type PlaceActionState = {
   status: "idle" | "success" | "error";
   message?: string;

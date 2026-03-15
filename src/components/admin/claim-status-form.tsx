@@ -7,7 +7,7 @@ import { updateClaimStatus } from "@/server/actions/admin/update-claim-status";
 import {
   idleAdminActionState,
   type AdminActionState,
-} from "@/server/actions/admin/shared";
+} from "@/server/actions/admin/state";
 
 type ClaimStatusFormProps = {
   locale: "de" | "tr";

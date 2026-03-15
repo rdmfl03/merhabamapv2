@@ -7,16 +7,17 @@ import { prisma } from "@/lib/prisma";
 import { stringifyUserInterests } from "@/lib/user-preferences";
 import { onboardingSchema } from "@/lib/validators/user";
 
+import { idleUserFormState, type UserFormState } from "./state";
 import {
-  idleUserFormState,
   requireAuthenticatedUser,
-  type UserFormState,
 } from "./shared";
 
 export async function saveOnboarding(
   _previousState: UserFormState = idleUserFormState,
   formData: FormData,
 ): Promise<UserFormState> {
+  void _previousState;
+
   const parsed = onboardingSchema.safeParse({
     locale: formData.get("locale"),
     preferredLocale: formData.get("preferredLocale"),

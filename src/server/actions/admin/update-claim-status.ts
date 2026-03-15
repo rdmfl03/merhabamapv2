@@ -3,19 +3,21 @@
 import { revalidatePath } from "next/cache";
 
 import { logAdminAction } from "@/lib/audit/log-admin-action";
+import { sendClaimReviewedEmail } from "@/lib/email/notifications";
 import { prisma } from "@/lib/prisma";
 import { updateClaimStatusSchema } from "@/lib/validators/admin";
 
+import { idleAdminActionState, type AdminActionState } from "./state";
 import {
-  idleAdminActionState,
   requireAdminAccess,
-  type AdminActionState,
 } from "./shared";
 
 export async function updateClaimStatus(
   _previousState: AdminActionState = idleAdminActionState,
   formData: FormData,
 ): Promise<AdminActionState> {
+  void _previousState;
+
   const parsed = updateClaimStatusSchema.safeParse({
     locale: formData.get("locale"),
     claimId: formData.get("claimId"),
@@ -35,6 +37,12 @@ export async function updateClaimStatus(
       status: true,
       placeId: true,
       userId: true,
+      claimantEmail: true,
+      place: {
+        select: {
+          name: true,
+        },
+      },
     },
   });
 
@@ -132,6 +140,12 @@ export async function updateClaimStatus(
   revalidatePath(`/${parsed.data.locale}/admin/claims/${claim.id}`);
   revalidatePath(`/${parsed.data.locale}/business`);
   revalidatePath(`/${parsed.data.locale}/places`);
+
+  await sendClaimReviewedEmail({
+    to: claim.claimantEmail,
+    placeName: claim.place.name,
+    approved: parsed.data.nextStatus === "APPROVED",
+  });
 
   return { status: "success", message: "claim_updated" };
 }

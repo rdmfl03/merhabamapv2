@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 
@@ -7,7 +6,7 @@ import { auth } from "@/auth";
 import { Footer } from "@/components/layout/footer";
 import { Header } from "@/components/layout/header";
 import { OnboardingGuard } from "@/components/onboarding-guard";
-import { routing } from "@/i18n/routing";
+import { isAppLocale, routing } from "@/i18n/routing";
 
 type LocaleLayoutProps = {
   children: React.ReactNode;
@@ -23,7 +22,7 @@ export async function generateMetadata({
 }: LocaleLayoutProps): Promise<Metadata> {
   const { locale } = await params;
 
-  if (!hasLocale(routing.locales, locale)) {
+  if (!isAppLocale(locale)) {
     return {};
   }
 
@@ -41,14 +40,14 @@ export default async function LocaleLayout({
 }: LocaleLayoutProps) {
   const { locale } = await params;
 
-  if (!hasLocale(routing.locales, locale)) {
+  if (!isAppLocale(locale)) {
     notFound();
   }
 
   setRequestLocale(locale);
   const session = await auth();
   const needsOnboarding =
-    Boolean(session?.user?.id) && !session.user.onboardingCompletedAt;
+    Boolean(session?.user?.id) && !session?.user?.onboardingCompletedAt;
 
   return (
     <OnboardingGuard needsOnboarding={needsOnboarding} locale={locale}>

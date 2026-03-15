@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
+import { sendClaimSubmittedEmail } from "@/lib/email/notifications";
 import { prisma } from "@/lib/prisma";
 import { placeClaimSchema } from "@/lib/validators/places";
 
@@ -17,6 +18,8 @@ export async function submitPlaceClaim(
   _previousState: PlaceActionState = idlePlaceActionState,
   formData: FormData,
 ): Promise<PlaceActionState> {
+  void _previousState;
+
   const parsed = placeClaimSchema.safeParse({
     locale: formData.get("locale"),
     placeId: formData.get("placeId"),
@@ -53,6 +56,7 @@ export async function submitPlaceClaim(
     select: {
       id: true,
       slug: true,
+      name: true,
     },
   });
 
@@ -91,6 +95,11 @@ export async function submitPlaceClaim(
       message: parsed.data.message,
       evidenceNotes: parsed.data.evidenceNotes,
     },
+  });
+
+  await sendClaimSubmittedEmail({
+    to: parsed.data.claimantEmail,
+    placeName: place.name,
   });
 
   revalidatePath(returnPath);

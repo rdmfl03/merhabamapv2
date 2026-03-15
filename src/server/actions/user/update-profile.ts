@@ -6,16 +6,17 @@ import { prisma } from "@/lib/prisma";
 import { stringifyUserInterests } from "@/lib/user-preferences";
 import { profileUpdateSchema } from "@/lib/validators/user";
 
+import { idleUserFormState, type UserFormState } from "./state";
 import {
-  idleUserFormState,
   requireAuthenticatedUser,
-  type UserFormState,
 } from "./shared";
 
 export async function updateProfile(
   _previousState: UserFormState = idleUserFormState,
   formData: FormData,
 ): Promise<UserFormState> {
+  void _previousState;
+
   const parsed = profileUpdateSchema.safeParse({
     locale: formData.get("locale"),
     name: formData.get("name"),

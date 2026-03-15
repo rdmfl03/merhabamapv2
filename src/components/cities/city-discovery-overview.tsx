@@ -5,6 +5,16 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "@/i18n/navigation";
 import { getEventCategoryLabelKey, getLocalizedEventText } from "@/lib/events";
 import { getLocalizedText } from "@/lib/places";
+import type { PublicEventRecord } from "@/server/queries/events/shared";
+import type { PublicPlaceRecord } from "@/server/queries/places/shared";
+
+type CityPlaceCardRecord = PublicPlaceRecord & {
+  isSaved: boolean;
+};
+
+type CityEventCardRecord = PublicEventRecord & {
+  isSaved: boolean;
+};
 
 type CityDiscoveryOverviewProps = {
   locale: "de" | "tr";
@@ -15,8 +25,8 @@ type CityDiscoveryOverviewProps = {
   };
   placeCount: number;
   eventCount: number;
-  featuredPlaces: any[];
-  upcomingEvents: any[];
+  featuredPlaces: CityPlaceCardRecord[];
+  upcomingEvents: CityEventCardRecord[];
   isAuthenticated: boolean;
   labels: {
     eyebrow: string;

@@ -19,7 +19,7 @@ export default async function SignInPage({
   setRequestLocale(locale);
 
   const rawSearchParams = await searchParams;
-  const t = await getTranslations("auth");
+  const t = await getTranslations({ locale, namespace: "auth" });
   const error =
     typeof rawSearchParams.error === "string" ? rawSearchParams.error : undefined;
   const next =
@@ -53,9 +53,11 @@ export default async function SignInPage({
             />
 
             <div className="flex justify-start">
-              <Link href="/auth/signup" className="text-sm text-brand">
-                {t("goToSignup")}
-              </Link>
+              <div className="flex flex-col gap-2 text-sm text-brand">
+                <Link href="/auth/signup">{t("goToSignup")}</Link>
+                <Link href="/auth/forgot-password">{t("forgotPasswordLink")}</Link>
+                <Link href="/auth/verify-email">{t("verifyEmailLink")}</Link>
+              </div>
             </div>
           </CardContent>
         </Card>

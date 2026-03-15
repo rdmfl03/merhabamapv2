@@ -10,7 +10,7 @@ import { updateBusinessPlace } from "@/server/actions/business/update-business-p
 import {
   idleBusinessActionState,
   type BusinessActionState,
-} from "@/server/actions/business/shared";
+} from "@/server/actions/business/state";
 
 type BusinessPlaceFormProps = {
   locale: "de" | "tr";

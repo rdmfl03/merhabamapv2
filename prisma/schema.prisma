@@ -47,6 +47,27 @@ model VerificationToken {
   @@map("verification_tokens")
 }
 
+model UserActionToken {
+  id         String              @id @default(cuid())
+  userId     String              @map("user_id")
+  type       UserActionTokenType
+  tokenHash  String              @unique @map("token_hash")
+  expiresAt  DateTime            @map("expires_at")
+  consumedAt DateTime?           @map("consumed_at")
+  createdAt  DateTime            @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, type])
+  @@index([expiresAt])
+  @@map("user_action_tokens")
+}
+
+enum UserActionTokenType {
+  EMAIL_VERIFICATION
+  PASSWORD_RESET
+}
+
 model User {
   id                    String    @id @default(cuid())
   email                 String?   @unique
@@ -66,6 +87,7 @@ model User {
   onboardingCity  City? @relation("OnboardingCity", fields: [onboardingCityId], references: [id])
   accounts        Account[]
   sessions        Session[]
+  actionTokens    UserActionToken[]
   savedPlaces     SavedPlace[]
   savedEvents     SavedEvent[]
   businessClaims  BusinessClaim[]
@@ -116,7 +138,6 @@ model PlaceCategory {
   sortOrder Int    @default(0) @map("sort_order")
 
   places Place[]
-  events Event[]
 
   @@map("place_categories")
 }

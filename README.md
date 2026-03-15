@@ -5,8 +5,8 @@ MerhabaMap – A platform connecting Turks worldwide through places, events, com
 
 Use the Prisma seed to load a realistic MVP demo dataset:
 
-- `npm run db:migrate`
 - `npm run db:generate`
+- `npm run db:push`
 - `npm run db:seed`
 
 For a full local reset + reseed:
@@ -20,6 +20,55 @@ Or run the full setup flow on a fresh database:
 For production/staging migrations without interactive prompts:
 
 - `npm run db:migrate:deploy`
+
+## Testing
+
+Recommended local test flow:
+
+- `npm run test:e2e:setup`
+- `npm run test:unit`
+- `npm run test:smoke`
+
+Available quality commands:
+
+- `npm run lint`
+- `npm run typecheck`
+- `npm run prisma:validate`
+- `npm run test:unit`
+- `npm run test:e2e`
+- `npm run build`
+- `npm run ci:check`
+
+The E2E suite is seed-driven and expects the demo accounts and demo content from `prisma/seed.ts`.
+Playwright uses the normal sign-in flow with seeded credentials. No production auth shortcut is introduced for tests.
+
+Recommended local validation order:
+
+1. use Node `20` or any version `>=18.18.0`
+2. `npm install`
+3. `cp .env.example .env.local`
+4. `npm run db:setup`
+5. `npm run prisma:validate`
+6. `npm run lint`
+7. `npm run typecheck`
+8. `npm run test:unit`
+9. `npm run build`
+10. `npm run test:smoke`
+
+`db:push` is the stable local baseline right now because the repository does not yet maintain a checked-in Prisma migrations history. `db:migrate` should only be used when you are intentionally creating a new migration.
+If you use `nvm`, the repository now includes an `.nvmrc` file pointing to Node 20.
+Prisma and seed scripts now load environment variables from `.env.local` or `.env`, so the local Next.js-style env setup works consistently across app and database commands.
+If no local env file exists yet, repository scripts fall back to `.env.example` for development convenience. As soon as you create `.env.local` or `.env`, those values take precedence.
+
+Current E2E coverage focuses on:
+
+- public landing and discovery smoke
+- locale-aware route smoke
+- sign-in and onboarding redirect/completion
+- save/unsave flows
+- claim/report submission smoke
+- admin access protection
+- business owner access protection
 
 ## Demo credentials
 
@@ -55,11 +104,16 @@ Required production variables:
 - `AUTH_URL`
 - `APP_URL`
 - `APP_ENV=production`
+- `AUTH_ENABLE_PASSWORD_LOGIN=true`
+- `EMAIL_TRANSPORT=resend`
+- `RESEND_API_KEY` when `EMAIL_TRANSPORT=resend`
 
 Recommended runtime variables:
 
 - `LOG_LEVEL=info`
 - `READINESS_ENABLE_DB_CHECK=true`
+- `EMAIL_VERIFICATION_TOKEN_TTL_HOURS=24`
+- `PASSWORD_RESET_TOKEN_TTL_MINUTES=60`
 
 Production safety defaults:
 
@@ -67,6 +121,7 @@ Production safety defaults:
 - keep `AUTH_ALLOW_CREDENTIALS_MOCK=false`
 - keep `NEXT_PUBLIC_ENABLE_DEV_DEMO_UI=false`
 - use a strong random `AUTH_SECRET`
+- keep transactional mail on a real provider in production
 - run `npm run db:migrate:deploy` before serving traffic
 
 Health and readiness endpoints:
@@ -84,3 +139,6 @@ Health and readiness endpoints:
 - Security headers are configured in `next.config.ts`.
 - Admin and business access remain server-side role protected.
 - Seed/demo content is intended for local and staging use, not for production initialization.
+- Transactional emails use `noreply@merhabamap.com` with `Reply-To: info@merhabamap.com`.
+- All transactional emails are bilingual with Turkish first and German second.
+- Password reset and email verification use hashed one-time tokens with expiry.

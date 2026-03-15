@@ -5,7 +5,7 @@ import { useActionState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { saveOnboarding } from "@/server/actions/user/save-onboarding";
-import { idleUserFormState } from "@/server/actions/user/shared";
+import { idleUserFormState } from "@/server/actions/user/state";
 
 type Option = {
   value: string;

@@ -1,20 +1,10 @@
 "use server";
 
+import type { Route } from "next";
 import { redirect } from "next/navigation";
 
 import { signIn } from "@/auth";
-
-function getSafeNextPath(value: string, locale: string) {
-  if (!value.startsWith("/")) {
-    return `/${locale}`;
-  }
-
-  if (value.startsWith("//")) {
-    return `/${locale}`;
-  }
-
-  return value;
-}
+import { getSafeNextPath } from "@/lib/auth/safe-redirects";
 
 export async function signInWithEmail(formData: FormData) {
   const email = String(formData.get("email") ?? "");
@@ -30,11 +20,11 @@ export async function signInWithEmail(formData: FormData) {
     });
 
     if (result && typeof result === "object" && "error" in result && result.error) {
-      redirect(`/${locale}/auth/signin?error=credentials`);
+      redirect(`/${locale}/auth/signin?error=credentials` as Route);
     }
   } catch {
-    redirect(`/${locale}/auth/signin?error=credentials`);
+    redirect(`/${locale}/auth/signin?error=credentials` as Route);
   }
 
-  redirect(next);
+  redirect(next as Route);
 }

@@ -7,7 +7,7 @@ import { updateReportStatus } from "@/server/actions/admin/update-report-status"
 import {
   idleAdminActionState,
   type AdminActionState,
-} from "@/server/actions/admin/shared";
+} from "@/server/actions/admin/state";
 
 type ReportStatusFormProps = {
   locale: "de" | "tr";

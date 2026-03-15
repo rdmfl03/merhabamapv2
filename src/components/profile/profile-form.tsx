@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { updateProfile } from "@/server/actions/user/update-profile";
-import { idleUserFormState } from "@/server/actions/user/shared";
+import { idleUserFormState } from "@/server/actions/user/state";
 import type { UserInterest } from "@/lib/user-preferences";
 
 type ProfileFormProps = {

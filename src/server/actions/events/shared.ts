@@ -1,5 +1,3 @@
-"use server";
-
 export type EventActionState = {
   status: "idle" | "success" | "error";
   message?: string;
