@@ -38,7 +38,7 @@ export function PlacesFilters({
   return (
     <form
       action={`/${locale}/places`}
-      className="grid gap-3 rounded-[1.75rem] border border-border bg-white/90 p-4 shadow-soft sm:grid-cols-2 lg:grid-cols-[1.2fr_0.8fr_0.8fr_auto_auto]"
+      className="grid gap-2.5 rounded-[1.4rem] border border-border bg-white/95 p-3 shadow-soft sm:grid-cols-2 lg:grid-cols-[1.2fr_0.8fr_0.8fr_auto_auto]"
     >
       <label className="relative block">
         <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />

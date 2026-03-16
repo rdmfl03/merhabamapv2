@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 
 import { signIn } from "@/auth";
 import { getSafeNextPath } from "@/lib/auth/safe-redirects";
+import { prisma } from "@/lib/prisma";
 
 export async function signInWithEmail(formData: FormData) {
   const email = String(formData.get("email") ?? "");
@@ -24,6 +25,24 @@ export async function signInWithEmail(formData: FormData) {
     }
   } catch {
     redirect(`/${locale}/auth/signin?error=credentials` as Route);
+  }
+
+  if (next === `/${locale}`) {
+    const user = await prisma.user.findUnique({
+      where: { email },
+      select: {
+        onboardingCompletedAt: true,
+        onboardingCity: {
+          select: {
+            slug: true,
+          },
+        },
+      },
+    });
+
+    if (user?.onboardingCompletedAt && user.onboardingCity?.slug) {
+      redirect(`/${locale}/cities/${user.onboardingCity.slug}` as Route);
+    }
   }
 
   redirect(next as Route);

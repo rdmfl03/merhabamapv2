@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900" fill="none" role="img" aria-label="Ruhige Discovery-Karte im MerhabaMap-Stil">
+  <rect width="1200" height="900" fill="#F7F4F1"/>
+
+  <rect x="690" y="118" width="430" height="618" rx="42" fill="#FCFAF8" stroke="#E9DED6" stroke-width="2"/>
+
+  <g opacity="0.95" stroke-linecap="round" stroke-linejoin="round">
+    <g stroke="#DDD5CE" stroke-width="5">
+      <path d="M740 190H1074"/>
+      <path d="M740 262H1074"/>
+      <path d="M740 334H1074"/>
+      <path d="M740 406H1074"/>
+      <path d="M740 478H1074"/>
+      <path d="M740 550H1074"/>
+      <path d="M740 622H1074"/>
+
+      <path d="M786 158V690"/>
+      <path d="M858 158V690"/>
+      <path d="M930 158V690"/>
+      <path d="M1002 158V690"/>
+    </g>
+
+    <g stroke="#CFC5BD" stroke-width="10">
+      <path d="M742 510C806 480 872 474 930 490C974 502 1018 530 1082 528"/>
+      <path d="M776 222L840 278L900 300L956 342L1020 354L1086 338"/>
+      <path d="M770 612L830 560L878 524L930 506"/>
+      <path d="M1030 176L1010 686"/>
+    </g>
+
+    <g stroke="#BDB2AA" stroke-width="4">
+      <path d="M742 302L792 326L850 320L898 344"/>
+      <path d="M824 432L878 452L934 446L996 470"/>
+      <path d="M934 246L986 278L1040 284L1088 300"/>
+      <path d="M774 596L816 620L872 628L928 650"/>
+    </g>
+
+    <g stroke="#E30A17" stroke-width="8">
+      <path d="M782 612C828 578 870 544 908 494C950 438 974 376 974 310C974 270 964 234 944 206"/>
+      <path d="M734 520C792 504 850 496 908 500C958 504 1004 518 1066 520"/>
+    </g>
+  </g>
+
+  <g fill="#E30A17">
+    <circle cx="908" cy="500" r="9"/>
+    <circle cx="1038" cy="520" r="9"/>
+    <circle cx="974" cy="310" r="9"/>
+  </g>
+
+  <g fill="#F6C4BE" opacity="0.42">
+    <ellipse cx="924" cy="472" rx="42" ry="96"/>
+    <ellipse cx="978" cy="314" rx="36" ry="82"/>
+  </g>
+
+  <g transform="translate(838 250)">
+    <path d="M18 0C8.06 0 0 8.06 0 18C0 31.5 18 54 18 54C18 54 36 31.5 36 18C36 8.06 27.94 0 18 0Z" fill="#E30A17"/>
+    <circle cx="18" cy="18" r="7" fill="#FCFAF8"/>
+  </g>
+
+  <g transform="translate(1008 500)">
+    <path d="M18 0C8.06 0 0 8.06 0 18C0 31.5 18 54 18 54C18 54 36 31.5 36 18C36 8.06 27.94 0 18 0Z" fill="#E30A17"/>
+    <circle cx="18" cy="18" r="7" fill="#FCFAF8"/>
+  </g>
+
+  <defs/>
+</svg>

@@ -4,7 +4,7 @@ import { requireAuthenticatedUser } from "@/server/actions/user/shared";
 import { getSavedPlaces } from "@/server/queries/user/get-saved-places";
 import { PlaceCard } from "@/components/places/place-card";
 import { SavedEmptyState } from "@/components/saved/saved-empty-state";
-import { getLocalizedText } from "@/lib/places";
+import { getLocalizedPlaceCategoryLabel, getLocalizedText } from "@/lib/places";
 
 type SavedPlacesPageProps = {
   params: Promise<{ locale: "de" | "tr" }>;
@@ -49,7 +49,7 @@ export default async function SavedPlacesPage({ params }: SavedPlacesPageProps) 
                 locale,
                 t("places.fallbackDescription"),
               )}
-              categoryLabel={locale === "tr" ? place.category.nameTr : place.category.nameDe}
+              categoryLabel={getLocalizedPlaceCategoryLabel(place.category, locale)}
               cityLabel={locale === "tr" ? place.city.nameTr : place.city.nameDe}
               returnPath={`/${locale}/saved/places`}
               isAuthenticated

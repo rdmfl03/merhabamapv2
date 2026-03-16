@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 
 import { auth } from "@/auth";
@@ -14,19 +15,28 @@ export async function Header() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/70 bg-background/90 backdrop-blur">
-      <div className="mx-auto max-w-6xl px-4 py-4">
-        <div className="flex items-center justify-between gap-4">
+      <div className="mx-auto max-w-6xl px-4 py-3">
+        <div className="flex items-center justify-between gap-3">
           <Link href="/" className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-brand text-sm font-bold text-brand-foreground">
-              MM
+            <div className="overflow-hidden rounded-2xl shadow-sm ring-1 ring-border/70">
+              <Image
+                src="/logo-pin.svg"
+                alt="MerhabaMap logo"
+                width={40}
+                height={40}
+                className="h-10 w-10"
+                priority
+              />
             </div>
             <div>
-              <p className="font-display text-lg text-foreground">{t("brandName")}</p>
-              <p className="text-xs text-muted-foreground">{t("taglineShort")}</p>
+              <p className="text-lg font-semibold text-foreground">{t("brandName")}</p>
+              <p className="text-xs font-medium tracking-[0.02em] text-muted-foreground">
+                {t("taglineShort")}
+              </p>
             </div>
           </Link>
 
-          <nav className="hidden items-center gap-6 md:flex">
+          <nav className="hidden items-center gap-5 md:flex">
             <Link href="/cities/berlin" className="text-sm text-muted-foreground transition hover:text-foreground">
               {t("cities")}
             </Link>
@@ -38,7 +48,7 @@ export async function Header() {
             </Link>
           </nav>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             <LanguageSwitcher />
             {session?.user ? (
               <div className="flex items-center gap-2">
@@ -64,7 +74,7 @@ export async function Header() {
           </div>
         </div>
 
-        <nav className="mt-4 flex items-center gap-4 overflow-x-auto md:hidden">
+        <nav className="mt-3 flex items-center gap-4 overflow-x-auto md:hidden">
           <Link href="/cities/berlin" className="whitespace-nowrap text-sm text-muted-foreground">
             {t("cities")}
           </Link>

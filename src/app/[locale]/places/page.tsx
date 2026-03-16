@@ -8,7 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "@/i18n/navigation";
 import { buildPlacesListingMetadata } from "@/lib/metadata/places";
-import { buildPlacesPath, getLocalizedText } from "@/lib/places";
+import {
+  buildPlacesPath,
+  getLocalizedPlaceCategoryLabel,
+  getLocalizedText,
+} from "@/lib/places";
 import { placesFilterSchema } from "@/lib/validators/places";
 import { getPlaceFilters } from "@/server/queries/places/get-place-filters";
 import { listPlaces } from "@/server/queries/places/list-places";
@@ -41,9 +45,7 @@ export async function generateMetadata({
   );
   const cityLabel = city ? (locale === "tr" ? city.nameTr : city.nameDe) : null;
   const categoryLabel = category
-    ? locale === "tr"
-      ? category.nameTr
-      : category.nameDe
+    ? getLocalizedPlaceCategoryLabel(category, locale)
     : null;
   const title = cityLabel
     ? t("metaTitleCity", { city: cityLabel })
@@ -93,16 +95,16 @@ export default async function PlacesPage({
   const currentPath = buildPlacesPath(locale, filters);
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8 px-4 py-10 sm:py-12">
-      <section className="space-y-4">
+    <div className="mx-auto max-w-6xl space-y-6 px-4 py-7 sm:py-8">
+      <section className="space-y-3">
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-brand">
           {t("eyebrow")}
         </p>
-        <div className="space-y-3">
-          <h1 className="font-display text-4xl text-foreground sm:text-5xl">
+        <div className="space-y-2">
+          <h1 className="font-display text-3xl text-foreground sm:text-4xl">
             {t("title")}
           </h1>
-          <p className="max-w-3xl text-base leading-7 text-muted-foreground">
+          <p className="max-w-3xl text-base leading-6 text-muted-foreground">
             {t("description")}
           </p>
         </div>
@@ -117,7 +119,7 @@ export default async function PlacesPage({
         }))}
         categories={filterData.categories.map((category) => ({
           slug: category.slug,
-          label: locale === "tr" ? category.nameTr : category.nameDe,
+          label: getLocalizedPlaceCategoryLabel(category, locale),
         }))}
         labels={{
           searchPlaceholder: t("filters.searchPlaceholder"),
@@ -147,13 +149,13 @@ export default async function PlacesPage({
           </CardContent>
         </Card>
       ) : (
-        <section className="space-y-4">
+        <section className="space-y-3">
           <div className="flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
               {t("resultsCount", { count: places.length })}
             </p>
           </div>
-          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {places.map((place) => (
               <PlaceCard
                 key={place.id}
@@ -165,7 +167,7 @@ export default async function PlacesPage({
                   t("card.fallbackDescription"),
                 )}
                 categoryLabel={
-                  locale === "tr" ? place.category.nameTr : place.category.nameDe
+                  getLocalizedPlaceCategoryLabel(place.category, locale)
                 }
                 cityLabel={locale === "tr" ? place.city.nameTr : place.city.nameDe}
                 returnPath={currentPath}

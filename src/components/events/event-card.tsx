@@ -45,7 +45,7 @@ export function EventCard({
   return (
     <Card className="overflow-hidden bg-white/90">
       <div className="relative">
-        <div className="flex h-44 items-center justify-center bg-gradient-to-br from-brand-soft via-white to-brand-soft">
+        <div className="flex h-44 items-center justify-center bg-gradient-to-br from-[#f5f6f8] via-white to-[#eef1f5]">
           {event.imageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={event.imageUrl} alt={event.title} className="h-full w-full object-cover" />

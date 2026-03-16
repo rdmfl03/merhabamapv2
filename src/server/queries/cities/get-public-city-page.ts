@@ -2,6 +2,11 @@ import { prisma } from "@/lib/prisma";
 import { publicEventSelect } from "@/server/queries/events/shared";
 import { publicPlaceSelect } from "@/server/queries/places/shared";
 
+const pilotCityCenters: Record<string, { latitude: number; longitude: number }> = {
+  berlin: { latitude: 52.52, longitude: 13.405 },
+  koeln: { latitude: 50.9375, longitude: 6.9603 },
+};
+
 export async function getPublicCityPage(citySlug: string, userId?: string) {
   const city = await prisma.city.findUnique({
     where: { slug: citySlug },
@@ -18,7 +23,9 @@ export async function getPublicCityPage(citySlug: string, userId?: string) {
     return null;
   }
 
-  const [featuredPlaces, upcomingEvents, placeCount, eventCount] = await Promise.all([
+  const cityCenter = pilotCityCenters[city.slug] ?? null;
+
+  const [mapPlaces, mapEvents, placeCount, eventCount] = await prisma.$transaction([
     prisma.place.findMany({
       where: {
         cityId: city.id,
@@ -26,7 +33,7 @@ export async function getPublicCityPage(citySlug: string, userId?: string) {
         moderationStatus: "APPROVED",
       },
       orderBy: [{ verificationStatus: "desc" }, { createdAt: "desc" }],
-      take: 3,
+      take: 18,
       select: publicPlaceSelect,
     }),
     prisma.event.findMany({
@@ -39,7 +46,7 @@ export async function getPublicCityPage(citySlug: string, userId?: string) {
         },
       },
       orderBy: { startsAt: "asc" },
-      take: 3,
+      take: 18,
       select: publicEventSelect,
     }),
     prisma.place.count({
@@ -58,12 +65,20 @@ export async function getPublicCityPage(citySlug: string, userId?: string) {
     }),
   ]);
 
+  const featuredPlaces = mapPlaces.slice(0, 3);
+  const upcomingEvents = mapEvents.slice(0, 3);
+
   if (!userId) {
     return {
       city,
+      cityCenter,
       placeCount,
       eventCount,
       featuredPlaces: featuredPlaces.map((place) => ({
+        ...place,
+        isSaved: false,
+      })),
+      mapPlaces: mapPlaces.map((place) => ({
         ...place,
         isSaved: false,
       })),
@@ -71,25 +86,25 @@ export async function getPublicCityPage(citySlug: string, userId?: string) {
         ...event,
         isSaved: false,
       })),
+      mapEvents: mapEvents.map((event) => ({
+        ...event,
+        isSaved: false,
+      })),
     };
   }
 
-  const [savedPlaces, savedEvents] = await Promise.all([
+  const [savedPlaces, savedEvents] = await prisma.$transaction([
     prisma.savedPlace.findMany({
       where: {
         userId,
-        placeId: {
-          in: featuredPlaces.map((place) => place.id),
-        },
+        placeId: { in: mapPlaces.map((place) => place.id) },
       },
       select: { placeId: true },
     }),
     prisma.savedEvent.findMany({
       where: {
         userId,
-        eventId: {
-          in: upcomingEvents.map((event) => event.id),
-        },
+        eventId: { in: mapEvents.map((event) => event.id) },
       },
       select: { eventId: true },
     }),
@@ -100,13 +115,22 @@ export async function getPublicCityPage(citySlug: string, userId?: string) {
 
   return {
     city,
+    cityCenter,
     placeCount,
     eventCount,
     featuredPlaces: featuredPlaces.map((place) => ({
       ...place,
       isSaved: savedPlaceIds.has(place.id),
     })),
+    mapPlaces: mapPlaces.map((place) => ({
+      ...place,
+      isSaved: savedPlaceIds.has(place.id),
+    })),
     upcomingEvents: upcomingEvents.map((event) => ({
+      ...event,
+      isSaved: savedEventIds.has(event.id),
+    })),
+    mapEvents: mapEvents.map((event) => ({
       ...event,
       isSaved: savedEventIds.has(event.id),
     })),

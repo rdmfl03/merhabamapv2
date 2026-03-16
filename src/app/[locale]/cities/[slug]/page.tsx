@@ -81,11 +81,14 @@ export default async function CityPage({ params }: CityPageProps) {
           slug: cityPage.city.slug,
           name: cityName,
           isPilot: cityPage.city.isPilot,
+          center: cityPage.cityCenter,
         }}
         placeCount={cityPage.placeCount}
         eventCount={cityPage.eventCount}
         featuredPlaces={cityPage.featuredPlaces}
+        mapPlaces={cityPage.mapPlaces}
         upcomingEvents={cityPage.upcomingEvents}
+        mapEvents={cityPage.mapEvents}
         isAuthenticated={Boolean(session?.user?.id)}
         labels={{
           eyebrow: t("eyebrow"),
@@ -95,6 +98,26 @@ export default async function CityPage({ params }: CityPageProps) {
           statsEvents: t("stats.events"),
           statsPilot: t("stats.status"),
           statsPilotValue: t("stats.statusValue"),
+          mapTitle: t("map.title", { city: cityName }),
+          mapDescription: t("map.description", { city: cityName }),
+          mapEmpty: t("map.empty"),
+          noResults: t("map.noResults"),
+          searchPlaceholder: t("map.searchPlaceholder"),
+          allResults: t("map.allResults"),
+          placesOnly: t("map.placesOnly"),
+          eventsOnly: t("map.eventsOnly"),
+          allCategories: t("map.allCategories"),
+          resetFilters: t("map.resetFilters"),
+          resultsTitle: t("map.resultsTitle"),
+          resultsSummary: t("map.resultsSummary", { count: 0 }),
+          viewPlace: t("map.viewPlace"),
+          viewEvent: t("map.viewEvent"),
+          locateMe: t("map.locateMe"),
+          locating: t("map.locating"),
+          locationUnavailable: t("map.locationUnavailable"),
+          myLocation: t("map.myLocation"),
+          legendPlaces: t("map.legendPlaces"),
+          legendEvents: t("map.legendEvents"),
           placesCta: t("ctas.places", { city: cityName }),
           eventsCta: t("ctas.events", { city: cityName }),
           signUpCta: t("ctas.signUp"),

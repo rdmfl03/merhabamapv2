@@ -94,16 +94,16 @@ export default async function EventsPage({
   const currentPath = buildEventsPath(locale, filters);
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8 px-4 py-10 sm:py-12">
-      <section className="space-y-4">
+    <div className="mx-auto max-w-6xl space-y-6 px-4 py-7 sm:py-8">
+      <section className="space-y-3">
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-brand">
           {t("eyebrow")}
         </p>
-        <div className="space-y-3">
-          <h1 className="font-display text-4xl text-foreground sm:text-5xl">
+        <div className="space-y-2">
+          <h1 className="font-display text-3xl text-foreground sm:text-4xl">
             {t("title")}
           </h1>
-          <p className="max-w-3xl text-base leading-7 text-muted-foreground">
+          <p className="max-w-3xl text-base leading-6 text-muted-foreground">
             {t("description")}
           </p>
         </div>
@@ -153,11 +153,11 @@ export default async function EventsPage({
           </CardContent>
         </Card>
       ) : (
-        <section className="space-y-4">
+        <section className="space-y-3">
           <p className="text-sm text-muted-foreground">
             {t("resultsCount", { count: events.length })}
           </p>
-          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {events.map((event) => (
               <EventCard
                 key={event.id}

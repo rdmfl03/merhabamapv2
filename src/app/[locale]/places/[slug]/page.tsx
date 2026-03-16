@@ -13,7 +13,9 @@ import { JsonLd } from "@/components/seo/json-ld";
 import { Card, CardContent } from "@/components/ui/card";
 import { buildPlaceDetailMetadata } from "@/lib/metadata/places";
 import {
+  formatOpeningHoursDay,
   getLocalizedText,
+  getLocalizedPlaceCategoryLabel,
   getPlaceImage,
   getVerificationTone,
   parseOpeningHours,
@@ -79,8 +81,7 @@ export default async function PlaceDetailPage({
   const image = getPlaceImage(place.images);
   const verificationTone = getVerificationTone(place.verificationStatus);
   const cityLabel = locale === "tr" ? place.city.nameTr : place.city.nameDe;
-  const categoryLabel =
-    locale === "tr" ? place.category.nameTr : place.category.nameDe;
+  const categoryLabel = getLocalizedPlaceCategoryLabel(place.category, locale);
   const returnPath = `/${locale}/places/${place.slug}`;
 
   return (
@@ -101,7 +102,7 @@ export default async function PlaceDetailPage({
       />
       <section className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
         <div className="overflow-hidden rounded-[2rem] border border-border bg-white shadow-soft">
-          <div className="flex h-72 items-center justify-center bg-gradient-to-br from-brand-soft via-white to-brand-soft sm:h-96">
+          <div className="flex h-72 items-center justify-center bg-gradient-to-br from-[#f5f6f8] via-white to-[#eef1f5] sm:h-96">
             {image ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={image} alt={place.name} className="h-full w-full object-cover" />
@@ -242,7 +243,9 @@ export default async function PlaceDetailPage({
                       key={`${entry.day}-${entry.open}-${entry.close}`}
                       className="flex items-center justify-between rounded-2xl bg-muted/50 px-4 py-3 text-sm"
                     >
-                      <span className="font-medium text-foreground">{entry.day}</span>
+                      <span className="font-medium text-foreground">
+                        {formatOpeningHoursDay(entry.day, locale)}
+                      </span>
                       <span className="text-muted-foreground">
                         {entry.open} - {entry.close}
                       </span>

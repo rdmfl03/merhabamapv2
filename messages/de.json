@@ -16,84 +16,84 @@
     "metaTitle": "Türkische Orte und Events in Deutschland",
     "metaDescription": "Entdecke türkische Orte, Events und lokale Businesses in Berlin und Köln.",
     "eyebrow": "Bilingualer Start in Deutschland",
-    "title": "Türkische Orte, Events und lokale Relevanz in Deutschland entdecken.",
-    "subtitle": "MerhabaMap ist dein zweisprachiger Einstieg in türkische Restaurants, Cafés, Community-Events und vertrauenswürdige lokale Informationen in Berlin und Köln.",
+    "title": "Die digitale Karte für türkische Orte, Events und Community-Relevanz in Deutschland.",
+    "subtitle": "MerhabaMap verbindet lokale Entdeckung, Community-Kontext und vertrauenswürdige Orientierung für Berlin und Köln in einer zweisprachigen, kartenbasierten Erfahrung.",
     "explorePlaces": "Orte entdecken",
     "browseEvents": "Events ansehen",
     "heroTrust": {
       "title": "Deutschland Start",
-      "curated": "Kuratiertes Discovery-Fundament statt unklarer Sammelplattform.",
-      "cityFirst": "Berlin und Köln als klare Pilotmärkte mit lokaler Relevanz.",
-      "reportable": "Meldungen, Claims und Moderation sind von Anfang an mitgedacht."
+      "curated": "Map-first Discovery statt beliebiger Sammlung.",
+      "cityFirst": "Berlin und Köln bilden den klaren Startpunkt für lokale Relevanz.",
+      "reportable": "Moderation, Meldungen und Business-Claims sind von Anfang an mitgedacht."
     },
     "cards": {
       "places": {
-        "eyebrow": "Places",
-        "title": "Kuratiert statt beliebig",
-        "description": "Türkische Restaurants, Bäckereien, Supermärkte, Moscheen und Dienstleister mit klaren Kategorien und späterer Verifizierung."
+        "eyebrow": "Orte",
+        "title": "Orte mit kulturellem Kontext",
+        "description": "Restaurants, Bäckereien, Supermärkte, Moscheen und Services werden als lokale Infrastruktur sichtbar, nicht nur als lose Trefferliste."
       },
       "events": {
         "eyebrow": "Events",
-        "title": "Lokale Relevanz",
-        "description": "Kulturabende, Treffen und Veranstaltungen mit klarer Stadt- und Ortszuordnung für eine suchbare MVP-Struktur."
+        "title": "Events mit Stadtbezug",
+        "description": "Kulturabende, Treffen und Veranstaltungen erscheinen dort, wo sie für die Community tatsächlich lokal relevant sind."
       },
       "cities": {
         "eyebrow": "Städte",
-        "title": "City-first Discovery",
-        "description": "Öffentliche City-Seiten bündeln Orte, Events und nächste Schritte für Berlin und Köln in suchfreundlicher Struktur."
+        "title": "Pilotstädte als Einstieg",
+        "description": "Öffentliche Stadtseiten geben Berlin und Köln eine klare, vertrauenswürdige Struktur für Orte, Events und nächste Schritte."
       }
     },
     "pilotSection": {
       "eyebrow": "Pilotstädte",
-      "title": "Starte mit den stärksten lokalen Einstiegspunkten.",
-      "description": "Berlin und Köln bilden den öffentlichen Discovery-Kern für den MVP. Von dort aus wachsen Places, Events und vertrauenswürdige lokale Signale weiter.",
+      "title": "Beginne dort, wo Community im Alltag sichtbar wird.",
+      "description": "Berlin und Köln sind die ersten öffentlichen Einstiegspunkte. Von hier aus wächst MerhabaMap als lokales, vertrauenswürdiges Discovery-Netzwerk weiter.",
       "cta": "Stadt entdecken",
       "placesLabel": "Orte",
       "eventsLabel": "Events"
     },
     "howItWorks": {
       "eyebrow": "So funktioniert es",
-      "title": "Ein klarer Einstieg statt Plattformrauschen.",
-      "description": "MerhabaMap führt Besucher zuerst über Stadt und Relevanz zu konkreten Orten und Events.",
+      "title": "Eine Community-Karte statt einer beliebigen Plattform.",
+      "description": "MerhabaMap führt zuerst über Stadt, Relevanz und Vertrauen zu konkreten Orten, Events und lokalen Signalen.",
       "steps": {
         "one": {
           "title": "Stadt wählen",
-          "description": "Beginne mit Berlin oder Köln und öffne eine Discovery-Seite mit lokalem Fokus."
+          "description": "Beginne mit Berlin oder Köln und öffne einen lokalen Einstieg mit klarer Community-Relevanz."
         },
         "two": {
           "title": "Orte und Events entdecken",
-          "description": "Suche nach Restaurants, Cafés, Märkten, Community-Events und weiteren relevanten Treffpunkten."
+          "description": "Entdecke Restaurants, Cafés, Märkte, Community-Events und weitere Treffpunkte in einem gemeinsamen Discovery-Kontext."
         },
         "three": {
           "title": "Speichern und zurückkommen",
-          "description": "Mit Account kannst du Favoriten sichern und deinen Einstieg über Stadt und Interessen personalisieren."
+          "description": "Mit einem Konto kannst du Favoriten sichern und deinen Einstieg an Stadt, Sprache und Interessen ausrichten."
         }
       }
     },
     "trust": {
       "eyebrow": "Vertrauen",
-      "title": "Öffentliche Discovery mit klaren Grenzen und sauberen Signalen.",
-      "description": "MerhabaMap soll nützlich und glaubwürdig sein, ohne mehr zu behaupten als die Daten tatsächlich hergeben.",
+      "title": "Öffentliche Sichtbarkeit mit klaren Grenzen und nachvollziehbaren Signalen.",
+      "description": "MerhabaMap soll nützlich und glaubwürdig sein, ohne mehr zu versprechen als Daten, Moderation und Produktrealität tatsächlich tragen.",
       "items": {
         "quality": {
-          "title": "Kuratiertes MVP",
-          "description": "Es werden nur veröffentlichte und freigegebene Orte und Events öffentlich gezeigt."
+          "title": "Kuratiertes Discovery-MVP",
+          "description": "Öffentlich sichtbar sind nur veröffentlichte und freigegebene Orte und Events mit nachvollziehbarer Einordnung."
         },
         "reports": {
-          "title": "Melden statt ignorieren",
-          "description": "Nutzer können problematische Einträge melden, damit Informationen schneller überprüft werden."
+          "title": "Melden statt wegschauen",
+          "description": "Problematische Einträge können gemeldet werden, damit Informationen schneller geprüft und bei Bedarf korrigiert werden."
         },
         "claims": {
-          "title": "Claimbare Businesses",
-          "description": "Unternehmen können Besitzansprüche einreichen, ohne dass daraus bereits falsche Verifizierungsversprechen entstehen."
+          "title": "Business-Claims mit klaren Grenzen",
+          "description": "Unternehmen können Besitzansprüche einreichen, ohne dass daraus voreilige Verifizierungsversprechen oder falsche Sicherheit entstehen."
         }
       }
     },
     "cta": {
       "eyebrow": "Nächster Schritt",
-      "title": "Entdecke zuerst, registriere dich wenn es für dich nützlich ist.",
-      "description": "Die Plattform bleibt öffentlich suchbar. Ein Account hilft dir beim Speichern, Personalisieren und beim vertrauensvollen Mitwirken.",
-      "primary": "Places ansehen",
+      "title": "Erst entdecken. Dann registrieren, wenn es dir echten Mehrwert gibt.",
+      "description": "MerhabaMap bleibt öffentlich nutzbar. Ein Konto hilft dir beim Speichern, Personalisieren und beim vertrauensvollen Mitwirken in deiner Stadt.",
+      "primary": "Orte ansehen",
       "secondary": "Events ansehen",
       "tertiary": "Account erstellen"
     }
@@ -253,8 +253,8 @@
       "hoursTitle": "Öffnungszeiten",
       "hoursUnavailable": "Für diesen Ort liegen noch keine Öffnungszeiten vor.",
       "mapTitle": "Standort",
-      "mapDescription": "Leichte Karten-Vorschau für den MVP. Externer Kartendienst öffnet bei Bedarf.",
-      "mapUnavailable": "Für diesen Ort sind noch keine Koordinaten hinterlegt. Die Adresse kann trotzdem in OpenStreetMap geöffnet werden.",
+      "mapDescription": "Der Standort wird direkt auf der Karte angezeigt. Bei Bedarf kannst du ihn zusätzlich in Google Maps öffnen.",
+      "mapUnavailable": "Für diesen Ort sind noch keine Koordinaten hinterlegt. Die Adresse kann trotzdem in Google Maps geöffnet werden.",
       "openMap": "In Karte öffnen"
     },
     "claim": {
@@ -306,7 +306,7 @@
     "description": "Finde Konzerte, Kulturabende, Community-Treffen und weitere Veranstaltungen mit lokalem Kontext in Berlin und Köln.",
     "resultsCount": "{count, number} Ergebnisse",
     "filters": {
-      "searchPlaceholder": "Nach Titel, Venue oder Adresse suchen",
+      "searchPlaceholder": "Nach Titel, Ort oder Adresse suchen",
       "allCities": "Alle Städte",
       "allCategories": "Alle Kategorien",
       "allDates": "Alle Zeiträume",
@@ -346,15 +346,15 @@
       "fallbackDescription": "Für dieses Event ist noch keine Beschreibung verfügbar.",
       "infoTitle": "Informationen",
       "organizer": "Veranstalter",
-      "venue": "Venue",
-      "missingVenue": "Venue wird ergänzt.",
+      "venue": "Veranstaltungsort",
+      "missingVenue": "Der Veranstaltungsort wird ergänzt.",
       "address": "Adresse",
       "missingAddress": "Adresse wird ergänzt.",
       "website": "Externer Link",
       "externalLink": "Zum Event",
       "mapTitle": "Standort",
-      "mapDescription": "Leichte Karten-Vorschau für den MVP. Externer Kartendienst öffnet bei Bedarf.",
-      "mapUnavailable": "Für dieses Event sind noch keine Koordinaten hinterlegt. Die Adresse kann trotzdem in OpenStreetMap geöffnet werden.",
+      "mapDescription": "Der Standort wird direkt auf der Karte angezeigt. Bei Bedarf kannst du ihn zusätzlich in Google Maps öffnen.",
+      "mapUnavailable": "Für dieses Event sind noch keine Koordinaten hinterlegt. Die Adresse kann trotzdem in Google Maps geöffnet werden.",
       "openMap": "In Karte öffnen",
       "noticeTitle": "Hinweis zu externen Links",
       "noticeDescription": "Wenn ein externer Link vorhanden ist, führt er zu einer Drittseite des Veranstalters. MerhabaMap verkauft keine Tickets in diesem MVP."
@@ -566,6 +566,28 @@
     "eyebrow": "Stadt entdecken",
     "title": "{city} auf MerhabaMap",
     "description": "Starte deine Discovery in {city} mit kuratierten Orten, relevanten Events und klaren nächsten Schritten.",
+    "map": {
+      "title": "{city} als Discovery-Karte",
+      "description": "Orte und kommende Events werden hier als lokale Einstiegspunkte auf einer kompakten Stadtübersicht sichtbar.",
+      "searchPlaceholder": "Nach Ort, Event oder Kategorie suchen",
+      "allResults": "Alles",
+      "placesOnly": "Nur Orte",
+      "eventsOnly": "Nur Events",
+      "allCategories": "Alle Kategorien",
+      "resetFilters": "Filter zurücksetzen",
+      "resultsTitle": "Treffer auf der Karte",
+      "resultsSummary": "{count} sichtbare Treffer",
+      "viewPlace": "Ort öffnen",
+      "viewEvent": "Event öffnen",
+      "locateMe": "Meinen Standort anzeigen",
+      "locating": "Standort wird ermittelt",
+      "locationUnavailable": "Dein Standort konnte nicht ermittelt werden. Prüfe die Browser-Freigabe.",
+      "myLocation": "Mein Standort",
+      "legendPlaces": "Orte",
+      "legendEvents": "Events",
+      "empty": "Sobald Orte oder Events mit Koordinaten vorliegen, erscheint hier deine Stadtkarte.",
+      "noResults": "Für diese Filterkombination gibt es aktuell keine passenden Treffer auf der Karte."
+    },
     "stats": {
       "places": "Veröffentlichte Orte",
       "events": "Veröffentlichte Events",

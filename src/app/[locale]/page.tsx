@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { redirect } from "next/navigation";
 
+import { auth } from "@/auth";
 import { PublicCtaSection } from "@/components/marketing/public-cta-section";
 import { HowItWorksSection } from "@/components/marketing/how-it-works-section";
 import { PilotCitiesSection } from "@/components/marketing/pilot-cities-section";
@@ -11,6 +13,7 @@ import { JsonLd } from "@/components/seo/json-ld";
 import { buildLandingMetadata } from "@/lib/metadata/public";
 import { buildOrganizationSchema } from "@/lib/seo/structured-data";
 import { getPilotCities } from "@/server/queries/cities/get-pilot-cities";
+import { getCurrentUserProfile } from "@/server/queries/user/get-current-user-profile";
 
 type LandingPageProps = {
   params: Promise<{ locale: "de" | "tr" }>;
@@ -33,13 +36,23 @@ export default async function LandingPage({ params }: LandingPageProps) {
   const { locale } = await params;
   setRequestLocale(locale);
 
+  const session = await auth();
+
+  if (session?.user?.id && session.user.onboardingCompletedAt) {
+    const profile = await getCurrentUserProfile(session.user.id);
+
+    if (profile?.onboardingCity?.slug) {
+      redirect(`/${locale}/cities/${profile.onboardingCity.slug}`);
+    }
+  }
+
   const [t, pilotCities] = await Promise.all([
     getTranslations("landing"),
     getPilotCities(),
   ]);
 
   return (
-    <div className="pb-16">
+    <div className="pb-10 sm:pb-12">
       <JsonLd data={buildOrganizationSchema(locale)} />
 
       <PublicHero

@@ -43,12 +43,12 @@ export function PlaceCard({
   return (
     <Card className="overflow-hidden bg-white/90">
       <div className="relative">
-        <div className="flex h-44 items-center justify-center bg-brand-soft">
+        <div className="flex h-44 items-center justify-center bg-[#f5f6f8]">
           {image ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={image} alt={place.name} className="h-full w-full object-cover" />
           ) : (
-            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-brand-soft via-white to-brand-soft text-sm font-medium text-brand">
+            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#f5f6f8] via-white to-[#eef1f5] text-sm font-medium text-brand">
               {place.name}
             </div>
           )}

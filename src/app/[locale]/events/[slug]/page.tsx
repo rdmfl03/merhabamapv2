@@ -99,7 +99,7 @@ export default async function EventDetailPage({
       />
       <section className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
         <div className="overflow-hidden rounded-[2rem] border border-border bg-white shadow-soft">
-          <div className="flex h-72 items-center justify-center bg-gradient-to-br from-brand-soft via-white to-brand-soft sm:h-96">
+          <div className="flex h-72 items-center justify-center bg-gradient-to-br from-[#f5f6f8] via-white to-[#eef1f5] sm:h-96">
             {event.imageUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={event.imageUrl} alt={event.title} className="h-full w-full object-cover" />

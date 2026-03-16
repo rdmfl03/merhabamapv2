@@ -52,5 +52,5 @@ export async function saveOnboarding(
   revalidatePath(`/${parsed.data.locale}`);
   revalidatePath(`/${parsed.data.locale}/profile`);
 
-  redirect(`/${parsed.data.preferredLocale}/places?city=${city.slug}`);
+  redirect(`/${parsed.data.preferredLocale}/cities/${city.slug}`);
 }

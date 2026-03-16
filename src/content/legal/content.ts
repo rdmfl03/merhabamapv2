@@ -21,18 +21,18 @@ export function getImpressumContent(locale: AppLocale): LegalPageContent {
     return {
       title: "Impressum",
       intro:
-        "Bu sayfa Almanya odakli bir urun yuzeyi icin gerekli yasal iletisim bilgilerinin taslak yapisini sunar. Kose parantezli alanlar lansman oncesi gercek bilgilerle guncellenmelidir.",
+        "Bu sayfa Almanya odaklı bir ürün yüzeyi için gerekli yasal iletişim bilgilerinin taslak yapisini sunar. Köşe parantezli alanlar lansman öncesi gerçek bilgilerle güncellenmelidir.",
       sections: [
         {
-          title: "Saglayici bilgileri",
+          title: "Sağlayıcı bilgileri",
           paragraphs: [
-            `Hizmet saglayici: ${company.entityName}`,
+            `Hizmet sağlayıcı: ${company.entityName}`,
             `Yasal temsil: ${company.legalRepresentative}`,
             ...company.addressLines,
           ],
         },
         {
-          title: "Iletisim",
+          title: "İletişim",
           paragraphs: [
             `E-posta: ${company.contactEmail}`,
             `Telefon: ${company.contactPhone}`,
@@ -45,15 +45,15 @@ export function getImpressumContent(locale: AppLocale): LegalPageContent {
           ],
         },
         {
-          title: "Icerikten sorumlu kisi",
+          title: "İçerikten sorumlu kişi",
           paragraphs: [
             `${company.contentResponsiblePerson}`,
           ],
         },
         {
-          title: "Onemli not",
+          title: "Önemli not",
           paragraphs: [
-            "MerhabaMap'te yer alan isletme, etkinlik ve topluluk bilgileri duruma gore kullanici, isletme sahibi veya editor incelemesiyle guncellenebilir. Bu sayfadaki yasal bilgiler ürün lansmani oncesi son kez kontrol edilmelidir.",
+            "MerhabaMap'te yer alan işletme, etkinlik ve topluluk bilgileri duruma göre kullanıcı, işletme sahibi veya editör incelemesiyle güncellenebilir. Bu sayfadaki yasal bilgiler ürün lansmanı öncesi son kez kontrol edilmelidir.",
           ],
         },
       ],
@@ -107,14 +107,14 @@ export function getPrivacyContent(locale: AppLocale): LegalPageContent {
 
   if (locale === "tr") {
     return {
-      title: "Gizlilik Politikasi",
+      title: "Gizlilik Politikası",
       intro:
-        "Bu metin MerhabaMap'in mevcut teknik ve urunsel davranisina dayanan dikkatli bir taslak gizlilik yapisidir. Nihai hukuki degerlendirme yerine gecmez; lansman oncesi ayrica kontrol edilmelidir.",
+        "Bu metin MerhabaMap'in mevcut teknik ve ürün davranışına dayanan dikkatli bir taslak gizlilik yapısıdır. Nihai hukuki değerlendirme yerine geçmez; lansman öncesinde ayrıca kontrol edilmelidir.",
       sections: [
         {
-          title: "Genel bakis",
+          title: "Genel bakış",
           paragraphs: [
-            "MerhabaMap, Almanya'daki Turk toplulugu icin iki dilli bir kesif urunudur. Veri minimizasyonu ve seffaflik temel ilkelerdir.",
+            "MerhabaMap, Almanya'daki Türk topluluğu için iki dilli bir keşif ürünüdür. Veri minimizasyonu ve şeffaflık temel ilkelerdir.",
           ],
         },
         {
@@ -122,75 +122,75 @@ export function getPrivacyContent(locale: AppLocale): LegalPageContent {
           paragraphs: [
             `${company.entityName}`,
             ...company.addressLines,
-            `Genel iletisim: ${company.contactEmail}`,
-            `Gizlilik iletisimi: ${company.privacyContactEmail}`,
+            `Genel iletişim: ${company.contactEmail}`,
+            `Gizlilik iletişimi: ${company.privacyContactEmail}`,
           ],
         },
         {
-          title: "Islenen veri kategorileri",
+          title: "İşlenen veri kategorileri",
           bullets: [
-            "hesap olusturma sirasinda e-posta adresi, sifre hash'i ve istege bagli isim",
-            "profil/onboarding tercihlerinde dil, sehir ve ilgi alanlari",
+            "hesap oluşturma sırasında e-posta adresi, şifre hash'i ve isteğe bağlı isim",
+            "profil/onboarding tercihlerinde dil, şehir ve ilgi alanları",
             "kaydedilen mekan ve etkinlikler",
-            "business claim ve rapor akislari icin saglanan iletisim ve aciklama bilgileri",
-            "guvenlik ve isletim amacli teknik sunucu loglari",
+            "business claim ve rapor akışları için sağlanan iletişim ve açıklama bilgileri",
+            "güvenlik ve işletim amaçlı teknik sunucu logları",
           ],
         },
         {
-          title: "Isleme amaclari",
+          title: "İşleme amaclari",
           bullets: [
-            "hesap olusturma, oturum yonetimi ve kimlik dogrulama",
-            "kaydedilen icerikler ve kullanici tercihlerini gosterebilme",
-            "claim, rapor ve moderasyon sureclerini yurutebilme",
-            "sifre sifirlama, e-posta dogrulama ve diger zorunlu iletisimleri gonderebilme",
-            "platform guvenligi ve teknik hata takibi",
+            "hesap oluşturma, oturum yönetimi ve kimlik doğrulama",
+            "kaydedilen içerikler ve kullanıcı tercihlerini gösterebilme",
+            "claim, rapor ve moderasyon süreçlerini yürütebilme",
+            "şifre sıfırlama, e-posta doğrulama ve diğer zorunlu iletişimleri gönderebilme",
+            "platform güvenliği ve teknik hata takibi",
           ],
         },
         {
           title: "Hesap, profil ve favoriler",
           paragraphs: [
-            "MerhabaMap su anda zorunlu olmayan kapsamli profil verileri toplamaz. Dil, sehir ve ilgi alanlari yalnizca deneyimi daha ilgili hale getirmek icin kullanilir.",
+            "MerhabaMap şu anda zorunlu olmayan kapsamlı profil verileri toplamaz. Dil, şehir ve ilgi alanları yalnızca deneyimi daha ilgili hale getirmek için kullanılır.",
           ],
         },
         {
           title: "Claim, rapor ve moderasyon verileri",
           paragraphs: [
-            "Business claim ve rapor icerikleri, guven ve platform guvenligi sureclerinin bir parcasi olarak islenir. Bu veriler herkese acik gosterilmez ve yalnizca ilgili dahili inceleme akislarinda kullanilir.",
+            "Business claim ve rapor içerikleri, güven ve platform güvenliği süreçlerinin bir parçası olarak işlenir. Bu veriler herkese açık gösterilmez ve yalnızca ilgili dahili inceleme akışlarında kullanılır.",
           ],
         },
         {
           title: "Teknik loglar",
           paragraphs: [
-            "Uygulama, calisma guvenligi icin sinirli teknik loglar tutabilir. Amaç hata tespiti, guvenlik ve operasyonel izlenebilirliktir. Loglarda gereksiz kisisel veri tutulmamasi hedeflenir.",
+            "Uygulama, çalışma güvenliği için sınırlı teknik loglar tutabilir. Amaç hata tespiti, güvenlik ve operasyonel izlenebilirliktir. Loglarda gereksiz kişisel veri tutulmaması hedeflenir.",
           ],
         },
         {
           title: "Cookies ve benzeri mekanizmalar",
           paragraphs: [
-            "Mevcut MVP yapisinda istege bagli reklam veya pazarlama takibi bulunmamaktadir. Hesap girisi ve oturum devamlılığı icin gerekli oturum mekanizmalari kullanilir.",
+            "Mevcut MVP yapısında isteğe bağlı reklam veya pazarlama takibi bulunmamaktadır. Hesap girişi ve oturum devamlılığı için gerekli oturum mekanizmaları kullanılır.",
           ],
         },
         {
-          title: "E-posta iletisimleri",
+          title: "E-posta iletişimleri",
           paragraphs: [
-            "Hesap dogrulama, sifre sifirlama, claim durumu veya benzeri zorunlu islemsel iletiler e-posta ile gonderilebilir. Bu iletiler pazarlama amacli degildir.",
+            "Hesap doğrulama, şifre sıfırlama, claim durumu veya benzeri zorunlu işlemsel iletiler e-posta ile gönderilebilir. Bu iletiler pazarlama amaçlı değildir.",
           ],
         },
         {
-          title: "Haklariniz",
+          title: "Haklarınız",
           bullets: [
             "bilgi talep etme",
-            "duzeltme isteme",
-            "silme veya kisitlama talep etme",
-            "itiraz hakki",
-            "veri tasinabilirligi hakki",
-            "yetkili denetim makamına sikayette bulunma hakki",
+            "düzeltme isteme",
+            "silme veya kısıtlama talep etme",
+            "itiraz hakkı",
+            "veri taşınabilirliği hakkı",
+            "yetkili denetim makamına şikayette bulunma hakkı",
           ],
         },
         {
           title: "Saklama ve silme",
           paragraphs: [
-            "Veriler isleme amaci ve yasal saklama yukumlulukleri sona erdiginde silinmeli veya uygun sekilde sinirlandirilmalidir. Kesin saklama planlari lansman oncesi ayri olarak gozten gecirilmelidir.",
+            "Veriler işleme amacı ve yasal saklama yükümlülükleri sona erdiğinde silinmeli veya uygun şekilde sınırlandırılmalıdır. Kesin saklama planlari lansman öncesi ayri olarak gözden geçirilmelidir.",
           ],
         },
       ],
@@ -263,7 +263,7 @@ export function getPrivacyContent(locale: AppLocale): LegalPageContent {
         ],
       },
       {
-        title: "E-Mail-Kommunikation",
+        title: "E-Mail-Kommunikatıon",
         paragraphs: [
           "MerhabaMap versendet transaktionale E-Mails für Kontoverifizierung, Passwort-Reset sowie ausgewählte Vorgangsbestätigungen. Diese Nachrichten dienen dem Betrieb und nicht dem Newsletter- oder Werbezweck.",
         ],
@@ -295,54 +295,54 @@ export function getTermsContent(locale: AppLocale): LegalPageContent {
 
   if (locale === "tr") {
     return {
-      title: "Kullanim Kosullari",
+      title: "Kullanım Koşulları",
       intro:
-        "Bu metin MerhabaMap icin lansmana hazir, dikkatli bir kullanim kosullari taslagidir. Nihai hukuki degerlendirme yerine gecmez ve yayin oncesi ayrica kontrol edilmelidir.",
+        "Bu metin MerhabaMap için lansmana hazır, dikkatli bir kullanım koşulları taslagidir. Nihai hukuki değerlendirme yerine geçmez ve yayin öncesi ayrıca kontrol edilmelidir.",
       sections: [
         {
           title: "Hizmet kapsami",
           paragraphs: [
-            "MerhabaMap; mekanlar, etkinlikler ve ilgili topluluk bilgilerinin kesfi icin saglanan iki dilli bir platformdur. Tum bilgi ve icerikler her zaman tam, guncel veya eksiksiz olmayabilir.",
+            "MerhabaMap; mekanlar, etkinlikler ve ilgili topluluk bilgilerinin kesfi için sağlanan iki dilli bir platformdur. Tüm bilgi ve içerikler her zaman tam, güncel veya eksiksiz olmayabilir.",
           ],
         },
         {
-          title: "Kullanici hesaplari",
+          title: "Kullanıcı hesaplari",
           paragraphs: [
-            "Bazi ozellikler icin hesap gerekir. Kullanicilar erisim bilgilerini guvenli sekilde korumakla sorumludur.",
+            "Bazi ozellikler için hesap gerekir. Kullanıcılar erisim bilgilerini güvenli şekilde korumakla sorumludur.",
           ],
         },
         {
-          title: "Kabul edilebilir kullanim",
+          title: "Kabul edilebilir kullanım",
           bullets: [
-            "dogruya makul olcude uygun bilgi saglamak",
+            "doğruya makul ölçüde uygun bilgi sağlamak",
             "claim ve rapor akilarini kotuye kullanmamak",
-            "diger kullanicilar, isletmeler ve topluluklar hakkinda yaniltici iddialar yaymamak",
+            "diğer kullanıcılar, işletmeler ve topluluklar hakkında yanıltıcı iddialar yaymamak",
           ],
         },
         {
-          title: "Yasaklanan davranislar",
+          title: "Yasaklanan davranışlar",
           bullets: [
-            "spam, kotuye kullanim veya sistemin otomatik suistimali",
-            "hukuka aykiri, nefreti tesvik eden veya zarar verici icerik",
-            "yaniltici sahiplik beyanlari veya sahte business claim gonderimleri",
+            "spam, kotuye kullanım veya sistemin otomatik suistimali",
+            "hukuka aykiri, nefreti tesvik eden veya zarar verici içerik",
+            "yanıltıcı sahiplik beyanlari veya sahte business claim gönderimleri",
           ],
         },
         {
           title: "Moderasyon ve bildirimler",
           paragraphs: [
-            "MerhabaMap, rapor, claim ve diger guven sinyallerini inceleyebilir; icerikleri yayindan kaldirabilir, duzeltme isteyebilir veya hesap erisimini sinirlayabilir.",
+            "MerhabaMap, rapor, claim ve diğer güven sinyallerini inceleyebilir; içerikleri yayindan kaldırabilir, düzeltme isteyebilir veya hesap erişimini sinirlayabilir.",
           ],
         },
         {
-          title: "Business claim ve dogrulama mantigi",
+          title: "Business claim ve doğrulama mantigi",
           paragraphs: [
-            "\"Claimed\" ve \"Verified\" ayni anlamda degildir. Claimed durumu, bir sahiplik talebinin onaylandigini; Verified durumu ise belirli bilgilerin MerhabaMap tarafindan ayrica incelendigini ifade eder.",
+            "\"Claimed\" ve \"Verified\" aynı anlamda değildir. Claimed durumu, bir sahiplik talebinin onaylandigini; Verified durumu ise belirli bilgilerin MerhabaMap tarafindan ayrıca incelendigini ifade eder.",
           ],
         },
         {
-          title: "Ucuncu taraf baglantilar ve etkinlikler",
+          title: "Ucuncu taraf bağlantılar ve etkinlikler",
           paragraphs: [
-            "MerhabaMap, ucuncu taraf sitelere veya organizator sayfalarina baglantilar gosterebilir. Harici icerik ve islemler ilgili ucuncu tarafin sorumlulugundadir.",
+            "MerhabaMap, ucuncu taraf sitelere veya organizator sayfalarına bağlantılar gosterebilir. Harici içerik ve islemler ilgili ucuncu tarafin sorumlulugundadir.",
           ],
         },
         {
@@ -354,19 +354,19 @@ export function getTermsContent(locale: AppLocale): LegalPageContent {
         {
           title: "Sorumluluk notu",
           paragraphs: [
-            "Zorunlu yasal sorumluluk halleri saklidir. Bunun disinda, MVP urun yapisi ve kullanici kaynakli icerikler nedeniyle hukuki metinler yayin oncesi ayri degerlendirilmelidir.",
+            "Zorunlu yasal sorumluluk halleri saklidir. Bunun disinda, MVP ürün yapisi ve kullanıcı kaynakli içerikler nedeniyle hukuki metinler yayin öncesi ayri degerlendirilmelidir.",
           ],
         },
         {
-          title: "Hesap veya icerik sinirlamalari",
+          title: "Hesap veya içerik sinirlamalari",
           paragraphs: [
-            "Kurallara aykiri kullanim, yaniltici claim veya ciddi guven ihlallerinde hesaplar veya icerikler gecici ya da kalici olarak sinirlanabilir.",
+            "Kurallara aykiri kullanım, yanıltıcı claim veya ciddi güven ihlallerinde hesaplar veya içerikler gecici ya da kalici olarak sinirlanabilir.",
           ],
         },
         {
-          title: "Iletisim",
+          title: "İletişim",
           paragraphs: [
-            `Genel iletisim: ${company.contactEmail}`,
+            `Genel iletişim: ${company.contactEmail}`,
           ],
         },
       ],
@@ -427,7 +427,7 @@ export function getTermsContent(locale: AppLocale): LegalPageContent {
       {
         title: "Verfügbarkeit",
         paragraphs: [
-          "MerhabaMap wird als MVP und fortlaufend weiterentwickeltes Produkt betrieben. Eine jederzeitige, fehlerfreie oder vollständige Verfügbarkeit kann nicht zugesagt werden.",
+          "MerhabaMap wird als MVP und fortlaufend weiterentwickeltes Produkt betrieben. Eine jederzeitige, fehlerfreie oder vollständige Verfügbarkeit kann nicht zugesağt werden.",
         ],
       },
       {
@@ -460,30 +460,30 @@ export function getCommunityRulesContent(locale: AppLocale): LegalPageContent {
         "Bu sayfa MerhabaMap uzerindeki temel topluluk beklentilerini kisa ve anlasilir bicimde ozetler.",
       sections: [
         {
-          title: "Saygili iletisim",
+          title: "Saygili iletişim",
           bullets: [
-            "nefret, taciz veya asagilama iceren icerik paylasmayin",
-            "kisi veya topluluklara zarar verecek dil kullanmayin",
+            "nefret, taciz veya aşağılama içeren içerik paylaşmayın",
+            "kişi veya topluluklara zarar verecek dil kullanmayin",
           ],
         },
         {
-          title: "Spam ve yaniltici icerik yok",
+          title: "Spam ve yanıltıcı içerik yok",
           bullets: [
-            "yaniltici business claim, sahte rapor veya tekrarli spam gondermeyin",
-            "isletmeler ve etkinlikler hakkinda kasitli olarak yanlis bilgi yaymayin",
+            "yanıltıcı business claim, sahte rapor veya tekrarli spam göndermeyin",
+            "işletmeler ve etkinlikler hakkında kasitli olarak yanlis bilgi yaymayin",
           ],
         },
         {
           title: "Hukuka uygunluk",
           bullets: [
-            "hukuka aykiri icerik paylasmayin",
-            "baskalarinin haklarini ihlal eden icerik gondermeyin",
+            "hukuka aykiri içerik paylaşmayın",
+            "baskalarinin haklarini ihlal eden içerik göndermeyin",
           ],
         },
         {
-          title: "Bildirim ve sonuc",
+          title: "Bildirim ve sonuç",
           paragraphs: [
-            "Supheli veya sorunlu icerikler raporlanabilir. Ihlalin agirligina gore icerik kaldirma, claim reddi veya hesap kisitlamasi uygulanabilir.",
+            "Supheli veya sorunlu içerikler raporlanabilir. Ihlalin agirligina göre içerik kaldırma, claim reddi veya hesap kısıtlamasi uygulanabilir.",
           ],
         },
       ],
