@@ -90,6 +90,7 @@ model User {
   reviewedSubmissions  Submission[]      @relation("ReviewedSubmissions")
   submittedSubmissions Submission[]      @relation("SubmittedSubmissions")
   actionTokens         UserActionToken[]
+  aiRecheckRequests    AiRecheckRequest[]
   onboardingCity       City?             @relation("OnboardingCity", fields: [onboardingCityId], references: [id])
 
   @@index([role])
@@ -314,6 +315,25 @@ model AdminActionLog {
   @@map("admin_action_logs")
 }
 
+model AiRecheckRequest {
+  id                String                 @id @default(cuid())
+  entityType        AiRecheckEntityType    @map("entity_type")
+  entityId          String                 @map("entity_id")
+  requestedByUserId String                 @map("requested_by_user_id")
+  status            AiRecheckRequestStatus @default(PENDING)
+  processedAt       DateTime?              @map("processed_at")
+  errorMessage      String?                @map("error_message")
+  createdAt         DateTime               @default(now()) @map("created_at")
+  updatedAt         DateTime               @updatedAt @map("updated_at")
+
+  requestedByUser User @relation(fields: [requestedByUserId], references: [id], onDelete: Cascade)
+
+  @@index([entityType, entityId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("ai_recheck_requests")
+}
+
 model Source {
   id              String    @id
   platform        String
@@ -517,6 +537,18 @@ enum Role {
   BUSINESS_OWNER
   MODERATOR
   ADMIN
+}
+
+enum AiRecheckEntityType {
+  event
+  place
+}
+
+enum AiRecheckRequestStatus {
+  PENDING
+  PROCESSING
+  DONE
+  FAILED
 }
 
 enum Locale {

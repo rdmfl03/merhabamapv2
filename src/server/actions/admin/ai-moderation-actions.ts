@@ -16,6 +16,7 @@ type UpdatedEntity = {
   id: string;
   slug: string;
   previousStatus: string | null;
+  recheckRequestCreated?: boolean;
 };
 
 async function updateEntityAiStatus(
@@ -94,8 +95,84 @@ export async function markEntityAiReject(entityType: AiEntityType, entityId: str
   return updateEntityAiStatus(entityType, entityId, "REJECT");
 }
 
-export async function rerunAiCheck(entityType: AiEntityType, entityId: string) {
-  return updateEntityAiStatus(entityType, entityId, "UNSURE");
+export async function rerunAiCheck(
+  entityType: AiEntityType,
+  entityId: string,
+  actorId: string,
+) {
+  const now = new Date();
+
+  return prisma.$transaction(async (tx) => {
+    const entity =
+      entityType === "event"
+        ? await tx.event.findUnique({
+            where: { id: entityId },
+            select: {
+              id: true,
+              slug: true,
+              aiReviewStatus: true,
+            },
+          })
+        : await tx.place.findUnique({
+            where: { id: entityId },
+            select: {
+              id: true,
+              slug: true,
+              aiReviewStatus: true,
+            },
+          });
+
+    if (!entity) {
+      return null;
+    }
+
+    if (entityType === "event") {
+      await tx.event.update({
+        where: { id: entity.id },
+        data: {
+          aiReviewStatus: "UNSURE",
+          aiLastCheckedAt: now,
+        },
+      });
+    } else {
+      await tx.place.update({
+        where: { id: entity.id },
+        data: {
+          aiReviewStatus: "UNSURE",
+          aiLastCheckedAt: now,
+        },
+      });
+    }
+
+    const activeRequest = await tx.aiRecheckRequest.findFirst({
+      where: {
+        entityType,
+        entityId: entity.id,
+        status: {
+          in: ["PENDING", "PROCESSING"],
+        },
+      },
+      select: { id: true },
+    });
+
+    if (!activeRequest) {
+      await tx.aiRecheckRequest.create({
+        data: {
+          entityType,
+          entityId: entity.id,
+          requestedByUserId: actorId,
+          status: "PENDING",
+        },
+      });
+    }
+
+    return {
+      id: entity.id,
+      slug: entity.slug,
+      previousStatus: entity.aiReviewStatus,
+      recheckRequestCreated: !activeRequest,
+    };
+  });
 }
 
 export async function applyAiModerationAction(
@@ -124,7 +201,7 @@ export async function applyAiModerationAction(
         ? await markEntityAiReview(parsed.data.entityType, parsed.data.entityId)
         : parsed.data.action === "REJECT"
           ? await markEntityAiReject(parsed.data.entityType, parsed.data.entityId)
-          : await rerunAiCheck(parsed.data.entityType, parsed.data.entityId);
+          : await rerunAiCheck(parsed.data.entityType, parsed.data.entityId, actor.id);
 
   if (!entity) {
     return { status: "error", message: "entity_not_found" };
@@ -143,6 +220,7 @@ export async function applyAiModerationAction(
       previousStatus: entity.previousStatus,
       nextStatus,
       action: parsed.data.action,
+      recheckRequestCreated: entity.recheckRequestCreated ?? null,
     },
   });
 
