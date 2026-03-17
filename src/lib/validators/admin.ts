@@ -19,3 +19,10 @@ export const updatePlaceTrustSchema = z.object({
   placeId: z.string().cuid(),
   nextStatus: z.enum(["UNVERIFIED", "CLAIMED", "VERIFIED"]),
 });
+
+export const updateAiModerationSchema = z.object({
+  locale: z.enum(routing.locales),
+  entityType: z.enum(["event", "place"]),
+  entityId: z.string().cuid(),
+  action: z.enum(["OK", "REVIEW", "REJECT", "RERUN"]),
+});

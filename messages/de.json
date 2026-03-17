@@ -440,7 +440,8 @@
         "suggestedAction": "Empfohlene Aktion",
         "reasonCodes": "Reason Codes",
         "explanation": "Erklärung",
-        "checkedAt": "Geprüft am"
+        "checkedAt": "Geprüft am",
+        "actions": "Aktionen"
       },
       "summary": {
         "reject": "REJECT",
@@ -454,6 +455,13 @@
         "untitled": "Ohne Label",
         "notAvailable": "Nicht verfügbar"
       }
+    },
+    "aiModeration": {
+      "approve": "Freigeben",
+      "review": "Manuell prüfen",
+      "reject": "Ablehnen",
+      "rerun": "AI neu prüfen",
+      "error": "Die AI-Aktion konnte nicht gespeichert werden."
     },
     "reports": {
       "title": "Meldungen prüfen",

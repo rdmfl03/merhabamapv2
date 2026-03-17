@@ -450,7 +450,8 @@
         "suggestedAction": "Önerilen aksiyon",
         "reasonCodes": "Neden kodları",
         "explanation": "Açıklama",
-        "checkedAt": "Kontrol zamanı"
+        "checkedAt": "Kontrol zamanı",
+        "actions": "Aksiyonlar"
       },
       "summary": {
         "reject": "REJECT",
@@ -464,6 +465,13 @@
         "untitled": "Etiketsiz",
         "notAvailable": "Yok"
       }
+    },
+    "aiModeration": {
+      "approve": "Uygun işaretle",
+      "review": "Manuel incelemeye gönder",
+      "reject": "Reddet",
+      "rerun": "AI yeniden kontrol et",
+      "error": "AI aksiyonu kaydedilemedi."
     },
     "reports": {
       "title": "Bildirimleri incele",

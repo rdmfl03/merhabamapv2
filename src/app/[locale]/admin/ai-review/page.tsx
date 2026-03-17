@@ -1,5 +1,6 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
+import { AiReviewActionForm } from "@/components/admin/ai-review-action-form";
 import { AdminShell } from "@/components/admin/admin-shell";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -130,6 +131,7 @@ export default async function AdminAiReviewPage({
                     <th className="px-3">{t("aiReview.columns.reasonCodes")}</th>
                     <th className="px-3">{t("aiReview.columns.explanation")}</th>
                     <th className="px-3">{t("aiReview.columns.checkedAt")}</th>
+                    <th className="px-3">{t("aiReview.columns.actions")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -143,10 +145,10 @@ export default async function AdminAiReviewPage({
                     return (
                       <tr key={`${row.entityType ?? "unknown"}-${row.entityId ?? index}`}>
                         <td
-                          colSpan={10}
+                          colSpan={11}
                           className="rounded-2xl border border-border bg-white px-0 py-0 shadow-soft"
                         >
-                          <div className="grid gap-3 px-3 py-4 md:grid-cols-10 md:items-start">
+                          <div className="grid gap-3 px-3 py-4 md:grid-cols-11 md:items-start">
                             <div className="space-y-1 md:col-span-1">
                               <p className="text-sm font-medium text-foreground">
                                 {row.entityType ?? t("aiReview.fallbacks.unknown")}
@@ -205,6 +207,29 @@ export default async function AdminAiReviewPage({
                             <div className="text-sm text-muted-foreground md:col-span-1">
                               {formatDate(row.checkedAt, locale) ??
                                 t("aiReview.fallbacks.notAvailable")}
+                            </div>
+
+                            <div className="md:col-span-1">
+                              {row.entityType && row.entityId ? (
+                                <AiReviewActionForm
+                                  locale={locale}
+                                  entityType={
+                                    row.entityType.toLowerCase() === "event" ? "event" : "place"
+                                  }
+                                  entityId={row.entityId}
+                                  labels={{
+                                    approve: t("aiModeration.approve"),
+                                    review: t("aiModeration.review"),
+                                    reject: t("aiModeration.reject"),
+                                    rerun: t("aiModeration.rerun"),
+                                    error: t("aiModeration.error"),
+                                  }}
+                                />
+                              ) : (
+                                <p className="text-sm text-muted-foreground">
+                                  {t("aiReview.fallbacks.notAvailable")}
+                                </p>
+                              )}
                             </div>
                           </div>
                         </td>
