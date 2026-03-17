@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { publicPlaceVisibilityWhere } from "./shared";
 
 export async function getPlaceFilters() {
   const [cities, categories] = await Promise.all([
@@ -6,8 +7,7 @@ export async function getPlaceFilters() {
       where: {
         places: {
           some: {
-            isPublished: true,
-            moderationStatus: "APPROVED",
+            ...publicPlaceVisibilityWhere,
           },
         },
       },
@@ -22,8 +22,7 @@ export async function getPlaceFilters() {
       where: {
         places: {
           some: {
-            isPublished: true,
-            moderationStatus: "APPROVED",
+            ...publicPlaceVisibilityWhere,
           },
         },
       },

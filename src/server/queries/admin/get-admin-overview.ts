@@ -1,5 +1,9 @@
 import { prisma } from "@/lib/prisma";
 
+type CountRow = {
+  count: number;
+};
+
 export async function getAdminOverview() {
   const [
     openReports,
@@ -7,6 +11,9 @@ export async function getAdminOverview() {
     pendingClaims,
     claimedPlaces,
     verifiedPlaces,
+    eventAiReviewQueueCountRows,
+    placeAiReviewQueueCountRows,
+    allAiReviewQueueCountRows,
     recentActions,
   ] = await Promise.all([
     prisma.report.count({
@@ -34,6 +41,18 @@ export async function getAdminOverview() {
         verificationStatus: "VERIFIED",
       },
     }),
+    prisma.$queryRaw<CountRow[]>`
+      SELECT COUNT(*)::int AS count
+      FROM v_event_ai_review_queue
+    `,
+    prisma.$queryRaw<CountRow[]>`
+      SELECT COUNT(*)::int AS count
+      FROM v_place_ai_review_queue
+    `,
+    prisma.$queryRaw<CountRow[]>`
+      SELECT COUNT(*)::int AS count
+      FROM v_ai_review_queue_all
+    `,
     prisma.adminActionLog.findMany({
       orderBy: {
         createdAt: "desc",
@@ -56,6 +75,9 @@ export async function getAdminOverview() {
     pendingClaims,
     claimedPlaces,
     verifiedPlaces,
+    eventAiReviewQueueCount: eventAiReviewQueueCountRows[0]?.count ?? 0,
+    placeAiReviewQueueCount: placeAiReviewQueueCountRows[0]?.count ?? 0,
+    allAiReviewQueueCount: allAiReviewQueueCountRows[0]?.count ?? 0,
     recentActions,
   };
 }

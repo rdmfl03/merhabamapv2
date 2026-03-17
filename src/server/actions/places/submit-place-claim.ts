@@ -8,6 +8,7 @@ import { sendClaimSubmittedEmail } from "@/lib/email/notifications";
 import { prisma } from "@/lib/prisma";
 import { getClaimSubmissionGuard } from "@/lib/rate-limit/submission-guard";
 import { placeClaimSchema } from "@/lib/validators/places";
+import { buildPublicPlaceWhere } from "@/server/queries/places/shared";
 
 import {
   idlePlaceActionState,
@@ -49,11 +50,9 @@ export async function submitPlaceClaim(
   }
 
   const place = await prisma.place.findFirst({
-    where: {
+    where: buildPublicPlaceWhere({
       id: parsed.data.placeId,
-      isPublished: true,
-      moderationStatus: "APPROVED",
-    },
+    }),
     select: {
       id: true,
       slug: true,

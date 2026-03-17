@@ -1,17 +1,15 @@
 import { prisma } from "@/lib/prisma";
 
-import { publicPlaceSelect } from "./shared";
+import { buildPublicPlaceWhere, publicPlaceSelect } from "./shared";
 
 export async function getPlaceBySlug(args: {
   slug: string;
   userId?: string;
 }) {
   const place = await prisma.place.findFirst({
-    where: {
+    where: buildPublicPlaceWhere({
       slug: args.slug,
-      isPublished: true,
-      moderationStatus: "APPROVED",
-    },
+    }),
     select: publicPlaceSelect,
   });
 

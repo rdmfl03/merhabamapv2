@@ -386,6 +386,7 @@
       "overview": "Übersicht",
       "reports": "Meldungen",
       "claims": "Claims",
+      "aiReview": "AI-Review",
       "places": "Places",
       "logs": "Logs"
     },
@@ -396,11 +397,16 @@
       "pendingClaims": "Offene Claims",
       "inReviewReports": "Meldungen in Prüfung",
       "verifiedPlaces": "Verifizierte Places",
+      "allAiReviewQueue": "AI-Review gesamt",
+      "eventAiReviewQueue": "Event-AI-Queue",
+      "placeAiReviewQueue": "Place-AI-Queue",
       "launchTitle": "Soft-Launch Fokus",
       "launchDescription": "Priorisiere offene Moderationsarbeit, halte Trust-Status konservativ und prüfe ungewöhnliche Aktivität vor einer breiteren Freigabe.",
+      "aiQueueDescription": "AI dient hier als Plausibilitäts- und Audit-Layer. REVIEW, UNSURE und andere auffällige Ergebnisse gehören in die manuelle Prüfung; REJECT sollte nicht wie normal öffentlicher Content behandelt werden.",
       "openReportsAction": "Offene Meldungen prüfen",
       "pendingClaimsAction": "Offene Claims prüfen",
       "trustQueueAction": "{count, number} beanspruchte Places prüfen",
+      "aiQueueAction": "{count, number} AI-Fälle prüfen",
       "playbookTitle": "Moderationsleitlinien",
       "playbook": {
         "reviewClaims": "Claims zuerst auf Plausibilität und Konflikte mit bestehendem Owner prüfen.",
@@ -410,6 +416,44 @@
       },
       "recentActions": "Letzte Aktionen",
       "noActions": "Noch keine Moderationsaktionen vorhanden."
+    },
+    "aiReviewStatuses": {
+      "ok": "OK",
+      "review": "Zur Prüfung",
+      "unsure": "Unsicher",
+      "reject": "Nicht normal öffentlich behandeln",
+      "not_checked": "Noch nicht AI-geprüft",
+      "unknown": "Unbekannter AI-Status"
+    },
+    "aiReview": {
+      "title": "AI-Moderationsqueue",
+      "description": "Interne Übersicht über AI-geprüfte Events und Places, die für Moderation und Plausibilitätsprüfung relevant sind.",
+      "empty": "Aktuell liegen keine AI-Fälle in der Queue.",
+      "openPlace": "Place-Detail öffnen",
+      "columns": {
+        "entity": "Entity",
+        "label": "Label",
+        "city": "Stadt",
+        "startsAt": "Start",
+        "status": "AI-Status",
+        "confidence": "Confidence",
+        "suggestedAction": "Empfohlene Aktion",
+        "reasonCodes": "Reason Codes",
+        "explanation": "Erklärung",
+        "checkedAt": "Geprüft am"
+      },
+      "summary": {
+        "reject": "REJECT",
+        "review": "REVIEW",
+        "unsure": "UNSURE",
+        "ok": "OK",
+        "unknown": "Unbekannt"
+      },
+      "fallbacks": {
+        "unknown": "Unbekannt",
+        "untitled": "Ohne Label",
+        "notAvailable": "Nicht verfügbar"
+      }
     },
     "reports": {
       "title": "Meldungen prüfen",
@@ -512,6 +556,12 @@
       "noWebsite": "Keine Website gepflegt.",
       "lastVerified": "Zuletzt verifiziert",
       "notVerified": "Bisher nicht verifiziert.",
+      "aiTitle": "AI-Audit",
+      "aiDescription": "Diese Werte stammen aus dem externen n8n/Gemini-Plausibilitätscheck. Sie unterstützen die Moderation, ersetzen aber keine manuelle Entscheidung.",
+      "aiReviewStatus": "AI-Review-Status",
+      "aiConfidenceScore": "AI-Confidence-Score",
+      "aiLastCheckedAt": "Zuletzt AI-geprüft",
+      "aiNotChecked": "Noch nicht AI-geprüft.",
       "trustActions": "Trust-Aktionen",
       "actions": {
         "unverified": "Als unverifiziert markieren",

@@ -1,5 +1,27 @@
 import { Prisma } from "@prisma/client";
 
+export const publicPlaceVisibilityWhere =
+  Prisma.validator<Prisma.PlaceWhereInput>()({
+    isPublished: true,
+    moderationStatus: "APPROVED",
+    OR: [
+      { aiReviewStatus: null },
+      {
+        aiReviewStatus: {
+          not: "REJECT",
+        },
+      },
+    ],
+  });
+
+export function buildPublicPlaceWhere(
+  where: Prisma.PlaceWhereInput = {},
+): Prisma.PlaceWhereInput {
+  return {
+    AND: [publicPlaceVisibilityWhere, where],
+  };
+}
+
 export const publicPlaceSelect = Prisma.validator<Prisma.PlaceSelect>()({
   id: true,
   slug: true,

@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { saveEventSchema } from "@/lib/validators/events";
+import { buildPublicEventWhere } from "@/server/queries/events/shared";
 
 import { sanitizeEventReturnPath } from "./shared";
 
@@ -28,11 +29,9 @@ export async function toggleSaveEvent(formData: FormData) {
   }
 
   const event = await prisma.event.findFirst({
-    where: {
+    where: buildPublicEventWhere({
       id: parsed.data.eventId,
-      isPublished: true,
-      moderationStatus: "APPROVED",
-    },
+    }),
     select: {
       id: true,
       slug: true,

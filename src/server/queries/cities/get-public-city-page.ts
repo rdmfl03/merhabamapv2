@@ -1,6 +1,12 @@
 import { prisma } from "@/lib/prisma";
-import { publicEventSelect } from "@/server/queries/events/shared";
-import { publicPlaceSelect } from "@/server/queries/places/shared";
+import {
+  buildPublicEventWhere,
+  publicEventSelect,
+} from "@/server/queries/events/shared";
+import {
+  buildPublicPlaceWhere,
+  publicPlaceSelect,
+} from "@/server/queries/places/shared";
 
 const pilotCityCenters: Record<string, { latitude: number; longitude: number }> = {
   berlin: { latitude: 52.52, longitude: 13.405 },
@@ -27,41 +33,33 @@ export async function getPublicCityPage(citySlug: string, userId?: string) {
 
   const [mapPlaces, mapEvents, placeCount, eventCount] = await prisma.$transaction([
     prisma.place.findMany({
-      where: {
+      where: buildPublicPlaceWhere({
         cityId: city.id,
-        isPublished: true,
-        moderationStatus: "APPROVED",
-      },
+      }),
       orderBy: [{ verificationStatus: "desc" }, { createdAt: "desc" }],
       take: 18,
       select: publicPlaceSelect,
     }),
     prisma.event.findMany({
-      where: {
+      where: buildPublicEventWhere({
         cityId: city.id,
-        isPublished: true,
-        moderationStatus: "APPROVED",
         startsAt: {
           gte: new Date(),
         },
-      },
+      }),
       orderBy: { startsAt: "asc" },
       take: 18,
       select: publicEventSelect,
     }),
     prisma.place.count({
-      where: {
+      where: buildPublicPlaceWhere({
         cityId: city.id,
-        isPublished: true,
-        moderationStatus: "APPROVED",
-      },
+      }),
     }),
     prisma.event.count({
-      where: {
+      where: buildPublicEventWhere({
         cityId: city.id,
-        isPublished: true,
-        moderationStatus: "APPROVED",
-      },
+      }),
     }),
   ]);
 

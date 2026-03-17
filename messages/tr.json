@@ -396,6 +396,7 @@
       "overview": "Genel bakış",
       "reports": "Bildirimler",
       "claims": "Claimler",
+      "aiReview": "AI inceleme",
       "places": "Placeler",
       "logs": "Loglar"
     },
@@ -406,11 +407,16 @@
       "pendingClaims": "Bekleyen claimler",
       "inReviewReports": "İncelemedeki bildirimler",
       "verifiedPlaces": "Doğrulanan place'ler",
+      "allAiReviewQueue": "Toplam AI inceleme kuyruğu",
+      "eventAiReviewQueue": "Etkinlik AI kuyruğu",
+      "placeAiReviewQueue": "Mekan AI kuyruğu",
       "launchTitle": "Soft launch odağı",
       "launchDescription": "Açık moderasyon işlerini öncele, trust durumlarını dikkatli kullan ve daha geniş açılımdan önce sıra dışı aktiviteyi kontrol et.",
+      "aiQueueDescription": "AI burada yalnızca bir olasılık ve denetim katmanıdır. REVIEW, UNSURE ve benzeri sonuçlar manuel incelemeye gider; REJECT sonuçları normal herkese açık içerik gibi ele alınmamalıdır.",
       "openReportsAction": "Açık bildirimleri incele",
       "pendingClaimsAction": "Bekleyen claimleri incele",
       "trustQueueAction": "{count, number} claim edilmiş place'i incele",
+      "aiQueueAction": "{count, number} AI kaydını incele",
       "playbookTitle": "Moderasyon notları",
       "playbook": {
         "reviewClaims": "Claim'leri önce tutarlılık ve mevcut owner ile çakışıyor mu diye kontrol et.",
@@ -420,6 +426,44 @@
       },
       "recentActions": "Son aksiyonlar",
       "noActions": "Henüz moderasyon aksiyonu yok."
+    },
+    "aiReviewStatuses": {
+      "ok": "Uygun",
+      "review": "İnceleme gerekli",
+      "unsure": "Belirsiz",
+      "reject": "Normal herkese açık içerik olarak ele alma",
+      "not_checked": "Henüz AI kontrolü yapılmadı",
+      "unknown": "Bilinmeyen AI durumu"
+    },
+    "aiReview": {
+      "title": "AI moderasyon kuyruğu",
+      "description": "AI tarafından incelenmiş etkinlik ve mekanların moderasyon ile olasılık kontrolü için iç görünümü.",
+      "empty": "Şu anda kuyrukta AI kaydı yok.",
+      "openPlace": "Mekan detayını aç",
+      "columns": {
+        "entity": "Varlık",
+        "label": "Etiket",
+        "city": "Şehir",
+        "startsAt": "Başlangıç",
+        "status": "AI durumu",
+        "confidence": "Güven",
+        "suggestedAction": "Önerilen aksiyon",
+        "reasonCodes": "Neden kodları",
+        "explanation": "Açıklama",
+        "checkedAt": "Kontrol zamanı"
+      },
+      "summary": {
+        "reject": "REJECT",
+        "review": "REVIEW",
+        "unsure": "UNSURE",
+        "ok": "OK",
+        "unknown": "Bilinmiyor"
+      },
+      "fallbacks": {
+        "unknown": "Bilinmiyor",
+        "untitled": "Etiketsiz",
+        "notAvailable": "Yok"
+      }
     },
     "reports": {
       "title": "Bildirimleri incele",
@@ -522,6 +566,12 @@
       "noWebsite": "Web sitesi girilmemiş.",
       "lastVerified": "Son doğrulama",
       "notVerified": "Henüz doğrulanmadı.",
+      "aiTitle": "AI denetimi",
+      "aiDescription": "Bu değerler harici n8n/Gemini olasılık kontrolünden gelir. Moderasyona yardımcı olur, ama manuel kararı tek başına belirlemez.",
+      "aiReviewStatus": "AI inceleme durumu",
+      "aiConfidenceScore": "AI güven puanı",
+      "aiLastCheckedAt": "Son AI kontrolü",
+      "aiNotChecked": "Henüz AI kontrolü yapılmadı.",
       "trustActions": "Trust aksiyonları",
       "actions": {
         "unverified": "Doğrulanmamış olarak işaretle",

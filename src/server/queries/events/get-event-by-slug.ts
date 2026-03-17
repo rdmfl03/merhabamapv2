@@ -1,17 +1,15 @@
 import { prisma } from "@/lib/prisma";
 
-import { publicEventSelect } from "./shared";
+import { buildPublicEventWhere, publicEventSelect } from "./shared";
 
 export async function getEventBySlug(args: {
   slug: string;
   userId?: string;
 }) {
   const event = await prisma.event.findFirst({
-    where: {
+    where: buildPublicEventWhere({
       slug: args.slug,
-      isPublished: true,
-      moderationStatus: "APPROVED",
-    },
+    }),
     select: publicEventSelect,
   });
 

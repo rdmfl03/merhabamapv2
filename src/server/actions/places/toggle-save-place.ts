@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { savePlaceSchema } from "@/lib/validators/places";
+import { buildPublicPlaceWhere } from "@/server/queries/places/shared";
 
 import { sanitizeReturnPath } from "./shared";
 
@@ -30,11 +31,9 @@ export async function toggleSavePlace(formData: FormData) {
   }
 
   const place = await prisma.place.findFirst({
-    where: {
+    where: buildPublicPlaceWhere({
       id: parsed.data.placeId,
-      isPublished: true,
-      moderationStatus: "APPROVED",
-    },
+    }),
     select: {
       id: true,
       slug: true,

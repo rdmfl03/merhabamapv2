@@ -1,4 +1,6 @@
 import { prisma } from "@/lib/prisma";
+import { publicEventVisibilityWhere } from "@/server/queries/events/shared";
+import { publicPlaceVisibilityWhere } from "@/server/queries/places/shared";
 
 export async function getPilotCities() {
   const cities = await prisma.city.findMany({
@@ -20,15 +22,13 @@ export async function getPilotCities() {
         prisma.place.count({
           where: {
             cityId: city.id,
-            isPublished: true,
-            moderationStatus: "APPROVED",
+            ...publicPlaceVisibilityWhere,
           },
         }),
         prisma.event.count({
           where: {
             cityId: city.id,
-            isPublished: true,
-            moderationStatus: "APPROVED",
+            ...publicEventVisibilityWhere,
           },
         }),
       ]);

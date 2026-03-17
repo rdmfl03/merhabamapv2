@@ -3,7 +3,11 @@ import type { Prisma } from "@prisma/client";
 import type { PlacesFilterInput } from "@/lib/validators/places";
 import { prisma } from "@/lib/prisma";
 
-import { publicPlaceSelect, type PublicPlaceRecord } from "./shared";
+import {
+  buildPublicPlaceWhere,
+  publicPlaceSelect,
+  type PublicPlaceRecord,
+} from "./shared";
 
 export type ListedPlace = PublicPlaceRecord & {
   isSaved: boolean;
@@ -13,10 +17,7 @@ export async function listPlaces(args: {
   filters: PlacesFilterInput;
   userId?: string;
 }) {
-  const where: Prisma.PlaceWhereInput = {
-    isPublished: true,
-    moderationStatus: "APPROVED",
-  };
+  const where: Prisma.PlaceWhereInput = {};
 
   if (args.filters.city) {
     where.city = {
@@ -40,7 +41,7 @@ export async function listPlaces(args: {
   }
 
   const places = await prisma.place.findMany({
-    where,
+    where: buildPublicPlaceWhere(where),
     orderBy: [
       { verificationStatus: "desc" },
       { createdAt: "desc" },

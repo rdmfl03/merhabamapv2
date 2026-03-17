@@ -1,5 +1,27 @@
 import { Prisma } from "@prisma/client";
 
+export const publicEventVisibilityWhere =
+  Prisma.validator<Prisma.EventWhereInput>()({
+    isPublished: true,
+    moderationStatus: "APPROVED",
+    OR: [
+      { aiReviewStatus: null },
+      {
+        aiReviewStatus: {
+          not: "REJECT",
+        },
+      },
+    ],
+  });
+
+export function buildPublicEventWhere(
+  where: Prisma.EventWhereInput = {},
+): Prisma.EventWhereInput {
+  return {
+    AND: [publicEventVisibilityWhere, where],
+  };
+}
+
 export const publicEventSelect = Prisma.validator<Prisma.EventSelect>()({
   id: true,
   slug: true,

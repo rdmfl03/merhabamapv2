@@ -156,6 +156,9 @@ model Place {
   verifiedByUserId     String?            @map("verified_by_user_id")
   lastBusinessUpdateAt DateTime?          @map("last_business_update_at")
   moderationStatus     ModerationStatus   @default(PENDING) @map("moderation_status")
+  aiReviewStatus       String?            @map("ai_review_status")
+  aiConfidenceScore    Decimal?           @map("ai_confidence_score")
+  aiLastCheckedAt      DateTime?          @map("ai_last_checked_at")
   createdAt            DateTime           @default(now()) @map("created_at")
   updatedAt            DateTime           @updatedAt @map("updated_at")
 
@@ -196,6 +199,9 @@ model Event {
   imageUrl         String?          @map("image_url")
   isPublished      Boolean          @default(false) @map("is_published")
   moderationStatus ModerationStatus @default(PENDING) @map("moderation_status")
+  aiReviewStatus   String?          @map("ai_review_status")
+  aiConfidenceScore Decimal?        @map("ai_confidence_score")
+  aiLastCheckedAt  DateTime?        @map("ai_last_checked_at")
   createdAt        DateTime         @default(now()) @map("created_at")
   updatedAt        DateTime         @updatedAt @map("updated_at")
 

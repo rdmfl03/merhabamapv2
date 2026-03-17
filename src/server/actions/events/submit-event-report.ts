@@ -8,6 +8,7 @@ import { sendReportReceivedEmail } from "@/lib/email/notifications";
 import { prisma } from "@/lib/prisma";
 import { getReportSubmissionGuard } from "@/lib/rate-limit/submission-guard";
 import { eventReportSchema } from "@/lib/validators/events";
+import { buildPublicEventWhere } from "@/server/queries/events/shared";
 
 import {
   idleEventActionState,
@@ -44,11 +45,9 @@ export async function submitEventReport(
   }
 
   const event = await prisma.event.findFirst({
-    where: {
+    where: buildPublicEventWhere({
       id: parsed.data.eventId,
-      isPublished: true,
-      moderationStatus: "APPROVED",
-    },
+    }),
     select: { id: true, title: true },
   });
 

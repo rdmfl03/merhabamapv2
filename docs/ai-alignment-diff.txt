@@ -1,0 +1,840 @@
+MerhabaMap AI Alignment Diff
+Generated: 2026-03-17
+
+Current HEAD commit:
+08f3a214dab3a46988180ad79abf69c09a784e2f
+
+Current HEAD subject:
+Advance MerhabaMap discovery, map, and UI integration
+
+Current HEAD date:
+2026-03-17 00:58:01 +0100
+
+Note:
+- There is no new commit for the AI alignment work yet.
+- This file captures the exact current uncommitted diff against HEAD.
+- Local untracked file intentionally excluded from the diff scope:
+  prisma/schema.backup.prisma
+
+Diff stat:
+ messages/de.json                                  | 17 ++++++
+ messages/tr.json                                  | 17 ++++++
+ prisma/schema.prisma                              |  6 ++
+ src/app/[locale]/admin/page.tsx                   | 37 +++++++++++++
+ src/app/[locale]/admin/places/[id]/page.tsx       | 67 +++++++++++++++++------
+ src/server/actions/events/submit-event-report.ts  |  7 +--
+ src/server/actions/events/toggle-save-event.ts    |  7 +--
+ src/server/actions/places/submit-place-claim.ts   |  7 +--
+ src/server/actions/places/submit-place-report.ts  |  7 +--
+ src/server/actions/places/toggle-save-place.ts    |  7 +--
+ src/server/queries/admin/get-admin-overview.ts    | 22 ++++++++
+ src/server/queries/admin/get-admin-place-by-id.ts |  3 +
+ src/server/queries/cities/get-pilot-cities.ts     |  8 +--
+ src/server/queries/cities/get-public-city-page.ts | 34 ++++++------
+ src/server/queries/events/get-event-by-slug.ts    |  8 +--
+ src/server/queries/events/get-event-filters.ts    |  4 +-
+ src/server/queries/events/list-events.ts          | 10 ++--
+ src/server/queries/events/shared.ts               | 22 ++++++++
+ src/server/queries/places/get-place-by-slug.ts    |  8 +--
+ src/server/queries/places/get-place-filters.ts    |  7 +--
+ src/server/queries/places/list-places.ts          | 13 +++--
+ src/server/queries/places/shared.ts               | 22 ++++++++
+ 22 files changed, 256 insertions(+), 84 deletions(-)
+
+Exact diff:
+
+diff --git a/messages/de.json b/messages/de.json
+index e0cb72b..3438d2a 100644
+--- a/messages/de.json
++++ b/messages/de.json
+@@ -396,11 +396,16 @@
+       "pendingClaims": "Offene Claims",
+       "inReviewReports": "Meldungen in Prüfung",
+       "verifiedPlaces": "Verifizierte Places",
++      "allAiReviewQueue": "AI-Review gesamt",
++      "eventAiReviewQueue": "Event-AI-Queue",
++      "placeAiReviewQueue": "Place-AI-Queue",
+       "launchTitle": "Soft-Launch Fokus",
+       "launchDescription": "Priorisiere offene Moderationsarbeit, halte Trust-Status konservativ und prüfe ungewöhnliche Aktivität vor einer breiteren Freigabe.",
++      "aiQueueDescription": "AI dient hier als Plausibilitäts- und Audit-Layer. REVIEW, UNSURE und andere auffällige Ergebnisse gehören in die manuelle Prüfung; REJECT sollte nicht wie normal öffentlicher Content behandelt werden.",
+       "openReportsAction": "Offene Meldungen prüfen",
+       "pendingClaimsAction": "Offene Claims prüfen",
+       "trustQueueAction": "{count, number} beanspruchte Places prüfen",
++      "aiQueueAction": "{count, number} AI-Fälle prüfen",
+       "playbookTitle": "Moderationsleitlinien",
+       "playbook": {
+         "reviewClaims": "Claims zuerst auf Plausibilität und Konflikte mit bestehendem Owner prüfen.",
+@@ -411,6 +416,12 @@
+       "recentActions": "Letzte Aktionen",
+       "noActions": "Noch keine Moderationsaktionen vorhanden."
+     },
++    "aiReviewStatuses": {
++      "ok": "OK",
++      "review": "Zur Prüfung",
++      "unsure": "Unsicher",
++      "reject": "Nicht normal öffentlich behandeln"
++    },
+     "reports": {
+       "title": "Meldungen prüfen",
+       "description": "Alle eingehenden Place- und Event-Meldungen mit einfachem Review-Workflow.",
+@@ -512,6 +523,12 @@
+       "noWebsite": "Keine Website gepflegt.",
+       "lastVerified": "Zuletzt verifiziert",
+       "notVerified": "Bisher nicht verifiziert.",
++      "aiTitle": "AI-Audit",
++      "aiDescription": "Diese Werte stammen aus dem externen n8n/Gemini-Plausibilitätscheck. Sie unterstützen die Moderation, ersetzen aber keine manuelle Entscheidung.",
++      "aiReviewStatus": "AI-Review-Status",
++      "aiConfidenceScore": "AI-Confidence-Score",
++      "aiLastCheckedAt": "Zuletzt AI-geprüft",
++      "aiNotChecked": "Noch nicht AI-geprüft.",
+       "trustActions": "Trust-Aktionen",
+       "actions": {
+         "unverified": "Als unverifiziert markieren",
+diff --git a/messages/tr.json b/messages/tr.json
+index 347bb75..8f81a31 100644
+--- a/messages/tr.json
++++ b/messages/tr.json
+@@ -406,11 +406,16 @@
+       "pendingClaims": "Bekleyen claimler",
+       "inReviewReports": "İncelemedeki bildirimler",
+       "verifiedPlaces": "Doğrulanan place'ler",
++      "allAiReviewQueue": "Toplam AI inceleme kuyruğu",
++      "eventAiReviewQueue": "Etkinlik AI kuyruğu",
++      "placeAiReviewQueue": "Mekan AI kuyruğu",
+       "launchTitle": "Soft launch odağı",
+       "launchDescription": "Açık moderasyon işlerini öncele, trust durumlarını dikkatli kullan ve daha geniş açılımdan önce sıra dışı aktiviteyi kontrol et.",
++      "aiQueueDescription": "AI burada yalnızca bir olasılık ve denetim katmanıdır. REVIEW, UNSURE ve benzeri sonuçlar manuel incelemeye gider; REJECT sonuçları normal herkese açık içerik gibi ele alınmamalıdır.",
+       "openReportsAction": "Açık bildirimleri incele",
+       "pendingClaimsAction": "Bekleyen claimleri incele",
+       "trustQueueAction": "{count, number} claim edilmiş place'i incele",
++      "aiQueueAction": "{count, number} AI kaydını incele",
+       "playbookTitle": "Moderasyon notları",
+       "playbook": {
+         "reviewClaims": "Claim'leri önce tutarlılık ve mevcut owner ile çakışıyor mu diye kontrol et.",
+@@ -421,6 +426,12 @@
+       "recentActions": "Son aksiyonlar",
+       "noActions": "Henüz moderasyon aksiyonu yok."
+     },
++    "aiReviewStatuses": {
++      "ok": "Uygun",
++      "review": "İnceleme gerekli",
++      "unsure": "Belirsiz",
++      "reject": "Normal herkese açık içerik olarak ele alma"
++    },
+     "reports": {
+       "title": "Bildirimleri incele",
+       "description": "Place ve event bildirimlerini basit bir inceleme akışı ile yönet.",
+@@ -522,6 +533,12 @@
+       "noWebsite": "Web sitesi girilmemiş.",
+       "lastVerified": "Son doğrulama",
+       "notVerified": "Henüz doğrulanmadı.",
++      "aiTitle": "AI denetimi",
++      "aiDescription": "Bu değerler harici n8n/Gemini olasılık kontrolünden gelir. Moderasyona yardımcı olur, ama manuel kararı tek başına belirlemez.",
++      "aiReviewStatus": "AI inceleme durumu",
++      "aiConfidenceScore": "AI güven puanı",
++      "aiLastCheckedAt": "Son AI kontrolü",
++      "aiNotChecked": "Henüz AI kontrolü yapılmadı.",
+       "trustActions": "Trust aksiyonları",
+       "actions": {
+         "unverified": "Doğrulanmamış olarak işaretle",
+diff --git a/prisma/schema.prisma b/prisma/schema.prisma
+index 9e67d1f..46ffd57 100644
+--- a/prisma/schema.prisma
++++ b/prisma/schema.prisma
+@@ -156,6 +156,9 @@ model Place {
+   verifiedByUserId     String?            @map("verified_by_user_id")
+   lastBusinessUpdateAt DateTime?          @map("last_business_update_at")
+   moderationStatus     ModerationStatus   @default(PENDING) @map("moderation_status")
++  aiReviewStatus       String?            @map("ai_review_status")
++  aiConfidenceScore    Decimal?           @map("ai_confidence_score")
++  aiLastCheckedAt      DateTime?          @map("ai_last_checked_at")
+   createdAt            DateTime           @default(now()) @map("created_at")
+   updatedAt            DateTime           @updatedAt @map("updated_at")
+ 
+@@ -196,6 +199,9 @@ model Event {
+   imageUrl         String?          @map("image_url")
+   isPublished      Boolean          @default(false) @map("is_published")
+   moderationStatus ModerationStatus @default(PENDING) @map("moderation_status")
++  aiReviewStatus   String?          @map("ai_review_status")
++  aiConfidenceScore Decimal?        @map("ai_confidence_score")
++  aiLastCheckedAt  DateTime?        @map("ai_last_checked_at")
+   createdAt        DateTime         @default(now()) @map("created_at")
+   updatedAt        DateTime         @updatedAt @map("updated_at")
+ 
+diff --git a/src/app/[locale]/admin/page.tsx b/src/app/[locale]/admin/page.tsx
+index b0b7045..358e225 100644
+--- a/src/app/[locale]/admin/page.tsx
++++ b/src/app/[locale]/admin/page.tsx
+@@ -75,6 +75,36 @@ export default async function AdminOverviewPage({
+             </p>
+           </CardContent>
+         </Card>
++        <Card className="bg-white/90">
++          <CardContent className="space-y-2 p-6">
++            <p className="text-sm font-medium text-muted-foreground">
++              {t("overview.allAiReviewQueue")}
++            </p>
++            <p className="font-display text-4xl text-foreground">
++              {overview.allAiReviewQueueCount}
++            </p>
++          </CardContent>
++        </Card>
++        <Card className="bg-white/90">
++          <CardContent className="space-y-2 p-6">
++            <p className="text-sm font-medium text-muted-foreground">
++              {t("overview.eventAiReviewQueue")}
++            </p>
++            <p className="font-display text-4xl text-foreground">
++              {overview.eventAiReviewQueueCount}
++            </p>
++          </CardContent>
++        </Card>
++        <Card className="bg-white/90">
++          <CardContent className="space-y-2 p-6">
++            <p className="text-sm font-medium text-muted-foreground">
++              {t("overview.placeAiReviewQueue")}
++            </p>
++            <p className="font-display text-4xl text-foreground">
++              {overview.placeAiReviewQueueCount}
++            </p>
++          </CardContent>
++        </Card>
+       </div>
+ 
+       <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+@@ -83,6 +113,7 @@ export default async function AdminOverviewPage({
+             <div className="space-y-1">
+               <h2 className="font-semibold text-foreground">{t("overview.launchTitle")}</h2>
+               <p className="text-sm text-muted-foreground">{t("overview.launchDescription")}</p>
++              <p className="text-sm text-muted-foreground">{t("overview.aiQueueDescription")}</p>
+             </div>
+             <div className="flex flex-wrap gap-3">
+               <Link
+@@ -103,6 +134,12 @@ export default async function AdminOverviewPage({
+               >
+                 {t("overview.trustQueueAction", { count: overview.claimedPlaces })}
+               </Link>
++              <Link
++                href={`/admin/places`}
++                className="rounded-full border border-border px-4 py-2 text-sm font-medium text-foreground transition hover:bg-muted"
++              >
++                {t("overview.aiQueueAction", { count: overview.allAiReviewQueueCount })}
++              </Link>
+             </div>
+           </CardContent>
+         </Card>
+diff --git a/src/app/[locale]/admin/places/[id]/page.tsx b/src/app/[locale]/admin/places/[id]/page.tsx
+index 28aeeed..c48a190 100644
+--- a/src/app/[locale]/admin/places/[id]/page.tsx
++++ b/src/app/[locale]/admin/places/[id]/page.tsx
+@@ -96,26 +96,61 @@ export default async function AdminPlaceDetailPage({
+                     : t("placeDetail.notVerified")}
+                 </p>
+               </div>
++              <div>
++                <p className="font-medium text-foreground">{t("placeDetail.aiReviewStatus")}</p>
++                <p className="text-muted-foreground">
++                  {place.aiReviewStatus
++                    ? t(`aiReviewStatuses.${place.aiReviewStatus.toLowerCase()}`)
++                    : t("placeDetail.aiNotChecked")}
++                </p>
++              </div>
++              <div>
++                <p className="font-medium text-foreground">{t("placeDetail.aiConfidenceScore")}</p>
++                <p className="text-muted-foreground">
++                  {place.aiConfidenceScore != null
++                    ? Number(place.aiConfidenceScore).toFixed(2)
++                    : t("placeDetail.aiNotChecked")}
++                </p>
++              </div>
++              <div>
++                <p className="font-medium text-foreground">{t("placeDetail.aiLastCheckedAt")}</p>
++                <p className="text-muted-foreground">
++                  {place.aiLastCheckedAt
++                    ? place.aiLastCheckedAt.toLocaleString(locale)
++                    : t("placeDetail.aiNotChecked")}
++                </p>
++              </div>
+             </div>
+           </CardContent>
+         </Card>
+ 
+-        <Card className="bg-white/90">
+-          <CardContent className="space-y-5 p-6">
+-            <h3 className="font-semibold text-foreground">{t("placeDetail.trustActions")}</h3>
+-            <PlaceTrustStatusForm
+-              locale={locale}
+-              placeId={place.id}
+-              labels={{
+-                unverified: t("placeDetail.actions.unverified"),
+-                claimed: t("placeDetail.actions.claimed"),
+-                verified: t("placeDetail.actions.verified"),
+-                success: t("placeDetail.actions.success"),
+-                error: t("placeDetail.actions.error"),
+-              }}
+-            />
+-          </CardContent>
+-        </Card>
++        <div className="space-y-6">
++          <Card className="bg-white/90">
++            <CardContent className="space-y-5 p-6">
++              <h3 className="font-semibold text-foreground">{t("placeDetail.trustActions")}</h3>
++              <PlaceTrustStatusForm
++                locale={locale}
++                placeId={place.id}
++                labels={{
++                  unverified: t("placeDetail.actions.unverified"),
++                  claimed: t("placeDetail.actions.claimed"),
++                  verified: t("placeDetail.actions.verified"),
++                  success: t("placeDetail.actions.success"),
++                  error: t("placeDetail.actions.error"),
++                }}
++              />
++            </CardContent>
++          </Card>
++
++          <Card className="bg-white/90">
++            <CardContent className="space-y-3 p-6">
++              <h3 className="font-semibold text-foreground">{t("placeDetail.aiTitle")}</h3>
++              <p className="text-sm leading-6 text-muted-foreground">
++                {t("placeDetail.aiDescription")}
++              </p>
++            </CardContent>
++          </Card>
++        </div>
+       </div>
+     </AdminShell>
+   );
+diff --git a/src/server/actions/events/submit-event-report.ts b/src/server/actions/events/submit-event-report.ts
+index 8fd36b0..90a36a9 100644
+--- a/src/server/actions/events/submit-event-report.ts
++++ b/src/server/actions/events/submit-event-report.ts
+@@ -8,6 +8,7 @@ import { sendReportReceivedEmail } from "@/lib/email/notifications";
+ import { prisma } from "@/lib/prisma";
+ import { getReportSubmissionGuard } from "@/lib/rate-limit/submission-guard";
+ import { eventReportSchema } from "@/lib/validators/events";
++import { buildPublicEventWhere } from "@/server/queries/events/shared";
+ 
+ import {
+   idleEventActionState,
+@@ -44,11 +45,9 @@ export async function submitEventReport(
+   }
+ 
+   const event = await prisma.event.findFirst({
+-    where: {
++    where: buildPublicEventWhere({
+       id: parsed.data.eventId,
+-      isPublished: true,
+-      moderationStatus: "APPROVED",
+-    },
++    }),
+     select: { id: true, title: true },
+   });
+ 
+diff --git a/src/server/actions/events/toggle-save-event.ts b/src/server/actions/events/toggle-save-event.ts
+index f962d5b..a7727e4 100644
+--- a/src/server/actions/events/toggle-save-event.ts
++++ b/src/server/actions/events/toggle-save-event.ts
+@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
+ import { auth } from "@/auth";
+ import { prisma } from "@/lib/prisma";
+ import { saveEventSchema } from "@/lib/validators/events";
++import { buildPublicEventWhere } from "@/server/queries/events/shared";
+ 
+ import { sanitizeEventReturnPath } from "./shared";
+ 
+@@ -28,11 +29,9 @@ export async function toggleSaveEvent(formData: FormData) {
+   }
+ 
+   const event = await prisma.event.findFirst({
+-    where: {
++    where: buildPublicEventWhere({
+       id: parsed.data.eventId,
+-      isPublished: true,
+-      moderationStatus: "APPROVED",
+-    },
++    }),
+     select: {
+       id: true,
+       slug: true,
+diff --git a/src/server/actions/places/submit-place-claim.ts b/src/server/actions/places/submit-place-claim.ts
+index 97079b1..38a6a92 100644
+--- a/src/server/actions/places/submit-place-claim.ts
++++ b/src/server/actions/places/submit-place-claim.ts
+@@ -8,6 +8,7 @@ import { sendClaimSubmittedEmail } from "@/lib/email/notifications";
+ import { prisma } from "@/lib/prisma";
+ import { getClaimSubmissionGuard } from "@/lib/rate-limit/submission-guard";
+ import { placeClaimSchema } from "@/lib/validators/places";
++import { buildPublicPlaceWhere } from "@/server/queries/places/shared";
+ 
+ import {
+   idlePlaceActionState,
+@@ -49,11 +50,9 @@ export async function submitPlaceClaim(
+   }
+ 
+   const place = await prisma.place.findFirst({
+-    where: {
++    where: buildPublicPlaceWhere({
+       id: parsed.data.placeId,
+-      isPublished: true,
+-      moderationStatus: "APPROVED",
+-    },
++    }),
+     select: {
+       id: true,
+       slug: true,
+diff --git a/src/server/actions/places/submit-place-report.ts b/src/server/actions/places/submit-place-report.ts
+index dd70ce4..5a73a6b 100644
+--- a/src/server/actions/places/submit-place-report.ts
++++ b/src/server/actions/places/submit-place-report.ts
+@@ -8,6 +8,7 @@ import { sendReportReceivedEmail } from "@/lib/email/notifications";
+ import { prisma } from "@/lib/prisma";
+ import { getReportSubmissionGuard } from "@/lib/rate-limit/submission-guard";
+ import { placeReportSchema } from "@/lib/validators/places";
++import { buildPublicPlaceWhere } from "@/server/queries/places/shared";
+ 
+ import {
+   idlePlaceActionState,
+@@ -46,11 +47,9 @@ export async function submitPlaceReport(
+   }
+ 
+   const place = await prisma.place.findFirst({
+-    where: {
++    where: buildPublicPlaceWhere({
+       id: parsed.data.placeId,
+-      isPublished: true,
+-      moderationStatus: "APPROVED",
+-    },
++    }),
+     select: {
+       id: true,
+       name: true,
+diff --git a/src/server/actions/places/toggle-save-place.ts b/src/server/actions/places/toggle-save-place.ts
+index 3bcbe22..66bb33e 100644
+--- a/src/server/actions/places/toggle-save-place.ts
++++ b/src/server/actions/places/toggle-save-place.ts
+@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
+ import { auth } from "@/auth";
+ import { prisma } from "@/lib/prisma";
+ import { savePlaceSchema } from "@/lib/validators/places";
++import { buildPublicPlaceWhere } from "@/server/queries/places/shared";
+ 
+ import { sanitizeReturnPath } from "./shared";
+ 
+@@ -30,11 +31,9 @@ export async function toggleSavePlace(formData: FormData) {
+   }
+ 
+   const place = await prisma.place.findFirst({
+-    where: {
++    where: buildPublicPlaceWhere({
+       id: parsed.data.placeId,
+-      isPublished: true,
+-      moderationStatus: "APPROVED",
+-    },
++    }),
+     select: {
+       id: true,
+       slug: true,
+diff --git a/src/server/queries/admin/get-admin-overview.ts b/src/server/queries/admin/get-admin-overview.ts
+index 9b67cc4..aa31444 100644
+--- a/src/server/queries/admin/get-admin-overview.ts
++++ b/src/server/queries/admin/get-admin-overview.ts
+@@ -1,5 +1,9 @@
+ import { prisma } from "@/lib/prisma";
+ 
++type CountRow = {
++  count: number;
++};
++
+ export async function getAdminOverview() {
+   const [
+     openReports,
+@@ -7,6 +11,9 @@ export async function getAdminOverview() {
+     pendingClaims,
+     claimedPlaces,
+     verifiedPlaces,
++    eventAiReviewQueueCountRows,
++    placeAiReviewQueueCountRows,
++    allAiReviewQueueCountRows,
+     recentActions,
+   ] = await Promise.all([
+     prisma.report.count({
+@@ -34,6 +41,18 @@ export async function getAdminOverview() {
+         verificationStatus: "VERIFIED",
+       },
+     }),
++    prisma.$queryRaw<CountRow[]>`
++      SELECT COUNT(*)::int AS count
++      FROM v_event_ai_review_queue
++    `,
++    prisma.$queryRaw<CountRow[]>`
++      SELECT COUNT(*)::int AS count
++      FROM v_place_ai_review_queue
++    `,
++    prisma.$queryRaw<CountRow[]>`
++      SELECT COUNT(*)::int AS count
++      FROM v_ai_review_queue_all
++    `,
+     prisma.adminActionLog.findMany({
+       orderBy: {
+         createdAt: "desc",
+@@ -56,6 +75,9 @@ export async function getAdminOverview() {
+     pendingClaims,
+     claimedPlaces,
+     verifiedPlaces,
++    eventAiReviewQueueCount: eventAiReviewQueueCountRows[0]?.count ?? 0,
++    placeAiReviewQueueCount: placeAiReviewQueueCountRows[0]?.count ?? 0,
++    allAiReviewQueueCount: allAiReviewQueueCountRows[0]?.count ?? 0,
+     recentActions,
+   };
+ }
+diff --git a/src/server/queries/admin/get-admin-place-by-id.ts b/src/server/queries/admin/get-admin-place-by-id.ts
+index c94ec06..154f12b 100644
+--- a/src/server/queries/admin/get-admin-place-by-id.ts
++++ b/src/server/queries/admin/get-admin-place-by-id.ts
+@@ -9,6 +9,9 @@ export async function getAdminPlaceById(id: string) {
+       name: true,
+       verificationStatus: true,
+       moderationStatus: true,
++      aiReviewStatus: true,
++      aiConfidenceScore: true,
++      aiLastCheckedAt: true,
+       phone: true,
+       websiteUrl: true,
+       lastBusinessUpdateAt: true,
+diff --git a/src/server/queries/cities/get-pilot-cities.ts b/src/server/queries/cities/get-pilot-cities.ts
+index 76f3236..abdfaad 100644
+--- a/src/server/queries/cities/get-pilot-cities.ts
++++ b/src/server/queries/cities/get-pilot-cities.ts
+@@ -1,4 +1,6 @@
+ import { prisma } from "@/lib/prisma";
++import { publicEventVisibilityWhere } from "@/server/queries/events/shared";
++import { publicPlaceVisibilityWhere } from "@/server/queries/places/shared";
+ 
+ export async function getPilotCities() {
+   const cities = await prisma.city.findMany({
+@@ -20,15 +22,13 @@ export async function getPilotCities() {
+         prisma.place.count({
+           where: {
+             cityId: city.id,
+-            isPublished: true,
+-            moderationStatus: "APPROVED",
++            ...publicPlaceVisibilityWhere,
+           },
+         }),
+         prisma.event.count({
+           where: {
+             cityId: city.id,
+-            isPublished: true,
+-            moderationStatus: "APPROVED",
++            ...publicEventVisibilityWhere,
+           },
+         }),
+       ]);
+diff --git a/src/server/queries/cities/get-public-city-page.ts b/src/server/queries/cities/get-public-city-page.ts
+index b990955..2c6096e 100644
+--- a/src/server/queries/cities/get-public-city-page.ts
++++ b/src/server/queries/cities/get-public-city-page.ts
+@@ -1,6 +1,12 @@
+ import { prisma } from "@/lib/prisma";
+-import { publicEventSelect } from "@/server/queries/events/shared";
+-import { publicPlaceSelect } from "@/server/queries/places/shared";
++import {
++  buildPublicEventWhere,
++  publicEventSelect,
++} from "@/server/queries/events/shared";
++import {
++  buildPublicPlaceWhere,
++  publicPlaceSelect,
++} from "@/server/queries/places/shared";
+ 
+ const pilotCityCenters: Record<string, { latitude: number; longitude: number }> = {
+   berlin: { latitude: 52.52, longitude: 13.405 },
+@@ -27,41 +33,33 @@ export async function getPublicCityPage(citySlug: string, userId?: string) {
+ 
+   const [mapPlaces, mapEvents, placeCount, eventCount] = await prisma.$transaction([
+     prisma.place.findMany({
+-      where: {
++      where: buildPublicPlaceWhere({
+         cityId: city.id,
+-        isPublished: true,
+-        moderationStatus: "APPROVED",
+-      },
++      }),
+       orderBy: [{ verificationStatus: "desc" }, { createdAt: "desc" }],
+       take: 18,
+       select: publicPlaceSelect,
+     }),
+     prisma.event.findMany({
+-      where: {
++      where: buildPublicEventWhere({
+         cityId: city.id,
+-        isPublished: true,
+-        moderationStatus: "APPROVED",
+         startsAt: {
+           gte: new Date(),
+         },
+-      },
++      }),
+       orderBy: { startsAt: "asc" },
+       take: 18,
+       select: publicEventSelect,
+     }),
+     prisma.place.count({
+-      where: {
++      where: buildPublicPlaceWhere({
+         cityId: city.id,
+-        isPublished: true,
+-        moderationStatus: "APPROVED",
+-      },
++      }),
+     }),
+     prisma.event.count({
+-      where: {
++      where: buildPublicEventWhere({
+         cityId: city.id,
+-        isPublished: true,
+-        moderationStatus: "APPROVED",
+-      },
++      }),
+     }),
+   ]);
+ 
+diff --git a/src/server/queries/events/get-event-by-slug.ts b/src/server/queries/events/get-event-by-slug.ts
+index 130b259..b2ff0d3 100644
+--- a/src/server/queries/events/get-event-by-slug.ts
++++ b/src/server/queries/events/get-event-by-slug.ts
+@@ -1,17 +1,15 @@
+ import { prisma } from "@/lib/prisma";
+ 
+-import { publicEventSelect } from "./shared";
++import { buildPublicEventWhere, publicEventSelect } from "./shared";
+ 
+ export async function getEventBySlug(args: {
+   slug: string;
+   userId?: string;
+ }) {
+   const event = await prisma.event.findFirst({
+-    where: {
++    where: buildPublicEventWhere({
+       slug: args.slug,
+-      isPublished: true,
+-      moderationStatus: "APPROVED",
+-    },
++    }),
+     select: publicEventSelect,
+   });
+ 
+diff --git a/src/server/queries/events/get-event-filters.ts b/src/server/queries/events/get-event-filters.ts
+index 4985dae..ec133c8 100644
+--- a/src/server/queries/events/get-event-filters.ts
++++ b/src/server/queries/events/get-event-filters.ts
+@@ -1,14 +1,14 @@
+ import { EventCategory } from "@prisma/client";
+ 
+ import { prisma } from "@/lib/prisma";
++import { publicEventVisibilityWhere } from "./shared";
+ 
+ export async function getEventFilters() {
+   const cities = await prisma.city.findMany({
+     where: {
+       events: {
+         some: {
+-          isPublished: true,
+-          moderationStatus: "APPROVED",
++          ...publicEventVisibilityWhere,
+         },
+       },
+     },
+diff --git a/src/server/queries/events/list-events.ts b/src/server/queries/events/list-events.ts
+index 316f5e5..c14a7b1 100644
+--- a/src/server/queries/events/list-events.ts
++++ b/src/server/queries/events/list-events.ts
+@@ -4,7 +4,11 @@ import { getBerlinDateFilter } from "@/lib/events";
+ import { prisma } from "@/lib/prisma";
+ import type { EventsFilterInput } from "@/lib/validators/events";
+ 
+-import { publicEventSelect, type PublicEventRecord } from "./shared";
++import {
++  buildPublicEventWhere,
++  publicEventSelect,
++  type PublicEventRecord,
++} from "./shared";
+ 
+ export type ListedEvent = PublicEventRecord & {
+   isSaved: boolean;
+@@ -15,8 +19,6 @@ export async function listEvents(args: {
+   userId?: string;
+ }) {
+   const where: Prisma.EventWhereInput = {
+-    isPublished: true,
+-    moderationStatus: "APPROVED",
+     startsAt: {
+       gte: new Date(),
+     },
+@@ -43,7 +45,7 @@ export async function listEvents(args: {
+   }
+ 
+   let events = await prisma.event.findMany({
+-    where,
++    where: buildPublicEventWhere(where),
+     orderBy: [{ startsAt: "asc" }, { createdAt: "desc" }],
+     take: 36,
+     select: publicEventSelect,
+diff --git a/src/server/queries/events/shared.ts b/src/server/queries/events/shared.ts
+index 2bccdaf..61bfdbe 100644
+--- a/src/server/queries/events/shared.ts
++++ b/src/server/queries/events/shared.ts
+@@ -1,5 +1,27 @@
+ import { Prisma } from "@prisma/client";
+ 
++export const publicEventVisibilityWhere =
++  Prisma.validator<Prisma.EventWhereInput>()({
++    isPublished: true,
++    moderationStatus: "APPROVED",
++    OR: [
++      { aiReviewStatus: null },
++      {
++        aiReviewStatus: {
++          not: "REJECT",
++        },
++      },
++    ],
++  });
++
++export function buildPublicEventWhere(
++  where: Prisma.EventWhereInput = {},
++): Prisma.EventWhereInput {
++  return {
++    AND: [publicEventVisibilityWhere, where],
++  };
++}
++
+ export const publicEventSelect = Prisma.validator<Prisma.EventSelect>()({
+   id: true,
+   slug: true,
+diff --git a/src/server/queries/places/get-place-by-slug.ts b/src/server/queries/places/get-place-by-slug.ts
+index 879375f..956f2c2 100644
+--- a/src/server/queries/places/get-place-by-slug.ts
++++ b/src/server/queries/places/get-place-by-slug.ts
+@@ -1,17 +1,15 @@
+ import { prisma } from "@/lib/prisma";
+ 
+-import { publicPlaceSelect } from "./shared";
++import { buildPublicPlaceWhere, publicPlaceSelect } from "./shared";
+ 
+ export async function getPlaceBySlug(args: {
+   slug: string;
+   userId?: string;
+ }) {
+   const place = await prisma.place.findFirst({
+-    where: {
++    where: buildPublicPlaceWhere({
+       slug: args.slug,
+-      isPublished: true,
+-      moderationStatus: "APPROVED",
+-    },
++    }),
+     select: publicPlaceSelect,
+   });
+ 
+diff --git a/src/server/queries/places/get-place-filters.ts b/src/server/queries/places/get-place-filters.ts
+index 2b590f8..221c251 100644
+--- a/src/server/queries/places/get-place-filters.ts
++++ b/src/server/queries/places/get-place-filters.ts
+@@ -1,4 +1,5 @@
+ import { prisma } from "@/lib/prisma";
++import { publicPlaceVisibilityWhere } from "./shared";
+ 
+ export async function getPlaceFilters() {
+   const [cities, categories] = await Promise.all([
+@@ -6,8 +7,7 @@ export async function getPlaceFilters() {
+       where: {
+         places: {
+           some: {
+-            isPublished: true,
+-            moderationStatus: "APPROVED",
++            ...publicPlaceVisibilityWhere,
+           },
+         },
+       },
+@@ -22,8 +22,7 @@ export async function getPlaceFilters() {
+       where: {
+         places: {
+           some: {
+-            isPublished: true,
+-            moderationStatus: "APPROVED",
++            ...publicPlaceVisibilityWhere,
+           },
+         },
+       },
+diff --git a/src/server/queries/places/list-places.ts b/src/server/queries/places/list-places.ts
+index 37e4e64..15901d5 100644
+--- a/src/server/queries/places/list-places.ts
++++ b/src/server/queries/places/list-places.ts
+@@ -3,7 +3,11 @@ import type { Prisma } from "@prisma/client";
+ import type { PlacesFilterInput } from "@/lib/validators/places";
+ import { prisma } from "@/lib/prisma";
+ 
+-import { publicPlaceSelect, type PublicPlaceRecord } from "./shared";
++import {
++  buildPublicPlaceWhere,
++  publicPlaceSelect,
++  type PublicPlaceRecord,
++} from "./shared";
+ 
+ export type ListedPlace = PublicPlaceRecord & {
+   isSaved: boolean;
+@@ -13,10 +17,7 @@ export async function listPlaces(args: {
+   filters: PlacesFilterInput;
+   userId?: string;
+ }) {
+-  const where: Prisma.PlaceWhereInput = {
+-    isPublished: true,
+-    moderationStatus: "APPROVED",
+-  };
++  const where: Prisma.PlaceWhereInput = {};
+ 
+   if (args.filters.city) {
+     where.city = {
+@@ -40,7 +41,7 @@ export async function listPlaces(args: {
+   }
+ 
+   const places = await prisma.place.findMany({
+-    where,
++    where: buildPublicPlaceWhere(where),
+     orderBy: [
+       { verificationStatus: "desc" },
+       { createdAt: "desc" },
+diff --git a/src/server/queries/places/shared.ts b/src/server/queries/places/shared.ts
+index c987bea..5357254 100644
+--- a/src/server/queries/places/shared.ts
++++ b/src/server/queries/places/shared.ts
+@@ -1,5 +1,27 @@
+ import { Prisma } from "@prisma/client";
+ 
++export const publicPlaceVisibilityWhere =
++  Prisma.validator<Prisma.PlaceWhereInput>()({
++    isPublished: true,
++    moderationStatus: "APPROVED",
++    OR: [
++      { aiReviewStatus: null },
++      {
++        aiReviewStatus: {
++          not: "REJECT",
++        },
++      },
++    ],
++  });
++
++export function buildPublicPlaceWhere(
++  where: Prisma.PlaceWhereInput = {},
++): Prisma.PlaceWhereInput {
++  return {
++    AND: [publicPlaceVisibilityWhere, where],
++  };
++}
++
+ export const publicPlaceSelect = Prisma.validator<Prisma.PlaceSelect>()({
+   id: true,
+   slug: true,

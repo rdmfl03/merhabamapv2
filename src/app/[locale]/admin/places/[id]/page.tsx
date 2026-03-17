@@ -27,6 +27,14 @@ export default async function AdminPlaceDetailPage({
     notFound();
   }
 
+  const allowedAiReviewStatuses = new Set(["ok", "review", "unsure", "reject"]);
+  const normalizedAiReviewStatus = place.aiReviewStatus?.toLowerCase();
+  const aiReviewStatusKey = normalizedAiReviewStatus
+    ? allowedAiReviewStatuses.has(normalizedAiReviewStatus)
+      ? normalizedAiReviewStatus
+      : "unknown"
+    : "not_checked";
+
   return (
     <AdminShell
       locale={locale}
@@ -37,6 +45,7 @@ export default async function AdminPlaceDetailPage({
         overview: t("nav.overview"),
         reports: t("nav.reports"),
         claims: t("nav.claims"),
+        aiReview: t("nav.aiReview"),
         places: t("nav.places"),
         logs: t("nav.logs"),
       }}
@@ -96,26 +105,59 @@ export default async function AdminPlaceDetailPage({
                     : t("placeDetail.notVerified")}
                 </p>
               </div>
+              <div>
+                <p className="font-medium text-foreground">{t("placeDetail.aiReviewStatus")}</p>
+                <p className="text-muted-foreground">
+                  {t(`aiReviewStatuses.${aiReviewStatusKey}`)}
+                </p>
+              </div>
+              <div>
+                <p className="font-medium text-foreground">{t("placeDetail.aiConfidenceScore")}</p>
+                <p className="text-muted-foreground">
+                  {place.aiConfidenceScore != null
+                    ? Number(place.aiConfidenceScore).toFixed(2)
+                    : t("placeDetail.aiNotChecked")}
+                </p>
+              </div>
+              <div>
+                <p className="font-medium text-foreground">{t("placeDetail.aiLastCheckedAt")}</p>
+                <p className="text-muted-foreground">
+                  {place.aiLastCheckedAt
+                    ? place.aiLastCheckedAt.toLocaleString(locale)
+                    : t("placeDetail.aiNotChecked")}
+                </p>
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-white/90">
-          <CardContent className="space-y-5 p-6">
-            <h3 className="font-semibold text-foreground">{t("placeDetail.trustActions")}</h3>
-            <PlaceTrustStatusForm
-              locale={locale}
-              placeId={place.id}
-              labels={{
-                unverified: t("placeDetail.actions.unverified"),
-                claimed: t("placeDetail.actions.claimed"),
-                verified: t("placeDetail.actions.verified"),
-                success: t("placeDetail.actions.success"),
-                error: t("placeDetail.actions.error"),
-              }}
-            />
-          </CardContent>
-        </Card>
+        <div className="space-y-6">
+          <Card className="bg-white/90">
+            <CardContent className="space-y-5 p-6">
+              <h3 className="font-semibold text-foreground">{t("placeDetail.trustActions")}</h3>
+              <PlaceTrustStatusForm
+                locale={locale}
+                placeId={place.id}
+                labels={{
+                  unverified: t("placeDetail.actions.unverified"),
+                  claimed: t("placeDetail.actions.claimed"),
+                  verified: t("placeDetail.actions.verified"),
+                  success: t("placeDetail.actions.success"),
+                  error: t("placeDetail.actions.error"),
+                }}
+              />
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white/90">
+            <CardContent className="space-y-3 p-6">
+              <h3 className="font-semibold text-foreground">{t("placeDetail.aiTitle")}</h3>
+              <p className="text-sm leading-6 text-muted-foreground">
+                {t("placeDetail.aiDescription")}
+              </p>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </AdminShell>
   );

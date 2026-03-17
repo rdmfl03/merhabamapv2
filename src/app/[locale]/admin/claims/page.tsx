@@ -41,6 +41,7 @@ export default async function AdminClaimsPage({
         overview: t("nav.overview"),
         reports: t("nav.reports"),
         claims: t("nav.claims"),
+        aiReview: t("nav.aiReview"),
         places: t("nav.places"),
         logs: t("nav.logs"),
       }}

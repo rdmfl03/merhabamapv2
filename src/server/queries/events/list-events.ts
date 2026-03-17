@@ -4,7 +4,11 @@ import { getBerlinDateFilter } from "@/lib/events";
 import { prisma } from "@/lib/prisma";
 import type { EventsFilterInput } from "@/lib/validators/events";
 
-import { publicEventSelect, type PublicEventRecord } from "./shared";
+import {
+  buildPublicEventWhere,
+  publicEventSelect,
+  type PublicEventRecord,
+} from "./shared";
 
 export type ListedEvent = PublicEventRecord & {
   isSaved: boolean;
@@ -15,8 +19,6 @@ export async function listEvents(args: {
   userId?: string;
 }) {
   const where: Prisma.EventWhereInput = {
-    isPublished: true,
-    moderationStatus: "APPROVED",
     startsAt: {
       gte: new Date(),
     },
@@ -43,7 +45,7 @@ export async function listEvents(args: {
   }
 
   let events = await prisma.event.findMany({
-    where,
+    where: buildPublicEventWhere(where),
     orderBy: [{ startsAt: "asc" }, { createdAt: "desc" }],
     take: 36,
     select: publicEventSelect,

@@ -30,6 +30,7 @@ export default async function AdminOverviewPage({
         overview: t("nav.overview"),
         reports: t("nav.reports"),
         claims: t("nav.claims"),
+        aiReview: t("nav.aiReview"),
         places: t("nav.places"),
         logs: t("nav.logs"),
       }}
@@ -75,6 +76,36 @@ export default async function AdminOverviewPage({
             </p>
           </CardContent>
         </Card>
+        <Card className="bg-white/90">
+          <CardContent className="space-y-2 p-6">
+            <p className="text-sm font-medium text-muted-foreground">
+              {t("overview.allAiReviewQueue")}
+            </p>
+            <p className="font-display text-4xl text-foreground">
+              {overview.allAiReviewQueueCount}
+            </p>
+          </CardContent>
+        </Card>
+        <Card className="bg-white/90">
+          <CardContent className="space-y-2 p-6">
+            <p className="text-sm font-medium text-muted-foreground">
+              {t("overview.eventAiReviewQueue")}
+            </p>
+            <p className="font-display text-4xl text-foreground">
+              {overview.eventAiReviewQueueCount}
+            </p>
+          </CardContent>
+        </Card>
+        <Card className="bg-white/90">
+          <CardContent className="space-y-2 p-6">
+            <p className="text-sm font-medium text-muted-foreground">
+              {t("overview.placeAiReviewQueue")}
+            </p>
+            <p className="font-display text-4xl text-foreground">
+              {overview.placeAiReviewQueueCount}
+            </p>
+          </CardContent>
+        </Card>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
@@ -83,6 +114,7 @@ export default async function AdminOverviewPage({
             <div className="space-y-1">
               <h2 className="font-semibold text-foreground">{t("overview.launchTitle")}</h2>
               <p className="text-sm text-muted-foreground">{t("overview.launchDescription")}</p>
+              <p className="text-sm text-muted-foreground">{t("overview.aiQueueDescription")}</p>
             </div>
             <div className="flex flex-wrap gap-3">
               <Link
@@ -102,6 +134,13 @@ export default async function AdminOverviewPage({
                 className="rounded-full border border-border px-4 py-2 text-sm font-medium text-foreground transition hover:bg-muted"
               >
                 {t("overview.trustQueueAction", { count: overview.claimedPlaces })}
+              </Link>
+              {/* TODO: Replace with dedicated AI moderation page backed by v_ai_review_queue_all */}
+              <Link
+                href={`/admin/ai-review`}
+                className="rounded-full border border-border px-4 py-2 text-sm font-medium text-foreground transition hover:bg-muted"
+              >
+                {t("overview.aiQueueAction", { count: overview.allAiReviewQueueCount })}
               </Link>
             </div>
           </CardContent>
