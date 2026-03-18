@@ -762,6 +762,7 @@
       "summary": "Toplam {total, number} sorunlu kayıt, {failed, number} FAILED, {pending, number} PENDING",
       "allowlistSummary": "{blocked, number} kayıt allowlist tarafından bloklandı, {passed, number} kayıt raw allowlist kontrolünü geçti",
       "activeAllowlistBlockedHint": "Şu anda yalnızca aktif rollout allowlist tarafından bloklanan raw ingest kayıtlarını inceliyorsun.",
+      "clearAllowlistBlockedFilter": "Blocked filtresini temizle",
       "filters": {
         "all": "Tüm sorunlu kayıtlar ({count, number})",
         "failed": "Sadece FAILED ({count, number})",

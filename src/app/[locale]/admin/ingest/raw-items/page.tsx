@@ -208,9 +208,15 @@ export default async function AdminRawIngestItemsPage({
             })}
           </p>
           {allowlistFilter === "blocked" ? (
-            <p className="rounded-2xl border border-amber-200 bg-amber-50/80 px-4 py-3 text-sm text-amber-950">
-              {t("rawIngest.activeAllowlistBlockedHint")}
-            </p>
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-amber-200 bg-amber-50/80 px-4 py-3 text-sm text-amber-950">
+              <p>{t("rawIngest.activeAllowlistBlockedHint")}</p>
+              <Link
+                href={buildRawItemsHref(statusFilter, "all")}
+                className="rounded-full border border-amber-300 bg-white/80 px-3 py-1.5 text-xs font-medium text-amber-950 transition hover:bg-white"
+              >
+                {t("rawIngest.clearAllowlistBlockedFilter")}
+              </Link>
+            </div>
           ) : null}
 
           {filteredItems.length === 0 ? (

@@ -753,6 +753,7 @@
       "summary": "{total, number} Problemfälle gesamt, {failed, number} FAILED, {pending, number} PENDING",
       "allowlistSummary": "{blocked, number} durch Allowlist blockiert, {passed, number} bestehen die Raw-Allowlist-Prüfung",
       "activeAllowlistBlockedHint": "Du prüfst aktuell nur Raw-Ingest-Items, die durch die aktive Rollout-Allowlist blockiert wurden.",
+      "clearAllowlistBlockedFilter": "Blocked-Filter zurücksetzen",
       "filters": {
         "all": "Alle Problemfälle ({count, number})",
         "failed": "Nur FAILED ({count, number})",
