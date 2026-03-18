@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, type MutableRefObject } from "react";
 import mapboxgl, {
   type GeoJSONSource,
   type Map as MapboxMap,
 } from "mapbox-gl";
 
 import type { CityMapPoint } from "@/components/cities/city-discovery-map-types";
+import { Link } from "@/i18n/navigation";
 
 type CityDiscoveryMapboxMapProps = {
   points: CityMapPoint[];
@@ -38,21 +39,60 @@ const PLACE_SOURCE_ID = "merhaba-place-points";
 const EVENT_SOURCE_ID = "merhaba-event-points";
 const USER_SOURCE_ID = "merhaba-user-location";
 const PLACE_CLUSTERS_LAYER_ID = "merhaba-place-clusters";
-const PLACE_CLUSTER_COUNT_LAYER_ID = "merhaba-place-cluster-count";
 const PLACE_POINTS_LAYER_ID = "merhaba-place-points-layer";
 const EVENT_CLUSTERS_LAYER_ID = "merhaba-event-clusters";
-const EVENT_CLUSTER_COUNT_LAYER_ID = "merhaba-event-cluster-count";
 const EVENT_POINTS_LAYER_ID = "merhaba-event-points-layer";
 const USER_LAYER_ID = "merhaba-user-point";
 const PLACE_ICON_ID = "merhaba-place-marker";
 const EVENT_ICON_ID = "merhaba-event-marker";
-const SMALL_DATASET_CLUSTER_THRESHOLD = 8;
+const PLACE_CLUSTER_ICON_ID = "merhaba-place-cluster-marker";
+const EVENT_CLUSTER_ICON_ID = "merhaba-event-cluster-marker";
+const CLUSTER_RADIUS = 32;
+const CLUSTER_MAX_ZOOM = 14;
+
+function showPointPopup(
+  map: MapboxMap,
+  popupRef: MutableRefObject<mapboxgl.Popup | null>,
+  suppressPopupCloseRef: MutableRefObject<boolean>,
+  point: CityMapPoint,
+  onSelectChange: (id: string | null) => void,
+) {
+  if (popupRef.current) {
+    suppressPopupCloseRef.current = true;
+    popupRef.current.remove();
+    popupRef.current = null;
+  }
+
+  popupRef.current = new mapboxgl.Popup({
+    closeButton: true,
+    closeOnClick: false,
+    anchor: "bottom",
+    offset: 26,
+    className: "merhaba-mapbox-popup-shell",
+  })
+    .setLngLat([point.longitude, point.latitude])
+    .setDOMContent(buildPopupNode(point))
+    .addTo(map);
+
+  popupRef.current.on("close", () => {
+    if (suppressPopupCloseRef.current) {
+      suppressPopupCloseRef.current = false;
+      return;
+    }
+    onSelectChange(null);
+  });
+}
 
 function buildPopupNode(
   point: CityMapPoint,
-  viewPlaceLabel: string,
-  viewEventLabel: string,
 ) {
+  const metaParts = point.meta
+    .split("·")
+    .map((part) => part.trim())
+    .filter(Boolean);
+  const primaryMeta = metaParts[0] ?? point.meta;
+  const secondaryMeta = metaParts.slice(1).join(" · ");
+
   const root = document.createElement("div");
   root.className = "merhaba-mapbox-popup";
 
@@ -66,18 +106,23 @@ function buildPopupNode(
 
   const meta = document.createElement("p");
   meta.className = "merhaba-mapbox-popup__meta";
-  meta.textContent = point.meta;
+  meta.textContent = primaryMeta;
 
   const description = document.createElement("p");
   description.className = "merhaba-mapbox-popup__description";
-  description.textContent = point.description || point.meta;
+  description.textContent = point.description || secondaryMeta || point.meta;
 
-  const action = document.createElement("a");
-  action.href = point.href;
-  action.className = "merhaba-mapbox-popup__button";
-  action.textContent = point.kind === "place" ? viewPlaceLabel : viewEventLabel;
+  const detail = document.createElement("p");
+  detail.className = "merhaba-mapbox-popup__meta";
+  detail.textContent = secondaryMeta;
 
-  root.append(eyebrow, title, meta, description, action);
+  root.append(eyebrow, title, meta);
+
+  if (secondaryMeta) {
+    root.append(detail);
+  }
+
+  root.append(description);
 
   return root;
 }
@@ -108,17 +153,34 @@ function buildPointsGeoJson(points: CityMapPoint[]): GeoJSON.FeatureCollection<G
 function createMarkerSvg(kind: "place" | "event") {
   if (kind === "event") {
     return `
-      <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 44 44">
-        <rect x="10" y="10" width="24" height="24" rx="6" transform="rotate(45 22 22)" fill="#111827" stroke="#ffffff" stroke-width="3"/>
-        <circle cx="22" cy="22" r="4" fill="#ffffff"/>
+      <svg xmlns="http://www.w3.org/2000/svg" width="46" height="46" viewBox="0 0 46 46">
+        <rect x="11" y="11" width="24" height="24" rx="5" transform="rotate(45 23 23)" fill="#111827" stroke="#ffffff" stroke-width="3"/>
+        <rect x="18.5" y="18.5" width="9" height="9" rx="2" transform="rotate(45 23 23)" fill="#ffffff"/>
       </svg>
     `;
   }
 
   return `
-    <svg xmlns="http://www.w3.org/2000/svg" width="44" height="52" viewBox="0 0 44 52">
-      <path d="M22 4C13.2 4 6 11 6 19.7c0 12 13.8 24.4 15 25.5.6.5 1.4.5 2 0 1.2-1.1 15-13.5 15-25.5C38 11 30.8 4 22 4Z" fill="#e30a17" stroke="#ffffff" stroke-width="3"/>
-      <circle cx="22" cy="20" r="5" fill="#ffffff"/>
+    <svg xmlns="http://www.w3.org/2000/svg" width="46" height="56" viewBox="0 0 46 56">
+      <path d="M23 4C13.6 4 6 11.5 6 20.8c0 12.5 13.8 25.4 16 27.2.6.6 1.6.6 2.2 0C26.2 46.2 40 33.3 40 20.8 40 11.5 32.4 4 23 4Z" fill="#e30a17" stroke="#ffffff" stroke-width="3"/>
+      <circle cx="23" cy="21" r="6" fill="#ffffff"/>
+      <circle cx="23" cy="21" r="2.4" fill="#e30a17"/>
+    </svg>
+  `;
+}
+
+function createClusterSvg(kind: "place" | "event") {
+  if (kind === "event") {
+    return `
+      <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+        <rect x="14" y="14" width="36" height="36" rx="8" transform="rotate(45 32 32)" fill="#111827" stroke="#ffffff" stroke-width="4"/>
+      </svg>
+    `;
+  }
+
+  return `
+    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="76" viewBox="0 0 64 76">
+      <path d="M32 8C19.3 8 9 18.2 9 30.6c0 16.2 18.5 30.6 21.1 32.6 1.1.9 2.7.9 3.8 0C36.5 61.2 55 46.8 55 30.6 55 18.2 44.7 8 32 8Z" fill="#e30a17" stroke="#ffffff" stroke-width="4"/>
     </svg>
   `;
 }
@@ -283,8 +345,10 @@ export function CityDiscoveryMapboxMap({
   const placePointsData = useMemo(() => buildPointsGeoJson(placePoints), [placePoints]);
   const eventPointsData = useMemo(() => buildPointsGeoJson(eventPoints), [eventPoints]);
   const userData = useMemo(() => buildUserGeoJson(userLocation), [userLocation]);
-  const shouldClusterPlaces = placePoints.length > SMALL_DATASET_CLUSTER_THRESHOLD;
-  const shouldClusterEvents = eventPoints.length > SMALL_DATASET_CLUSTER_THRESHOLD;
+  const selectedPoint = useMemo(
+    () => points.find((entry) => entry.id === selectedId) ?? null,
+    [points, selectedId],
+  );
 
   useEffect(() => {
     if (!containerRef.current || !token || mapRef.current) {
@@ -311,50 +375,55 @@ export function CityDiscoveryMapboxMap({
       void Promise.all([
         addSvgIcon(map, PLACE_ICON_ID, createMarkerSvg("place")),
         addSvgIcon(map, EVENT_ICON_ID, createMarkerSvg("event")),
+        addSvgIcon(map, PLACE_CLUSTER_ICON_ID, createClusterSvg("place")),
+        addSvgIcon(map, EVENT_CLUSTER_ICON_ID, createClusterSvg("event")),
       ]).then(() => {
         map.addSource(PLACE_SOURCE_ID, {
         type: "geojson",
         data: placePointsData,
-        cluster: shouldClusterPlaces,
-        clusterMaxZoom: 14,
-        clusterRadius: shouldClusterPlaces ? 50 : 1,
+        cluster: true,
+        clusterMaxZoom: CLUSTER_MAX_ZOOM,
+        clusterRadius: CLUSTER_RADIUS,
         promoteId: "id",
         });
 
         map.addLayer({
           id: PLACE_CLUSTERS_LAYER_ID,
-          type: "circle",
-          source: PLACE_SOURCE_ID,
-          filter: ["has", "point_count"],
-          paint: {
-            "circle-color": "#e30a17",
-            "circle-radius": [
-              "step",
-              ["get", "point_count"],
-              18,
-              10,
-              24,
-              25,
-              30,
-            ],
-            "circle-stroke-color": "#ffffff",
-            "circle-stroke-width": 3,
-            "circle-opacity": 0.9,
-          },
-        });
-
-        map.addLayer({
-          id: PLACE_CLUSTER_COUNT_LAYER_ID,
           type: "symbol",
           source: PLACE_SOURCE_ID,
           filter: ["has", "point_count"],
           layout: {
+            "icon-image": PLACE_CLUSTER_ICON_ID,
+            "icon-size": [
+              "step",
+              ["get", "point_count"],
+              0.66,
+              10,
+              0.78,
+              25,
+              0.9,
+            ],
+            "icon-anchor": "center",
+            "icon-allow-overlap": true,
             "text-field": ["get", "point_count_abbreviated"],
-            "text-size": 12,
+            "text-size": [
+              "step",
+              ["get", "point_count"],
+              11,
+              10,
+              12,
+              25,
+              13,
+            ],
             "text-font": ["Open Sans Bold", "Arial Unicode MS Bold"],
+            "text-anchor": "center",
+            "text-offset": [0, -0.15],
+            "text-allow-overlap": true,
           },
           paint: {
             "text-color": "#ffffff",
+            "text-halo-color": "rgba(227, 10, 23, 0.18)",
+            "text-halo-width": 0.8,
           },
         });
 
@@ -365,7 +434,7 @@ export function CityDiscoveryMapboxMap({
           filter: ["!", ["has", "point_count"]],
           layout: {
             "icon-image": PLACE_ICON_ID,
-            "icon-size": 0.6,
+            "icon-size": 0.76,
             "icon-allow-overlap": true,
             "icon-anchor": "bottom",
           },
@@ -374,47 +443,48 @@ export function CityDiscoveryMapboxMap({
         map.addSource(EVENT_SOURCE_ID, {
         type: "geojson",
         data: eventPointsData,
-        cluster: shouldClusterEvents,
-        clusterMaxZoom: 14,
-        clusterRadius: shouldClusterEvents ? 50 : 1,
+        cluster: true,
+        clusterMaxZoom: CLUSTER_MAX_ZOOM,
+        clusterRadius: CLUSTER_RADIUS,
         promoteId: "id",
         });
 
         map.addLayer({
-        id: EVENT_CLUSTERS_LAYER_ID,
-        type: "circle",
-        source: EVENT_SOURCE_ID,
-        filter: ["has", "point_count"],
-        paint: {
-          "circle-color": "#111827",
-          "circle-radius": [
+          id: EVENT_CLUSTERS_LAYER_ID,
+          type: "symbol",
+          source: EVENT_SOURCE_ID,
+          filter: ["has", "point_count"],
+          layout: {
+          "icon-image": EVENT_CLUSTER_ICON_ID,
+          "icon-size": [
             "step",
             ["get", "point_count"],
-            18,
+            0.62,
             10,
-            24,
+            0.74,
             25,
-            30,
+            0.86,
           ],
-          "circle-stroke-color": "#ffffff",
-          "circle-stroke-width": 3,
-          "circle-opacity": 0.95,
-        },
-        });
-
-        map.addLayer({
-        id: EVENT_CLUSTER_COUNT_LAYER_ID,
-        type: "symbol",
-        source: EVENT_SOURCE_ID,
-        filter: ["has", "point_count"],
-        layout: {
+          "icon-allow-overlap": true,
           "text-field": ["get", "point_count_abbreviated"],
-          "text-size": 12,
+          "text-size": [
+            "step",
+            ["get", "point_count"],
+            11,
+            10,
+            12,
+            25,
+            13,
+          ],
           "text-font": ["Open Sans Bold", "Arial Unicode MS Bold"],
-        },
-        paint: {
+          "text-anchor": "center",
+          "text-allow-overlap": true,
+          },
+          paint: {
           "text-color": "#ffffff",
-        },
+          "text-halo-color": "rgba(15, 23, 42, 0.18)",
+          "text-halo-width": 0.8,
+          },
         });
 
         map.addLayer({
@@ -424,7 +494,7 @@ export function CityDiscoveryMapboxMap({
           filter: ["!", ["has", "point_count"]],
           layout: {
             "icon-image": EVENT_ICON_ID,
-            "icon-size": 0.62,
+            "icon-size": 0.76,
             "icon-allow-overlap": true,
           },
         });
@@ -446,8 +516,7 @@ export function CityDiscoveryMapboxMap({
         },
         });
 
-        if (shouldClusterPlaces) {
-          map.on("click", PLACE_CLUSTERS_LAYER_ID, (event) => {
+        map.on("click", PLACE_CLUSTERS_LAYER_ID, (event) => {
           const feature = event.features?.[0];
           if (!feature) return;
 
@@ -463,15 +532,13 @@ export function CityDiscoveryMapboxMap({
 
             map.easeTo({
               center: [longitude, latitude],
-              zoom: Math.max(zoom, 15),
-              duration: 400,
+              zoom: Math.min(Math.max(zoom, 12.8), 14.1),
+              duration: 420,
             });
           });
-          });
-        }
+        });
 
-        if (shouldClusterEvents) {
-          map.on("click", EVENT_CLUSTERS_LAYER_ID, (event) => {
+        map.on("click", EVENT_CLUSTERS_LAYER_ID, (event) => {
           const feature = event.features?.[0];
           if (!feature) return;
 
@@ -487,12 +554,11 @@ export function CityDiscoveryMapboxMap({
 
             map.easeTo({
               center: [longitude, latitude],
-              zoom: Math.max(zoom, 15),
-              duration: 400,
+              zoom: Math.min(Math.max(zoom, 12.8), 14.1),
+              duration: 420,
             });
           });
-          });
-        }
+        });
 
         for (const layerId of [
           PLACE_CLUSTERS_LAYER_ID,
@@ -528,6 +594,13 @@ export function CityDiscoveryMapboxMap({
           if (!featureId || !point) return;
 
           onSelectChange(featureId);
+          showPointPopup(
+            map,
+            popupRef,
+            suppressPopupCloseRef,
+            point,
+            onSelectChange,
+          );
           map.flyTo({
             center: [point.longitude, point.latitude],
             zoom: 15.4,
@@ -557,8 +630,6 @@ export function CityDiscoveryMapboxMap({
     onSelectChange,
     placePoints,
     placePointsData,
-    shouldClusterEvents,
-    shouldClusterPlaces,
     token,
     userData,
   ]);
@@ -622,8 +693,7 @@ export function CityDiscoveryMapboxMap({
       ],
       {
         padding: 48,
-        maxZoom:
-          shouldClusterPlaces || shouldClusterEvents ? 13.5 : 15,
+        maxZoom: 14.5,
         duration: 0,
       },
     );
@@ -633,8 +703,6 @@ export function CityDiscoveryMapboxMap({
     placePointsData,
     points,
     selectedId,
-    shouldClusterEvents,
-    shouldClusterPlaces,
     userData,
     userLocation,
   ]);
@@ -672,30 +740,27 @@ export function CityDiscoveryMapboxMap({
       return;
     }
 
-    if (popupRef.current) {
-      suppressPopupCloseRef.current = true;
-      popupRef.current.remove();
-      popupRef.current = null;
-    }
-
     if (!selectedId) {
+      if (popupRef.current) {
+        suppressPopupCloseRef.current = true;
+        popupRef.current.remove();
+        popupRef.current = null;
+      }
       return;
     }
 
-    const point = points.find((entry) => entry.id === selectedId);
+    const point = selectedPoint;
     if (!point) {
       return;
     }
 
-    popupRef.current = new mapboxgl.Popup({
-      closeButton: true,
-      closeOnClick: false,
-      offset: 18,
-      className: "merhaba-mapbox-popup-shell",
-    })
-      .setLngLat([point.longitude, point.latitude])
-      .setDOMContent(buildPopupNode(point, viewPlaceLabel, viewEventLabel))
-      .addTo(map);
+    showPointPopup(
+      map,
+      popupRef,
+      suppressPopupCloseRef,
+      point,
+      onSelectChange,
+    );
 
     map.flyTo({
       center: [point.longitude, point.latitude],
@@ -706,14 +771,7 @@ export function CityDiscoveryMapboxMap({
       offset: [0, -60],
     });
 
-    popupRef.current.on("close", () => {
-      if (suppressPopupCloseRef.current) {
-        suppressPopupCloseRef.current = false;
-        return;
-      }
-      onSelectChange(null);
-    });
-  }, [onSelectChange, points, selectedId, viewEventLabel, viewPlaceLabel]);
+  }, [onSelectChange, selectedPoint, selectedId]);
 
   if (!token) {
     return (
@@ -747,14 +805,18 @@ export function CityDiscoveryMapboxMap({
 
       <div className="pointer-events-none absolute bottom-5 left-5 flex items-center gap-4 rounded-full border border-border/80 bg-white/94 px-4 py-2 text-xs text-muted-foreground shadow-sm">
         <div className="flex items-center gap-2">
-          <span className="relative block h-3.5 w-3.5">
-            <span className="absolute inset-x-[1px] top-0 h-3 w-3 rounded-full bg-brand" />
-            <span className="absolute bottom-0 left-1/2 h-1.5 w-1.5 -translate-x-1/2 rotate-45 bg-brand" />
+          <span className="relative block h-4 w-4">
+            <span className="absolute left-1/2 top-0 h-3.5 w-3.5 -translate-x-1/2 rounded-full bg-brand" />
+            <span className="absolute bottom-0 left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 rounded-[1px] bg-brand" />
+            <span className="absolute left-1/2 top-[5px] h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-white" />
           </span>
           <span>{legendPlaces}</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="h-3 w-3 rotate-45 rounded-[3px] bg-foreground" />
+          <span className="relative block h-3.5 w-3.5">
+            <span className="absolute inset-0 rotate-45 rounded-[3px] bg-foreground" />
+            <span className="absolute left-1/2 top-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rotate-45 rounded-[1px] bg-white" />
+          </span>
           <span>{legendEvents}</span>
         </div>
         <div className="flex items-center gap-2">
@@ -762,6 +824,33 @@ export function CityDiscoveryMapboxMap({
           <span>{myLocationLabel}</span>
         </div>
       </div>
+
+      {selectedPoint ? (
+        <div className="absolute right-5 top-5 z-10 w-[min(20rem,calc(100%-2.5rem))]">
+          <div className="rounded-[1.4rem] border border-border/80 bg-white/96 p-4 shadow-[0_18px_42px_rgba(15,23,42,0.14)] backdrop-blur-sm">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-brand">
+              {selectedPoint.categoryLabel}
+            </p>
+            <h3 className="mt-1 text-base font-semibold text-foreground">
+              {selectedPoint.label}
+            </h3>
+            <p className="mt-2 text-xs font-semibold text-slate-500">
+              {selectedPoint.meta}
+            </p>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">
+              {selectedPoint.description || selectedPoint.meta}
+            </p>
+            <div className="mt-4">
+              <Link
+                href={selectedPoint.href}
+                className="inline-flex items-center justify-center rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#c40815]"
+              >
+                {selectedPoint.kind === "place" ? viewPlaceLabel : viewEventLabel}
+              </Link>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
