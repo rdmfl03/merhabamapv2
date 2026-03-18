@@ -1,6 +1,7 @@
 import {
   buildAllowlistBlockedHandling,
   evaluateRawIngestAllowlist,
+  getAllowlistFailureGroup,
 } from "@/config/ingest-allowlist";
 import { prisma } from "@/lib/prisma";
 
@@ -36,6 +37,8 @@ export async function listAdminRawIngestItems() {
           name: true,
           url: true,
           sourceKind: true,
+          accountHandle: true,
+          externalId: true,
         },
       },
     },
@@ -48,6 +51,8 @@ export async function listAdminRawIngestItems() {
       rawTitle: item.rawTitle,
       sourceType: item.source?.sourceKind,
       sourceUrl: item.sourceUrl ?? item.source?.url,
+      sourceAccountHandle: item.source?.accountHandle,
+      sourceExternalId: item.externalId ?? item.source?.externalId,
     });
     const blockedHandling = buildAllowlistBlockedHandling(allowlistDecision);
 
@@ -55,6 +60,21 @@ export async function listAdminRawIngestItems() {
       ...item,
       allowlistBlocked: !allowlistDecision.allowed,
       allowlistReasonCode: allowlistDecision.allowed ? null : allowlistDecision.reasonCode,
+      allowlistEvaluation: {
+        allowed: allowlistDecision.allowed,
+        reasonCode: allowlistDecision.reasonCode,
+        failureGroup:
+          allowlistDecision.allowed || !allowlistDecision.reasonCode
+            ? null
+            : getAllowlistFailureGroup(allowlistDecision.reasonCode),
+        normalizedEntityType: allowlistDecision.normalizedEntityType,
+        normalizedCity: allowlistDecision.normalizedCity,
+        normalizedCategory: allowlistDecision.normalizedCategory,
+        normalizedSourceType: allowlistDecision.normalizedSourceType,
+        normalizedSourceHost: allowlistDecision.normalizedSourceHost,
+        matchedSourceKey: allowlistDecision.matchedSourceKey,
+        matchedSourceLabel: allowlistDecision.matchedSourceLabel,
+      },
       effectiveStatus: blockedHandling ? "BLOCKED_BY_ALLOWLIST" : item.status,
       effectiveErrorMessage: blockedHandling ? blockedHandling.errorMessage : item.errorMessage,
     };

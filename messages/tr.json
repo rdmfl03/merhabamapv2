@@ -615,6 +615,28 @@
       "submissionsTitle": "Submissions",
       "submissionsDescription": "Gelen submission kayıtlarının ve mevcut inceleme durumlarının dahili görünümü.",
       "submissionsAction": "Submissions aç",
+      "sourceRollout": {
+        "title": "Aktif v1 kaynak rollout sözleşmesi",
+        "description": "Berlin ve Köln için şu anda izinli olan kaynak konfigürasyonunun salt-okunur referansı. Veriler doğrudan merkezi allowlist konfigürasyonundan okunur.",
+        "activeBadge": "Aktif",
+        "actionLabel": "Bloklanan raw kayıtları incele",
+        "sectionLabel": "Bölüm",
+        "empty": "Bu bölüm için şu anda izinli kaynak yok.",
+        "sections": {
+          "shared": "shared",
+          "placeBerlin": "place.berlin",
+          "placeKoeln": "place.koeln",
+          "eventBerlin": "event.berlin",
+          "eventKoeln": "event.koeln"
+        },
+        "fields": {
+          "sourceType": "Kaynak türü",
+          "domains": "Domainler",
+          "accountHandles": "Handle'lar",
+          "externalIds": "Harici ID'ler",
+          "noSourceUrlRequired": "Source URL olmadan izinli"
+        }
+      },
       "empty": "Henüz ingest çalıştırması yok.",
       "summary": "Toplam {total, number} çalıştırma, {running, number} RUNNING, {done, number} DONE, {failed, number} FAILED",
       "filters": {
@@ -697,6 +719,7 @@
       "rawItemsTitle": "Sorunlu raw ingest kayıtları",
       "noRawItems": "Bu kaynak için şu anda sorunlu raw ingest kaydı yok.",
       "noRawTitle": "Ham başlık yok",
+      "allowlistSummary": "{blocked, number} kayıt allowlist tarafından bloklandı, {passed, number} kayıt raw allowlist kontrolünü geçti",
       "badges": {
         "public": "Herkese açık",
         "private": "Dahili",
@@ -737,10 +760,13 @@
       "description": "Başarısız olan veya henüz işlenmemiş raw ingest kayıtlarının dahili görünümü.",
       "empty": "Şu anda sorunlu raw ingest kaydı yok.",
       "summary": "Toplam {total, number} sorunlu kayıt, {failed, number} FAILED, {pending, number} PENDING",
+      "allowlistSummary": "{blocked, number} kayıt allowlist tarafından bloklandı, {passed, number} kayıt raw allowlist kontrolünü geçti",
+      "activeAllowlistBlockedHint": "Şu anda yalnızca aktif rollout allowlist tarafından bloklanan raw ingest kayıtlarını inceliyorsun.",
       "filters": {
         "all": "Tüm sorunlu kayıtlar ({count, number})",
         "failed": "Sadece FAILED ({count, number})",
-        "pending": "Sadece PENDING ({count, number})"
+        "pending": "Sadece PENDING ({count, number})",
+        "allowlistBlocked": "Sadece allowlist bloklu ({count, number})"
       },
       "columns": {
         "id": "ID",
@@ -759,6 +785,42 @@
       "fallbacks": {
         "notAvailable": "Yok",
         "unknownSource": "Bilinmeyen kaynak"
+      },
+      "allowlist": {
+        "title": "Allowlist değerlendirmesi",
+        "pass": "Geçti",
+        "blocked": "Bloklu",
+        "passSummary": "Mevcut raw allowlist kontrolünü geçiyor",
+        "blockedSummary": "Şu yüzden bloklandı",
+        "rule": "Kural",
+        "fields": {
+          "entity": "Entity",
+          "city": "Şehir",
+          "category": "Kategori",
+          "sourceType": "Kaynak türü",
+          "sourceHost": "Domain",
+          "matchedSource": "İzinli kaynak"
+        },
+        "failureGroups": {
+          "entity": "entity kuralı",
+          "city": "şehir kuralı",
+          "title": "başlık kuralı",
+          "source": "kaynak kuralı",
+          "category": "kategori kuralı"
+        },
+        "reasonCodes": {
+          "ENTITY_TYPE_REQUIRED": "Entity türü gerekli",
+          "CITY_REQUIRED": "Şehir gerekli",
+          "CITY_NOT_ALLOWED": "Şehir izinli değil",
+          "TITLE_REQUIRED": "Başlık gerekli",
+          "SOURCE_REQUIRED": "Kaynak gerekli",
+          "SOURCE_TYPE_NOT_ALLOWED": "Kaynak türü izinli değil",
+          "SOURCE_IDENTIFIER_REQUIRED": "Kaynak domaini veya identifier gerekli",
+          "SOURCE_NOT_ALLOWED": "Kaynak v1 rollout allowlist içinde değil",
+          "CATEGORY_REQUIRED": "Kategori gerekli",
+          "PLACE_CATEGORY_NOT_ALLOWED": "Mekan kategorisi izinli değil",
+          "EVENT_CATEGORY_NOT_ALLOWED": "Etkinlik kategorisi izinli değil"
+        }
       }
     },
     "reportStatuses": {

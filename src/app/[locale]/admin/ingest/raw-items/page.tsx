@@ -1,5 +1,6 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
+import { AllowlistEvaluationSummary } from "@/components/admin/allowlist-evaluation-summary";
 import { AdminShell } from "@/components/admin/admin-shell";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,7 +9,7 @@ import { listAdminRawIngestItems } from "@/server/queries/admin/list-admin-raw-i
 
 type AdminRawIngestItemsPageProps = {
   params: Promise<{ locale: "de" | "tr" }>;
-  searchParams?: Promise<{ status?: string }>;
+  searchParams?: Promise<{ status?: string; allowlist?: string }>;
 };
 
 function formatDate(value: Date | null, locale: "de" | "tr") {
@@ -32,6 +33,60 @@ function getStatusTone(status: string) {
       : "default";
 }
 
+function getAllowlistLabels(t: Awaited<ReturnType<typeof getTranslations>>) {
+  return {
+    title: t("rawIngest.allowlist.title"),
+    pass: t("rawIngest.allowlist.pass"),
+    blocked: t("rawIngest.allowlist.blocked"),
+    passSummary: t("rawIngest.allowlist.passSummary"),
+    blockedSummary: t("rawIngest.allowlist.blockedSummary"),
+    rule: t("rawIngest.allowlist.rule"),
+    fields: {
+      entity: t("rawIngest.allowlist.fields.entity"),
+      city: t("rawIngest.allowlist.fields.city"),
+      category: t("rawIngest.allowlist.fields.category"),
+      sourceType: t("rawIngest.allowlist.fields.sourceType"),
+      sourceHost: t("rawIngest.allowlist.fields.sourceHost"),
+      matchedSource: t("rawIngest.allowlist.fields.matchedSource"),
+    },
+    failureGroups: {
+      entity: t("rawIngest.allowlist.failureGroups.entity"),
+      city: t("rawIngest.allowlist.failureGroups.city"),
+      title: t("rawIngest.allowlist.failureGroups.title"),
+      source: t("rawIngest.allowlist.failureGroups.source"),
+      category: t("rawIngest.allowlist.failureGroups.category"),
+    },
+    reasonCodes: {
+      ENTITY_TYPE_REQUIRED: t("rawIngest.allowlist.reasonCodes.ENTITY_TYPE_REQUIRED"),
+      CITY_REQUIRED: t("rawIngest.allowlist.reasonCodes.CITY_REQUIRED"),
+      CITY_NOT_ALLOWED: t("rawIngest.allowlist.reasonCodes.CITY_NOT_ALLOWED"),
+      TITLE_REQUIRED: t("rawIngest.allowlist.reasonCodes.TITLE_REQUIRED"),
+      SOURCE_REQUIRED: t("rawIngest.allowlist.reasonCodes.SOURCE_REQUIRED"),
+      SOURCE_TYPE_NOT_ALLOWED: t("rawIngest.allowlist.reasonCodes.SOURCE_TYPE_NOT_ALLOWED"),
+      SOURCE_IDENTIFIER_REQUIRED: t("rawIngest.allowlist.reasonCodes.SOURCE_IDENTIFIER_REQUIRED"),
+      SOURCE_NOT_ALLOWED: t("rawIngest.allowlist.reasonCodes.SOURCE_NOT_ALLOWED"),
+      CATEGORY_REQUIRED: t("rawIngest.allowlist.reasonCodes.CATEGORY_REQUIRED"),
+      PLACE_CATEGORY_NOT_ALLOWED: t("rawIngest.allowlist.reasonCodes.PLACE_CATEGORY_NOT_ALLOWED"),
+      EVENT_CATEGORY_NOT_ALLOWED: t("rawIngest.allowlist.reasonCodes.EVENT_CATEGORY_NOT_ALLOWED"),
+    },
+  };
+}
+
+function buildRawItemsHref(status: "all" | "failed" | "pending", allowlist: "all" | "blocked") {
+  const searchParams = new URLSearchParams();
+
+  if (status !== "all") {
+    searchParams.set("status", status);
+  }
+
+  if (allowlist === "blocked") {
+    searchParams.set("allowlist", allowlist);
+  }
+
+  const query = searchParams.toString();
+  return query ? `/admin/ingest/raw-items?${query}` : "/admin/ingest/raw-items";
+}
+
 export default async function AdminRawIngestItemsPage({
   params,
   searchParams,
@@ -48,19 +103,31 @@ export default async function AdminRawIngestItemsPage({
   const allCount = rawItems.length;
   const failedCount = rawItems.filter((item) => item.status === "FAILED").length;
   const pendingCount = rawItems.filter((item) => item.status === "PENDING").length;
+  const allowlistBlockedCount = rawItems.filter((item) => item.allowlistBlocked).length;
+  const allowlistPassedCount = rawItems.length - allowlistBlockedCount;
+  const allowlistLabels = getAllowlistLabels(t);
 
   const statusFilter =
     resolvedSearchParams?.status === "failed" || resolvedSearchParams?.status === "pending"
       ? resolvedSearchParams.status
       : "all";
+  const allowlistFilter = resolvedSearchParams?.allowlist === "blocked" ? "blocked" : "all";
 
   const filteredItems = rawItems.filter((item) => {
     if (statusFilter === "failed") {
-      return item.status === "FAILED";
+      if (item.status !== "FAILED") {
+        return false;
+      }
     }
 
     if (statusFilter === "pending") {
-      return item.status === "PENDING";
+      if (item.status !== "PENDING") {
+        return false;
+      }
+    }
+
+    if (allowlistFilter === "blocked" && !item.allowlistBlocked) {
+      return false;
     }
 
     return true;
@@ -86,7 +153,7 @@ export default async function AdminRawIngestItemsPage({
         <CardContent className="space-y-4 p-6">
           <div className="flex flex-wrap gap-3">
             <Link
-              href={`/admin/ingest/raw-items`}
+              href={buildRawItemsHref("all", allowlistFilter)}
               className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
                 statusFilter === "all"
                   ? "border-brand bg-brand text-white"
@@ -96,7 +163,7 @@ export default async function AdminRawIngestItemsPage({
               {t("rawIngest.filters.all", { count: allCount })}
             </Link>
             <Link
-              href={`/admin/ingest/raw-items?status=failed`}
+              href={buildRawItemsHref("failed", allowlistFilter)}
               className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
                 statusFilter === "failed"
                   ? "border-brand bg-brand text-white"
@@ -106,7 +173,7 @@ export default async function AdminRawIngestItemsPage({
               {t("rawIngest.filters.failed", { count: failedCount })}
             </Link>
             <Link
-              href={`/admin/ingest/raw-items?status=pending`}
+              href={buildRawItemsHref("pending", allowlistFilter)}
               className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
                 statusFilter === "pending"
                   ? "border-brand bg-brand text-white"
@@ -114,6 +181,16 @@ export default async function AdminRawIngestItemsPage({
               }`}
             >
               {t("rawIngest.filters.pending", { count: pendingCount })}
+            </Link>
+            <Link
+              href={buildRawItemsHref(statusFilter, "blocked")}
+              className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
+                allowlistFilter === "blocked"
+                  ? "border-brand bg-brand text-white"
+                  : "border-border bg-white text-foreground hover:bg-muted"
+              }`}
+            >
+              {t("rawIngest.filters.allowlistBlocked", { count: allowlistBlockedCount })}
             </Link>
           </div>
 
@@ -124,6 +201,17 @@ export default async function AdminRawIngestItemsPage({
               pending: pendingCount,
             })}
           </p>
+          <p className="text-sm text-muted-foreground">
+            {t("rawIngest.allowlistSummary", {
+              blocked: allowlistBlockedCount,
+              passed: allowlistPassedCount,
+            })}
+          </p>
+          {allowlistFilter === "blocked" ? (
+            <p className="rounded-2xl border border-amber-200 bg-amber-50/80 px-4 py-3 text-sm text-amber-950">
+              {t("rawIngest.activeAllowlistBlockedHint")}
+            </p>
+          ) : null}
 
           {filteredItems.length === 0 ? (
             <p className="text-sm text-muted-foreground">{t("rawIngest.empty")}</p>
@@ -201,6 +289,12 @@ export default async function AdminRawIngestItemsPage({
                           <div className="text-sm text-muted-foreground md:col-span-1 break-words">
                             {item.effectiveErrorMessage ?? t("rawIngest.fallbacks.notAvailable")}
                           </div>
+                        </div>
+                        <div className="border-t border-border/70 px-3 py-3">
+                          <AllowlistEvaluationSummary
+                            evaluation={item.allowlistEvaluation}
+                            labels={allowlistLabels}
+                          />
                         </div>
                       </td>
                     </tr>

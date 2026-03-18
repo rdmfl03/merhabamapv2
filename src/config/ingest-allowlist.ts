@@ -15,9 +15,101 @@ export const INGEST_ALLOWLIST = {
     requireSource: true,
     requireCategoryForProcessedItems: true,
   },
+  sourceRolloutV1: {
+    shared: [
+      {
+        key: "trusted-manual-submission",
+        label: "Trusted manual submission",
+        sourceType: "trusted_manual_submission",
+        allowWithoutSourceUrl: true,
+      },
+    ],
+    place: {
+      berlin: [
+        {
+          key: "berlin-city-portal-places",
+          label: "Berlin.de official place pages",
+          sourceType: "official_website",
+          domains: ["berlin.de"],
+        },
+        {
+          key: "visitberlin-venues",
+          label: "visitBerlin venue pages",
+          sourceType: "official_venue_website",
+          domains: ["visitberlin.de"],
+        },
+      ],
+      koeln: [
+        {
+          key: "stadt-koeln-places",
+          label: "Stadt Koeln official place pages",
+          sourceType: "official_website",
+          domains: ["stadt-koeln.de", "koeln.de"],
+        },
+        {
+          key: "koeln-tourismus-venues",
+          label: "Koeln Tourismus venue pages",
+          sourceType: "official_venue_website",
+          domains: ["koelntourismus.de"],
+        },
+      ],
+    },
+    event: {
+      berlin: [
+        {
+          key: "berlin-city-events",
+          label: "Berlin.de event pages",
+          sourceType: "official_event_page",
+          domains: ["berlin.de"],
+        },
+        {
+          key: "visitberlin-events",
+          label: "visitBerlin event pages",
+          sourceType: "official_event_page",
+          domains: ["visitberlin.de"],
+        },
+      ],
+      koeln: [
+        {
+          key: "stadt-koeln-events",
+          label: "Stadt Koeln event pages",
+          sourceType: "official_event_page",
+          domains: ["stadt-koeln.de", "koeln.de"],
+        },
+        {
+          key: "koeln-tourismus-events",
+          label: "Koeln Tourismus event pages",
+          sourceType: "official_event_page",
+          domains: ["koelntourismus.de"],
+        },
+        {
+          key: "koelnmesse-events",
+          label: "Koelnmesse event pages",
+          sourceType: "official_event_page",
+          domains: ["koelnmesse.de"],
+        },
+      ],
+    },
+  },
 } as const;
 
 type IngestEntityType = "place" | "event";
+type IngestAllowlistCity = (typeof INGEST_ALLOWLIST.allowedCities)[number];
+type AllowedSourceType = (typeof INGEST_ALLOWLIST.allowedSourceTypes)[number];
+export type IngestSourceAllowlistEntry = {
+  key: string;
+  label: string;
+  sourceType: AllowedSourceType;
+  domains?: readonly string[];
+  accountHandles?: readonly string[];
+  externalIds?: readonly string[];
+  allowWithoutSourceUrl?: boolean;
+};
+
+export type IngestSourceRolloutSection = {
+  key: "shared" | "place.berlin" | "place.koeln" | "event.berlin" | "event.koeln";
+  entries: readonly IngestSourceAllowlistEntry[];
+};
 
 type EvaluateIngestAllowlistInput = {
   entityType?: string | null;
@@ -26,6 +118,8 @@ type EvaluateIngestAllowlistInput = {
   title?: string | null;
   sourceType?: string | null;
   sourceUrl?: string | null;
+  sourceAccountHandle?: string | null;
+  sourceExternalId?: string | null;
 };
 
 type EvaluateIngestAllowlistOptions = {
@@ -33,15 +127,6 @@ type EvaluateIngestAllowlistOptions = {
 };
 
 export type IngestAllowlistDecision =
-  | {
-      allowed: true;
-      blockCode: null;
-      reasonCode: null;
-      normalizedEntityType: IngestEntityType;
-      normalizedCity: string;
-      normalizedCategory: string | null;
-      normalizedSourceType: string | null;
-    }
   | {
       allowed: false;
       blockCode: "BLOCKED_BY_ALLOWLIST";
@@ -52,6 +137,8 @@ export type IngestAllowlistDecision =
         | "TITLE_REQUIRED"
         | "SOURCE_REQUIRED"
         | "SOURCE_TYPE_NOT_ALLOWED"
+        | "SOURCE_IDENTIFIER_REQUIRED"
+        | "SOURCE_NOT_ALLOWED"
         | "CATEGORY_REQUIRED"
         | "PLACE_CATEGORY_NOT_ALLOWED"
         | "EVENT_CATEGORY_NOT_ALLOWED";
@@ -59,7 +146,29 @@ export type IngestAllowlistDecision =
       normalizedCity: string | null;
       normalizedCategory: string | null;
       normalizedSourceType: string | null;
+      normalizedSourceHost: string | null;
+      matchedSourceKey: string | null;
+      matchedSourceLabel: string | null;
+    }
+  | {
+      allowed: true;
+      blockCode: null;
+      reasonCode: null;
+      normalizedEntityType: IngestEntityType;
+      normalizedCity: string;
+      normalizedCategory: string | null;
+      normalizedSourceType: string | null;
+      normalizedSourceHost: string | null;
+      matchedSourceKey: string | null;
+      matchedSourceLabel: string | null;
     };
+
+export type IngestAllowlistFailureGroup =
+  | "entity"
+  | "city"
+  | "title"
+  | "source"
+  | "category";
 
 type RawIngestAllowlistInput = {
   entityGuess?: string | null;
@@ -67,6 +176,8 @@ type RawIngestAllowlistInput = {
   rawTitle?: string | null;
   sourceType?: string | null;
   sourceUrl?: string | null;
+  sourceAccountHandle?: string | null;
+  sourceExternalId?: string | null;
 };
 
 function normalizeText(value: string | null | undefined) {
@@ -119,6 +230,146 @@ function normalizeSourceType(value: string | null | undefined) {
   return normalized || null;
 }
 
+function normalizeSourceIdentifier(value: string | null | undefined) {
+  const normalized = normalizeText(value).toLowerCase();
+  return normalized || null;
+}
+
+function normalizeSourceHost(value: string | null | undefined) {
+  const normalized = normalizeText(value).toLowerCase();
+
+  if (!normalized) {
+    return null;
+  }
+
+  const candidate = normalized.includes("://") ? normalized : `https://${normalized}`;
+
+  try {
+    return new URL(candidate).hostname.replace(/^www\./, "") || null;
+  } catch {
+    const hostname = normalized
+      .replace(/^https?:\/\//, "")
+      .replace(/^www\./, "")
+      .split(/[/?#:]/, 1)[0];
+
+    return hostname || null;
+  }
+}
+
+function matchesDomain(host: string | null, domain: string) {
+  if (!host) {
+    return false;
+  }
+
+  return host === domain || host.endsWith(`.${domain}`);
+}
+
+function getConcreteSourceAllowlistEntries(
+  entityType: IngestEntityType,
+  city: IngestAllowlistCity,
+): readonly IngestSourceAllowlistEntry[] {
+  return [
+    ...INGEST_ALLOWLIST.sourceRolloutV1.shared,
+    ...INGEST_ALLOWLIST.sourceRolloutV1[entityType][city],
+  ];
+}
+
+function matchConcreteSourceAllowlistEntry(
+  entries: readonly IngestSourceAllowlistEntry[],
+  input: {
+    sourceType: string | null;
+    sourceHost: string | null;
+    sourceAccountHandle: string | null;
+    sourceExternalId: string | null;
+  },
+) {
+  const typeEntries = entries.filter((entry) => entry.sourceType === input.sourceType);
+
+  if (typeEntries.length === 0) {
+    return {
+      matchedEntry: null,
+      hasTypeCandidate: false,
+      requiresIdentifier: false,
+    };
+  }
+
+  for (const entry of typeEntries) {
+    if (
+      entry.allowWithoutSourceUrl &&
+      !input.sourceHost &&
+      !input.sourceAccountHandle &&
+      !input.sourceExternalId
+    ) {
+      return {
+        matchedEntry: entry,
+        hasTypeCandidate: true,
+        requiresIdentifier: false,
+      };
+    }
+
+    if (entry.domains?.some((domain) => matchesDomain(input.sourceHost, domain))) {
+      return {
+        matchedEntry: entry,
+        hasTypeCandidate: true,
+        requiresIdentifier: false,
+      };
+    }
+
+    if (entry.accountHandles?.includes(input.sourceAccountHandle ?? "")) {
+      return {
+        matchedEntry: entry,
+        hasTypeCandidate: true,
+        requiresIdentifier: false,
+      };
+    }
+
+    if (entry.externalIds?.includes(input.sourceExternalId ?? "")) {
+      return {
+        matchedEntry: entry,
+        hasTypeCandidate: true,
+        requiresIdentifier: false,
+      };
+    }
+  }
+
+  const requiresIdentifier = typeEntries.some(
+    (entry) =>
+      Boolean(entry.domains?.length || entry.accountHandles?.length || entry.externalIds?.length) &&
+      !entry.allowWithoutSourceUrl,
+  );
+
+  return {
+    matchedEntry: null,
+    hasTypeCandidate: true,
+    requiresIdentifier,
+  };
+}
+
+export function getSourceRolloutV1Sections(): readonly IngestSourceRolloutSection[] {
+  return [
+    {
+      key: "shared",
+      entries: INGEST_ALLOWLIST.sourceRolloutV1.shared,
+    },
+    {
+      key: "place.berlin",
+      entries: INGEST_ALLOWLIST.sourceRolloutV1.place.berlin,
+    },
+    {
+      key: "place.koeln",
+      entries: INGEST_ALLOWLIST.sourceRolloutV1.place.koeln,
+    },
+    {
+      key: "event.berlin",
+      entries: INGEST_ALLOWLIST.sourceRolloutV1.event.berlin,
+    },
+    {
+      key: "event.koeln",
+      entries: INGEST_ALLOWLIST.sourceRolloutV1.event.koeln,
+    },
+  ];
+}
+
 export function evaluateIngestAllowlist(
   input: EvaluateIngestAllowlistInput,
   options: EvaluateIngestAllowlistOptions = {},
@@ -129,6 +380,9 @@ export function evaluateIngestAllowlist(
   const normalizedTitle = normalizeText(input.title);
   const normalizedSourceType = normalizeSourceType(input.sourceType);
   const normalizedSourceUrl = normalizeText(input.sourceUrl);
+  const normalizedSourceAccountHandle = normalizeSourceIdentifier(input.sourceAccountHandle);
+  const normalizedSourceExternalId = normalizeSourceIdentifier(input.sourceExternalId);
+  const normalizedSourceHost = normalizeSourceHost(normalizedSourceUrl);
 
   if (!normalizedEntityType) {
     return {
@@ -139,6 +393,9 @@ export function evaluateIngestAllowlist(
       normalizedCity,
       normalizedCategory: null,
       normalizedSourceType,
+      normalizedSourceHost,
+      matchedSourceKey: null,
+      matchedSourceLabel: null,
     };
   }
 
@@ -151,6 +408,9 @@ export function evaluateIngestAllowlist(
       normalizedCity: null,
       normalizedCategory: null,
       normalizedSourceType,
+      normalizedSourceHost,
+      matchedSourceKey: null,
+      matchedSourceLabel: null,
     };
   }
 
@@ -168,6 +428,9 @@ export function evaluateIngestAllowlist(
       normalizedCity,
       normalizedCategory: null,
       normalizedSourceType,
+      normalizedSourceHost,
+      matchedSourceKey: null,
+      matchedSourceLabel: null,
     };
   }
 
@@ -180,6 +443,9 @@ export function evaluateIngestAllowlist(
       normalizedCity: normalizedCity ?? null,
       normalizedCategory: null,
       normalizedSourceType,
+      normalizedSourceHost,
+      matchedSourceKey: null,
+      matchedSourceLabel: null,
     };
   }
 
@@ -196,6 +462,9 @@ export function evaluateIngestAllowlist(
       normalizedCity: normalizedCity ?? null,
       normalizedCategory: null,
       normalizedSourceType: null,
+      normalizedSourceHost: null,
+      matchedSourceKey: null,
+      matchedSourceLabel: null,
     };
   }
 
@@ -213,6 +482,45 @@ export function evaluateIngestAllowlist(
       normalizedCity: normalizedCity ?? null,
       normalizedCategory: null,
       normalizedSourceType,
+      normalizedSourceHost,
+      matchedSourceKey: null,
+      matchedSourceLabel: null,
+    };
+  }
+
+  const concreteSourceMatch = getConcreteSourceAllowlistEntries(
+    normalizedEntityType,
+    normalizedCity as IngestAllowlistCity,
+  );
+  const { matchedEntry, hasTypeCandidate, requiresIdentifier } = matchConcreteSourceAllowlistEntry(
+    concreteSourceMatch,
+    {
+      sourceType: normalizedSourceType,
+      sourceHost: normalizedSourceHost,
+      sourceAccountHandle: normalizedSourceAccountHandle,
+      sourceExternalId: normalizedSourceExternalId,
+    },
+  );
+
+  if (!matchedEntry) {
+    return {
+      allowed: false,
+      blockCode: "BLOCKED_BY_ALLOWLIST",
+      reasonCode:
+        hasTypeCandidate &&
+        !normalizedSourceHost &&
+        !normalizedSourceAccountHandle &&
+        !normalizedSourceExternalId &&
+        requiresIdentifier
+          ? "SOURCE_IDENTIFIER_REQUIRED"
+          : "SOURCE_NOT_ALLOWED",
+      normalizedEntityType,
+      normalizedCity: normalizedCity ?? null,
+      normalizedCategory: null,
+      normalizedSourceType,
+      normalizedSourceHost,
+      matchedSourceKey: null,
+      matchedSourceLabel: null,
     };
   }
 
@@ -231,6 +539,9 @@ export function evaluateIngestAllowlist(
         normalizedCity: normalizedCity ?? null,
         normalizedCategory: null,
         normalizedSourceType,
+        normalizedSourceHost,
+        matchedSourceKey: matchedEntry.key,
+        matchedSourceLabel: matchedEntry.label,
       };
     }
 
@@ -248,6 +559,9 @@ export function evaluateIngestAllowlist(
         normalizedCity: normalizedCity ?? null,
         normalizedCategory,
         normalizedSourceType,
+        normalizedSourceHost,
+        matchedSourceKey: matchedEntry.key,
+        matchedSourceLabel: matchedEntry.label,
       };
     }
 
@@ -265,6 +579,9 @@ export function evaluateIngestAllowlist(
         normalizedCity: normalizedCity ?? null,
         normalizedCategory,
         normalizedSourceType,
+        normalizedSourceHost,
+        matchedSourceKey: matchedEntry.key,
+        matchedSourceLabel: matchedEntry.label,
       };
     }
   }
@@ -277,6 +594,9 @@ export function evaluateIngestAllowlist(
     normalizedCity: normalizedCity ?? "",
     normalizedCategory,
     normalizedSourceType,
+    normalizedSourceHost,
+    matchedSourceKey: matchedEntry.key,
+    matchedSourceLabel: matchedEntry.label,
   };
 }
 
@@ -288,6 +608,8 @@ export function evaluateRawIngestAllowlist(input: RawIngestAllowlistInput) {
       title: input.rawTitle,
       sourceType: input.sourceType,
       sourceUrl: input.sourceUrl,
+      sourceAccountHandle: input.sourceAccountHandle,
+      sourceExternalId: input.sourceExternalId,
     },
     { enforceCategory: false },
   );
@@ -302,4 +624,31 @@ export function buildAllowlistBlockedHandling(decision: IngestAllowlistDecision)
     status: "FAILED" as const,
     errorMessage: "BLOCKED_BY_ALLOWLIST" as const,
   };
+}
+
+export function getAllowlistFailureGroup(
+  reasonCode: Exclude<IngestAllowlistDecision["reasonCode"], null>,
+): IngestAllowlistFailureGroup {
+  if (reasonCode === "ENTITY_TYPE_REQUIRED") {
+    return "entity";
+  }
+
+  if (reasonCode === "CITY_REQUIRED" || reasonCode === "CITY_NOT_ALLOWED") {
+    return "city";
+  }
+
+  if (reasonCode === "TITLE_REQUIRED") {
+    return "title";
+  }
+
+  if (
+    reasonCode === "SOURCE_REQUIRED" ||
+    reasonCode === "SOURCE_TYPE_NOT_ALLOWED" ||
+    reasonCode === "SOURCE_IDENTIFIER_REQUIRED" ||
+    reasonCode === "SOURCE_NOT_ALLOWED"
+  ) {
+    return "source";
+  }
+
+  return "category";
 }

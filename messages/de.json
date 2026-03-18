@@ -606,6 +606,28 @@
       "submissionsTitle": "Submissions",
       "submissionsDescription": "Interne Übersicht über eingegangene Submissions und ihren aktuellen Prüfstatus.",
       "submissionsAction": "Submissions öffnen",
+      "sourceRollout": {
+        "title": "Aktiver v1-Quellen-Rollout",
+        "description": "Read-only Referenz der aktuell freigegebenen Quellen-Konfiguration für Berlin und Köln. Die Daten werden direkt aus der zentralen Allowlist gelesen.",
+        "activeBadge": "Aktiv",
+        "actionLabel": "Blockierte Raw-Items prüfen",
+        "sectionLabel": "Bereich",
+        "empty": "Für diesen Bereich sind derzeit keine Quellen freigegeben.",
+        "sections": {
+          "shared": "shared",
+          "placeBerlin": "place.berlin",
+          "placeKoeln": "place.koeln",
+          "eventBerlin": "event.berlin",
+          "eventKoeln": "event.koeln"
+        },
+        "fields": {
+          "sourceType": "Quellentyp",
+          "domains": "Domains",
+          "accountHandles": "Handles",
+          "externalIds": "Externe IDs",
+          "noSourceUrlRequired": "Ohne Source-URL erlaubt"
+        }
+      },
       "empty": "Noch keine Ingest-Runs vorhanden.",
       "summary": "{total, number} Runs gesamt, {running, number} RUNNING, {done, number} DONE, {failed, number} FAILED",
       "filters": {
@@ -688,6 +710,7 @@
       "rawItemsTitle": "Problematische Raw-Ingest-Items",
       "noRawItems": "Für diese Quelle liegen aktuell keine problematischen Raw-Ingest-Items vor.",
       "noRawTitle": "Ohne Roh-Titel",
+      "allowlistSummary": "{blocked, number} blockiert, {passed, number} bestehen die Raw-Allowlist-Prüfung",
       "badges": {
         "public": "Öffentlich",
         "private": "Intern",
@@ -728,10 +751,13 @@
       "description": "Interne Übersicht über fehlgeschlagene oder noch unprozessierte Raw-Ingest-Items.",
       "empty": "Aktuell liegen keine problematischen Raw-Ingest-Items vor.",
       "summary": "{total, number} Problemfälle gesamt, {failed, number} FAILED, {pending, number} PENDING",
+      "allowlistSummary": "{blocked, number} durch Allowlist blockiert, {passed, number} bestehen die Raw-Allowlist-Prüfung",
+      "activeAllowlistBlockedHint": "Du prüfst aktuell nur Raw-Ingest-Items, die durch die aktive Rollout-Allowlist blockiert wurden.",
       "filters": {
         "all": "Alle Problemfälle ({count, number})",
         "failed": "Nur FAILED ({count, number})",
-        "pending": "Nur PENDING ({count, number})"
+        "pending": "Nur PENDING ({count, number})",
+        "allowlistBlocked": "Nur allowlist-blockiert ({count, number})"
       },
       "columns": {
         "id": "ID",
@@ -750,6 +776,42 @@
       "fallbacks": {
         "notAvailable": "Nicht verfügbar",
         "unknownSource": "Unbekannte Quelle"
+      },
+      "allowlist": {
+        "title": "Allowlist-Prüfung",
+        "pass": "Pass",
+        "blocked": "Blockiert",
+        "passSummary": "Besteht die aktuelle Raw-Allowlist-Prüfung",
+        "blockedSummary": "Blockiert durch",
+        "rule": "Regel",
+        "fields": {
+          "entity": "Entity",
+          "city": "Stadt",
+          "category": "Kategorie",
+          "sourceType": "Quellentyp",
+          "sourceHost": "Domain",
+          "matchedSource": "Freigegebene Quelle"
+        },
+        "failureGroups": {
+          "entity": "Entity-Regel",
+          "city": "Stadt-Regel",
+          "title": "Titel-Regel",
+          "source": "Quellen-Regel",
+          "category": "Kategorie-Regel"
+        },
+        "reasonCodes": {
+          "ENTITY_TYPE_REQUIRED": "Entity-Typ erforderlich",
+          "CITY_REQUIRED": "Stadt erforderlich",
+          "CITY_NOT_ALLOWED": "Stadt nicht erlaubt",
+          "TITLE_REQUIRED": "Titel erforderlich",
+          "SOURCE_REQUIRED": "Quelle erforderlich",
+          "SOURCE_TYPE_NOT_ALLOWED": "Quellentyp nicht erlaubt",
+          "SOURCE_IDENTIFIER_REQUIRED": "Quellen-Domain oder Identifier erforderlich",
+          "SOURCE_NOT_ALLOWED": "Quelle nicht im v1-Rollout erlaubt",
+          "CATEGORY_REQUIRED": "Kategorie erforderlich",
+          "PLACE_CATEGORY_NOT_ALLOWED": "Place-Kategorie nicht erlaubt",
+          "EVENT_CATEGORY_NOT_ALLOWED": "Event-Kategorie nicht erlaubt"
+        }
       }
     },
     "reportStatuses": {

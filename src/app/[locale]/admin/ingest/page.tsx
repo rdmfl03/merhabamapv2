@@ -1,8 +1,10 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { AdminShell } from "@/components/admin/admin-shell";
+import { SourceRolloutV1Reference } from "@/components/admin/source-rollout-v1-reference";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { getSourceRolloutV1Sections } from "@/config/ingest-allowlist";
 import { Link } from "@/i18n/navigation";
 import { listAdminIngestRuns } from "@/server/queries/admin/list-admin-ingest-runs";
 
@@ -32,6 +34,31 @@ function getStatusTone(status: string) {
         : "default";
 }
 
+function getSourceRolloutLabels(t: Awaited<ReturnType<typeof getTranslations>>) {
+  return {
+    title: t("ingest.sourceRollout.title"),
+    description: t("ingest.sourceRollout.description"),
+    activeBadge: t("ingest.sourceRollout.activeBadge"),
+    actionLabel: t("ingest.sourceRollout.actionLabel"),
+    sectionLabel: t("ingest.sourceRollout.sectionLabel"),
+    empty: t("ingest.sourceRollout.empty"),
+    fields: {
+      sourceType: t("ingest.sourceRollout.fields.sourceType"),
+      domains: t("ingest.sourceRollout.fields.domains"),
+      accountHandles: t("ingest.sourceRollout.fields.accountHandles"),
+      externalIds: t("ingest.sourceRollout.fields.externalIds"),
+      noSourceUrlRequired: t("ingest.sourceRollout.fields.noSourceUrlRequired"),
+    },
+    sections: {
+      shared: t("ingest.sourceRollout.sections.shared"),
+      "place.berlin": t("ingest.sourceRollout.sections.placeBerlin"),
+      "place.koeln": t("ingest.sourceRollout.sections.placeKoeln"),
+      "event.berlin": t("ingest.sourceRollout.sections.eventBerlin"),
+      "event.koeln": t("ingest.sourceRollout.sections.eventKoeln"),
+    },
+  };
+}
+
 export default async function AdminIngestPage({
   params,
   searchParams,
@@ -44,6 +71,8 @@ export default async function AdminIngestPage({
     getTranslations("admin"),
     listAdminIngestRuns(),
   ]);
+  const sourceRolloutSections = getSourceRolloutV1Sections();
+  const sourceRolloutLabels = getSourceRolloutLabels(t);
 
   const totalCount = ingestRuns.length;
   const runningCount = ingestRuns.filter((run) => run.status === "RUNNING").length;
@@ -129,6 +158,16 @@ export default async function AdminIngestPage({
           >
             {t("ingest.submissionsAction")}
           </Link>
+        </CardContent>
+      </Card>
+
+      <Card className="bg-white/90">
+        <CardContent className="p-6">
+          <SourceRolloutV1Reference
+            sections={sourceRolloutSections}
+            labels={sourceRolloutLabels}
+            reviewHref={`/admin/ingest/raw-items?allowlist=blocked`}
+          />
         </CardContent>
       </Card>
 

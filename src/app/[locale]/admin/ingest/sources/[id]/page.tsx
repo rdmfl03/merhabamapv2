@@ -1,6 +1,7 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 
+import { AllowlistEvaluationSummary } from "@/components/admin/allowlist-evaluation-summary";
 import { AdminShell } from "@/components/admin/admin-shell";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -41,6 +42,45 @@ function getRawItemStatusTone(status: string) {
         : "default";
 }
 
+function getAllowlistLabels(t: Awaited<ReturnType<typeof getTranslations>>) {
+  return {
+    title: t("rawIngest.allowlist.title"),
+    pass: t("rawIngest.allowlist.pass"),
+    blocked: t("rawIngest.allowlist.blocked"),
+    passSummary: t("rawIngest.allowlist.passSummary"),
+    blockedSummary: t("rawIngest.allowlist.blockedSummary"),
+    rule: t("rawIngest.allowlist.rule"),
+    fields: {
+      entity: t("rawIngest.allowlist.fields.entity"),
+      city: t("rawIngest.allowlist.fields.city"),
+      category: t("rawIngest.allowlist.fields.category"),
+      sourceType: t("rawIngest.allowlist.fields.sourceType"),
+      sourceHost: t("rawIngest.allowlist.fields.sourceHost"),
+      matchedSource: t("rawIngest.allowlist.fields.matchedSource"),
+    },
+    failureGroups: {
+      entity: t("rawIngest.allowlist.failureGroups.entity"),
+      city: t("rawIngest.allowlist.failureGroups.city"),
+      title: t("rawIngest.allowlist.failureGroups.title"),
+      source: t("rawIngest.allowlist.failureGroups.source"),
+      category: t("rawIngest.allowlist.failureGroups.category"),
+    },
+    reasonCodes: {
+      ENTITY_TYPE_REQUIRED: t("rawIngest.allowlist.reasonCodes.ENTITY_TYPE_REQUIRED"),
+      CITY_REQUIRED: t("rawIngest.allowlist.reasonCodes.CITY_REQUIRED"),
+      CITY_NOT_ALLOWED: t("rawIngest.allowlist.reasonCodes.CITY_NOT_ALLOWED"),
+      TITLE_REQUIRED: t("rawIngest.allowlist.reasonCodes.TITLE_REQUIRED"),
+      SOURCE_REQUIRED: t("rawIngest.allowlist.reasonCodes.SOURCE_REQUIRED"),
+      SOURCE_TYPE_NOT_ALLOWED: t("rawIngest.allowlist.reasonCodes.SOURCE_TYPE_NOT_ALLOWED"),
+      SOURCE_IDENTIFIER_REQUIRED: t("rawIngest.allowlist.reasonCodes.SOURCE_IDENTIFIER_REQUIRED"),
+      SOURCE_NOT_ALLOWED: t("rawIngest.allowlist.reasonCodes.SOURCE_NOT_ALLOWED"),
+      CATEGORY_REQUIRED: t("rawIngest.allowlist.reasonCodes.CATEGORY_REQUIRED"),
+      PLACE_CATEGORY_NOT_ALLOWED: t("rawIngest.allowlist.reasonCodes.PLACE_CATEGORY_NOT_ALLOWED"),
+      EVENT_CATEGORY_NOT_ALLOWED: t("rawIngest.allowlist.reasonCodes.EVENT_CATEGORY_NOT_ALLOWED"),
+    },
+  };
+}
+
 export default async function AdminSourceDetailPage({
   params,
 }: AdminSourceDetailPageProps) {
@@ -55,6 +95,10 @@ export default async function AdminSourceDetailPage({
   if (!source) {
     notFound();
   }
+
+  const allowlistBlockedCount = source.rawIngestItems.filter((item) => item.allowlistBlocked).length;
+  const allowlistPassedCount = source.rawIngestItems.length - allowlistBlockedCount;
+  const allowlistLabels = getAllowlistLabels(t);
 
   return (
     <AdminShell
@@ -228,6 +272,12 @@ export default async function AdminSourceDetailPage({
         <Card className="bg-white/90">
           <CardContent className="space-y-4 p-6">
             <h3 className="font-semibold text-foreground">{t("sourceDetail.rawItemsTitle")}</h3>
+            <p className="text-sm text-muted-foreground">
+              {t("sourceDetail.allowlistSummary", {
+                blocked: allowlistBlockedCount,
+                passed: allowlistPassedCount,
+              })}
+            </p>
             {source.rawIngestItems.length === 0 ? (
               <p className="text-sm text-muted-foreground">{t("sourceDetail.noRawItems")}</p>
             ) : (
@@ -329,6 +379,13 @@ export default async function AdminSourceDetailPage({
                       <p className="text-sm text-muted-foreground">
                         {item.effectiveErrorMessage ?? t("sourceDetail.notAvailable")}
                       </p>
+                    </div>
+
+                    <div className="mt-3">
+                      <AllowlistEvaluationSummary
+                        evaluation={item.allowlistEvaluation}
+                        labels={allowlistLabels}
+                      />
                     </div>
                   </div>
                 ))}

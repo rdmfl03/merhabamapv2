@@ -1,6 +1,7 @@
 import {
   buildAllowlistBlockedHandling,
   evaluateRawIngestAllowlist,
+  getAllowlistFailureGroup,
 } from "@/config/ingest-allowlist";
 import { prisma } from "@/lib/prisma";
 
@@ -77,6 +78,8 @@ export async function getAdminSourceById(id: string) {
         rawTitle: item.rawTitle,
         sourceType: source.sourceKind,
         sourceUrl: item.sourceUrl ?? source.url,
+        sourceAccountHandle: source.accountHandle,
+        sourceExternalId: item.externalId ?? source.externalId,
       });
       const blockedHandling = buildAllowlistBlockedHandling(allowlistDecision);
 
@@ -84,6 +87,21 @@ export async function getAdminSourceById(id: string) {
         ...item,
         allowlistBlocked: !allowlistDecision.allowed,
         allowlistReasonCode: allowlistDecision.allowed ? null : allowlistDecision.reasonCode,
+        allowlistEvaluation: {
+          allowed: allowlistDecision.allowed,
+          reasonCode: allowlistDecision.reasonCode,
+          failureGroup:
+            allowlistDecision.allowed || !allowlistDecision.reasonCode
+              ? null
+              : getAllowlistFailureGroup(allowlistDecision.reasonCode),
+          normalizedEntityType: allowlistDecision.normalizedEntityType,
+          normalizedCity: allowlistDecision.normalizedCity,
+          normalizedCategory: allowlistDecision.normalizedCategory,
+          normalizedSourceType: allowlistDecision.normalizedSourceType,
+          normalizedSourceHost: allowlistDecision.normalizedSourceHost,
+          matchedSourceKey: allowlistDecision.matchedSourceKey,
+          matchedSourceLabel: allowlistDecision.matchedSourceLabel,
+        },
         effectiveStatus: blockedHandling ? "BLOCKED_BY_ALLOWLIST" : item.status,
         effectiveErrorMessage: blockedHandling ? blockedHandling.errorMessage : item.errorMessage,
       };
