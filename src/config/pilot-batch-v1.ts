@@ -29,6 +29,8 @@ export type PilotPlaceRecord = {
   websiteUrl: string | null;
   addressLine1: string | null;
   postalCode: string | null;
+  latitude: number | null;
+  longitude: number | null;
   descriptionDe: string | null;
   descriptionTr: string | null;
   manualReviewNotes?: readonly string[];
@@ -49,6 +51,8 @@ export type PilotEventRecord = {
   externalUrl: string | null;
   addressLine1: string | null;
   postalCode: string | null;
+  latitude: number | null;
+  longitude: number | null;
   descriptionDe: string | null;
   descriptionTr: string | null;
   manualReviewNotes?: readonly string[];
@@ -67,6 +71,8 @@ export const PILOT_BATCH_V1 = {
       websiteUrl: "https://www.hasir.de/",
       addressLine1: "Adalberstraße 10",
       postalCode: "10999",
+      latitude: 52.50085,
+      longitude: 13.4193,
       descriptionDe:
         "Berliner Traditionsrestaurant von Hasir in Kreuzberg mit türkischen Grillspezialitäten, hausgemachten Mezze und Desserts.",
       descriptionTr:
@@ -83,6 +89,8 @@ export const PILOT_BATCH_V1 = {
       websiteUrl: "https://fes-turkishbbq.de/",
       addressLine1: "Hasenheide 58",
       postalCode: "10967",
+      latitude: 52.4892279,
+      longitude: 13.408716,
       descriptionDe:
         "Türkisches Restaurant in Berlin-Kreuzberg mit BBQ- und Grillfokus in der Hasenheide.",
       descriptionTr:
@@ -99,6 +107,8 @@ export const PILOT_BATCH_V1 = {
       websiteUrl: "https://osmanstoechter.de/",
       addressLine1: "Pappelallee 15",
       postalCode: "10437",
+      latitude: 52.5430767,
+      longitude: 13.4149784,
       descriptionDe:
         "Restaurant für moderne türkische Küche mit hausgemachten warmen und kalten Meze im Prenzlauer Berg.",
       descriptionTr:
@@ -115,6 +125,8 @@ export const PILOT_BATCH_V1 = {
       websiteUrl: "https://asmali-konak-deluxe.eatbu.com/?lang=de",
       addressLine1: "Keupstraße 44-46",
       postalCode: "51063",
+      latitude: 50.9655849,
+      longitude: 7.009217,
       descriptionDe:
         "Türkisches Restaurant auf der Keupstraße mit klassischem Restaurantbetrieb und eigener Reservierungsseite.",
       descriptionTr:
@@ -131,6 +143,8 @@ export const PILOT_BATCH_V1 = {
       websiteUrl: null,
       addressLine1: "Venloer Straße 385",
       postalCode: "50825",
+      latitude: 50.9507704,
+      longitude: 6.9154068,
       descriptionDe:
         "Bekannter Kölner Grillimbiss in Ehrenfeld mit Holzkohlegrill, Adana-Kebap und Fleischgerichten zum schnellen Essen vor Ort.",
       descriptionTr:
@@ -150,6 +164,8 @@ export const PILOT_BATCH_V1 = {
       websiteUrl: "https://artistanbul-restaurant.de/",
       addressLine1: "Komödienstraße 52",
       postalCode: "50667",
+      latitude: 50.9415987,
+      longitude: 6.9514799,
       descriptionDe:
         "Türkisches Restaurant in der Kölner Innenstadt mit Schwerpunkt auf türkischen Meze und aktueller Rückkehr an die Komödienstraße.",
       descriptionTr:
@@ -172,6 +188,8 @@ export const PILOT_BATCH_V1 = {
       externalUrl: "https://www.koeln.de/event/engin-sag-mir-almanya-tour-2026/",
       addressLine1: "Neusser Landstr. 2",
       postalCode: "50735",
+      latitude: 50.9991352,
+      longitude: 6.9373962,
       descriptionDe:
         "Bühnentermin von Engins 'Sag Mir Almanya Tour 2026' am 29. Mai 2026 in der Kantine in Köln.",
       descriptionTr:
@@ -187,3 +205,8 @@ export const PILOT_BATCH_V1_PLACE_SLUGS = PILOT_BATCH_V1.places.map(
 export const PILOT_BATCH_V1_EVENT_SLUGS = PILOT_BATCH_V1.events.map(
   (event) => event.slug,
 );
+
+export const PILOT_BATCH_V1_COORDINATE_SLUGS = [
+  ...PILOT_BATCH_V1_PLACE_SLUGS,
+  ...PILOT_BATCH_V1_EVENT_SLUGS,
+] as const;

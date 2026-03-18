@@ -32,6 +32,7 @@
     "db:seed": "node scripts/run-with-env.mjs tsx prisma/seed.ts",
     "db:pilot:replace": "node scripts/run-with-env.mjs tsx scripts/replace-public-pilot-batch.ts",
     "db:pilot:publish": "node scripts/run-with-env.mjs tsx scripts/publish-pilot-batch-v1.ts",
+    "db:pilot:set-coordinates": "node scripts/run-with-env.mjs tsx scripts/set-pilot-batch-coordinates.ts",
     "db:reseed": "npm run db:reset && npm run db:generate && npm run db:seed",
     "db:setup": "npm run db:generate && npm run db:push && npm run db:seed",
     "db:studio": "node scripts/run-with-env.mjs prisma studio"
