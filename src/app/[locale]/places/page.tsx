@@ -125,6 +125,14 @@ export default async function PlacesPage({
         href: "/places",
         label: t("empty.browseAll"),
       };
+  const nearEmptyShortcut = city
+    ? {
+        href: `/places?city=${city.slug}`,
+        label: t("narrowResultsAction", {
+          city: locale === "tr" ? city.nameTr : city.nameDe,
+        }),
+      }
+    : null;
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 px-4 py-7 sm:py-8">
@@ -243,9 +251,17 @@ export default async function PlacesPage({
             </p>
           </div>
           {hasNarrowResults ? (
-            <p className="rounded-2xl border border-border/80 bg-white/90 px-4 py-3 text-sm text-muted-foreground">
-              {t("narrowResults", { count: places.length })}
-            </p>
+            <div className="flex flex-col gap-2 rounded-2xl border border-border/80 bg-white/90 px-4 py-3 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+              <p>{t("narrowResults", { count: places.length })}</p>
+              {nearEmptyShortcut ? (
+                <Link
+                  href={nearEmptyShortcut.href}
+                  className="text-sm font-medium text-brand underline-offset-4 hover:underline"
+                >
+                  {nearEmptyShortcut.label}
+                </Link>
+              ) : null}
+            </div>
           ) : null}
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {places.map((place) => (

@@ -259,6 +259,7 @@
       "tryClearFilters": "Filter zurücksetzen und breiter stöbern."
     },
     "narrowResults": "Nur {count, number} Orte gefunden. Wenn du mehr entdecken möchtest, lockere die Filter ein wenig.",
+    "narrowResultsAction": "Mehr Orte in {city} ansehen",
     "detail": {
       "fallbackDescription": "Für diesen Ort ist noch keine Beschreibung verfügbar.",
       "infoTitle": "Informationen",
@@ -377,6 +378,7 @@
       "tryAnotherDate": "Einen anderen Zeitraum wählen oder den Datumsfilter entfernen."
     },
     "narrowResults": "Nur {count, number} Events gefunden. Wenn du mehr sehen möchtest, erweitere die Filter etwas.",
+    "narrowResultsAction": "Mehr Events in {city} ansehen",
     "detail": {
       "fallbackDescription": "Für dieses Event ist noch keine Beschreibung verfügbar.",
       "infoTitle": "Informationen",

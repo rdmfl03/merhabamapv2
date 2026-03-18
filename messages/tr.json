@@ -259,6 +259,7 @@
       "tryClearFilters": "Filtreleri temizleyip daha geniş gez."
     },
     "narrowResults": "Yalnızca {count, number} mekan bulundu. Daha fazlasını görmek istersen filtreleri biraz gevşet.",
+    "narrowResultsAction": "{city} içinde daha fazla mekan gör",
     "detail": {
       "fallbackDescription": "Bu mekan için henüz açıklama bulunmuyor.",
       "infoTitle": "Bilgiler",
@@ -377,6 +378,7 @@
       "tryAnotherDate": "Farklı bir zaman aralığı seç ya da tarih filtresini kaldır."
     },
     "narrowResults": "Yalnızca {count, number} etkinlik bulundu. Daha fazlasını görmek istersen filtreleri biraz genişlet.",
+    "narrowResultsAction": "{city} içinde daha fazla etkinlik gör",
     "detail": {
       "fallbackDescription": "Bu etkinlik için henüz açıklama bulunmuyor.",
       "infoTitle": "Bilgiler",
