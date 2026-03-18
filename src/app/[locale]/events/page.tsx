@@ -126,6 +126,17 @@ export default async function EventsPage({
   ].filter((item): item is { key: string; label: string } => Boolean(item));
   const hasActiveFilters = activeFilterItems.length > 0;
   const hasNarrowResults = hasActiveFilters && events.length > 0 && events.length <= 3;
+  const emptyBrowseShortcut = city
+    ? {
+        href: `/events?city=${city.slug}`,
+        label: t("empty.browseCity", {
+          city: locale === "tr" ? city.nameTr : city.nameDe,
+        }),
+      }
+    : {
+        href: "/events",
+        label: t("empty.browseAll"),
+      };
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 px-4 py-7 sm:py-8">
@@ -211,9 +222,14 @@ export default async function EventsPage({
                 </ul>
               </div>
             ) : null}
-            <Button variant="outline" asChild>
-              <Link href="/events">{t("empty.reset")}</Link>
-            </Button>
+            <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <Button variant="outline" asChild>
+                <Link href="/events">{t("empty.reset")}</Link>
+              </Button>
+              <Button asChild>
+                <Link href={emptyBrowseShortcut.href}>{emptyBrowseShortcut.label}</Link>
+              </Button>
+            </div>
           </CardContent>
         </Card>
       ) : (
