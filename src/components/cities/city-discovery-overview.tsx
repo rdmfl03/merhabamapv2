@@ -54,7 +54,7 @@ type CityDiscoveryOverviewProps = {
     allCategories: string;
     resetFilters: string;
     resultsTitle: string;
-    resultsSummary: string;
+    resultsSummaryUnit: string;
     viewPlace: string;
     viewEvent: string;
     locateMe: string;
@@ -144,7 +144,7 @@ export function CityDiscoveryOverview({
           allCategoriesLabel={labels.allCategories}
           resetFiltersLabel={labels.resetFilters}
           resultsTitle={labels.resultsTitle}
-          resultsSummaryLabel={labels.resultsSummary}
+          resultsSummaryUnitLabel={labels.resultsSummaryUnit}
           viewPlaceLabel={labels.viewPlace}
           viewEventLabel={labels.viewEvent}
           locateMeLabel={labels.locateMe}

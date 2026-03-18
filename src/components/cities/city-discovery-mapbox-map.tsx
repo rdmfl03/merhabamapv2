@@ -6,7 +6,6 @@ import mapboxgl, {
   type Map as MapboxMap,
 } from "mapbox-gl";
 
-import { Link } from "@/i18n/navigation";
 import type { CityMapPoint } from "@/components/cities/city-discovery-map-types";
 
 type CityDiscoveryMapboxMapProps = {
@@ -28,7 +27,7 @@ type CityDiscoveryMapboxMapProps = {
   filtered: boolean;
   legendPlaces: string;
   legendEvents: string;
-  resultsSummaryLabel: string;
+  resultsSummaryUnitLabel: string;
   viewPlaceLabel: string;
   viewEventLabel: string;
   myLocationLabel: string;
@@ -44,6 +43,7 @@ const EVENT_LAYER_ID = "merhaba-event-points";
 const USER_LAYER_ID = "merhaba-user-point";
 const PLACE_ICON_ID = "merhaba-place-marker";
 const EVENT_ICON_ID = "merhaba-event-marker";
+const SMALL_DATASET_CLUSTER_THRESHOLD = 8;
 
 function buildPopupNode(
   point: CityMapPoint,
@@ -258,7 +258,7 @@ export function CityDiscoveryMapboxMap({
   filtered,
   legendPlaces,
   legendEvents,
-  resultsSummaryLabel,
+  resultsSummaryUnitLabel,
   viewPlaceLabel,
   viewEventLabel,
   myLocationLabel,
@@ -270,6 +270,7 @@ export function CityDiscoveryMapboxMap({
 
   const pointsData = useMemo(() => buildPointsGeoJson(points), [points]);
   const userData = useMemo(() => buildUserGeoJson(userLocation), [userLocation]);
+  const shouldCluster = points.length > SMALL_DATASET_CLUSTER_THRESHOLD;
 
   useEffect(() => {
     if (!containerRef.current || !token || mapRef.current) {
@@ -300,9 +301,9 @@ export function CityDiscoveryMapboxMap({
         map.addSource(POINTS_SOURCE_ID, {
           type: "geojson",
           data: pointsData,
-          cluster: true,
+          cluster: shouldCluster,
           clusterMaxZoom: 14,
-          clusterRadius: 50,
+          clusterRadius: shouldCluster ? 50 : 1,
           promoteId: "id",
         });
 
@@ -398,27 +399,29 @@ export function CityDiscoveryMapboxMap({
           },
         });
 
-        map.on("click", CLUSTERS_LAYER_ID, (event) => {
-          const feature = event.features?.[0];
-          if (!feature) return;
+        if (shouldCluster) {
+          map.on("click", CLUSTERS_LAYER_ID, (event) => {
+            const feature = event.features?.[0];
+            if (!feature) return;
 
-          const clusterId = feature.properties?.cluster_id;
-          const source = map.getSource(POINTS_SOURCE_ID) as GeoJSONSource | undefined;
-          if (!source || clusterId == null) return;
+            const clusterId = feature.properties?.cluster_id;
+            const source = map.getSource(POINTS_SOURCE_ID) as GeoJSONSource | undefined;
+            if (!source || clusterId == null) return;
 
-          const [longitude, latitude] = (feature.geometry as GeoJSON.Point).coordinates;
-          source.getClusterExpansionZoom(Number(clusterId), (error, zoom) => {
-            if (error || zoom == null) {
-              return;
-            }
+            const [longitude, latitude] = (feature.geometry as GeoJSON.Point).coordinates;
+            source.getClusterExpansionZoom(Number(clusterId), (error, zoom) => {
+              if (error || zoom == null) {
+                return;
+              }
 
-            map.easeTo({
-              center: [longitude, latitude],
-              zoom,
-              duration: 400,
+              map.easeTo({
+                center: [longitude, latitude],
+                zoom: Math.max(zoom, 15),
+                duration: 400,
+              });
             });
           });
-        });
+        }
 
         for (const layerId of [PLACE_LAYER_ID, EVENT_LAYER_ID]) {
           map.on("mouseenter", layerId, () => {
@@ -469,6 +472,7 @@ export function CityDiscoveryMapboxMap({
     onSelectChange,
     points,
     pointsData,
+    shouldCluster,
     token,
     userData,
   ]);
@@ -529,11 +533,11 @@ export function CityDiscoveryMapboxMap({
       ],
       {
         padding: 48,
-        maxZoom: 13.5,
+        maxZoom: shouldCluster ? 13.5 : 15,
         duration: 0,
       },
     );
-  }, [cityCenter, points, pointsData, selectedId, userData, userLocation]);
+  }, [cityCenter, points, pointsData, selectedId, shouldCluster, userData, userLocation]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -617,7 +621,7 @@ export function CityDiscoveryMapboxMap({
           Mapbox
         </span>
         <span className="rounded-full border border-border/80 bg-white/94 px-3 py-1.5 text-xs text-muted-foreground shadow-sm">
-          {resultsSummaryLabel.replace("{count}", String(points.length))}
+          {points.length} {resultsSummaryUnitLabel}
         </span>
       </div>
 

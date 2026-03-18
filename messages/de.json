@@ -968,6 +968,7 @@
       "resetFilters": "Filter zurücksetzen",
       "resultsTitle": "Treffer auf der Karte",
       "resultsSummary": "{count} sichtbare Treffer",
+      "resultsSummaryUnit": "sichtbare Treffer",
       "viewPlace": "Ort öffnen",
       "viewEvent": "Event öffnen",
       "locateMe": "Meinen Standort anzeigen",

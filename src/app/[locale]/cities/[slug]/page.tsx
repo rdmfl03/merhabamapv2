@@ -109,7 +109,7 @@ export default async function CityPage({ params }: CityPageProps) {
           allCategories: t("map.allCategories"),
           resetFilters: t("map.resetFilters"),
           resultsTitle: t("map.resultsTitle"),
-          resultsSummary: t("map.resultsSummary", { count: 0 }),
+          resultsSummaryUnit: t("map.resultsSummaryUnit"),
           viewPlace: t("map.viewPlace"),
           viewEvent: t("map.viewEvent"),
           locateMe: t("map.locateMe"),

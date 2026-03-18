@@ -34,13 +34,14 @@ type CityDiscoveryLeafletMapProps = {
   filtered: boolean;
   legendPlaces: string;
   legendEvents: string;
-  resultsSummaryLabel: string;
+  resultsSummaryUnitLabel: string;
   viewPlaceLabel: string;
   viewEventLabel: string;
   myLocationLabel: string;
 };
 
 const DEFAULT_CENTER: LatLngExpression = [51.1657, 10.4515];
+const SMALL_DATASET_CLUSTER_THRESHOLD = 8;
 
 function createMarkerIcon(kind: "place" | "event", active: boolean): DivIcon {
   if (kind === "event") {
@@ -207,11 +208,13 @@ export function CityDiscoveryLeafletMap({
   filtered,
   legendPlaces,
   legendEvents,
-  resultsSummaryLabel,
+  resultsSummaryUnitLabel,
   viewPlaceLabel,
   viewEventLabel,
   myLocationLabel,
 }: CityDiscoveryLeafletMapProps) {
+  const shouldCluster = points.length > SMALL_DATASET_CLUSTER_THRESHOLD;
+
   return (
     <div className="relative h-[36rem] overflow-hidden rounded-[1.9rem] border border-border/70 bg-[#f5f6f8] lg:h-[42rem]">
       <MapContainer
@@ -228,45 +231,82 @@ export function CityDiscoveryLeafletMap({
         <FitToMarkers points={points} cityCenter={cityCenter} userLocation={userLocation} />
         <PanToActive points={points} activeId={selectedId} />
 
-        <MarkerClusterGroup
-          chunkedLoading
-          showCoverageOnHover={false}
-          spiderfyOnMaxZoom
-          maxClusterRadius={48}
-        >
-          {points.map((point) => (
-            <Marker
-              key={point.id}
-              position={[point.latitude, point.longitude]}
-              icon={createMarkerIcon(point.kind, activeId === point.id)}
-              eventHandlers={{
-                mouseover: () => onHoverChange(point.id),
-                click: () => onSelectChange(point.id),
-                mouseout: () => onHoverChange(null),
-              }}
-            >
-              <Popup>
-                <div className="space-y-1.5 min-w-[12rem]">
-                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#e30a17]">
-                    {point.categoryLabel}
-                  </p>
-                  <h4 className="text-sm font-semibold text-slate-900">{point.label}</h4>
-                  <p className="text-xs font-medium text-slate-500">{point.meta}</p>
-                  <p className="text-xs leading-5 text-slate-600">
-                    {point.description || point.meta}
-                  </p>
-                  <Link
-                    href={point.href}
-                    className="inline-block rounded-full bg-[#e30a17] px-3 py-1.5 text-xs font-semibold"
-                    style={{ color: "#ffffff", textDecoration: "none" }}
-                  >
-                    {point.kind === "place" ? viewPlaceLabel : viewEventLabel}
-                  </Link>
-                </div>
-              </Popup>
-            </Marker>
-          ))}
-        </MarkerClusterGroup>
+        {shouldCluster ? (
+          <MarkerClusterGroup
+            chunkedLoading
+            showCoverageOnHover={false}
+            spiderfyOnMaxZoom
+            maxClusterRadius={48}
+          >
+            {points.map((point) => (
+              <Marker
+                key={point.id}
+                position={[point.latitude, point.longitude]}
+                icon={createMarkerIcon(point.kind, activeId === point.id)}
+                eventHandlers={{
+                  mouseover: () => onHoverChange(point.id),
+                  click: () => onSelectChange(point.id),
+                  mouseout: () => onHoverChange(null),
+                }}
+              >
+                <Popup>
+                  <div className="space-y-1.5 min-w-[12rem]">
+                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#e30a17]">
+                      {point.categoryLabel}
+                    </p>
+                    <h4 className="text-sm font-semibold text-slate-900">{point.label}</h4>
+                    <p className="text-xs font-medium text-slate-500">{point.meta}</p>
+                    <p className="text-xs leading-5 text-slate-600">
+                      {point.description || point.meta}
+                    </p>
+                    <Link
+                      href={point.href}
+                      className="inline-block rounded-full bg-[#e30a17] px-3 py-1.5 text-xs font-semibold"
+                      style={{ color: "#ffffff", textDecoration: "none" }}
+                    >
+                      {point.kind === "place" ? viewPlaceLabel : viewEventLabel}
+                    </Link>
+                  </div>
+                </Popup>
+              </Marker>
+            ))}
+          </MarkerClusterGroup>
+        ) : (
+          <>
+            {points.map((point) => (
+              <Marker
+                key={point.id}
+                position={[point.latitude, point.longitude]}
+                icon={createMarkerIcon(point.kind, activeId === point.id)}
+                eventHandlers={{
+                  mouseover: () => onHoverChange(point.id),
+                  click: () => onSelectChange(point.id),
+                  mouseout: () => onHoverChange(null),
+                }}
+              >
+                <Popup>
+                  <div className="space-y-1.5 min-w-[12rem]">
+                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#e30a17]">
+                      {point.categoryLabel}
+                    </p>
+                    <h4 className="text-sm font-semibold text-slate-900">{point.label}</h4>
+                    <p className="text-xs font-medium text-slate-500">{point.meta}</p>
+                    <p className="text-xs leading-5 text-slate-600">
+                      {point.description || point.meta}
+                    </p>
+                    <Link
+                      href={point.href}
+                      className="inline-block rounded-full bg-[#e30a17] px-3 py-1.5 text-xs font-semibold"
+                      style={{ color: "#ffffff", textDecoration: "none" }}
+                    >
+                      {point.kind === "place" ? viewPlaceLabel : viewEventLabel}
+                    </Link>
+                  </div>
+                </Popup>
+              </Marker>
+            ))}
+          </>
+        )}
 
         {userLocation ? (
           <Marker
@@ -293,7 +333,7 @@ export function CityDiscoveryLeafletMap({
           OSM
         </span>
         <span className="rounded-full border border-border/80 bg-white/94 px-3 py-1.5 text-xs text-muted-foreground shadow-sm">
-          {resultsSummaryLabel.replace("{count}", String(points.length))}
+          {points.length} {resultsSummaryUnitLabel}
         </span>
       </div>
 

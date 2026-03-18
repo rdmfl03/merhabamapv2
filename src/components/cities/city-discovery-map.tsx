@@ -74,7 +74,7 @@ type CityDiscoveryMapProps = {
   allCategoriesLabel: string;
   resetFiltersLabel: string;
   resultsTitle: string;
-  resultsSummaryLabel: string;
+  resultsSummaryUnitLabel: string;
   viewPlaceLabel: string;
   viewEventLabel: string;
   locateMeLabel: string;
@@ -153,7 +153,7 @@ export function CityDiscoveryMap({
   allCategoriesLabel,
   resetFiltersLabel,
   resultsTitle,
-  resultsSummaryLabel,
+  resultsSummaryUnitLabel,
   viewPlaceLabel,
   viewEventLabel,
   locateMeLabel,
@@ -435,7 +435,7 @@ export function CityDiscoveryMap({
           filtered={Boolean(query || categoryFilter !== "all" || typeFilter !== "all")}
           legendPlaces={legendPlaces}
           legendEvents={legendEvents}
-          resultsSummaryLabel={resultsSummaryLabel}
+          resultsSummaryUnitLabel={resultsSummaryUnitLabel}
           viewPlaceLabel={viewPlaceLabel}
           viewEventLabel={viewEventLabel}
           myLocationLabel={myLocationLabel}
@@ -445,7 +445,7 @@ export function CityDiscoveryMap({
           <div className="mb-4 flex items-center justify-between">
             <h3 className="font-display text-xl text-foreground">{resultsTitle}</h3>
             <p className="text-sm text-muted-foreground">
-              {resultsSummaryLabel.replace("{count}", String(filtered.length))}
+              {filtered.length} {resultsSummaryUnitLabel}
             </p>
           </div>
 
