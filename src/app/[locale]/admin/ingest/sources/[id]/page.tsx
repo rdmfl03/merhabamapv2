@@ -32,7 +32,13 @@ function getRunStatusTone(status: string) {
 }
 
 function getRawItemStatusTone(status: string) {
-  return status === "FAILED" ? "danger" : status === "PENDING" ? "warning" : "default";
+  return status === "FAILED"
+    ? "danger"
+    : status === "BLOCKED_BY_ALLOWLIST"
+      ? "warning"
+      : status === "PENDING"
+        ? "warning"
+        : "default";
 }
 
 export default async function AdminSourceDetailPage({
@@ -239,8 +245,8 @@ export default async function AdminSourceDetailPage({
                         <p className="text-xs text-muted-foreground break-all">{item.id}</p>
                       </div>
                       <StatusBadge
-                        tone={getRawItemStatusTone(item.status)}
-                        label={item.status}
+                        tone={getRawItemStatusTone(item.effectiveStatus)}
+                        label={item.effectiveStatus}
                       />
                     </div>
 
@@ -321,7 +327,7 @@ export default async function AdminSourceDetailPage({
                         {t("rawIngest.columns.errorMessage")}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        {item.errorMessage ?? t("sourceDetail.notAvailable")}
+                        {item.effectiveErrorMessage ?? t("sourceDetail.notAvailable")}
                       </p>
                     </div>
                   </div>

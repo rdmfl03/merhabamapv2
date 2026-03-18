@@ -25,6 +25,8 @@ function formatDate(value: Date | null, locale: "de" | "tr") {
 function getStatusTone(status: string) {
   return status === "FAILED"
     ? "danger"
+    : status === "BLOCKED_BY_ALLOWLIST"
+      ? "warning"
     : status === "PENDING"
       ? "warning"
       : "default";
@@ -157,8 +159,8 @@ export default async function AdminRawIngestItemsPage({
                           </div>
                           <div className="md:col-span-1">
                             <StatusBadge
-                              tone={getStatusTone(item.status)}
-                              label={item.status}
+                              tone={getStatusTone(item.effectiveStatus)}
+                              label={item.effectiveStatus}
                             />
                           </div>
                           <div className="text-sm text-muted-foreground md:col-span-1">
@@ -197,7 +199,7 @@ export default async function AdminRawIngestItemsPage({
                             ) : null}
                           </div>
                           <div className="text-sm text-muted-foreground md:col-span-1 break-words">
-                            {item.errorMessage ?? t("rawIngest.fallbacks.notAvailable")}
+                            {item.effectiveErrorMessage ?? t("rawIngest.fallbacks.notAvailable")}
                           </div>
                         </div>
                       </td>

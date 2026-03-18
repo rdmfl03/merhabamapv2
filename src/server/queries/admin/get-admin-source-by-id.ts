@@ -1,7 +1,11 @@
+import {
+  buildAllowlistBlockedHandling,
+  evaluateRawIngestAllowlist,
+} from "@/config/ingest-allowlist";
 import { prisma } from "@/lib/prisma";
 
 export async function getAdminSourceById(id: string) {
-  return prisma.source.findUnique({
+  const source = await prisma.source.findUnique({
     where: { id },
     select: {
       id: true,
@@ -59,4 +63,30 @@ export async function getAdminSourceById(id: string) {
       },
     },
   });
+
+  if (!source) {
+    return null;
+  }
+
+  return {
+    ...source,
+    rawIngestItems: source.rawIngestItems.map((item) => {
+      const allowlistDecision = evaluateRawIngestAllowlist({
+        entityGuess: item.entityGuess,
+        cityGuess: item.cityGuess,
+        rawTitle: item.rawTitle,
+        sourceType: source.sourceKind,
+        sourceUrl: item.sourceUrl ?? source.url,
+      });
+      const blockedHandling = buildAllowlistBlockedHandling(allowlistDecision);
+
+      return {
+        ...item,
+        allowlistBlocked: !allowlistDecision.allowed,
+        allowlistReasonCode: allowlistDecision.allowed ? null : allowlistDecision.reasonCode,
+        effectiveStatus: blockedHandling ? "BLOCKED_BY_ALLOWLIST" : item.status,
+        effectiveErrorMessage: blockedHandling ? blockedHandling.errorMessage : item.errorMessage,
+      };
+    }),
+  };
 }
