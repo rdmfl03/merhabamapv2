@@ -1,12 +1,14 @@
 import { prisma } from "@/lib/prisma";
+import { getLinkedSubmissionContext } from "@/server/queries/admin/get-linked-submission-context";
 
 export async function getAdminPlaceById(id: string) {
-  return prisma.place.findUnique({
+  const place = await prisma.place.findUnique({
     where: { id },
     select: {
       id: true,
       slug: true,
       name: true,
+      isPublished: true,
       verificationStatus: true,
       moderationStatus: true,
       aiReviewStatus: true,
@@ -33,6 +35,7 @@ export async function getAdminPlaceById(id: string) {
       },
       city: {
         select: {
+          slug: true,
           nameDe: true,
           nameTr: true,
         },
@@ -50,4 +53,15 @@ export async function getAdminPlaceById(id: string) {
       },
     },
   });
+
+  if (!place) {
+    return null;
+  }
+
+  const submissionContext = await getLinkedSubmissionContext("PLACE", place.id);
+
+  return {
+    ...place,
+    submissionContext,
+  };
 }

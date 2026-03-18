@@ -2,6 +2,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 
 import { AdminShell } from "@/components/admin/admin-shell";
+import { EntityModerationForm } from "@/components/admin/entity-moderation-form";
 import { PlaceTrustStatusForm } from "@/components/admin/place-trust-status-form";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -61,17 +62,143 @@ export default async function AdminPlaceDetailPage({
                   {locale === "tr" ? place.city.nameTr : place.city.nameDe}
                 </p>
               </div>
-              <StatusBadge
-                tone={
-                  place.verificationStatus === "VERIFIED"
-                    ? "success"
-                    : place.verificationStatus === "CLAIMED"
-                      ? "warning"
-                      : "default"
-                }
-                label={t(`verificationStatuses.${place.verificationStatus.toLowerCase()}`)}
-              />
+              <div className="flex flex-wrap gap-2">
+                <StatusBadge
+                  tone={
+                    place.moderationStatus === "APPROVED"
+                      ? "success"
+                      : place.moderationStatus === "PENDING"
+                        ? "warning"
+                        : "default"
+                  }
+                  label={t(`placeDetail.moderationStatuses.${place.moderationStatus.toLowerCase()}`)}
+                />
+                <StatusBadge
+                  tone={place.isPublished ? "success" : "default"}
+                  label={t(
+                    place.isPublished
+                      ? "placeDetail.publicationStatus.published"
+                      : "placeDetail.publicationStatus.unpublished",
+                  )}
+                />
+                <StatusBadge
+                  tone={
+                    place.verificationStatus === "VERIFIED"
+                      ? "success"
+                      : place.verificationStatus === "CLAIMED"
+                        ? "warning"
+                        : "default"
+                  }
+                  label={t(`verificationStatuses.${place.verificationStatus.toLowerCase()}`)}
+                />
+              </div>
             </div>
+
+            {place.moderationStatus === "PENDING" ? (
+              <div className="rounded-2xl border border-sky-200 bg-sky-50/70 p-4">
+                <EntityModerationForm
+                  locale={locale}
+                  entityType="PLACE"
+                  entityId={place.id}
+                  labels={{
+                    title: t("placeDetail.moderationActions.title"),
+                    helper: t("placeDetail.moderationActions.helper"),
+                    approve: t("placeDetail.moderationActions.approve"),
+                    reject: t("placeDetail.moderationActions.reject"),
+                    rejectConfirm: t("placeDetail.moderationActions.rejectConfirm"),
+                    rejectCancel: t("placeDetail.moderationActions.rejectCancel"),
+                    success: t("placeDetail.moderationActions.success"),
+                    error: t("placeDetail.moderationActions.error"),
+                  }}
+                />
+              </div>
+            ) : null}
+
+            {place.submissionContext ? (
+              <div className="rounded-2xl border border-amber-200 bg-amber-50/70 p-4">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div className="space-y-1">
+                    <p className="text-sm font-semibold text-foreground">
+                      {t("placeDetail.submissionContext.title")}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {t("placeDetail.submissionContext.traceabilityCopy", {
+                        origin: t(
+                          `submissions.origins.${place.submissionContext.origin}`,
+                        ),
+                      })}
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <StatusBadge
+                      tone={
+                        place.submissionContext.status === "APPROVED"
+                          ? "success"
+                          : place.submissionContext.status === "PENDING"
+                            ? "warning"
+                            : "default"
+                      }
+                      label={place.submissionContext.status}
+                    />
+                  </div>
+                </div>
+
+                <div className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
+                  <div>
+                    <p className="font-medium text-foreground">
+                      {t("placeDetail.submissionContext.origin")}
+                    </p>
+                    <p className="text-muted-foreground">
+                      {t(`submissions.origins.${place.submissionContext.origin}`)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="font-medium text-foreground">
+                      {t("placeDetail.submissionContext.receivedAt")}
+                    </p>
+                    <p className="text-muted-foreground">
+                      {place.submissionContext.createdAt.toLocaleString(locale)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="font-medium text-foreground">
+                      {t("placeDetail.submissionContext.source")}
+                    </p>
+                    <p className="break-all text-muted-foreground">
+                      {place.submissionContext.sourceUrl ??
+                        t("placeDetail.submissionContext.noSource")}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="font-medium text-foreground">
+                      {t("placeDetail.submissionContext.context")}
+                    </p>
+                    <p className="text-muted-foreground">
+                      {place.submissionContext.compactPayloadSummary ??
+                        t("placeDetail.submissionContext.noContext")}
+                    </p>
+                  </div>
+                </div>
+
+                {place.submissionContext.notes ? (
+                  <div className="mt-4 space-y-1 text-sm">
+                    <p className="font-medium text-foreground">
+                      {t("placeDetail.submissionContext.notes")}
+                    </p>
+                    <p className="text-muted-foreground">{place.submissionContext.notes}</p>
+                  </div>
+                ) : null}
+
+                <div className="mt-4 flex flex-wrap gap-3">
+                  <Link
+                    href={place.submissionContext.submissionsListPath}
+                    className="text-sm font-medium text-brand"
+                  >
+                    {t("placeDetail.submissionContext.backToSubmissions")}
+                  </Link>
+                </div>
+              </div>
+            ) : null}
 
             <div className="space-y-3 text-sm">
               <div>
@@ -96,6 +223,22 @@ export default async function AdminPlaceDetailPage({
                 <p className="font-medium text-foreground">{t("placeDetail.website")}</p>
                 <p className="text-muted-foreground">
                   {place.websiteUrl ?? t("placeDetail.noWebsite")}
+                </p>
+              </div>
+              <div>
+                <p className="font-medium text-foreground">{t("placeDetail.moderationStatus")}</p>
+                <p className="text-muted-foreground">
+                  {t(`placeDetail.moderationStatuses.${place.moderationStatus.toLowerCase()}`)}
+                </p>
+              </div>
+              <div>
+                <p className="font-medium text-foreground">{t("placeDetail.publicationState")}</p>
+                <p className="text-muted-foreground">
+                  {t(
+                    place.isPublished
+                      ? "placeDetail.publicationStatus.published"
+                      : "placeDetail.publicationStatus.unpublished",
+                  )}
                 </p>
               </div>
               <div>

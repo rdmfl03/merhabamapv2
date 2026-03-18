@@ -1,7 +1,8 @@
 import { prisma } from "@/lib/prisma";
+import { getLinkedSubmissionContext } from "@/server/queries/admin/get-linked-submission-context";
 
 export async function getAdminEventById(id: string) {
-  return prisma.event.findUnique({
+  const event = await prisma.event.findUnique({
     where: { id },
     select: {
       id: true,
@@ -20,6 +21,7 @@ export async function getAdminEventById(id: string) {
       endsAt: true,
       city: {
         select: {
+          slug: true,
           nameDe: true,
           nameTr: true,
         },
@@ -39,4 +41,15 @@ export async function getAdminEventById(id: string) {
       },
     },
   });
+
+  if (!event) {
+    return null;
+  }
+
+  const submissionContext = await getLinkedSubmissionContext("EVENT", event.id);
+
+  return {
+    ...event,
+    submissionContext,
+  };
 }

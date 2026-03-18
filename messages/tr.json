@@ -908,6 +908,39 @@
     "placeDetail": {
       "title": "Place trust yönetimi",
       "description": "Bu place için owner bağlantısını ve trust durumunu açık, yanıltıcı olmayan durumlarla yönet.",
+      "moderationStatus": "Moderasyon durumu",
+      "publicationState": "Görünürlük",
+      "moderationStatuses": {
+        "pending": "Beklemede",
+        "approved": "Onaylandı",
+        "rejected": "Reddedildi"
+      },
+      "publicationStatus": {
+        "published": "Public olarak görünür",
+        "unpublished": "Public olarak görünmez"
+      },
+      "moderationActions": {
+        "title": "Moderasyon kararı",
+        "helper": "Approve kaydı public olarak yayınlar. Reject kaydı yayında tutmaz ve reddedildi olarak işaretler.",
+        "approve": "Approve",
+        "reject": "Reject",
+        "rejectConfirm": "Reject onayla",
+        "rejectCancel": "İptal",
+        "success": "Moderasyon kararı kaydedildi.",
+        "error": "Moderasyon kararı kaydedilemedi."
+      },
+      "submissionContext": {
+        "title": "Gönderim bağlamı",
+        "traceabilityCopy": "{origin}, bu place'i bir gönderim akışı üzerinden oluşturdu veya ona bağladı.",
+        "origin": "Köken",
+        "receivedAt": "Alındığı tarih",
+        "source": "Kaynak",
+        "noSource": "Kaynak iletilmedi.",
+        "context": "İlk gönderim bağlamı",
+        "noContext": "Ek gönderim bağlamı yok.",
+        "notes": "Gönderim notu",
+        "backToSubmissions": "Submission listesine dön"
+      },
       "publicPage": "Public sayfa",
       "owner": "Owner",
       "noOwner": "Bağlı owner yok.",
@@ -936,6 +969,33 @@
     "eventDetail": {
       "title": "Etkinlik moderasyonunu incele",
       "description": "Bu etkinliğin yayın durumunu, AI sinyallerini ve mevcut bildirimlerini kompakt bir admin görünümünde incele.",
+      "moderationStatuses": {
+        "pending": "Beklemede",
+        "approved": "Onaylandı",
+        "rejected": "Reddedildi"
+      },
+      "moderationActions": {
+        "title": "Moderasyon kararı",
+        "helper": "Approve kaydı public olarak yayınlar. Reject kaydı yayında tutmaz ve reddedildi olarak işaretler.",
+        "approve": "Approve",
+        "reject": "Reject",
+        "rejectConfirm": "Reject onayla",
+        "rejectCancel": "İptal",
+        "success": "Moderasyon kararı kaydedildi.",
+        "error": "Moderasyon kararı kaydedilemedi."
+      },
+      "submissionContext": {
+        "title": "Gönderim bağlamı",
+        "traceabilityCopy": "{origin}, bu event'i bir gönderim akışı üzerinden oluşturdu veya ona bağladı.",
+        "origin": "Köken",
+        "receivedAt": "Alındığı tarih",
+        "source": "Kaynak",
+        "noSource": "Kaynak iletilmedi.",
+        "context": "İlk gönderim bağlamı",
+        "noContext": "Ek gönderim bağlamı yok.",
+        "notes": "Gönderim notu",
+        "backToSubmissions": "Submission listesine dön"
+      },
       "publicPage": "Public sayfa",
       "category": "Kategori",
       "startsAt": "Başlangıç",
@@ -949,9 +1009,10 @@
       "externalUrl": "Harici URL",
       "noExternalUrl": "Harici URL girilmemiş.",
       "moderationStatus": "Moderasyon durumu",
+      "publicationState": "Görünürlük",
       "publicationStatus": {
-        "published": "Yayında",
-        "unpublished": "Yayında değil"
+        "published": "Public olarak görünür",
+        "unpublished": "Public olarak görünmez"
       },
       "aiTitle": "AI denetimi",
       "aiDescription": "Bu değerler harici n8n/Gemini olasılık kontrolünden gelir. Etkinlik moderasyonuna yardımcı olur, ama manuel kararı tek başına belirlemez.",

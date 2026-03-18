@@ -899,6 +899,39 @@
     "placeDetail": {
       "title": "Place-Trust steuern",
       "description": "Verwalte Owner-Zuordnung und Trust-Status dieses Places mit klaren, nicht irreführenden Zuständen.",
+      "moderationStatus": "Moderationsstatus",
+      "publicationState": "Sichtbarkeit",
+      "moderationStatuses": {
+        "pending": "Ausstehend",
+        "approved": "Freigegeben",
+        "rejected": "Abgelehnt"
+      },
+      "publicationStatus": {
+        "published": "Öffentlich sichtbar",
+        "unpublished": "Nicht öffentlich sichtbar"
+      },
+      "moderationActions": {
+        "title": "Moderation entscheiden",
+        "helper": "Approve veröffentlicht den Eintrag öffentlich. Reject hält ihn unveröffentlicht und markiert ihn als abgelehnt.",
+        "approve": "Approve",
+        "reject": "Reject",
+        "rejectConfirm": "Reject bestätigen",
+        "rejectCancel": "Abbrechen",
+        "success": "Die Moderationsentscheidung wurde gespeichert.",
+        "error": "Die Moderationsentscheidung konnte nicht gespeichert werden."
+      },
+      "submissionContext": {
+        "title": "Submission-Kontext",
+        "traceabilityCopy": "{origin} hat diesen Place über einen Submission-Pfad erzeugt oder verknüpft.",
+        "origin": "Herkunft",
+        "receivedAt": "Eingegangen am",
+        "source": "Quelle",
+        "noSource": "Keine Quelle übermittelt.",
+        "context": "Ursprünglicher Kontext",
+        "noContext": "Kein zusätzlicher Submission-Kontext vorhanden.",
+        "notes": "Hinweis der Einreichung",
+        "backToSubmissions": "Zur Submission-Liste"
+      },
       "publicPage": "Öffentliche Seite",
       "owner": "Owner",
       "noOwner": "Kein Owner verknüpft.",
@@ -927,6 +960,33 @@
     "eventDetail": {
       "title": "Event-Moderation prüfen",
       "description": "Prüfe Veröffentlichungsstatus, AI-Signale und vorhandene Meldungen dieses Events in einer kompakten Admin-Ansicht.",
+      "moderationStatuses": {
+        "pending": "Ausstehend",
+        "approved": "Freigegeben",
+        "rejected": "Abgelehnt"
+      },
+      "moderationActions": {
+        "title": "Moderation entscheiden",
+        "helper": "Approve veröffentlicht den Eintrag öffentlich. Reject hält ihn unveröffentlicht und markiert ihn als abgelehnt.",
+        "approve": "Approve",
+        "reject": "Reject",
+        "rejectConfirm": "Reject bestätigen",
+        "rejectCancel": "Abbrechen",
+        "success": "Die Moderationsentscheidung wurde gespeichert.",
+        "error": "Die Moderationsentscheidung konnte nicht gespeichert werden."
+      },
+      "submissionContext": {
+        "title": "Submission-Kontext",
+        "traceabilityCopy": "{origin} hat dieses Event über einen Submission-Pfad erzeugt oder verknüpft.",
+        "origin": "Herkunft",
+        "receivedAt": "Eingegangen am",
+        "source": "Quelle",
+        "noSource": "Keine Quelle übermittelt.",
+        "context": "Ursprünglicher Kontext",
+        "noContext": "Kein zusätzlicher Submission-Kontext vorhanden.",
+        "notes": "Hinweis der Einreichung",
+        "backToSubmissions": "Zur Submission-Liste"
+      },
       "publicPage": "Öffentliche Seite",
       "category": "Kategorie",
       "startsAt": "Start",
@@ -940,9 +1000,10 @@
       "externalUrl": "Externe URL",
       "noExternalUrl": "Keine externe URL gepflegt.",
       "moderationStatus": "Moderationsstatus",
+      "publicationState": "Sichtbarkeit",
       "publicationStatus": {
-        "published": "Veröffentlicht",
-        "unpublished": "Nicht veröffentlicht"
+        "published": "Öffentlich sichtbar",
+        "unpublished": "Nicht öffentlich sichtbar"
       },
       "aiTitle": "AI-Audit",
       "aiDescription": "Diese Werte stammen aus dem externen n8n/Gemini-Plausibilitätscheck. Sie helfen bei der Event-Moderation, ersetzen aber keine manuelle Entscheidung.",

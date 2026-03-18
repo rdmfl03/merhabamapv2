@@ -26,3 +26,11 @@ export const updateAiModerationSchema = z.object({
   entityId: z.string().cuid(),
   action: z.enum(["OK", "REVIEW", "REJECT", "RERUN"]),
 });
+
+export const updateEntityModerationSchema = z.object({
+  locale: z.enum(routing.locales),
+  entityType: z.enum(["PLACE", "EVENT"]),
+  entityId: z.string().cuid(),
+  nextStatus: z.enum(["APPROVED", "REJECTED"]),
+  rejectConfirmation: z.enum(["confirmed"]).optional(),
+});

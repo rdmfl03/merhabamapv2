@@ -2,6 +2,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 
 import { AdminShell } from "@/components/admin/admin-shell";
+import { EntityModerationForm } from "@/components/admin/entity-moderation-form";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "@/i18n/navigation";
@@ -77,21 +78,131 @@ export default async function AdminEventDetailPage({
                   {locale === "tr" ? event.city.nameTr : event.city.nameDe}
                 </p>
               </div>
-              <StatusBadge
-                tone={
-                  event.isPublished && event.moderationStatus === "APPROVED"
-                    ? "success"
-                    : event.moderationStatus === "PENDING"
-                      ? "warning"
-                      : "default"
-                }
-                label={t(
-                  event.isPublished
-                    ? "eventDetail.publicationStatus.published"
-                    : "eventDetail.publicationStatus.unpublished",
-                )}
-              />
+              <div className="flex flex-wrap gap-2">
+                <StatusBadge
+                  tone={
+                    event.moderationStatus === "APPROVED"
+                      ? "success"
+                      : event.moderationStatus === "PENDING"
+                        ? "warning"
+                        : "default"
+                  }
+                  label={t(`eventDetail.moderationStatuses.${event.moderationStatus.toLowerCase()}`)}
+                />
+                <StatusBadge
+                  tone={event.isPublished ? "success" : "default"}
+                  label={t(
+                    event.isPublished
+                      ? "eventDetail.publicationStatus.published"
+                      : "eventDetail.publicationStatus.unpublished",
+                  )}
+                />
+              </div>
             </div>
+
+            {event.moderationStatus === "PENDING" ? (
+              <div className="rounded-2xl border border-sky-200 bg-sky-50/70 p-4">
+                <EntityModerationForm
+                  locale={locale}
+                  entityType="EVENT"
+                  entityId={event.id}
+                  labels={{
+                    title: t("eventDetail.moderationActions.title"),
+                    helper: t("eventDetail.moderationActions.helper"),
+                    approve: t("eventDetail.moderationActions.approve"),
+                    reject: t("eventDetail.moderationActions.reject"),
+                    rejectConfirm: t("eventDetail.moderationActions.rejectConfirm"),
+                    rejectCancel: t("eventDetail.moderationActions.rejectCancel"),
+                    success: t("eventDetail.moderationActions.success"),
+                    error: t("eventDetail.moderationActions.error"),
+                  }}
+                />
+              </div>
+            ) : null}
+
+            {event.submissionContext ? (
+              <div className="rounded-2xl border border-amber-200 bg-amber-50/70 p-4">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div className="space-y-1">
+                    <p className="text-sm font-semibold text-foreground">
+                      {t("eventDetail.submissionContext.title")}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {t("eventDetail.submissionContext.traceabilityCopy", {
+                        origin: t(
+                          `submissions.origins.${event.submissionContext.origin}`,
+                        ),
+                      })}
+                    </p>
+                  </div>
+                  <StatusBadge
+                    tone={
+                      event.submissionContext.status === "APPROVED"
+                        ? "success"
+                        : event.submissionContext.status === "PENDING"
+                          ? "warning"
+                          : "default"
+                    }
+                    label={event.submissionContext.status}
+                  />
+                </div>
+
+                <div className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
+                  <div>
+                    <p className="font-medium text-foreground">
+                      {t("eventDetail.submissionContext.origin")}
+                    </p>
+                    <p className="text-muted-foreground">
+                      {t(`submissions.origins.${event.submissionContext.origin}`)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="font-medium text-foreground">
+                      {t("eventDetail.submissionContext.receivedAt")}
+                    </p>
+                    <p className="text-muted-foreground">
+                      {event.submissionContext.createdAt.toLocaleString(locale)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="font-medium text-foreground">
+                      {t("eventDetail.submissionContext.source")}
+                    </p>
+                    <p className="break-all text-muted-foreground">
+                      {event.submissionContext.sourceUrl ??
+                        t("eventDetail.submissionContext.noSource")}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="font-medium text-foreground">
+                      {t("eventDetail.submissionContext.context")}
+                    </p>
+                    <p className="text-muted-foreground">
+                      {event.submissionContext.compactPayloadSummary ??
+                        t("eventDetail.submissionContext.noContext")}
+                    </p>
+                  </div>
+                </div>
+
+                {event.submissionContext.notes ? (
+                  <div className="mt-4 space-y-1 text-sm">
+                    <p className="font-medium text-foreground">
+                      {t("eventDetail.submissionContext.notes")}
+                    </p>
+                    <p className="text-muted-foreground">{event.submissionContext.notes}</p>
+                  </div>
+                ) : null}
+
+                <div className="mt-4 flex flex-wrap gap-3">
+                  <Link
+                    href={event.submissionContext.submissionsListPath}
+                    className="text-sm font-medium text-brand"
+                  >
+                    {t("eventDetail.submissionContext.backToSubmissions")}
+                  </Link>
+                </div>
+              </div>
+            ) : null}
 
             <div className="space-y-3 text-sm">
               <div>
@@ -136,7 +247,19 @@ export default async function AdminEventDetailPage({
               </div>
               <div>
                 <p className="font-medium text-foreground">{t("eventDetail.moderationStatus")}</p>
-                <p className="text-muted-foreground">{event.moderationStatus}</p>
+                <p className="text-muted-foreground">
+                  {t(`eventDetail.moderationStatuses.${event.moderationStatus.toLowerCase()}`)}
+                </p>
+              </div>
+              <div>
+                <p className="font-medium text-foreground">{t("eventDetail.publicationState")}</p>
+                <p className="text-muted-foreground">
+                  {t(
+                    event.isPublished
+                      ? "eventDetail.publicationStatus.published"
+                      : "eventDetail.publicationStatus.unpublished",
+                  )}
+                </p>
               </div>
               <div>
                 <p className="font-medium text-foreground">{t("eventDetail.aiReviewStatus")}</p>
