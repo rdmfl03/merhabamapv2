@@ -219,8 +219,11 @@
       "searchPlaceholder": "Nach Name, Straße oder Ort suchen",
       "city": "Stadt",
       "category": "Kategorie",
+      "sort": "Sortierung",
       "allCities": "Alle Städte",
       "allCategories": "Alle Kategorien",
+      "recommended": "Empfohlen",
+      "newest": "Neueste",
       "apply": "Filtern",
       "reset": "Zurücksetzen"
     },
@@ -333,6 +336,9 @@
       "allCities": "Alle Städte",
       "allCategories": "Alle Kategorien",
       "allDates": "Alle Zeiträume",
+      "sort": "Sortierung",
+      "soonest": "Am frühesten",
+      "newest": "Neueste",
       "apply": "Filtern",
       "reset": "Zurücksetzen"
     },

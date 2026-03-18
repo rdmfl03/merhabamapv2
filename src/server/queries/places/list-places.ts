@@ -69,17 +69,22 @@ export async function listPlaces(args: {
     ];
   }
 
+  const sort = args.filters.sort ?? "recommended";
+
   const places = await prisma.place.findMany({
     where: buildPublicPlaceWhere(where),
-    orderBy: [
-      { verificationStatus: "desc" },
-      { createdAt: "desc" },
-    ],
+    orderBy:
+      sort === "newest"
+        ? [{ createdAt: "desc" }]
+        : [{ verificationStatus: "desc" }, { createdAt: "desc" }],
     take: 48,
     select: publicPlaceSelectWithAi,
   });
 
-  const rankedPlaces = rankPlaces(places).slice(0, 24);
+  const rankedPlaces =
+    sort === "newest"
+      ? [...places].sort((left, right) => right.createdAt.getTime() - left.createdAt.getTime()).slice(0, 24)
+      : rankPlaces(places).slice(0, 24);
 
   if (!args.userId || rankedPlaces.length === 0) {
     return rankedPlaces.map((place) => ({ ...stripPlaceAiFields(place), isSaved: false }));

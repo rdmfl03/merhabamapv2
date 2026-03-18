@@ -218,11 +218,14 @@
     "filters": {
       "searchPlaceholder": "İsim, sokak veya mekan ara",
       "city": "Şehir",
+      "sort": "Sıralama",
       "allCities": "Tüm şehirler",
       "apply": "Filtrele",
       "reset": "Sifirla",
       "category": "Kategori",
-      "allCategories": "Tüm kategoriler"
+      "allCategories": "Tüm kategoriler",
+      "recommended": "Önerilen",
+      "newest": "En yeni"
     },
     "activeFilters": {
       "label": "Aktif filtreler:",
@@ -331,6 +334,9 @@
       "city": "Şehir",
       "allCities": "Tüm şehirler",
       "allDates": "Tüm zamanlar",
+      "sort": "Sıralama",
+      "soonest": "En yakın",
+      "newest": "En yeni",
       "apply": "Filtrele",
       "reset": "Sıfırla",
       "allCategories": "Tüm kategoriler",

@@ -67,9 +67,14 @@ export async function listEvents(args: {
     ];
   }
 
+  const sort = args.filters.sort ?? "soonest";
+
   let events = await prisma.event.findMany({
     where: buildPublicEventWhere(where),
-    orderBy: [{ startsAt: "asc" }, { createdAt: "desc" }],
+    orderBy:
+      sort === "newest"
+        ? [{ createdAt: "desc" }]
+        : [{ startsAt: "asc" }, { createdAt: "desc" }],
     take: 72,
     select: publicEventSelectWithAi,
   });
@@ -80,7 +85,12 @@ export async function listEvents(args: {
     );
   }
 
-  events = rankEvents(events).slice(0, 36);
+  events =
+    sort === "newest"
+      ? [...events]
+          .sort((left, right) => right.createdAt.getTime() - left.createdAt.getTime())
+          .slice(0, 36)
+      : rankEvents(events).slice(0, 36);
 
   if (!args.userId || events.length === 0) {
     return events.map((event) => ({ ...stripEventAiFields(event), isSaved: false }));

@@ -37,6 +37,7 @@ export async function generateMetadata({
         ? rawSearchParams.category
         : undefined,
     q: typeof rawSearchParams.q === "string" ? rawSearchParams.q : undefined,
+    sort: typeof rawSearchParams.sort === "string" ? rawSearchParams.sort : undefined,
   });
   const filterData = await getPlaceFilters();
   const city = filterData.cities.find((entry) => entry.slug === filters.city);
@@ -80,6 +81,7 @@ export default async function PlacesPage({
         ? rawSearchParams.category
         : undefined,
     q: typeof rawSearchParams.q === "string" ? rawSearchParams.q : undefined,
+    sort: typeof rawSearchParams.sort === "string" ? rawSearchParams.sort : undefined,
   });
 
   const session = await auth();
@@ -180,8 +182,11 @@ export default async function PlacesPage({
           searchPlaceholder: t("filters.searchPlaceholder"),
           city: t("filters.city"),
           category: t("filters.category"),
+          sort: t("filters.sort"),
           allCities: t("filters.allCities"),
           allCategories: t("filters.allCategories"),
+          recommended: t("filters.recommended"),
+          newest: t("filters.newest"),
           apply: t("filters.apply"),
           reset: t("filters.reset"),
         }}

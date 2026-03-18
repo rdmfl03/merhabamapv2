@@ -13,6 +13,7 @@ export const placesFilterSchema = z.object({
   city: trimmedOptionalString.pipe(z.string().max(64).optional()),
   category: trimmedOptionalString.pipe(z.string().max(64).optional()),
   q: trimmedOptionalString.pipe(z.string().max(100).optional()),
+  sort: z.enum(["recommended", "newest"]).optional(),
 });
 
 export const savePlaceSchema = z.object({

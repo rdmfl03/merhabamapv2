@@ -26,6 +26,7 @@ export const eventsFilterSchema = z.object({
     .enum(["today", "this-week", "this-month", "upcoming"])
     .optional(),
   q: trimmedOptionalString.pipe(z.string().max(100).optional()),
+  sort: z.enum(["soonest", "newest"]).optional(),
 });
 
 export const saveEventSchema = z.object({

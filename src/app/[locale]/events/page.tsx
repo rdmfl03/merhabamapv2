@@ -37,6 +37,7 @@ export async function generateMetadata({
         : undefined,
     date: typeof rawSearchParams.date === "string" ? rawSearchParams.date : undefined,
     q: typeof rawSearchParams.q === "string" ? rawSearchParams.q : undefined,
+    sort: typeof rawSearchParams.sort === "string" ? rawSearchParams.sort : undefined,
   });
   const filters = parsedFilters.success ? parsedFilters.data : {};
   const filterData = await getEventFilters();
@@ -78,6 +79,7 @@ export default async function EventsPage({
         : undefined,
     date: typeof rawSearchParams.date === "string" ? rawSearchParams.date : undefined,
     q: typeof rawSearchParams.q === "string" ? rawSearchParams.q : undefined,
+    sort: typeof rawSearchParams.sort === "string" ? rawSearchParams.sort : undefined,
   });
   const filters = parsedFilters.success ? parsedFilters.data : {};
 
@@ -199,6 +201,9 @@ export default async function EventsPage({
           allCities: t("filters.allCities"),
           allCategories: t("filters.allCategories"),
           allDates: t("filters.allDates"),
+          sort: t("filters.sort"),
+          soonest: t("filters.soonest"),
+          newest: t("filters.newest"),
           apply: t("filters.apply"),
           reset: t("filters.reset"),
         }}

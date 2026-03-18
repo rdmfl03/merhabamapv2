@@ -111,7 +111,7 @@ export function getPlaceImage(images: string[] | null | undefined) {
 
 export function buildPlacesPath(
   locale: "de" | "tr",
-  filters?: { city?: string; category?: string; q?: string },
+  filters?: { city?: string; category?: string; q?: string; sort?: string },
 ) {
   const search = new URLSearchParams();
 
@@ -123,6 +123,9 @@ export function buildPlacesPath(
   }
   if (filters?.q) {
     search.set("q", filters.q);
+  }
+  if (filters?.sort) {
+    search.set("sort", filters.sort);
   }
 
   const query = search.toString();

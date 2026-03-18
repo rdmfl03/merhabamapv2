@@ -15,6 +15,7 @@ type EventsFiltersProps = {
     category?: string;
     date?: string;
     q?: string;
+    sort?: string;
   };
   cities: FilterOption[];
   categories: FilterOption[];
@@ -24,6 +25,9 @@ type EventsFiltersProps = {
     allCities: string;
     allCategories: string;
     allDates: string;
+    sort: string;
+    soonest: string;
+    newest: string;
     apply: string;
     reset: string;
   };
@@ -40,7 +44,7 @@ export function EventsFilters({
   return (
     <form
       action={`/${locale}/events`}
-      className="grid gap-2.5 rounded-[1.4rem] border border-border bg-white/95 p-3 shadow-soft sm:grid-cols-2 xl:grid-cols-[1.2fr_0.75fr_0.75fr_0.75fr_auto_auto]"
+      className="grid gap-2.5 rounded-[1.4rem] border border-border bg-white/95 p-3 shadow-soft sm:grid-cols-2 xl:grid-cols-[1.2fr_0.75fr_0.75fr_0.75fr_0.75fr_auto_auto]"
     >
       <label className="relative block">
         <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -89,6 +93,15 @@ export function EventsFilters({
             {option.label}
           </option>
         ))}
+      </select>
+
+      <select
+        name="sort"
+        defaultValue={values.sort ?? "soonest"}
+        className="flex h-11 w-full rounded-2xl border border-border bg-white px-4 py-2 text-sm text-foreground shadow-sm outline-none transition focus-visible:ring-2 focus-visible:ring-ring"
+      >
+        <option value="soonest">{labels.soonest}</option>
+        <option value="newest">{labels.newest}</option>
       </select>
 
       <Button type="submit">{labels.apply}</Button>
