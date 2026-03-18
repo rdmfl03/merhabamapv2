@@ -628,6 +628,23 @@
           "noSourceUrlRequired": "Ohne Source-URL erlaubt"
         }
       },
+      "reviewChecklist": {
+        "title": "Interne Review-Checkliste",
+        "description": "Kurzreferenz für die manuelle Prüfung, ob ein Ingest-Item vor öffentlicher Sichtbarkeit operativ ausreichend sauber ist.",
+        "badge": "Vor Veröffentlichung",
+        "sections": {
+          "places": "Places",
+          "events": "Events"
+        },
+        "items": {
+          "validCity": "Stadt passt zum aktiven Rollout-Kontext und ist plausibel.",
+          "clearTitle": "Name oder Titel ist klar genug für die öffentliche Anzeige.",
+          "plausibleLocation": "Ort, Adresse oder Venue wirkt plausibel und nicht irreführend.",
+          "sourceTraceability": "Quelle ist nachvollziehbar und lässt sich zur Originalseite zurückverfolgen.",
+          "noObviousDuplicates": "Kein offensichtliches Duplikat zu bereits sichtbaren oder bekannten Einträgen.",
+          "noOutdatedEvents": "Event ist nicht offensichtlich veraltet oder bereits vorbei."
+        }
+      },
       "empty": "Noch keine Ingest-Runs vorhanden.",
       "summary": "{total, number} Runs gesamt, {running, number} RUNNING, {done, number} DONE, {failed, number} FAILED",
       "filters": {

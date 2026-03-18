@@ -637,6 +637,23 @@
           "noSourceUrlRequired": "Source URL olmadan izinli"
         }
       },
+      "reviewChecklist": {
+        "title": "Dahili inceleme checklist'i",
+        "description": "Bir ingest kaydının herkese açılmadan önce operasyonel olarak yeterince temiz olup olmadığını hızlıca değerlendirmek için kısa referans.",
+        "badge": "Yayın öncesi",
+        "sections": {
+          "places": "Places",
+          "events": "Events"
+        },
+        "items": {
+          "validCity": "Şehir aktif rollout kapsamına uyuyor ve makul görünüyor.",
+          "clearTitle": "Ad veya başlık herkese açık gösterim için yeterince net.",
+          "plausibleLocation": "Mekan, adres veya venue bilgisi makul ve yanıltıcı görünmüyor.",
+          "sourceTraceability": "Kaynak izlenebilir ve orijinal sayfaya geri takip edilebilir.",
+          "noObviousDuplicates": "Zaten görünen veya bilinen kayıtlarla bariz bir duplikasyon yok.",
+          "noOutdatedEvents": "Etkinlik bariz şekilde eski veya geçmişte kalmış görünmüyor."
+        }
+      },
       "empty": "Henüz ingest çalıştırması yok.",
       "summary": "Toplam {total, number} çalıştırma, {running, number} RUNNING, {done, number} DONE, {failed, number} FAILED",
       "filters": {

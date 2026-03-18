@@ -1,6 +1,7 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { AdminShell } from "@/components/admin/admin-shell";
+import { IngestReviewChecklistReference } from "@/components/admin/ingest-review-checklist-reference";
 import { SourceRolloutV1Reference } from "@/components/admin/source-rollout-v1-reference";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -59,6 +60,26 @@ function getSourceRolloutLabels(t: Awaited<ReturnType<typeof getTranslations>>) 
   };
 }
 
+function getReviewChecklistLabels(t: Awaited<ReturnType<typeof getTranslations>>) {
+  return {
+    title: t("ingest.reviewChecklist.title"),
+    description: t("ingest.reviewChecklist.description"),
+    badge: t("ingest.reviewChecklist.badge"),
+    sections: {
+      places: t("ingest.reviewChecklist.sections.places"),
+      events: t("ingest.reviewChecklist.sections.events"),
+    },
+    items: {
+      validCity: t("ingest.reviewChecklist.items.validCity"),
+      clearTitle: t("ingest.reviewChecklist.items.clearTitle"),
+      plausibleLocation: t("ingest.reviewChecklist.items.plausibleLocation"),
+      sourceTraceability: t("ingest.reviewChecklist.items.sourceTraceability"),
+      noObviousDuplicates: t("ingest.reviewChecklist.items.noObviousDuplicates"),
+      noOutdatedEvents: t("ingest.reviewChecklist.items.noOutdatedEvents"),
+    },
+  };
+}
+
 export default async function AdminIngestPage({
   params,
   searchParams,
@@ -73,6 +94,7 @@ export default async function AdminIngestPage({
   ]);
   const sourceRolloutSections = getSourceRolloutV1Sections();
   const sourceRolloutLabels = getSourceRolloutLabels(t);
+  const reviewChecklistLabels = getReviewChecklistLabels(t);
 
   const totalCount = ingestRuns.length;
   const runningCount = ingestRuns.filter((run) => run.status === "RUNNING").length;
@@ -168,6 +190,12 @@ export default async function AdminIngestPage({
             labels={sourceRolloutLabels}
             reviewHref={`/admin/ingest/raw-items?allowlist=blocked`}
           />
+        </CardContent>
+      </Card>
+
+      <Card className="bg-white/90">
+        <CardContent className="p-6">
+          <IngestReviewChecklistReference labels={reviewChecklistLabels} />
         </CardContent>
       </Card>
 
