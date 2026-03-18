@@ -179,3 +179,11 @@ export const PILOT_BATCH_V1 = {
     },
   ] satisfies readonly PilotEventRecord[],
 } as const;
+
+export const PILOT_BATCH_V1_PLACE_SLUGS = PILOT_BATCH_V1.places.map(
+  (place) => place.slug,
+);
+
+export const PILOT_BATCH_V1_EVENT_SLUGS = PILOT_BATCH_V1.events.map(
+  (event) => event.slug,
+);
