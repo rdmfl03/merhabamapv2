@@ -214,6 +214,7 @@
     "descriptionCity": "Entdecke Restaurants, Cafés, Bäckereien, Märkte und Services aus der türkischen Community in {city}.",
     "cityContext": "Aktuell stöberst du in {city}.",
     "resultsCount": "{count, number} Ergebnisse",
+    "resultsCountCity": "{count, number} Orte in {city}",
     "filters": {
       "searchPlaceholder": "Nach Name, Straße oder Ort suchen",
       "city": "Stadt",
@@ -323,6 +324,7 @@
     "descriptionCity": "Entdecke Konzerte, Kulturabende, Community-Treffen und weitere Veranstaltungen mit lokalem Kontext in {city}.",
     "cityContext": "Aktuell stöberst du in {city}.",
     "resultsCount": "{count, number} Ergebnisse",
+    "resultsCountCity": "{count, number} Events in {city}",
     "filters": {
       "searchPlaceholder": "Nach Titel, Ort oder Adresse suchen",
       "city": "Stadt",

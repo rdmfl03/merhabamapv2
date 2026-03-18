@@ -250,7 +250,12 @@ export default async function EventsPage({
       ) : (
         <section className="space-y-3">
           <p className="text-sm text-muted-foreground">
-            {t("resultsCount", { count: events.length })}
+            {city
+              ? t("resultsCountCity", {
+                  count: events.length,
+                  city: locale === "tr" ? city.nameTr : city.nameDe,
+                })
+              : t("resultsCount", { count: events.length })}
           </p>
           {hasNarrowResults ? (
             <p className="rounded-2xl border border-border/80 bg-white/90 px-4 py-3 text-sm text-muted-foreground">

@@ -234,7 +234,12 @@ export default async function PlacesPage({
         <section className="space-y-3">
           <div className="flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
-              {t("resultsCount", { count: places.length })}
+              {city
+                ? t("resultsCountCity", {
+                    count: places.length,
+                    city: locale === "tr" ? city.nameTr : city.nameDe,
+                  })
+                : t("resultsCount", { count: places.length })}
             </p>
           </div>
           {hasNarrowResults ? (

@@ -214,6 +214,7 @@
     "descriptionCity": "{city} içinde Türk topluluğuna yakın restoranları, kafeleri, fırınları, marketleri ve hizmetleri keşfet.",
     "cityContext": "Şu anda {city} içinde geziyorsun.",
     "resultsCount": "{count, number} sonuç",
+    "resultsCountCity": "{city} içinde {count, number} mekan",
     "filters": {
       "searchPlaceholder": "İsim, sokak veya mekan ara",
       "city": "Şehir",
@@ -323,6 +324,7 @@
     "descriptionCity": "{city} içinde konserler, kültür geceleri, topluluk buluşmaları ve diğer yerel etkinlikleri keşfet.",
     "cityContext": "Şu anda {city} içinde geziyorsun.",
     "resultsCount": "{count, number} sonuç",
+    "resultsCountCity": "{city} içinde {count, number} etkinlik",
     "filters": {
       "searchPlaceholder": "Başlık, mekan veya adres ara",
       "city": "Şehir",
