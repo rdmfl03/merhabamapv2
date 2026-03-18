@@ -246,8 +246,13 @@
     "empty": {
       "title": "Keine Orte für diese Auswahl gefunden.",
       "description": "Versuche eine andere Stadt, eine andere Kategorie oder entferne den Suchbegriff, um mehr Ergebnisse zu sehen.",
-      "reset": "Filter zurücksetzen"
+      "reset": "Filter zurücksetzen",
+      "tryNextLabel": "Du kannst als Nächstes Folgendes probieren:",
+      "tryBroaderSearch": "Den Suchbegriff kürzer oder allgemeiner formulieren.",
+      "tryAnotherCity": "Eine andere Stadt auswählen.",
+      "tryClearFilters": "Filter zurücksetzen und breiter stöbern."
     },
+    "narrowResults": "Nur {count, number} Orte gefunden. Wenn du mehr entdecken möchtest, lockere die Filter ein wenig.",
     "detail": {
       "fallbackDescription": "Für diesen Ort ist noch keine Beschreibung verfügbar.",
       "infoTitle": "Informationen",
@@ -353,8 +358,13 @@
     "empty": {
       "title": "Keine Events für diese Auswahl gefunden.",
       "description": "Passe Filter oder Suchbegriff an, um weitere kommende Events zu sehen.",
-      "reset": "Filter zurücksetzen"
+      "reset": "Filter zurücksetzen",
+      "tryNextLabel": "Du kannst als Nächstes Folgendes probieren:",
+      "tryBroaderSearch": "Den Suchbegriff kürzer oder allgemeiner formulieren.",
+      "tryAnotherCity": "Eine andere Stadt auswählen.",
+      "tryAnotherDate": "Einen anderen Zeitraum wählen oder den Datumsfilter entfernen."
     },
+    "narrowResults": "Nur {count, number} Events gefunden. Wenn du mehr sehen möchtest, erweitere die Filter etwas.",
     "detail": {
       "fallbackDescription": "Für dieses Event ist noch keine Beschreibung verfügbar.",
       "infoTitle": "Informationen",

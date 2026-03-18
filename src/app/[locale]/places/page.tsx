@@ -113,6 +113,7 @@ export default async function PlacesPage({
       : null,
   ].filter((item): item is { key: string; label: string } => Boolean(item));
   const hasActiveFilters = activeFilterItems.length > 0;
+  const hasNarrowResults = hasActiveFilters && places.length > 0 && places.length <= 3;
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 px-4 py-7 sm:py-8">
@@ -183,6 +184,16 @@ export default async function PlacesPage({
                 {t("empty.description")}
               </p>
             </div>
+            {hasActiveFilters ? (
+              <div className="mx-auto max-w-2xl rounded-2xl border border-border/80 bg-[#f5f6f8] px-4 py-3 text-left text-sm text-muted-foreground">
+                <p className="font-medium text-foreground">{t("empty.tryNextLabel")}</p>
+                <ul className="mt-2 space-y-1.5">
+                  <li>{t("empty.tryBroaderSearch")}</li>
+                  <li>{t("empty.tryAnotherCity")}</li>
+                  <li>{t("empty.tryClearFilters")}</li>
+                </ul>
+              </div>
+            ) : null}
             <Button variant="outline" asChild>
               <Link href="/places">{t("empty.reset")}</Link>
             </Button>
@@ -195,6 +206,11 @@ export default async function PlacesPage({
               {t("resultsCount", { count: places.length })}
             </p>
           </div>
+          {hasNarrowResults ? (
+            <p className="rounded-2xl border border-border/80 bg-white/90 px-4 py-3 text-sm text-muted-foreground">
+              {t("narrowResults", { count: places.length })}
+            </p>
+          ) : null}
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {places.map((place) => (
               <PlaceCard
