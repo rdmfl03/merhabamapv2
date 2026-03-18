@@ -215,6 +215,7 @@
     "cityContext": "Aktuell stöberst du in {city}.",
     "resultsCount": "{count, number} Ergebnisse",
     "resultsCountCity": "{count, number} Orte in {city}",
+    "resultsSort": "sortiert nach {sort}",
     "filters": {
       "searchPlaceholder": "Nach Name, Straße oder Ort suchen",
       "city": "Stadt",
@@ -330,6 +331,7 @@
     "cityContext": "Aktuell stöberst du in {city}.",
     "resultsCount": "{count, number} Ergebnisse",
     "resultsCountCity": "{count, number} Events in {city}",
+    "resultsSort": "sortiert nach {sort}",
     "filters": {
       "searchPlaceholder": "Nach Titel, Ort oder Adresse suchen",
       "city": "Stadt",

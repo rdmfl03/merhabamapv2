@@ -134,6 +134,8 @@ export default async function EventsPage({
   ].filter((item): item is { key: string; label: string } => Boolean(item));
   const hasActiveFilters = activeFilterItems.length > 0;
   const hasNarrowResults = hasActiveFilters && events.length > 0 && events.length <= 3;
+  const activeSortLabel =
+    filters.sort && filters.sort !== "soonest" ? t("filters.newest") : null;
   const emptyBrowseShortcut = city
     ? {
         href: `/events?city=${city.slug}`,
@@ -275,6 +277,9 @@ export default async function EventsPage({
                   city: locale === "tr" ? city.nameTr : city.nameDe,
                 })
               : t("resultsCount", { count: events.length })}
+            {activeSortLabel ? (
+              <span>{` · ${t("resultsSort", { sort: activeSortLabel })}`}</span>
+            ) : null}
           </p>
           {hasNarrowResults ? (
             <div className="flex flex-col gap-2 rounded-2xl border border-border/80 bg-white/90 px-4 py-3 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">

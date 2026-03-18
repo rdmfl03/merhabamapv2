@@ -122,6 +122,8 @@ export default async function PlacesPage({
   ].filter((item): item is { key: string; label: string } => Boolean(item));
   const hasActiveFilters = activeFilterItems.length > 0;
   const hasNarrowResults = hasActiveFilters && places.length > 0 && places.length <= 3;
+  const activeSortLabel =
+    filters.sort && filters.sort !== "recommended" ? t("filters.newest") : null;
   const emptyBrowseShortcut = city
     ? {
         href: `/places?city=${city.slug}`,
@@ -259,6 +261,9 @@ export default async function PlacesPage({
                     city: locale === "tr" ? city.nameTr : city.nameDe,
                   })
                 : t("resultsCount", { count: places.length })}
+              {activeSortLabel ? (
+                <span>{` · ${t("resultsSort", { sort: activeSortLabel })}`}</span>
+              ) : null}
             </p>
           </div>
           {hasNarrowResults ? (

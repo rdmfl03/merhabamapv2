@@ -215,6 +215,7 @@
     "cityContext": "Şu anda {city} içinde geziyorsun.",
     "resultsCount": "{count, number} sonuç",
     "resultsCountCity": "{city} içinde {count, number} mekan",
+    "resultsSort": "{sort} sıralaması",
     "filters": {
       "searchPlaceholder": "İsim, sokak veya mekan ara",
       "city": "Şehir",
@@ -330,6 +331,7 @@
     "cityContext": "Şu anda {city} içinde geziyorsun.",
     "resultsCount": "{count, number} sonuç",
     "resultsCountCity": "{city} içinde {count, number} etkinlik",
+    "resultsSort": "{sort} sıralaması",
     "filters": {
       "searchPlaceholder": "Başlık, mekan veya adres ara",
       "city": "Şehir",
