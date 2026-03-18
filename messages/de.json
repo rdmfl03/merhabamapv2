@@ -220,6 +220,11 @@
       "apply": "Filtern",
       "reset": "Zurücksetzen"
     },
+    "activeFilters": {
+      "label": "Aktive Filter:",
+      "search": "Suche",
+      "clearAll": "Alle löschen"
+    },
     "badges": {
       "verified": "Verifiziert",
       "claimed": "Business beansprucht"
@@ -307,11 +312,19 @@
     "resultsCount": "{count, number} Ergebnisse",
     "filters": {
       "searchPlaceholder": "Nach Titel, Ort oder Adresse suchen",
+      "city": "Stadt",
+      "category": "Kategorie",
       "allCities": "Alle Städte",
       "allCategories": "Alle Kategorien",
       "allDates": "Alle Zeiträume",
       "apply": "Filtern",
       "reset": "Zurücksetzen"
+    },
+    "activeFilters": {
+      "label": "Aktive Filter:",
+      "search": "Suche",
+      "date": "Zeitraum",
+      "clearAll": "Alle löschen"
     },
     "dateFilters": {
       "today": "Heute",

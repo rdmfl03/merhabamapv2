@@ -92,6 +92,39 @@ export default async function EventsPage({
   ]);
 
   const currentPath = buildEventsPath(locale, filters);
+  const city = filterData.cities.find((entry) => entry.slug === filters.city);
+  const dateLabel =
+    filters.date === "today"
+      ? t("dateFilters.today")
+      : filters.date === "this-week"
+        ? t("dateFilters.thisWeek")
+        : filters.date === "this-month"
+          ? t("dateFilters.thisMonth")
+          : filters.date === "upcoming"
+            ? t("dateFilters.upcoming")
+            : null;
+  const activeFilterItems = [
+    city ? { key: "city", label: `${t("filters.city")}: ${locale === "tr" ? city.nameTr : city.nameDe}` } : null,
+    filters.category
+      ? {
+          key: "category",
+          label: `${t("filters.category")}: ${t(`categories.${getEventCategoryLabelKey(filters.category)}`)}`,
+        }
+      : null,
+    dateLabel
+      ? {
+          key: "date",
+          label: `${t("activeFilters.date")}: ${dateLabel}`,
+        }
+      : null,
+    filters.q
+      ? {
+          key: "search",
+          label: `${t("activeFilters.search")}: "${filters.q}"`,
+        }
+      : null,
+  ].filter((item): item is { key: string; label: string } => Boolean(item));
+  const hasActiveFilters = activeFilterItems.length > 0;
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 px-4 py-7 sm:py-8">
@@ -135,6 +168,26 @@ export default async function EventsPage({
           reset: t("filters.reset"),
         }}
       />
+
+      {hasActiveFilters ? (
+        <section className="flex flex-wrap items-center gap-2 rounded-[1.3rem] border border-border bg-white/90 px-4 py-3 text-sm">
+          <span className="font-medium text-foreground">{t("activeFilters.label")}</span>
+          {activeFilterItems.map((item) => (
+            <span
+              key={item.key}
+              className="rounded-full border border-border/80 bg-[#f5f6f8] px-3 py-1 text-muted-foreground"
+            >
+              {item.label}
+            </span>
+          ))}
+          <Link
+            href="/events"
+            className="ml-auto text-sm font-medium text-brand underline-offset-4 hover:underline"
+          >
+            {t("activeFilters.clearAll")}
+          </Link>
+        </section>
+      ) : null}
 
       {events.length === 0 ? (
         <Card className="bg-white/90">

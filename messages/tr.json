@@ -220,6 +220,11 @@
       "category": "Kategori",
       "allCategories": "Tüm kategoriler"
     },
+    "activeFilters": {
+      "label": "Aktif filtreler:",
+      "search": "Arama",
+      "clearAll": "Hepsini temizle"
+    },
     "badges": {
       "verified": "Doğrulandı",
       "claimed": "İşletme claim edildi"
@@ -307,12 +312,19 @@
     "resultsCount": "{count, number} sonuç",
     "filters": {
       "searchPlaceholder": "Başlık, mekan veya adres ara",
+      "city": "Şehir",
       "allCities": "Tüm şehirler",
       "allDates": "Tüm zamanlar",
       "apply": "Filtrele",
       "reset": "Sıfırla",
       "allCategories": "Tüm kategoriler",
       "category": "Kategori"
+    },
+    "activeFilters": {
+      "label": "Aktif filtreler:",
+      "search": "Arama",
+      "date": "Zaman",
+      "clearAll": "Hepsini temizle"
     },
     "dateFilters": {
       "today": "Bugün",
