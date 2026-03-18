@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 type PlaceTrustBadgeProps = {
   status: "UNVERIFIED" | "CLAIMED" | "VERIFIED";
   labels: {
-    claimed: string;
+    claimed?: string;
     verified: string;
   };
 };
@@ -20,7 +20,7 @@ export function PlaceTrustBadge({ status, labels }: PlaceTrustBadgeProps) {
     );
   }
 
-  if (status === "CLAIMED") {
+  if (status === "CLAIMED" && labels.claimed) {
     return (
       <Badge className="gap-1 bg-white text-foreground">
         <Store className="h-3.5 w-3.5" />

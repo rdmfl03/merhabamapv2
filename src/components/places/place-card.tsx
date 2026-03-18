@@ -5,7 +5,7 @@ import { PlaceTrustBadge } from "@/components/places/place-trust-badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "@/i18n/navigation";
-import { getPlaceImage, getVerificationTone } from "@/lib/places";
+import { getPlaceImage } from "@/lib/places";
 import type { ListedPlace } from "@/server/queries/places/list-places";
 
 type PlaceCardProps = {
@@ -23,7 +23,6 @@ type PlaceCardProps = {
     saving: string;
     signIn: string;
     verified: string;
-    claimed: string;
   };
 };
 
@@ -38,7 +37,6 @@ export function PlaceCard({
   labels,
 }: PlaceCardProps) {
   const image = getPlaceImage(place.images);
-  const verificationTone = getVerificationTone(place.verificationStatus);
 
   return (
     <Card className="overflow-hidden bg-white/90">
@@ -53,12 +51,11 @@ export function PlaceCard({
             </div>
           )}
         </div>
-        {verificationTone === "verified" || verificationTone === "claimed" ? (
+        {place.verificationStatus === "VERIFIED" ? (
           <div className="absolute left-4 top-4">
             <PlaceTrustBadge
               status={place.verificationStatus}
               labels={{
-                claimed: labels.claimed,
                 verified: labels.verified,
               }}
             />

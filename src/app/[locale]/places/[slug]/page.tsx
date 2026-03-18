@@ -17,7 +17,6 @@ import {
   getLocalizedText,
   getLocalizedPlaceCategoryLabel,
   getPlaceImage,
-  getVerificationTone,
   parseOpeningHours,
 } from "@/lib/places";
 import { buildPlaceSchema } from "@/lib/seo/structured-data";
@@ -79,7 +78,6 @@ export default async function PlaceDetailPage({
   );
   const openingHours = parseOpeningHours(place.openingHoursJson);
   const image = getPlaceImage(place.images);
-  const verificationTone = getVerificationTone(place.verificationStatus);
   const cityLabel = locale === "tr" ? place.city.nameTr : place.city.nameDe;
   const categoryLabel = getLocalizedPlaceCategoryLabel(place.category, locale);
   const returnPath = `/${locale}/places/${place.slug}`;
@@ -135,11 +133,10 @@ export default async function PlaceDetailPage({
                 </div>
               </div>
 
-              {verificationTone === "verified" || verificationTone === "claimed" ? (
+              {place.verificationStatus === "VERIFIED" ? (
                 <PlaceTrustBadge
                   status={place.verificationStatus}
                   labels={{
-                    claimed: t("badges.claimed"),
                     verified: t("badges.verified"),
                   }}
                 />
@@ -148,15 +145,17 @@ export default async function PlaceDetailPage({
 
             <p className="text-sm leading-7 text-muted-foreground">{description}</p>
 
-            <PlaceTrustHelper
-              status={place.verificationStatus}
-              labels={{
-                claimedTitle: t("trust.claimedTitle"),
-                claimedDescription: t("trust.claimedDescription"),
-                verifiedTitle: t("trust.verifiedTitle"),
-                verifiedDescription: t("trust.verifiedDescription"),
-              }}
-            />
+            {place.verificationStatus === "VERIFIED" ? (
+              <PlaceTrustHelper
+                status={place.verificationStatus}
+                labels={{
+                  claimedTitle: t("trust.claimedTitle"),
+                  claimedDescription: t("trust.claimedDescription"),
+                  verifiedTitle: t("trust.verifiedTitle"),
+                  verifiedDescription: t("trust.verifiedDescription"),
+                }}
+              />
+            ) : null}
 
             <div className="flex flex-wrap gap-3">
               <PlaceSaveButton

@@ -60,7 +60,6 @@ export default async function SavedPlacesPage({ params }: SavedPlacesPageProps) 
                 saving: t("common.saving"),
                 signIn: t("common.signIn"),
                 verified: t("common.verified"),
-                claimed: t("common.claimed"),
               }}
               />
           ))}

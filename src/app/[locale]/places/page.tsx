@@ -179,7 +179,6 @@ export default async function PlacesPage({
                   saving: t("card.saving"),
                   signIn: t("card.signIn"),
                   verified: t("badges.verified"),
-                  claimed: t("badges.claimed"),
                 }}
               />
             ))}

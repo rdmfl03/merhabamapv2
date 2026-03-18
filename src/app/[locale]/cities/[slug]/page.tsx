@@ -131,7 +131,6 @@ export default async function CityPage({ params }: CityPageProps) {
           cardSaving: placesTexts("card.saving"),
           cardSignIn: placesTexts("card.signIn"),
           cardVerified: placesTexts("badges.verified"),
-          cardClaimed: placesTexts("badges.claimed"),
           eventExternal: eventsTexts("card.external"),
           placeFallback: placesTexts("card.fallbackDescription"),
           eventFallback: eventsTexts("card.fallbackDescription"),

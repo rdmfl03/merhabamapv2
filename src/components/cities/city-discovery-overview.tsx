@@ -76,7 +76,6 @@ type CityDiscoveryOverviewProps = {
     cardSaving: string;
     cardSignIn: string;
     cardVerified: string;
-    cardClaimed: string;
     eventExternal: string;
     placeFallback: string;
     eventFallback: string;
@@ -194,7 +193,6 @@ export function CityDiscoveryOverview({
                   saving: labels.cardSaving,
                   signIn: labels.cardSignIn,
                   verified: labels.cardVerified,
-                  claimed: labels.cardClaimed,
                 }}
               />
             ))}
