@@ -41,8 +41,6 @@ const CLUSTER_COUNT_LAYER_ID = "merhaba-cluster-count";
 const PLACE_LAYER_ID = "merhaba-place-points";
 const EVENT_LAYER_ID = "merhaba-event-points";
 const USER_LAYER_ID = "merhaba-user-point";
-const PLACE_ICON_ID = "merhaba-place-marker";
-const EVENT_ICON_ID = "merhaba-event-marker";
 const SMALL_DATASET_CLUSTER_THRESHOLD = 8;
 
 function buildPopupNode(
@@ -121,42 +119,6 @@ function buildUserGeoJson(userLocation: {
         ]
       : [],
   };
-}
-
-function createMarkerSvg(kind: "place" | "event") {
-  if (kind === "event") {
-    return `
-      <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 44 44">
-        <rect x="10" y="10" width="24" height="24" rx="7" transform="rotate(45 22 22)" fill="#111827" stroke="#ffffff" stroke-width="3"/>
-        <circle cx="22" cy="22" r="4.5" fill="#ffffff"/>
-      </svg>
-    `;
-  }
-
-  return `
-      <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 44 44">
-      <path d="M22 5c-6.6 0-12 5.2-12 11.7 0 9.1 10.7 20.2 11.2 20.7a1.14 1.14 0 0 0 1.6 0C23.3 36.9 34 25.8 34 16.7 34 10.2 28.6 5 22 5Z" fill="#e30a17" stroke="#ffffff" stroke-width="3"/>
-      <circle cx="22" cy="17" r="4.5" fill="#ffffff"/>
-      </svg>
-    `;
-}
-
-async function addSvgIcon(map: MapboxMap, id: string, svg: string) {
-  if (map.hasImage(id)) {
-    return;
-  }
-
-  const image = new Image(44, 44);
-  const dataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
-
-  await new Promise<void>((resolve, reject) => {
-    image.onload = () => {
-      map.addImage(id, image, { pixelRatio: 2 });
-      resolve();
-    };
-    image.onerror = () => reject(new Error(`Failed to load ${id}`));
-    image.src = dataUrl;
-  });
 }
 
 function applyGermanLabels(map: MapboxMap) {
@@ -294,168 +256,167 @@ export function CityDiscoveryMapboxMap({
     map.on("style.load", () => {
       applyGermanLabels(map);
       applyNeutralGrayTheme(map);
-      void Promise.all([
-        addSvgIcon(map, PLACE_ICON_ID, createMarkerSvg("place")),
-        addSvgIcon(map, EVENT_ICON_ID, createMarkerSvg("event")),
-      ]).then(() => {
-        map.addSource(POINTS_SOURCE_ID, {
-          type: "geojson",
-          data: pointsData,
-          cluster: shouldCluster,
-          clusterMaxZoom: 14,
-          clusterRadius: shouldCluster ? 50 : 1,
-          promoteId: "id",
-        });
-
-        map.addLayer({
-          id: CLUSTERS_LAYER_ID,
-          type: "circle",
-          source: POINTS_SOURCE_ID,
-          filter: ["has", "point_count"],
-          paint: {
-            "circle-color": "#e30a17",
-            "circle-radius": [
-              "step",
-              ["get", "point_count"],
-              18,
-              10,
-              24,
-              25,
-              30,
-            ],
-            "circle-stroke-color": "#ffffff",
-            "circle-stroke-width": 3,
-            "circle-opacity": 0.9,
-          },
-        });
-
-        map.addLayer({
-          id: CLUSTER_COUNT_LAYER_ID,
-          type: "symbol",
-          source: POINTS_SOURCE_ID,
-          filter: ["has", "point_count"],
-          layout: {
-            "text-field": ["get", "point_count_abbreviated"],
-            "text-size": 12,
-            "text-font": ["Open Sans Bold", "Arial Unicode MS Bold"],
-          },
-          paint: {
-            "text-color": "#ffffff",
-          },
-        });
-
-        map.addLayer({
-          id: PLACE_LAYER_ID,
-          type: "symbol",
-          source: POINTS_SOURCE_ID,
-          filter: ["all", ["!", ["has", "point_count"]], ["==", ["get", "kind"], "place"]],
-          layout: {
-            "icon-image": PLACE_ICON_ID,
-            "icon-size": [
-              "case",
-              ["boolean", ["feature-state", "selected"], false],
-              1.12,
-              ["boolean", ["feature-state", "hover"], false],
-              1.02,
-              0.92,
-            ],
-            "icon-allow-overlap": true,
-          },
-        });
-
-        map.addLayer({
-          id: EVENT_LAYER_ID,
-          type: "symbol",
-          source: POINTS_SOURCE_ID,
-          filter: ["all", ["!", ["has", "point_count"]], ["==", ["get", "kind"], "event"]],
-          layout: {
-            "icon-image": EVENT_ICON_ID,
-            "icon-size": [
-              "case",
-              ["boolean", ["feature-state", "selected"], false],
-              1.12,
-              ["boolean", ["feature-state", "hover"], false],
-              1.02,
-              0.92,
-            ],
-            "icon-allow-overlap": true,
-          },
-        });
-
-        map.addSource(USER_SOURCE_ID, {
-          type: "geojson",
-          data: userData,
-        });
-
-        map.addLayer({
-          id: USER_LAYER_ID,
-          type: "circle",
-          source: USER_SOURCE_ID,
-          paint: {
-            "circle-color": "#0284c7",
-            "circle-radius": 7,
-            "circle-stroke-color": "#ffffff",
-            "circle-stroke-width": 3,
-          },
-        });
-
-        if (shouldCluster) {
-          map.on("click", CLUSTERS_LAYER_ID, (event) => {
-            const feature = event.features?.[0];
-            if (!feature) return;
-
-            const clusterId = feature.properties?.cluster_id;
-            const source = map.getSource(POINTS_SOURCE_ID) as GeoJSONSource | undefined;
-            if (!source || clusterId == null) return;
-
-            const [longitude, latitude] = (feature.geometry as GeoJSON.Point).coordinates;
-            source.getClusterExpansionZoom(Number(clusterId), (error, zoom) => {
-              if (error || zoom == null) {
-                return;
-              }
-
-              map.easeTo({
-                center: [longitude, latitude],
-                zoom: Math.max(zoom, 15),
-                duration: 400,
-              });
-            });
-          });
-        }
-
-        for (const layerId of [PLACE_LAYER_ID, EVENT_LAYER_ID]) {
-          map.on("mouseenter", layerId, () => {
-            map.getCanvas().style.cursor = "pointer";
-          });
-
-          map.on("mouseleave", layerId, () => {
-            map.getCanvas().style.cursor = "";
-            onHoverChange(null);
-          });
-
-          map.on("mousemove", layerId, (event) => {
-            const feature = event.features?.[0];
-            const featureId = feature?.properties?.id as string | undefined;
-            onHoverChange(featureId ?? null);
-          });
-
-          map.on("click", layerId, (event) => {
-            const feature = event.features?.[0];
-            if (!feature) return;
-
-            const featureId = feature.properties?.id as string | undefined;
-            const point = points.find((entry) => entry.id === featureId);
-            if (!featureId || !point) return;
-
-            onSelectChange(featureId);
-            map.easeTo({
-              center: [point.longitude, point.latitude],
-              duration: 350,
-              offset: [0, -60],
-            });
-          });
-        }
+      map.addSource(POINTS_SOURCE_ID, {
+        type: "geojson",
+        data: pointsData,
+        cluster: shouldCluster,
+        clusterMaxZoom: 14,
+        clusterRadius: shouldCluster ? 50 : 1,
+        promoteId: "id",
       });
+
+      map.addLayer({
+        id: CLUSTERS_LAYER_ID,
+        type: "circle",
+        source: POINTS_SOURCE_ID,
+        filter: ["has", "point_count"],
+        paint: {
+          "circle-color": "#e30a17",
+          "circle-radius": [
+            "step",
+            ["get", "point_count"],
+            18,
+            10,
+            24,
+            25,
+            30,
+          ],
+          "circle-stroke-color": "#ffffff",
+          "circle-stroke-width": 3,
+          "circle-opacity": 0.9,
+        },
+      });
+
+      map.addLayer({
+        id: CLUSTER_COUNT_LAYER_ID,
+        type: "symbol",
+        source: POINTS_SOURCE_ID,
+        filter: ["has", "point_count"],
+        layout: {
+          "text-field": ["get", "point_count_abbreviated"],
+          "text-size": 12,
+          "text-font": ["Open Sans Bold", "Arial Unicode MS Bold"],
+        },
+        paint: {
+          "text-color": "#ffffff",
+        },
+      });
+
+      map.addLayer({
+        id: PLACE_LAYER_ID,
+        type: "circle",
+        source: POINTS_SOURCE_ID,
+        filter: ["all", ["!", ["has", "point_count"]], ["==", ["get", "kind"], "place"]],
+        paint: {
+          "circle-color": "#e30a17",
+          "circle-radius": [
+            "case",
+            ["boolean", ["feature-state", "selected"], false],
+            11,
+            ["boolean", ["feature-state", "hover"], false],
+            9,
+            7,
+          ],
+          "circle-stroke-color": "#ffffff",
+          "circle-stroke-width": 3,
+          "circle-opacity": 0.95,
+        },
+      });
+
+      map.addLayer({
+        id: EVENT_LAYER_ID,
+        type: "circle",
+        source: POINTS_SOURCE_ID,
+        filter: ["all", ["!", ["has", "point_count"]], ["==", ["get", "kind"], "event"]],
+        paint: {
+          "circle-color": "#111827",
+          "circle-radius": [
+            "case",
+            ["boolean", ["feature-state", "selected"], false],
+            11,
+            ["boolean", ["feature-state", "hover"], false],
+            9,
+            7,
+          ],
+          "circle-stroke-color": "#ffffff",
+          "circle-stroke-width": 3,
+          "circle-opacity": 0.95,
+        },
+      });
+
+      map.addSource(USER_SOURCE_ID, {
+        type: "geojson",
+        data: userData,
+      });
+
+      map.addLayer({
+        id: USER_LAYER_ID,
+        type: "circle",
+        source: USER_SOURCE_ID,
+        paint: {
+          "circle-color": "#0284c7",
+          "circle-radius": 7,
+          "circle-stroke-color": "#ffffff",
+          "circle-stroke-width": 3,
+        },
+      });
+
+      if (shouldCluster) {
+        map.on("click", CLUSTERS_LAYER_ID, (event) => {
+          const feature = event.features?.[0];
+          if (!feature) return;
+
+          const clusterId = feature.properties?.cluster_id;
+          const source = map.getSource(POINTS_SOURCE_ID) as GeoJSONSource | undefined;
+          if (!source || clusterId == null) return;
+
+          const [longitude, latitude] = (feature.geometry as GeoJSON.Point).coordinates;
+          source.getClusterExpansionZoom(Number(clusterId), (error, zoom) => {
+            if (error || zoom == null) {
+              return;
+            }
+
+            map.easeTo({
+              center: [longitude, latitude],
+              zoom: Math.max(zoom, 15),
+              duration: 400,
+            });
+          });
+        });
+      }
+
+      for (const layerId of [PLACE_LAYER_ID, EVENT_LAYER_ID]) {
+        map.on("mouseenter", layerId, () => {
+          map.getCanvas().style.cursor = "pointer";
+        });
+
+        map.on("mouseleave", layerId, () => {
+          map.getCanvas().style.cursor = "";
+          onHoverChange(null);
+        });
+
+        map.on("mousemove", layerId, (event) => {
+          const feature = event.features?.[0];
+          const featureId = feature?.properties?.id as string | undefined;
+          onHoverChange(featureId ?? null);
+        });
+
+        map.on("click", layerId, (event) => {
+          const feature = event.features?.[0];
+          if (!feature) return;
+
+          const featureId = feature.properties?.id as string | undefined;
+          const point = points.find((entry) => entry.id === featureId);
+          if (!featureId || !point) return;
+
+          onSelectChange(featureId);
+          map.easeTo({
+            center: [point.longitude, point.latitude],
+            duration: 350,
+            offset: [0, -60],
+          });
+        });
+      }
     });
 
     mapRef.current = map;
