@@ -133,11 +133,26 @@ export default async function PlacesPage({
           {t("eyebrow")}
         </p>
         <div className="space-y-2">
+          {city ? (
+            <p className="text-sm font-medium text-brand/80">
+              {t("cityContext", {
+                city: locale === "tr" ? city.nameTr : city.nameDe,
+              })}
+            </p>
+          ) : null}
           <h1 className="font-display text-3xl text-foreground sm:text-4xl">
-            {t("title")}
+            {city
+              ? t("titleCity", {
+                  city: locale === "tr" ? city.nameTr : city.nameDe,
+                })
+              : t("title")}
           </h1>
           <p className="max-w-3xl text-base leading-6 text-muted-foreground">
-            {t("description")}
+            {city
+              ? t("descriptionCity", {
+                  city: locale === "tr" ? city.nameTr : city.nameDe,
+                })
+              : t("description")}
           </p>
         </div>
       </section>

@@ -209,7 +209,10 @@
     "metaDescriptionCity": "Entdecke türkische Orte, Restaurants, Märkte und Services in {city}.",
     "eyebrow": "Places",
     "title": "Türkische Orte mit lokalem Kontext.",
+    "titleCity": "Orte in {city}",
     "description": "Finde Restaurants, Cafés, Bäckereien, Märkte und Services aus der türkischen Community in Berlin und Köln.",
+    "descriptionCity": "Entdecke Restaurants, Cafés, Bäckereien, Märkte und Services aus der türkischen Community in {city}.",
+    "cityContext": "Aktuell stöberst du in {city}.",
     "resultsCount": "{count, number} Ergebnisse",
     "filters": {
       "searchPlaceholder": "Nach Name, Straße oder Ort suchen",
@@ -315,7 +318,10 @@
     "metaDescriptionCity": "Entdecke türkische und community-relevante Events in {city}.",
     "eyebrow": "Events",
     "title": "Relevante Events für die türkische Community.",
+    "titleCity": "Events in {city}",
     "description": "Finde Konzerte, Kulturabende, Community-Treffen und weitere Veranstaltungen mit lokalem Kontext in Berlin und Köln.",
+    "descriptionCity": "Entdecke Konzerte, Kulturabende, Community-Treffen und weitere Veranstaltungen mit lokalem Kontext in {city}.",
+    "cityContext": "Aktuell stöberst du in {city}.",
     "resultsCount": "{count, number} Ergebnisse",
     "filters": {
       "searchPlaceholder": "Nach Titel, Ort oder Adresse suchen",

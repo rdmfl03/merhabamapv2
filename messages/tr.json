@@ -209,7 +209,10 @@
     "metaDescriptionCity": "{city} içindeki Türk mekanlarını, restoranları, marketleri ve hizmetleri keşfet.",
     "eyebrow": "Mekanlar",
     "title": "Yerel bağlamı olan Türk mekanları.",
+    "titleCity": "{city} içindeki mekanlar",
     "description": "Berlin ve Köln'de Türk topluluğuna yakın restoranları, kafeleri, fırınlari, marketleri ve hizmetleri bul.",
+    "descriptionCity": "{city} içinde Türk topluluğuna yakın restoranları, kafeleri, fırınları, marketleri ve hizmetleri keşfet.",
+    "cityContext": "Şu anda {city} içinde geziyorsun.",
     "resultsCount": "{count, number} sonuç",
     "filters": {
       "searchPlaceholder": "İsim, sokak veya mekan ara",
@@ -315,7 +318,10 @@
     "metaDescriptionCity": "{city} içindeki Türk ve topluluk odaklı etkinlikleri keşfet.",
     "eyebrow": "Etkinlikler",
     "title": "Türk topluluğu için anlamlı etkinlikler.",
+    "titleCity": "{city} içindeki etkinlikler",
     "description": "Berlin ve Köln'de konserler, kültür geceleri, topluluk buluşmaları ve diğer yerel etkinlikleri bul.",
+    "descriptionCity": "{city} içinde konserler, kültür geceleri, topluluk buluşmaları ve diğer yerel etkinlikleri keşfet.",
+    "cityContext": "Şu anda {city} içinde geziyorsun.",
     "resultsCount": "{count, number} sonuç",
     "filters": {
       "searchPlaceholder": "Başlık, mekan veya adres ara",
