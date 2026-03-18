@@ -229,6 +229,7 @@
     },
     "activeFilters": {
       "label": "Aktive Filter:",
+      "sort": "Sortierung",
       "search": "Suche",
       "clearAll": "Alle löschen"
     },
@@ -344,6 +345,7 @@
     },
     "activeFilters": {
       "label": "Aktive Filter:",
+      "sort": "Sortierung",
       "search": "Suche",
       "date": "Zeitraum",
       "clearAll": "Alle löschen"

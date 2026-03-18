@@ -113,6 +113,12 @@ export default async function EventsPage({
           label: `${t("filters.category")}: ${t(`categories.${getEventCategoryLabelKey(filters.category)}`)}`,
         }
       : null,
+    filters.sort && filters.sort !== "soonest"
+      ? {
+          key: "sort",
+          label: `${t("activeFilters.sort")}: ${filters.sort === "newest" ? t("filters.newest") : t("filters.soonest")}`,
+        }
+      : null,
     dateLabel
       ? {
           key: "date",

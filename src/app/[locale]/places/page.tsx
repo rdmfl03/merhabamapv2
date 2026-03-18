@@ -107,6 +107,12 @@ export default async function PlacesPage({
           label: `${t("filters.category")}: ${getLocalizedPlaceCategoryLabel(category, locale)}`,
         }
       : null,
+    filters.sort && filters.sort !== "recommended"
+      ? {
+          key: "sort",
+          label: `${t("activeFilters.sort")}: ${filters.sort === "newest" ? t("filters.newest") : t("filters.recommended")}`,
+        }
+      : null,
     filters.q
       ? {
           key: "search",

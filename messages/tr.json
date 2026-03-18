@@ -229,6 +229,7 @@
     },
     "activeFilters": {
       "label": "Aktif filtreler:",
+      "sort": "Sıralama",
       "search": "Arama",
       "clearAll": "Hepsini temizle"
     },
@@ -344,6 +345,7 @@
     },
     "activeFilters": {
       "label": "Aktif filtreler:",
+      "sort": "Sıralama",
       "search": "Arama",
       "date": "Zaman",
       "clearAll": "Hepsini temizle"
