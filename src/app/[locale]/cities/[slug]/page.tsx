@@ -8,14 +8,14 @@ import { JsonLd } from "@/components/seo/json-ld";
 import { buildCityMetadata } from "@/lib/metadata/public";
 import { buildCityCollectionSchema } from "@/lib/seo/structured-data";
 import { getPublicCityPage } from "@/server/queries/cities/get-public-city-page";
-import { getPilotCities } from "@/server/queries/cities/get-pilot-cities";
+import { getPilotCitySlugs } from "@/server/queries/cities/get-pilot-cities";
 
 type CityPageProps = {
   params: Promise<{ locale: "de" | "tr"; slug: string }>;
 };
 
 export async function generateStaticParams() {
-  const cities = await getPilotCities();
+  const cities = await getPilotCitySlugs();
 
   return cities.flatMap((city) => [
     { locale: "de", slug: city.slug },
