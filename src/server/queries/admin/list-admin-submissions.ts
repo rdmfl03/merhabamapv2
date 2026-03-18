@@ -1,7 +1,31 @@
 import { prisma } from "@/lib/prisma";
 
+type SubmissionPayload = {
+  kind?: string;
+  name?: string;
+  title?: string;
+  description?: string;
+  time?: string;
+  note?: string;
+  addressLine1?: string;
+  venueName?: string;
+};
+
+function parsePayload(payloadJson: string): SubmissionPayload {
+  try {
+    const parsed = JSON.parse(payloadJson);
+    return parsed && typeof parsed === "object" ? (parsed as SubmissionPayload) : {};
+  } catch {
+    return {};
+  }
+}
+
+function normalizeKey(value: string | null | undefined) {
+  return value?.trim().toLowerCase() ?? "";
+}
+
 export async function listAdminSubmissions() {
-  return prisma.submission.findMany({
+  const submissions = await prisma.submission.findMany({
     orderBy: [{ createdAt: "desc" }],
     take: 100,
     select: {
@@ -11,11 +35,187 @@ export async function listAdminSubmissions() {
       targetEntityType: true,
       targetEntityId: true,
       submittedByUserId: true,
+      payloadJson: true,
       sourceUrl: true,
+      notes: true,
       reviewedByUserId: true,
       reviewedAt: true,
       createdAt: true,
       updatedAt: true,
     },
+  });
+
+  const placeIds = submissions.flatMap((submission) =>
+    submission.targetEntityType === "PLACE" && submission.targetEntityId
+      ? [submission.targetEntityId]
+      : [],
+  );
+  const eventIds = submissions.flatMap((submission) =>
+    submission.targetEntityType === "EVENT" && submission.targetEntityId
+      ? [submission.targetEntityId]
+      : [],
+  );
+
+  const [places, events] = await Promise.all([
+    placeIds.length
+      ? prisma.place.findMany({
+          where: {
+            id: {
+              in: placeIds,
+            },
+          },
+          select: {
+            id: true,
+            name: true,
+            descriptionDe: true,
+            descriptionTr: true,
+            addressLine1: true,
+            websiteUrl: true,
+            city: {
+              select: {
+                slug: true,
+                nameDe: true,
+                nameTr: true,
+              },
+            },
+            category: {
+              select: {
+                nameDe: true,
+                nameTr: true,
+              },
+            },
+          },
+        })
+      : Promise.resolve([]),
+    eventIds.length
+      ? prisma.event.findMany({
+          where: {
+            id: {
+              in: eventIds,
+            },
+          },
+          select: {
+            id: true,
+            title: true,
+            descriptionDe: true,
+            descriptionTr: true,
+            venueName: true,
+            addressLine1: true,
+            externalUrl: true,
+            category: true,
+            city: {
+              select: {
+                slug: true,
+                nameDe: true,
+                nameTr: true,
+              },
+            },
+          },
+        })
+      : Promise.resolve([]),
+  ]);
+
+  const placeById = new Map(places.map((place) => [place.id, place]));
+  const eventById = new Map(events.map((event) => [event.id, event]));
+
+  const placeDuplicateCounts = new Map<string, number>();
+  for (const place of places) {
+    const key = `${normalizeKey(place.name)}::${place.city.slug}`;
+    placeDuplicateCounts.set(key, (placeDuplicateCounts.get(key) ?? 0) + 1);
+  }
+
+  const eventDuplicateCounts = new Map<string, number>();
+  for (const event of events) {
+    const key = `${normalizeKey(event.title)}::${event.city.slug}`;
+    eventDuplicateCounts.set(key, (eventDuplicateCounts.get(key) ?? 0) + 1);
+  }
+
+  return submissions.map((submission) => {
+    const payload = parsePayload(submission.payloadJson);
+    const place =
+      submission.targetEntityType === "PLACE" && submission.targetEntityId
+        ? placeById.get(submission.targetEntityId)
+        : null;
+    const event =
+      submission.targetEntityType === "EVENT" && submission.targetEntityId
+        ? eventById.get(submission.targetEntityId)
+        : null;
+
+    const label = place?.name ?? event?.title ?? payload.name ?? payload.title ?? submission.id;
+    const sourceUrl = submission.sourceUrl ?? place?.websiteUrl ?? event?.externalUrl ?? null;
+    const description =
+      place?.descriptionDe ??
+      place?.descriptionTr ??
+      event?.descriptionDe ??
+      event?.descriptionTr ??
+      payload.description ??
+      null;
+    const compactPayloadSummary = event
+      ? [payload.venueName ?? event.venueName, payload.addressLine1 ?? event.addressLine1]
+          .filter(Boolean)
+          .join(" · ")
+      : [payload.addressLine1 ?? place?.addressLine1].filter(Boolean).join(" · ");
+
+    const reviewSignals: string[] = [];
+
+    if (!sourceUrl) {
+      reviewSignals.push("missing_source");
+    }
+
+    if (!description || description.trim().length < 40) {
+      reviewSignals.push("short_description");
+    }
+
+    if (event && !payload.time) {
+      reviewSignals.push("event_missing_time");
+    }
+
+    if (place) {
+      const duplicateKey = `${normalizeKey(place.name)}::${place.city.slug}`;
+      if ((placeDuplicateCounts.get(duplicateKey) ?? 0) > 1) {
+        reviewSignals.push("possible_duplicate");
+      }
+    }
+
+    if (event) {
+      const duplicateKey = `${normalizeKey(event.title)}::${event.city.slug}`;
+      if ((eventDuplicateCounts.get(duplicateKey) ?? 0) > 1) {
+        reviewSignals.push("possible_duplicate");
+      }
+    }
+
+    return {
+      id: submission.id,
+      submissionType: submission.submissionType,
+      status: submission.status,
+      targetEntityType: submission.targetEntityType,
+      targetEntityId: submission.targetEntityId,
+      submittedByUserId: submission.submittedByUserId,
+      reviewedByUserId: submission.reviewedByUserId,
+      reviewedAt: submission.reviewedAt,
+      createdAt: submission.createdAt,
+      updatedAt: submission.updatedAt,
+      label,
+      citySlug: place?.city.slug ?? event?.city.slug ?? null,
+      cityNameDe: place?.city.nameDe ?? event?.city.nameDe ?? null,
+      cityNameTr: place?.city.nameTr ?? event?.city.nameTr ?? null,
+      categoryLabelDe: place?.category.nameDe ?? event?.category ?? null,
+      categoryLabelTr: place?.category.nameTr ?? event?.category ?? null,
+      addressOrVenue: place?.addressLine1 ?? event?.venueName ?? event?.addressLine1 ?? null,
+      descriptionPreview: description,
+      notes: submission.notes ?? payload.note ?? null,
+      compactPayloadSummary: compactPayloadSummary || null,
+      sourceUrl,
+      sourcePresent: Boolean(sourceUrl),
+      origin: submission.submittedByUserId ? "user_submission" : "system_submission",
+      targetAdminPath:
+        submission.targetEntityType === "PLACE" && submission.targetEntityId
+          ? `/admin/places/${submission.targetEntityId}`
+          : submission.targetEntityType === "EVENT" && submission.targetEntityId
+            ? `/admin/events/${submission.targetEntityId}`
+            : null,
+      reviewSignals,
+      hasWarnings: reviewSignals.length > 0,
+    };
   });
 }

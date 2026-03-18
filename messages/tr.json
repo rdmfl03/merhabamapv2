@@ -212,6 +212,7 @@
     "titleCity": "{city} içindeki mekanlar",
     "description": "Berlin ve Köln'de Türk topluluğuna yakın restoranları, kafeleri, fırınlari, marketleri ve hizmetleri bul.",
     "descriptionCity": "{city} içinde Türk topluluğuna yakın restoranları, kafeleri, fırınları, marketleri ve hizmetleri keşfet.",
+    "submitCta": "Mekan öner",
     "cityContext": "Şu anda {city} içinde geziyorsun.",
     "resultsCount": "{count, number} sonuç",
     "resultsCountCity": "{city} içinde {count, number} mekan",
@@ -328,6 +329,7 @@
     "titleCity": "{city} içindeki etkinlikler",
     "description": "Berlin ve Köln'de konserler, kültür geceleri, topluluk buluşmaları ve diğer yerel etkinlikleri bul.",
     "descriptionCity": "{city} içinde konserler, kültür geceleri, topluluk buluşmaları ve diğer yerel etkinlikleri keşfet.",
+    "submitCta": "Etkinlik öner",
     "cityContext": "Şu anda {city} içinde geziyorsun.",
     "resultsCount": "{count, number} sonuç",
     "resultsCountCity": "{city} içinde {count, number} etkinlik",
@@ -755,6 +757,45 @@
         "approved": "Sadece APPROVED/DONE ({count, number})",
         "rejected": "Sadece REJECTED/FAILED ({count, number})"
       },
+      "views": {
+        "all": "Tümü ({count, number})",
+        "user": "Kullanıcı gönderimleri ({count, number})",
+        "warnings": "Uyarılı kayıtlar ({count, number})",
+        "source": "Kaynaklı kayıtlar ({count, number})",
+        "places": "Mekanlar ({count, number})",
+        "events": "Etkinlikler ({count, number})"
+      },
+      "origins": {
+        "user_submission": "Kullanıcı gönderimi",
+        "system_submission": "Sistem/import"
+      },
+      "entityTypes": {
+        "place": "Mekan",
+        "event": "Etkinlik",
+        "unknown": "Bilinmiyor"
+      },
+      "cards": {
+        "city": "Şehir",
+        "category": "Kategori",
+        "source": "Kaynak",
+        "location": "Yer/Venue",
+        "preview": "Açıklama özeti",
+        "noPreview": "Kullanılabilir açıklama yok.",
+        "noSource": "Kaynak belirtilmemiş",
+        "traceability": "İzlenebilirlik",
+        "traceabilityCopy": "{origin}, bir {target} moderasyon kaydı oluşturdu veya ona bağlandı.",
+        "submissionContext": "Gönderim bağlamı",
+        "noContext": "Ek gönderim bağlamı yok.",
+        "notes": "Gönderim notu",
+        "openTarget": "Moderasyon hedefini aç"
+      },
+      "reviewSignals": {
+        "missing_source": "Kaynak eksik",
+        "short_description": "Açıklama çok kısa",
+        "event_missing_time": "Etkinlikte net saat yok",
+        "possible_duplicate": "Olası duplikat işareti",
+        "noWarnings": "Belirgin bir uyarı yok"
+      },
       "columns": {
         "id": "ID",
         "submissionType": "Submission türü",
@@ -1118,6 +1159,135 @@
       "submit": "Değişiklikleri kaydet",
       "success": "Business bilgileri güncellendi.",
       "error": "Değişiklikler kaydedilemedi."
+    }
+  }
+  ,
+  "submissions": {
+    "common": {
+      "signInTitle": "Öneri göndermek için giriş yap",
+      "signInDescription": "MerhabaMap'te öneriler bilinçli şekilde incelenir. Hesapla gönderim yapmak süreci daha izlenebilir ve güvenli tutar.",
+      "signIn": "Giriş yap",
+      "requiredHint": "* Zorunlu alan",
+      "review": {
+        "title": "Göndermeden önce",
+        "city": "Şehir",
+        "category": "Kategori",
+        "source": "Kaynak",
+        "sourcePresent": "Kaynak eklendi",
+        "sourceMissing": "Kaynak eklenmedi",
+        "warningsTitle": "Yumuşak uyarılar",
+        "noWarnings": "Belirgin bir uyarı yok",
+        "placeDuplicateHint": "Aynı şehirde çok benzer bir mekan zaten olabilir. Kaydın yine de anlamlı biçimde farklıysa göndermeye devam edebilirsin.",
+        "eventDuplicateHint": "Aynı şehirde ve aynı tarihte çok benzer bir etkinlik zaten olabilir. Kaydın yine de anlamlı biçimde farklıysa göndermeye devam edebilirsin."
+      },
+      "warnings": {
+        "missingSource": "Kaynak eksik",
+        "shortDescription": "Açıklama hâlâ çok kısa",
+        "eventMissingTime": "Net saat eksik",
+        "possibleDuplicate": "Olası duplikat işareti"
+      },
+      "errors": {
+        "validation": "Lütfen bilgilerini kontrol edip tekrar dene.",
+        "cooldown": "Bu kaynak kısa süre önce zaten gönderildi. Aynı öneriyi tekrar göndermeden önce lütfen biraz bekle.",
+        "dailyLimit": "Bugün zaten birkaç öneri gönderildi. Lütfen yarın tekrar dene.",
+        "duplicate": "Buna çok benzeyen bir öneri sistemde zaten mevcut."
+      }
+    },
+    "place": {
+      "eyebrow": "Mekan öner",
+      "pageTitle": "Yeni bir mekan öner",
+      "pageDescription": "Berlin veya Köln'de eksik olduğunu düşündüğün bir mekanı burada güvenli şekilde incelemeye gönderebilirsin.",
+      "form": {
+        "title": "Yeni mekan gönder",
+        "description": "Önerin kaydedilir ve yayına alınmadan önce manuel olarak incelenir.",
+        "fields": {
+          "name": "İsim *",
+          "city": "Şehir *",
+          "category": "Kategori *",
+          "addressLine1": "Adres veya bölge bilgisi",
+          "sourceUrl": "Web sitesi veya kaynak linki",
+          "description": "Kısa açıklama *",
+          "note": "Moderasyon ekibine not"
+        },
+        "placeholders": {
+          "name": "ör. Hasir Restaurant",
+          "addressLine1": "ör. Adalbertstraße 10, Berlin",
+          "sourceUrl": "https://…",
+          "description": "Bu mekanı MerhabaMap için neden önemli buluyorsun?",
+          "note": "İnceleme için opsiyonel ek not"
+        },
+        "submit": "Mekanı gönder",
+        "errors": {
+          "name": "Lütfen bir isim gir.",
+          "city": "Lütfen izin verilen bir şehir seç.",
+          "category": "Lütfen bir kategori seç.",
+          "description": "Lütfen kısa bir açıklama ekle.",
+          "addressOrSource": "Lütfen en az bir adres veya kaynak linki ekle.",
+          "sourceUrl": "Lütfen geçerli bir http veya https linki gir.",
+          "note": "Not çok uzun."
+        }
+      },
+      "success": {
+        "title": "Mekanın gönderildi",
+        "body": "Önerini aldık. Her gönderim yayına alınmadan önce manuel olarak incelenir. Bu nedenle mekan henüz herkese açık görünmez. Bu inceleme, MerhabaMap'te kaliteyi ve güveni korumaya yardımcı olur.",
+        "backToCity": "Şehir sayfasına dön",
+        "submitAnother": "Bir mekan daha gönder"
+      }
+    },
+    "event": {
+      "eyebrow": "Etkinlik öner",
+      "pageTitle": "Yeni bir etkinlik öner",
+      "pageDescription": "Berlin veya Köln'de eksik olduğunu düşündüğün bir etkinliği burada manuel incelemeye gönderebilirsin.",
+      "categories": {
+        "concert": "Konser",
+        "culture": "Kültür",
+        "student": "Öğrenci",
+        "community": "Topluluk",
+        "family": "Aile",
+        "business": "İş dünyası",
+        "religious": "Dini"
+      },
+      "form": {
+        "title": "Yeni etkinlik gönder",
+        "description": "Önerin kaydedilir ve ancak manuel incelemeden sonra yayınlanır.",
+        "fields": {
+          "title": "Başlık *",
+          "city": "Şehir *",
+          "category": "Kategori *",
+          "date": "Tarih *",
+          "time": "Saat",
+          "venueName": "Mekan veya yer",
+          "addressLine1": "Adres",
+          "sourceUrl": "Kaynak linki *",
+          "description": "Kısa açıklama *",
+          "note": "Moderasyon ekibine not"
+        },
+        "placeholders": {
+          "title": "ör. Kültür Akşamı Köln",
+          "venueName": "ör. Die Kantine",
+          "addressLine1": "ör. Neusser Landstraße 2, Köln",
+          "sourceUrl": "https://…",
+          "description": "Etkinlik neyle ilgili ve kimler için önemli?",
+          "note": "İnceleme için opsiyonel ek not"
+        },
+        "submit": "Etkinliği gönder",
+        "errors": {
+          "title": "Lütfen bir başlık gir.",
+          "city": "Lütfen izin verilen bir şehir seç.",
+          "category": "Lütfen bir kategori seç.",
+          "date": "Lütfen geçerli bir tarih gir.",
+          "time": "Lütfen geçerli bir saat gir.",
+          "venueOrAddress": "Lütfen en az bir mekan adı veya adres gir.",
+          "sourceUrl": "Lütfen geçerli bir http veya https linki gir.",
+          "description": "Lütfen kısa bir açıklama ekle."
+        }
+      },
+      "success": {
+        "title": "Etkinliğin gönderildi",
+        "body": "Önerini aldık. Her gönderim yayına alınmadan önce manuel olarak incelenir. Bu nedenle etkinlik henüz herkese açık görünmez. Bu inceleme, MerhabaMap'te kaliteyi ve güveni korumaya yardımcı olur.",
+        "backToCity": "Şehir sayfasına dön",
+        "submitAnother": "Bir etkinlik daha gönder"
+      }
     }
   }
 }

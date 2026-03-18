@@ -10,6 +10,9 @@ const CLAIM_RESUBMIT_WINDOW_MS = 12 * 60 * 60 * 1000;
 const REPORT_DUPLICATE_WINDOW_MS = 6 * 60 * 60 * 1000;
 const REPORT_DAILY_WINDOW_MS = 24 * 60 * 60 * 1000;
 const REPORT_DAILY_LIMIT = 5;
+const SUGGESTION_DUPLICATE_WINDOW_MS = 12 * 60 * 60 * 1000;
+const SUGGESTION_DAILY_WINDOW_MS = 24 * 60 * 60 * 1000;
+const SUGGESTION_DAILY_LIMIT = 4;
 
 function windowStart(windowMs: number) {
   return new Date(Date.now() - windowMs);
@@ -106,6 +109,45 @@ export async function getReportSubmissionGuard(args: {
 
   if (recentReportsCount >= REPORT_DAILY_LIMIT) {
     return "report_daily_limit" as const;
+  }
+
+  return null;
+}
+
+export async function getContentSubmissionGuard(args: {
+  userId: string;
+  submissionType: string;
+  sourceUrl?: string;
+}) {
+  if (args.sourceUrl) {
+    const duplicateSubmissionCount = await prisma.submission.count({
+      where: {
+        submittedByUserId: args.userId,
+        submissionType: args.submissionType,
+        sourceUrl: args.sourceUrl,
+        createdAt: {
+          gte: windowStart(SUGGESTION_DUPLICATE_WINDOW_MS),
+        },
+      },
+    });
+
+    if (duplicateSubmissionCount > 0) {
+      return "suggestion_cooldown" as const;
+    }
+  }
+
+  const recentSubmissionCount = await prisma.submission.count({
+    where: {
+      submittedByUserId: args.userId,
+      submissionType: args.submissionType,
+      createdAt: {
+        gte: windowStart(SUGGESTION_DAILY_WINDOW_MS),
+      },
+    },
+  });
+
+  if (recentSubmissionCount >= SUGGESTION_DAILY_LIMIT) {
+    return "suggestion_daily_limit" as const;
   }
 
   return null;

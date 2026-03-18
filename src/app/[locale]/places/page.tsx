@@ -172,6 +172,11 @@ export default async function PlacesPage({
                 })
               : t("description")}
           </p>
+          <div className="pt-2">
+            <Button asChild variant="outline">
+              <Link href="/submit/place">{t("submitCta")}</Link>
+            </Button>
+          </div>
         </div>
       </section>
 

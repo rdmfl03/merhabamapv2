@@ -8,7 +8,7 @@ import { listAdminSubmissions } from "@/server/queries/admin/list-admin-submissi
 
 type AdminSubmissionsPageProps = {
   params: Promise<{ locale: "de" | "tr" }>;
-  searchParams?: Promise<{ status?: string }>;
+  searchParams?: Promise<{ status?: string; view?: string }>;
 };
 
 function formatDate(value: Date | null, locale: "de" | "tr") {
@@ -32,6 +32,32 @@ function getStatusTone(status: string) {
         : "default";
 }
 
+function getOriginTone(origin: string) {
+  return origin === "user_submission" ? "success" : "default";
+}
+
+function buildFilterHref(args: {
+  statusFilter: string;
+  viewFilter: string;
+  nextStatus?: string;
+  nextView?: string;
+}) {
+  const search = new URLSearchParams();
+  const status = args.nextStatus ?? args.statusFilter;
+  const view = args.nextView ?? args.viewFilter;
+
+  if (status !== "all") {
+    search.set("status", status);
+  }
+
+  if (view !== "all") {
+    search.set("view", view);
+  }
+
+  const query = search.toString();
+  return query ? `/admin/ingest/submissions?${query}` : "/admin/ingest/submissions";
+}
+
 export default async function AdminSubmissionsPage({
   params,
   searchParams,
@@ -44,6 +70,7 @@ export default async function AdminSubmissionsPage({
     getTranslations("admin"),
     listAdminSubmissions(),
   ]);
+
   const totalCount = submissions.length;
   const pendingCount = submissions.filter((submission) => submission.status === "PENDING").length;
   const approvedCount = submissions.filter(
@@ -52,23 +79,68 @@ export default async function AdminSubmissionsPage({
   const rejectedCount = submissions.filter(
     (submission) => submission.status === "REJECTED" || submission.status === "FAILED",
   ).length;
+  const userSubmissionCount = submissions.filter(
+    (submission) => submission.origin === "user_submission",
+  ).length;
+  const warningCount = submissions.filter((submission) => submission.hasWarnings).length;
+  const sourceCount = submissions.filter((submission) => submission.sourcePresent).length;
+  const placeCount = submissions.filter((submission) => submission.targetEntityType === "PLACE").length;
+  const eventCount = submissions.filter((submission) => submission.targetEntityType === "EVENT").length;
+
   const statusFilter =
     resolvedSearchParams?.status === "pending" ||
     resolvedSearchParams?.status === "approved" ||
     resolvedSearchParams?.status === "rejected"
       ? resolvedSearchParams.status
       : "all";
+  const viewFilter =
+    resolvedSearchParams?.view === "user" ||
+    resolvedSearchParams?.view === "warnings" ||
+    resolvedSearchParams?.view === "source" ||
+    resolvedSearchParams?.view === "places" ||
+    resolvedSearchParams?.view === "events"
+      ? resolvedSearchParams.view
+      : "all";
+
   const filteredSubmissions = submissions.filter((submission) => {
-    if (statusFilter === "pending") {
-      return submission.status === "PENDING";
+    if (statusFilter === "pending" && submission.status !== "PENDING") {
+      return false;
     }
 
-    if (statusFilter === "approved") {
-      return submission.status === "APPROVED" || submission.status === "DONE";
+    if (
+      statusFilter === "approved" &&
+      submission.status !== "APPROVED" &&
+      submission.status !== "DONE"
+    ) {
+      return false;
     }
 
-    if (statusFilter === "rejected") {
-      return submission.status === "REJECTED" || submission.status === "FAILED";
+    if (
+      statusFilter === "rejected" &&
+      submission.status !== "REJECTED" &&
+      submission.status !== "FAILED"
+    ) {
+      return false;
+    }
+
+    if (viewFilter === "user" && submission.origin !== "user_submission") {
+      return false;
+    }
+
+    if (viewFilter === "warnings" && !submission.hasWarnings) {
+      return false;
+    }
+
+    if (viewFilter === "source" && !submission.sourcePresent) {
+      return false;
+    }
+
+    if (viewFilter === "places" && submission.targetEntityType !== "PLACE") {
+      return false;
+    }
+
+    if (viewFilter === "events" && submission.targetEntityType !== "EVENT") {
+      return false;
     }
 
     return true;
@@ -94,7 +166,7 @@ export default async function AdminSubmissionsPage({
         <CardContent className="space-y-4 p-6">
           <div className="flex flex-wrap gap-3">
             <Link
-              href={`/admin/ingest/submissions`}
+              href={buildFilterHref({ statusFilter, viewFilter, nextStatus: "all", nextView: viewFilter })}
               className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
                 statusFilter === "all"
                   ? "border-brand bg-brand text-white"
@@ -104,7 +176,12 @@ export default async function AdminSubmissionsPage({
               {t("submissions.filters.all", { count: totalCount })}
             </Link>
             <Link
-              href={`/admin/ingest/submissions?status=pending`}
+              href={buildFilterHref({
+                statusFilter,
+                viewFilter,
+                nextStatus: "pending",
+                nextView: viewFilter,
+              })}
               className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
                 statusFilter === "pending"
                   ? "border-brand bg-brand text-white"
@@ -114,7 +191,12 @@ export default async function AdminSubmissionsPage({
               {t("submissions.filters.pending", { count: pendingCount })}
             </Link>
             <Link
-              href={`/admin/ingest/submissions?status=approved`}
+              href={buildFilterHref({
+                statusFilter,
+                viewFilter,
+                nextStatus: "approved",
+                nextView: viewFilter,
+              })}
               className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
                 statusFilter === "approved"
                   ? "border-brand bg-brand text-white"
@@ -124,7 +206,12 @@ export default async function AdminSubmissionsPage({
               {t("submissions.filters.approved", { count: approvedCount })}
             </Link>
             <Link
-              href={`/admin/ingest/submissions?status=rejected`}
+              href={buildFilterHref({
+                statusFilter,
+                viewFilter,
+                nextStatus: "rejected",
+                nextView: viewFilter,
+              })}
               className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
                 statusFilter === "rejected"
                   ? "border-brand bg-brand text-white"
@@ -132,6 +219,69 @@ export default async function AdminSubmissionsPage({
               }`}
             >
               {t("submissions.filters.rejected", { count: rejectedCount })}
+            </Link>
+          </div>
+
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href={buildFilterHref({ statusFilter, viewFilter, nextView: "all" })}
+              className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
+                viewFilter === "all"
+                  ? "border-brand bg-brand text-white"
+                  : "border-border bg-white text-foreground hover:bg-muted"
+              }`}
+            >
+              {t("submissions.views.all", { count: totalCount })}
+            </Link>
+            <Link
+              href={buildFilterHref({ statusFilter, viewFilter, nextView: "user" })}
+              className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
+                viewFilter === "user"
+                  ? "border-brand bg-brand text-white"
+                  : "border-border bg-white text-foreground hover:bg-muted"
+              }`}
+            >
+              {t("submissions.views.user", { count: userSubmissionCount })}
+            </Link>
+            <Link
+              href={buildFilterHref({ statusFilter, viewFilter, nextView: "warnings" })}
+              className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
+                viewFilter === "warnings"
+                  ? "border-brand bg-brand text-white"
+                  : "border-border bg-white text-foreground hover:bg-muted"
+              }`}
+            >
+              {t("submissions.views.warnings", { count: warningCount })}
+            </Link>
+            <Link
+              href={buildFilterHref({ statusFilter, viewFilter, nextView: "source" })}
+              className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
+                viewFilter === "source"
+                  ? "border-brand bg-brand text-white"
+                  : "border-border bg-white text-foreground hover:bg-muted"
+              }`}
+            >
+              {t("submissions.views.source", { count: sourceCount })}
+            </Link>
+            <Link
+              href={buildFilterHref({ statusFilter, viewFilter, nextView: "places" })}
+              className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
+                viewFilter === "places"
+                  ? "border-brand bg-brand text-white"
+                  : "border-border bg-white text-foreground hover:bg-muted"
+              }`}
+            >
+              {t("submissions.views.places", { count: placeCount })}
+            </Link>
+            <Link
+              href={buildFilterHref({ statusFilter, viewFilter, nextView: "events" })}
+              className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
+                viewFilter === "events"
+                  ? "border-brand bg-brand text-white"
+                  : "border-border bg-white text-foreground hover:bg-muted"
+              }`}
+            >
+              {t("submissions.views.events", { count: eventCount })}
             </Link>
           </div>
 
@@ -148,76 +298,158 @@ export default async function AdminSubmissionsPage({
                 })}
               </p>
 
-              <div className="overflow-x-auto">
-                <table className="min-w-full border-separate border-spacing-y-3">
-                  <thead>
-                    <tr className="text-left text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                      <th className="px-3">{t("submissions.columns.id")}</th>
-                      <th className="px-3">{t("submissions.columns.submissionType")}</th>
-                      <th className="px-3">{t("submissions.columns.status")}</th>
-                      <th className="px-3">{t("submissions.columns.targetEntityType")}</th>
-                      <th className="px-3">{t("submissions.columns.targetEntityId")}</th>
-                      <th className="px-3">{t("submissions.columns.submittedByUserId")}</th>
-                      <th className="px-3">{t("submissions.columns.sourceUrl")}</th>
-                      <th className="px-3">{t("submissions.columns.reviewedByUserId")}</th>
-                      <th className="px-3">{t("submissions.columns.reviewedAt")}</th>
-                      <th className="px-3">{t("submissions.columns.createdAt")}</th>
-                      <th className="px-3">{t("submissions.columns.updatedAt")}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredSubmissions.map((submission) => (
-                      <tr key={submission.id}>
-                        <td
-                          colSpan={11}
-                          className="rounded-2xl border border-border bg-white px-0 py-0 shadow-soft"
+              <div className="space-y-3">
+                {filteredSubmissions.map((submission) => (
+                  <div
+                    key={submission.id}
+                    className="rounded-2xl border border-border bg-white px-4 py-4 shadow-soft"
+                  >
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div className="space-y-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <StatusBadge
+                            tone={getStatusTone(submission.status)}
+                            label={submission.status}
+                          />
+                          <StatusBadge
+                            tone={getOriginTone(submission.origin)}
+                            label={t(`submissions.origins.${submission.origin}`)}
+                          />
+                          <StatusBadge
+                            tone="default"
+                            label={t(
+                              `submissions.entityTypes.${(submission.targetEntityType ?? "unknown").toLowerCase()}`,
+                            )}
+                          />
+                          <span className="rounded-full border border-border/80 bg-muted px-2.5 py-1 text-xs text-muted-foreground">
+                            {submission.submissionType}
+                          </span>
+                        </div>
+                        <div>
+                          <h3 className="text-base font-semibold text-foreground">
+                            {submission.label}
+                          </h3>
+                          <p className="break-all text-xs text-muted-foreground">{submission.id}</p>
+                        </div>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {formatDate(submission.createdAt, locale) ??
+                          t("submissions.fallbacks.notAvailable")}
+                      </p>
+                    </div>
+
+                    <div className="mt-4 grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-4">
+                      <div>
+                        <p className="font-medium text-foreground">{t("submissions.cards.city")}</p>
+                        <p className="text-muted-foreground">
+                          {submission.cityNameDe && submission.cityNameTr
+                            ? locale === "tr"
+                              ? submission.cityNameTr
+                              : submission.cityNameDe
+                            : t("submissions.fallbacks.notAvailable")}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="font-medium text-foreground">
+                          {t("submissions.cards.category")}
+                        </p>
+                        <p className="text-muted-foreground">
+                          {(locale === "tr"
+                            ? submission.categoryLabelTr
+                            : submission.categoryLabelDe) ?? t("submissions.fallbacks.notAvailable")}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="font-medium text-foreground">{t("submissions.cards.source")}</p>
+                        <p className="break-all text-muted-foreground">
+                          {submission.sourcePresent
+                            ? submission.sourceUrl
+                            : t("submissions.cards.noSource")}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="font-medium text-foreground">
+                          {t("submissions.cards.location")}
+                        </p>
+                        <p className="text-muted-foreground">
+                          {submission.addressOrVenue ?? t("submissions.fallbacks.notAvailable")}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 space-y-2">
+                      <p className="font-medium text-foreground">
+                        {t("submissions.cards.preview")}
+                      </p>
+                      <p className="text-sm leading-6 text-muted-foreground">
+                        {submission.descriptionPreview ?? t("submissions.cards.noPreview")}
+                      </p>
+                    </div>
+
+                    <div className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
+                      <div>
+                        <p className="font-medium text-foreground">
+                          {t("submissions.cards.traceability")}
+                        </p>
+                        <p className="text-muted-foreground">
+                          {t("submissions.cards.traceabilityCopy", {
+                            origin: t(`submissions.origins.${submission.origin}`),
+                            target: t(
+                              `submissions.entityTypes.${(submission.targetEntityType ?? "unknown").toLowerCase()}`,
+                            ),
+                          })}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="font-medium text-foreground">
+                          {t("submissions.cards.submissionContext")}
+                        </p>
+                        <p className="text-muted-foreground">
+                          {submission.compactPayloadSummary ??
+                            submission.notes ??
+                            t("submissions.cards.noContext")}
+                        </p>
+                      </div>
+                    </div>
+
+                    {submission.notes ? (
+                      <div className="mt-4 space-y-2">
+                        <p className="font-medium text-foreground">{t("submissions.cards.notes")}</p>
+                        <p className="text-sm leading-6 text-muted-foreground">
+                          {submission.notes}
+                        </p>
+                      </div>
+                    ) : null}
+
+                    <div className="mt-4 flex flex-wrap items-center gap-2">
+                      {submission.reviewSignals.length > 0 ? (
+                        submission.reviewSignals.map((signal) => (
+                          <span
+                            key={signal}
+                            className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-800"
+                          >
+                            {t(`submissions.reviewSignals.${signal}`)}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-800">
+                          {t("submissions.reviewSignals.noWarnings")}
+                        </span>
+                      )}
+                    </div>
+
+                    {submission.targetAdminPath ? (
+                      <div className="mt-4 flex justify-end">
+                        <Link
+                          href={submission.targetAdminPath}
+                          className="inline-flex items-center justify-center rounded-full border border-border bg-white px-4 py-2 text-sm font-medium text-foreground transition hover:bg-muted"
                         >
-                          <div className="grid gap-3 px-3 py-4 md:grid-cols-11 md:items-start">
-                            <div className="text-sm text-muted-foreground md:col-span-1 break-all">
-                              {submission.id}
-                            </div>
-                            <div className="text-sm text-muted-foreground md:col-span-1">
-                              {submission.submissionType}
-                            </div>
-                            <div className="md:col-span-1">
-                              <StatusBadge
-                                tone={getStatusTone(submission.status)}
-                                label={submission.status}
-                              />
-                            </div>
-                            <div className="text-sm text-muted-foreground md:col-span-1">
-                              {submission.targetEntityType ?? t("submissions.fallbacks.notAvailable")}
-                            </div>
-                            <div className="text-sm text-muted-foreground md:col-span-1 break-all">
-                              {submission.targetEntityId ?? t("submissions.fallbacks.notAvailable")}
-                            </div>
-                            <div className="text-sm text-muted-foreground md:col-span-1 break-all">
-                              {submission.submittedByUserId ?? t("submissions.fallbacks.notAvailable")}
-                            </div>
-                            <div className="text-sm text-muted-foreground md:col-span-1 break-all">
-                              {submission.sourceUrl ?? t("submissions.fallbacks.notAvailable")}
-                            </div>
-                            <div className="text-sm text-muted-foreground md:col-span-1 break-all">
-                              {submission.reviewedByUserId ?? t("submissions.fallbacks.notAvailable")}
-                            </div>
-                            <div className="text-sm text-muted-foreground md:col-span-1">
-                              {formatDate(submission.reviewedAt, locale) ??
-                                t("submissions.fallbacks.notAvailable")}
-                            </div>
-                            <div className="text-sm text-muted-foreground md:col-span-1">
-                              {formatDate(submission.createdAt, locale) ??
-                                t("submissions.fallbacks.notAvailable")}
-                            </div>
-                            <div className="text-sm text-muted-foreground md:col-span-1">
-                              {formatDate(submission.updatedAt, locale) ??
-                                t("submissions.fallbacks.notAvailable")}
-                            </div>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                          {t("submissions.cards.openTarget")}
+                        </Link>
+                      </div>
+                    ) : null}
+                  </div>
+                ))}
               </div>
             </div>
           )}

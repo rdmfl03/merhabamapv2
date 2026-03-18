@@ -184,6 +184,11 @@ export default async function EventsPage({
                 })
               : t("description")}
           </p>
+          <div className="pt-2">
+            <Button asChild variant="outline">
+              <Link href="/submit/event">{t("submitCta")}</Link>
+            </Button>
+          </div>
         </div>
       </section>
 

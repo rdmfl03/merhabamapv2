@@ -212,6 +212,7 @@
     "titleCity": "Orte in {city}",
     "description": "Finde Restaurants, Cafés, Bäckereien, Märkte und Services aus der türkischen Community in Berlin und Köln.",
     "descriptionCity": "Entdecke Restaurants, Cafés, Bäckereien, Märkte und Services aus der türkischen Community in {city}.",
+    "submitCta": "Ort vorschlagen",
     "cityContext": "Aktuell stöberst du in {city}.",
     "resultsCount": "{count, number} Ergebnisse",
     "resultsCountCity": "{count, number} Orte in {city}",
@@ -328,6 +329,7 @@
     "titleCity": "Events in {city}",
     "description": "Finde Konzerte, Kulturabende, Community-Treffen und weitere Veranstaltungen mit lokalem Kontext in Berlin und Köln.",
     "descriptionCity": "Entdecke Konzerte, Kulturabende, Community-Treffen und weitere Veranstaltungen mit lokalem Kontext in {city}.",
+    "submitCta": "Event vorschlagen",
     "cityContext": "Aktuell stöberst du in {city}.",
     "resultsCount": "{count, number} Ergebnisse",
     "resultsCountCity": "{count, number} Events in {city}",
@@ -746,6 +748,45 @@
         "approved": "Nur APPROVED/DONE ({count, number})",
         "rejected": "Nur REJECTED/FAILED ({count, number})"
       },
+      "views": {
+        "all": "Alle ({count, number})",
+        "user": "User-Submissions ({count, number})",
+        "warnings": "Mit Warnhinweisen ({count, number})",
+        "source": "Mit Quelle ({count, number})",
+        "places": "Places ({count, number})",
+        "events": "Events ({count, number})"
+      },
+      "origins": {
+        "user_submission": "User submission",
+        "system_submission": "System/import"
+      },
+      "entityTypes": {
+        "place": "Place",
+        "event": "Event",
+        "unknown": "Unbekannt"
+      },
+      "cards": {
+        "city": "Stadt",
+        "category": "Kategorie",
+        "source": "Quelle",
+        "location": "Ort/Venue",
+        "preview": "Beschreibungsvorschau",
+        "noPreview": "Keine verwertbare Beschreibung vorhanden.",
+        "noSource": "Keine Quelle angegeben",
+        "traceability": "Traceability",
+        "traceabilityCopy": "{origin} hat einen {target}-Moderationsdatensatz erzeugt oder verknüpft.",
+        "submissionContext": "Submission-Kontext",
+        "noContext": "Kein zusätzlicher Submission-Kontext vorhanden.",
+        "notes": "Hinweis der Einreichung",
+        "openTarget": "Moderationsziel öffnen"
+      },
+      "reviewSignals": {
+        "missing_source": "Quelle fehlt",
+        "short_description": "Beschreibung sehr kurz",
+        "event_missing_time": "Event ohne genaue Uhrzeit",
+        "possible_duplicate": "Möglicher Duplikat-Hinweis",
+        "noWarnings": "Keine offensichtlichen Warnhinweise"
+      },
       "columns": {
         "id": "ID",
         "submissionType": "Submission-Typ",
@@ -1109,6 +1150,135 @@
       "submit": "Änderungen speichern",
       "success": "Die Business-Informationen wurden aktualisiert.",
       "error": "Die Änderungen konnten nicht gespeichert werden."
+    }
+  }
+  ,
+  "submissions": {
+    "common": {
+      "signInTitle": "Melde dich an, um etwas vorzuschlagen",
+      "signInDescription": "Vorschläge werden bei MerhabaMap bewusst geprüft. Mit einem Konto bleibt die Einreichung nachvollziehbar und sicher.",
+      "signIn": "Anmelden",
+      "requiredHint": "* Pflichtfeld",
+      "review": {
+        "title": "Vor dem Absenden",
+        "city": "Stadt",
+        "category": "Kategorie",
+        "source": "Quelle",
+        "sourcePresent": "Quelle angegeben",
+        "sourceMissing": "Keine Quelle angegeben",
+        "warningsTitle": "Sanfte Hinweise",
+        "noWarnings": "Keine offensichtlichen Hinweise",
+        "placeDuplicateHint": "Es könnte bereits einen sehr ähnlichen Ort in derselben Stadt geben. Wenn dein Eintrag trotzdem relevant anders ist, kannst du ihn weiterhin einreichen.",
+        "eventDuplicateHint": "Es könnte bereits ein sehr ähnliches Event in derselben Stadt und am selben Datum geben. Wenn dein Eintrag trotzdem relevant anders ist, kannst du ihn weiterhin einreichen."
+      },
+      "warnings": {
+        "missingSource": "Quelle fehlt",
+        "shortDescription": "Beschreibung ist noch sehr kurz",
+        "eventMissingTime": "Genaue Uhrzeit fehlt",
+        "possibleDuplicate": "Möglicher Duplikat-Hinweis"
+      },
+      "errors": {
+        "validation": "Bitte prüfe deine Angaben und versuche es erneut.",
+        "cooldown": "Diese Quelle wurde gerade erst eingereicht. Bitte warte kurz, bevor du denselben Vorschlag erneut sendest.",
+        "dailyLimit": "Für heute wurden bereits mehrere Vorschläge eingereicht. Bitte versuche es morgen erneut.",
+        "duplicate": "Ein sehr ähnlicher Vorschlag ist bereits im System vorhanden."
+      }
+    },
+    "place": {
+      "eyebrow": "Ort vorschlagen",
+      "pageTitle": "Schlage einen neuen Ort vor",
+      "pageDescription": "Wenn dir ein Ort für türkisches Leben in Berlin oder Köln fehlt, kannst du ihn hier sicher zur Prüfung einreichen.",
+      "form": {
+        "title": "Neuen Ort einreichen",
+        "description": "Dein Vorschlag wird gespeichert und vor einer Veröffentlichung manuell geprüft.",
+        "fields": {
+          "name": "Name *",
+          "city": "Stadt *",
+          "category": "Kategorie *",
+          "addressLine1": "Adresse oder Gebietshinweis",
+          "sourceUrl": "Website oder Quellenlink",
+          "description": "Kurzbeschreibung *",
+          "note": "Hinweis für das Moderationsteam"
+        },
+        "placeholders": {
+          "name": "z. B. Hasir Restaurant",
+          "addressLine1": "z. B. Adalbertstraße 10, Berlin",
+          "sourceUrl": "https://…",
+          "description": "Was macht diesen Ort relevant für MerhabaMap?",
+          "note": "Optionaler Zusatzhinweis für die Prüfung"
+        },
+        "submit": "Ort einreichen",
+        "errors": {
+          "name": "Bitte gib einen Namen ein.",
+          "city": "Bitte wähle eine erlaubte Stadt aus.",
+          "category": "Bitte wähle eine Kategorie aus.",
+          "description": "Bitte ergänze eine kurze Beschreibung.",
+          "addressOrSource": "Bitte gib mindestens eine Adresse oder einen Quellenlink an.",
+          "sourceUrl": "Bitte gib einen gültigen http- oder https-Link an.",
+          "note": "Der Hinweis ist zu lang."
+        }
+      },
+      "success": {
+        "title": "Dein Ort wurde eingereicht",
+        "body": "Wir haben deinen Vorschlag erhalten. Jede Einreichung wird vor einer Veröffentlichung manuell geprüft. Der Ort ist deshalb noch nicht öffentlich sichtbar. Diese Prüfung hilft, Qualität und Vertrauen auf MerhabaMap zu schützen.",
+        "backToCity": "Zur Stadtseite",
+        "submitAnother": "Noch einen Ort einreichen"
+      }
+    },
+    "event": {
+      "eyebrow": "Event vorschlagen",
+      "pageTitle": "Schlage ein neues Event vor",
+      "pageDescription": "Wenn dir ein relevantes Event in Berlin oder Köln fehlt, kannst du es hier zur manuellen Prüfung einreichen.",
+      "categories": {
+        "concert": "Konzert",
+        "culture": "Kultur",
+        "student": "Studierende",
+        "community": "Community",
+        "family": "Familie",
+        "business": "Business",
+        "religious": "Religiös"
+      },
+      "form": {
+        "title": "Neues Event einreichen",
+        "description": "Dein Vorschlag wird gespeichert und erst nach manueller Prüfung veröffentlicht.",
+        "fields": {
+          "title": "Titel *",
+          "city": "Stadt *",
+          "category": "Kategorie *",
+          "date": "Datum *",
+          "time": "Uhrzeit",
+          "venueName": "Venue oder Ort",
+          "addressLine1": "Adresse",
+          "sourceUrl": "Quellenlink *",
+          "description": "Kurzbeschreibung *",
+          "note": "Hinweis für das Moderationsteam"
+        },
+        "placeholders": {
+          "title": "z. B. Kulturabend Köln",
+          "venueName": "z. B. Die Kantine",
+          "addressLine1": "z. B. Neusser Landstraße 2, Köln",
+          "sourceUrl": "https://…",
+          "description": "Worum geht es bei dem Event und für wen ist es relevant?",
+          "note": "Optionaler Zusatzhinweis für die Prüfung"
+        },
+        "submit": "Event einreichen",
+        "errors": {
+          "title": "Bitte gib einen Titel ein.",
+          "city": "Bitte wähle eine erlaubte Stadt aus.",
+          "category": "Bitte wähle eine Kategorie aus.",
+          "date": "Bitte gib ein gültiges Datum an.",
+          "time": "Bitte gib eine gültige Uhrzeit an.",
+          "venueOrAddress": "Bitte gib mindestens einen Veranstaltungsort oder eine Adresse an.",
+          "sourceUrl": "Bitte gib einen gültigen http- oder https-Link an.",
+          "description": "Bitte ergänze eine kurze Beschreibung."
+        }
+      },
+      "success": {
+        "title": "Dein Event wurde eingereicht",
+        "body": "Wir haben deinen Vorschlag erhalten. Jede Einreichung wird vor einer Veröffentlichung manuell geprüft. Das Event ist deshalb noch nicht öffentlich sichtbar. Diese Prüfung hilft, Qualität und Vertrauen auf MerhabaMap zu schützen.",
+        "backToCity": "Zur Stadtseite",
+        "submitAnother": "Noch ein Event einreichen"
+      }
     }
   }
 }
