@@ -42,6 +42,7 @@ export default async function AdminClaimsPage({
         reports: t("nav.reports"),
         claims: t("nav.claims"),
         aiReview: t("nav.aiReview"),
+        ingest: t("nav.ingest"),
         places: t("nav.places"),
         logs: t("nav.logs"),
       }}
@@ -84,6 +85,31 @@ export default async function AdminClaimsPage({
                     <p className="text-xs text-muted-foreground">
                       {claim.claimantName} • {claim.claimantEmail}
                     </p>
+                    <div className="flex flex-wrap items-center gap-2 pt-1">
+                      <StatusBadge
+                        tone={
+                          claim.place.verificationStatus === "VERIFIED"
+                            ? "success"
+                            : claim.place.verificationStatus === "CLAIMED"
+                              ? "warning"
+                              : "default"
+                        }
+                        label={t(
+                          `verificationStatuses.${claim.place.verificationStatus.toLowerCase()}`,
+                        )}
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        {t("claims.ownerState")} ·{" "}
+                        {claim.place.ownerUserId
+                          ? t("claims.ownerPresent")
+                          : t("claims.noOwner")}
+                      </p>
+                    </div>
+                    {claim.place.verificationStatus === "CLAIMED" ? (
+                      <p className="text-xs text-amber-700">
+                        {t("claims.claimedFollowUpHint")}
+                      </p>
+                    ) : null}
                   </div>
                   <div className="flex items-center gap-3">
                     <StatusBadge

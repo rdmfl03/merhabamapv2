@@ -61,37 +61,36 @@ model UserActionToken {
 }
 
 model User {
-  id                    String    @id @default(cuid())
-  email                 String?   @unique
-  hashedPassword        String?   @map("hashed_password")
-  emailVerified         DateTime? @map("email_verified")
+  id                    String             @id @default(cuid())
+  email                 String?            @unique
+  hashedPassword        String?            @map("hashed_password")
+  emailVerified         DateTime?          @map("email_verified")
   name                  String?
-  username              String?   @unique
+  username              String?            @unique
   image                 String?
-  role                  Role      @default(USER)
-  preferredLocale       Locale?   @map("preferred_locale")
-  onboardingCompletedAt DateTime? @map("onboarding_completed_at")
-  interestsJson         String?   @map("interests_json")
-  onboardingCityId      String?   @map("onboarding_city_id")
-  createdAt             DateTime  @default(now()) @map("created_at")
-  updatedAt             DateTime  @updatedAt @map("updated_at")
-
-  accounts             Account[]
-  adminActionLogs      AdminActionLog[]
-  reviewedClaims       BusinessClaim[]   @relation("ClaimReviewer")
-  businessClaims       BusinessClaim[]
-  ownedPlaces          Place[]           @relation("PlaceOwner")
-  verifiedPlaces       Place[]           @relation("PlaceVerifier")
-  reviewedReports      Report[]          @relation("ReportReviewer")
-  reports              Report[]
-  savedEvents          SavedEvent[]
-  savedPlaces          SavedPlace[]
-  sessions             Session[]
-  reviewedSubmissions  Submission[]      @relation("ReviewedSubmissions")
-  submittedSubmissions Submission[]      @relation("SubmittedSubmissions")
-  actionTokens         UserActionToken[]
-  aiRecheckRequests    AiRecheckRequest[]
-  onboardingCity       City?             @relation("OnboardingCity", fields: [onboardingCityId], references: [id])
+  role                  Role               @default(USER)
+  preferredLocale       Locale?            @map("preferred_locale")
+  onboardingCompletedAt DateTime?          @map("onboarding_completed_at")
+  interestsJson         String?            @map("interests_json")
+  onboardingCityId      String?            @map("onboarding_city_id")
+  createdAt             DateTime           @default(now()) @map("created_at")
+  updatedAt             DateTime           @updatedAt @map("updated_at")
+  accounts              Account[]
+  adminActionLogs       AdminActionLog[]
+  aiRecheckRequests     AiRecheckRequest[]
+  reviewedClaims        BusinessClaim[]    @relation("ClaimReviewer")
+  businessClaims        BusinessClaim[]
+  ownedPlaces           Place[]            @relation("PlaceOwner")
+  verifiedPlaces        Place[]            @relation("PlaceVerifier")
+  reviewedReports       Report[]           @relation("ReportReviewer")
+  reports               Report[]
+  savedEvents           SavedEvent[]
+  savedPlaces           SavedPlace[]
+  sessions              Session[]
+  reviewedSubmissions   Submission[]       @relation("ReviewedSubmissions")
+  submittedSubmissions  Submission[]       @relation("SubmittedSubmissions")
+  actionTokens          UserActionToken[]
+  onboardingCity        City?              @relation("OnboardingCity", fields: [onboardingCityId], references: [id])
 
   @@index([role])
   @@map("users")
@@ -109,11 +108,10 @@ model City {
   lat             Float?
   lng             Float?
   source          String?
-  sourceUpdatedAt DateTime? @map("source_updated_at")
-
+  sourceUpdatedAt DateTime? @map("source_updated_at") @db.Timestamp(6)
   events          Event[]
   places          Place[]
-  usersOnboarding User[]  @relation("OnboardingCity")
+  usersOnboarding User[]    @relation("OnboardingCity")
 
   @@index([stateCode])
   @@index([countryCode])
@@ -128,8 +126,7 @@ model PlaceCategory {
   nameTr    String  @map("name_tr")
   icon      String?
   sortOrder Int     @default(0) @map("sort_order")
-
-  places Place[]
+  places    Place[]
 
   @@map("place_categories")
 }
@@ -157,20 +154,19 @@ model Place {
   verifiedByUserId     String?            @map("verified_by_user_id")
   lastBusinessUpdateAt DateTime?          @map("last_business_update_at")
   moderationStatus     ModerationStatus   @default(PENDING) @map("moderation_status")
-  aiReviewStatus       String?            @map("ai_review_status")
-  aiConfidenceScore    Decimal?           @map("ai_confidence_score")
-  aiLastCheckedAt      DateTime?          @map("ai_last_checked_at")
   createdAt            DateTime           @default(now()) @map("created_at")
   updatedAt            DateTime           @updatedAt @map("updated_at")
-
-  claims       BusinessClaim[]
-  placeSources PlaceSource[]
-  category     PlaceCategory   @relation(fields: [categoryId], references: [id])
-  city         City            @relation(fields: [cityId], references: [id], onDelete: Cascade)
-  owner        User?           @relation("PlaceOwner", fields: [ownerUserId], references: [id])
-  verifiedBy   User?           @relation("PlaceVerifier", fields: [verifiedByUserId], references: [id])
-  reports      Report[]
-  savedBy      SavedPlace[]
+  aiReviewStatus       String?            @map("ai_review_status")
+  aiConfidenceScore    Decimal?           @map("ai_confidence_score") @db.Decimal(5, 4)
+  aiLastCheckedAt      DateTime?          @map("ai_last_checked_at") @db.Timestamp(6)
+  claims               BusinessClaim[]
+  placeSources         PlaceSource[]
+  category             PlaceCategory      @relation(fields: [categoryId], references: [id])
+  city                 City               @relation(fields: [cityId], references: [id], onDelete: Cascade)
+  owner                User?              @relation("PlaceOwner", fields: [ownerUserId], references: [id])
+  verifiedBy           User?              @relation("PlaceVerifier", fields: [verifiedByUserId], references: [id])
+  reports              Report[]
+  savedBy              SavedPlace[]
 
   @@index([cityId])
   @@index([categoryId])
@@ -181,41 +177,43 @@ model Place {
 }
 
 model Event {
-  id               String           @id @default(cuid())
-  slug             String           @unique
-  title            String
-  descriptionDe    String?          @map("description_de")
-  descriptionTr    String?          @map("description_tr")
-  category         EventCategory
-  cityId           String           @map("city_id")
-  venueName        String?          @map("venue_name")
-  addressLine1     String?          @map("address_line_1")
-  postalCode       String?          @map("postal_code")
-  latitude         Float?
-  longitude        Float?
-  startsAt         DateTime         @map("starts_at")
-  endsAt           DateTime?        @map("ends_at")
-  organizerName    String?          @map("organizer_name")
-  externalUrl      String?          @map("external_url")
-  imageUrl         String?          @map("image_url")
-  isPublished      Boolean          @default(false) @map("is_published")
-  moderationStatus ModerationStatus @default(PENDING) @map("moderation_status")
-  aiReviewStatus   String?          @map("ai_review_status")
-  aiConfidenceScore Decimal?        @map("ai_confidence_score")
-  aiLastCheckedAt  DateTime?        @map("ai_last_checked_at")
-  createdAt        DateTime         @default(now()) @map("created_at")
-  updatedAt        DateTime         @updatedAt @map("updated_at")
+  id                String           @id @default(cuid())
+  slug              String           @unique
+  title             String
+  descriptionDe     String?          @map("description_de")
+  descriptionTr     String?          @map("description_tr")
+  category          EventCategory
+  cityId            String           @map("city_id")
+  venueName         String?          @map("venue_name")
+  addressLine1      String?          @map("address_line_1")
+  postalCode        String?          @map("postal_code")
+  latitude          Float?
+  longitude         Float?
+  startsAt          DateTime         @map("starts_at")
+  endsAt            DateTime?        @map("ends_at")
+  organizerName     String?          @map("organizer_name")
+  externalUrl       String?          @map("external_url")
+  imageUrl          String?          @map("image_url")
+  isPublished       Boolean          @default(false) @map("is_published")
+  moderationStatus  ModerationStatus @default(PENDING) @map("moderation_status")
+  createdAt         DateTime         @default(now()) @map("created_at")
+  updatedAt         DateTime         @updatedAt @map("updated_at")
+  aiReviewStatus    String?          @map("ai_review_status")
+  aiConfidenceScore Decimal?         @map("ai_confidence_score") @db.Decimal(5, 4)
+  aiLastCheckedAt   DateTime?        @map("ai_last_checked_at") @db.Timestamp(6)
+  eventSources      EventSource[]
+  city              City             @relation(fields: [cityId], references: [id], onDelete: Cascade)
+  reports           Report[]
+  savedBy           SavedEvent[]
 
-  eventSources EventSource[]
-  city         City          @relation(fields: [cityId], references: [id], onDelete: Cascade)
-  reports      Report[]
-  savedBy      SavedEvent[]
-
+  @@unique([title, cityId, startsAt], map: "events_unique_event")
+  @@unique([title, cityId, startsAt], map: "events_unique_title_city_starts_at")
   @@index([cityId])
   @@index([category])
   @@index([startsAt])
   @@index([isPublished])
   @@index([moderationStatus])
+  @@index([title(ops: raw("gin_trgm_ops"))], map: "events_title_trgm_idx", type: Gin)
   @@map("events")
 }
 
@@ -224,9 +222,8 @@ model SavedPlace {
   userId    String   @map("user_id")
   placeId   String   @map("place_id")
   createdAt DateTime @default(now()) @map("created_at")
-
-  place Place @relation(fields: [placeId], references: [id], onDelete: Cascade)
-  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  place     Place    @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, placeId])
   @@index([userId])
@@ -238,9 +235,8 @@ model SavedEvent {
   userId    String   @map("user_id")
   eventId   String   @map("event_id")
   createdAt DateTime @default(now()) @map("created_at")
-
-  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, eventId])
   @@index([userId])
@@ -262,10 +258,9 @@ model BusinessClaim {
   reviewedByUserId String?     @map("reviewed_by_user_id")
   createdAt        DateTime    @default(now()) @map("created_at")
   updatedAt        DateTime    @updatedAt @map("updated_at")
-
-  place      Place @relation(fields: [placeId], references: [id], onDelete: Cascade)
-  reviewedBy User? @relation("ClaimReviewer", fields: [reviewedByUserId], references: [id])
-  user       User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  place            Place       @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  reviewedBy       User?       @relation("ClaimReviewer", fields: [reviewedByUserId], references: [id])
+  user             User        @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([placeId])
   @@index([status])
@@ -285,11 +280,10 @@ model Report {
   reviewedByUserId String?          @map("reviewed_by_user_id")
   createdAt        DateTime         @default(now()) @map("created_at")
   updatedAt        DateTime         @updatedAt @map("updated_at")
-
-  event      Event? @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  place      Place? @relation(fields: [placeId], references: [id], onDelete: Cascade)
-  reviewedBy User?  @relation("ReportReviewer", fields: [reviewedByUserId], references: [id])
-  user       User?  @relation(fields: [userId], references: [id])
+  event            Event?           @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  place            Place?           @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  reviewedBy       User?            @relation("ReportReviewer", fields: [reviewedByUserId], references: [id])
+  user             User?            @relation(fields: [userId], references: [id])
 
   @@index([status])
   @@index([targetType])
@@ -307,8 +301,7 @@ model AdminActionLog {
   summary      String
   metadataJson String?  @map("metadata_json")
   createdAt    DateTime @default(now()) @map("created_at")
-
-  admin User @relation(fields: [actorUserId], references: [id], onDelete: Cascade)
+  admin        User     @relation(fields: [actorUserId], references: [id], onDelete: Cascade)
 
   @@index([actorUserId])
   @@index([targetType, targetId])
@@ -325,8 +318,7 @@ model AiRecheckRequest {
   errorMessage      String?                @map("error_message")
   createdAt         DateTime               @default(now()) @map("created_at")
   updatedAt         DateTime               @updatedAt @map("updated_at")
-
-  requestedByUser User @relation(fields: [requestedByUserId], references: [id], onDelete: Cascade)
+  requestedByUser   User                   @relation(fields: [requestedByUserId], references: [id], onDelete: Cascade)
 
   @@index([entityType, entityId])
   @@index([status])
@@ -335,26 +327,25 @@ model AiRecheckRequest {
 }
 
 model Source {
-  id              String    @id
+  id              String          @id
   platform        String
-  sourceKind      String    @map("source_kind")
+  sourceKind      String          @map("source_kind")
   name            String?
-  url             String    @unique
-  accountHandle   String?   @map("account_handle")
-  externalId      String?   @map("external_id")
-  isPublic        Boolean   @default(true) @map("is_public")
-  isActive        Boolean   @default(true) @map("is_active")
-  trustScore      Int       @default(50) @map("trust_score")
-  discoveryMethod String?   @map("discovery_method")
+  url             String          @unique
+  accountHandle   String?         @map("account_handle")
+  externalId      String?         @map("external_id")
+  isPublic        Boolean         @default(true) @map("is_public")
+  isActive        Boolean         @default(true) @map("is_active")
+  trustScore      Int             @default(50) @map("trust_score")
+  discoveryMethod String?         @map("discovery_method")
   notes           String?
-  lastCheckedAt   DateTime? @map("last_checked_at") @db.Timestamp(6)
-  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
-  updatedAt       DateTime  @default(now()) @map("updated_at") @db.Timestamp(6)
-
-  eventSources   EventSource[]
-  ingestRuns     IngestRun[]
-  placeSources   PlaceSource[]
-  rawIngestItems RawIngestItem[]
+  lastCheckedAt   DateTime?       @map("last_checked_at") @db.Timestamp(6)
+  createdAt       DateTime        @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt       DateTime        @default(now()) @map("updated_at") @db.Timestamp(6)
+  eventSources    EventSource[]
+  ingestRuns      IngestRun[]
+  placeSources    PlaceSource[]
+  rawIngestItems  RawIngestItem[]
 
   @@index([isActive])
   @@index([platform])
@@ -377,9 +368,8 @@ model EventSource {
   isPrimary            Boolean  @default(false) @map("is_primary")
   createdAt            DateTime @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt            DateTime @default(now()) @map("updated_at") @db.Timestamp(6)
-
-  event  Event  @relation(fields: [eventId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  source Source @relation(fields: [sourceId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  event                Event    @relation(fields: [eventId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  source               Source   @relation(fields: [sourceId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@unique([eventId, sourceId, sourceUrl])
   @@index([eventId])
@@ -404,8 +394,7 @@ model IngestRun {
   logText      String?   @map("log_text")
   createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt    DateTime  @default(now()) @map("updated_at") @db.Timestamp(6)
-
-  source Source? @relation(fields: [sourceId], references: [id], onUpdate: NoAction)
+  source       Source?   @relation(fields: [sourceId], references: [id], onUpdate: NoAction)
 
   @@index([finishedAt])
   @@index([pipelineName])
@@ -452,9 +441,8 @@ model PlaceSource {
   isPrimary       Boolean  @default(false) @map("is_primary")
   createdAt       DateTime @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt       DateTime @default(now()) @map("updated_at") @db.Timestamp(6)
-
-  place  Place  @relation(fields: [placeId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  source Source @relation(fields: [sourceId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  place           Place    @relation(fields: [placeId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  source          Source   @relation(fields: [sourceId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@unique([placeId, sourceId, sourceUrl])
   @@index([isPrimary])
@@ -486,8 +474,7 @@ model RawIngestItem {
   ingestedAt      DateTime  @default(now()) @map("ingested_at") @db.Timestamp(6)
   createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt       DateTime  @default(now()) @map("updated_at") @db.Timestamp(6)
-
-  source Source? @relation(fields: [sourceId], references: [id], onUpdate: NoAction)
+  source          Source?   @relation(fields: [sourceId], references: [id], onUpdate: NoAction)
 
   @@index([entityGuess])
   @@index([externalId])
@@ -513,9 +500,8 @@ model Submission {
   reviewedAt        DateTime? @map("reviewed_at") @db.Timestamp(6)
   createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt         DateTime  @default(now()) @map("updated_at") @db.Timestamp(6)
-
-  submittedByUser User? @relation("SubmittedSubmissions", fields: [submittedByUserId], references: [id], onUpdate: NoAction)
-  reviewedByUser  User? @relation("ReviewedSubmissions", fields: [reviewedByUserId], references: [id], onUpdate: NoAction)
+  reviewedByUser    User?     @relation("ReviewedSubmissions", fields: [reviewedByUserId], references: [id], onUpdate: NoAction)
+  submittedByUser   User?     @relation("SubmittedSubmissions", fields: [submittedByUserId], references: [id], onUpdate: NoAction)
 
   @@index([createdAt])
   @@index([reviewedByUserId])
@@ -525,6 +511,24 @@ model Submission {
   @@index([targetEntityId])
   @@index([targetEntityType])
   @@map("submissions")
+}
+
+model AiQualityCheck {
+  id              String   @id
+  entityType      String   @map("entity_type")
+  entityId        String   @map("entity_id")
+  modelName       String   @map("model_name")
+  aiStatus        String   @map("ai_status")
+  confidenceScore Decimal? @map("confidence_score") @db.Decimal(5, 4)
+  reasonCodes     Json?    @map("reason_codes")
+  explanation     String?
+  suggestedAction String?  @map("suggested_action")
+  rawResultJson   Json?    @map("raw_result_json")
+  checkedAt       DateTime @default(now()) @map("checked_at") @db.Timestamp(6)
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+
+  @@index([entityType, entityId, checkedAt(sort: Desc)], map: "ai_quality_checks_entity_idx")
+  @@map("ai_quality_checks")
 }
 
 enum UserActionTokenType {

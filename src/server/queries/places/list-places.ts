@@ -2,16 +2,45 @@ import type { Prisma } from "@prisma/client";
 
 import type { PlacesFilterInput } from "@/lib/validators/places";
 import { prisma } from "@/lib/prisma";
+import { compareByAiRanking } from "@/server/queries/ai-shared";
 
 import {
   buildPublicPlaceWhere,
-  publicPlaceSelect,
+  publicPlaceSelectWithAi,
   type PublicPlaceRecord,
+  type PublicPlaceRecordWithAi,
 } from "./shared";
 
 export type ListedPlace = PublicPlaceRecord & {
   isSaved: boolean;
 };
+
+function rankPlaces(places: PublicPlaceRecordWithAi[]) {
+  return [...places].sort((left, right) =>
+    compareByAiRanking<PublicPlaceRecordWithAi>(left, right, (placeLeft, placeRight) => {
+      const verificationStatusDiff = placeLeft.verificationStatus.localeCompare(
+        placeRight.verificationStatus,
+      );
+
+      if (verificationStatusDiff !== 0) {
+        return -verificationStatusDiff;
+      }
+
+      return placeRight.createdAt.getTime() - placeLeft.createdAt.getTime();
+    }),
+  );
+}
+
+function stripPlaceAiFields(place: PublicPlaceRecordWithAi): PublicPlaceRecord {
+  const {
+    aiReviewStatus: _aiReviewStatus,
+    aiConfidenceScore: _aiConfidenceScore,
+    createdAt: _createdAt,
+    ...publicPlace
+  } = place;
+
+  return publicPlace;
+}
 
 export async function listPlaces(args: {
   filters: PlacesFilterInput;
@@ -46,19 +75,21 @@ export async function listPlaces(args: {
       { verificationStatus: "desc" },
       { createdAt: "desc" },
     ],
-    take: 24,
-    select: publicPlaceSelect,
+    take: 48,
+    select: publicPlaceSelectWithAi,
   });
 
-  if (!args.userId || places.length === 0) {
-    return places.map((place) => ({ ...place, isSaved: false }));
+  const rankedPlaces = rankPlaces(places).slice(0, 24);
+
+  if (!args.userId || rankedPlaces.length === 0) {
+    return rankedPlaces.map((place) => ({ ...stripPlaceAiFields(place), isSaved: false }));
   }
 
   const savedPlaces = await prisma.savedPlace.findMany({
     where: {
       userId: args.userId,
       placeId: {
-        in: places.map((place) => place.id),
+        in: rankedPlaces.map((place) => place.id),
       },
     },
     select: {
@@ -68,8 +99,8 @@ export async function listPlaces(args: {
 
   const savedIds = new Set(savedPlaces.map((entry) => entry.placeId));
 
-  return places.map((place) => ({
-    ...place,
+  return rankedPlaces.map((place) => ({
+    ...stripPlaceAiFields(place),
     isSaved: savedIds.has(place.id),
   }));
 }

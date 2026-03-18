@@ -387,6 +387,7 @@
       "reports": "Meldungen",
       "claims": "Claims",
       "aiReview": "AI-Review",
+      "ingest": "Ingest",
       "places": "Places",
       "logs": "Logs"
     },
@@ -430,9 +431,16 @@
       "description": "Interne Übersicht über AI-geprüfte Events und Places, die für Moderation und Plausibilitätsprüfung relevant sind.",
       "empty": "Aktuell liegen keine AI-Fälle in der Queue.",
       "openPlace": "Place-Detail öffnen",
+      "openEvent": "Event-Moderation öffnen",
+      "filters": {
+        "all": "Alle",
+        "manual": "Manuelle Prüfung",
+        "clear": "Kein Sofortbedarf"
+      },
       "columns": {
         "entity": "Entity",
         "label": "Label",
+        "reviewSignal": "Review-Signal",
         "city": "Stadt",
         "startsAt": "Start",
         "status": "AI-Status",
@@ -454,6 +462,10 @@
         "unknown": "Unbekannt",
         "untitled": "Ohne Label",
         "notAvailable": "Nicht verfügbar"
+      },
+      "manualReview": {
+        "required": "Manuelle Prüfung",
+        "notRequired": "Kein Sofortbedarf"
       }
     },
     "aiModeration": {
@@ -495,6 +507,10 @@
       "title": "Business Claims prüfen",
       "description": "Prüfe Place-Claims und bestätige oder lehne sie ab.",
       "empty": "Keine Claims gefunden.",
+      "ownerState": "Owner",
+      "ownerPresent": "gesetzt",
+      "noOwner": "kein Owner",
+      "claimedFollowUpHint": "Bereits claimed, aber noch nicht verified.",
       "filters": {
         "reset": "Alle Claims",
         "pending": "Nur offen",
@@ -515,6 +531,7 @@
       "noMessage": "Keine Nachricht angegeben.",
       "noEvidence": "Keine Nachweise angegeben.",
       "noOwner": "Noch kein aktiver Owner verknüpft.",
+      "claimedFollowUpHint": "Der Place ist bereits claimed, benötigt aber noch einen manuellen Trust-Follow-up Richtung verified.",
       "unknown": "Unbekannt",
       "goToPlace": "Place-Trust öffnen",
       "reviewActions": "Review-Aktionen",
@@ -529,6 +546,164 @@
       "title": "Admin-Logs",
       "description": "Letzte Moderations- und Admin-Aktionen für Nachvollziehbarkeit.",
       "empty": "Noch keine Logs vorhanden."
+    },
+    "ingest": {
+      "title": "Ingest-Runs",
+      "description": "Interne Übersicht über die letzten Pipeline-Läufe mit groben Ergebniswerten und zugeordneter Quelle.",
+      "problemItemsTitle": "Problematische Raw-Ingest-Items",
+      "problemItemsDescription": "Zeigt fehlgeschlagene oder noch nicht verarbeitete Rohdatensätze aus der Ingest-Pipeline.",
+      "problemItemsAction": "Raw-Ingest-Probleme öffnen",
+      "sourcesTitle": "Bekannte Quellen",
+      "sourcesDescription": "Zeigt die derzeit bekannten Discovery- und Ingest-Quellen mit den wichtigsten operativen Metadaten.",
+      "sourcesAction": "Quellen öffnen",
+      "submissionsTitle": "Submissions",
+      "submissionsDescription": "Interne Übersicht über eingegangene Submissions und ihren aktuellen Prüfstatus.",
+      "submissionsAction": "Submissions öffnen",
+      "empty": "Noch keine Ingest-Runs vorhanden.",
+      "summary": "{total, number} Runs gesamt, {running, number} RUNNING, {done, number} DONE, {failed, number} FAILED",
+      "filters": {
+        "all": "Alle Runs",
+        "running": "Nur RUNNING",
+        "done": "Nur DONE",
+        "failed": "Nur FAILED"
+      },
+      "columns": {
+        "id": "ID",
+        "pipelineName": "Pipeline",
+        "triggerType": "Trigger",
+        "status": "Status",
+        "itemsFound": "Gefunden",
+        "itemsCreated": "Neu",
+        "itemsUpdated": "Aktualisiert",
+        "itemsFailed": "Fehler",
+        "startedAt": "Gestartet",
+        "finishedAt": "Beendet",
+        "source": "Quelle"
+      },
+      "fallbacks": {
+        "notAvailable": "Nicht verfügbar",
+        "unknownSource": "Unbekannte Quelle"
+      }
+    },
+    "sources": {
+      "title": "Quellenübersicht",
+      "description": "Interne Übersicht über aktuell bekannte Discovery- und Ingest-Quellen.",
+      "empty": "Noch keine Quellen vorhanden.",
+      "summary": "{total, number} Quellen gesamt, {active, number} aktiv, {public, number} öffentlich",
+      "filters": {
+        "all": "Alle Quellen ({count, number})",
+        "active": "Nur aktive ({count, number})",
+        "public": "Nur öffentliche ({count, number})"
+      },
+      "kindFilters": {
+        "all": "Alle Typen"
+      },
+      "columns": {
+        "id": "ID",
+        "sourceKind": "Source-Kind",
+        "name": "Name",
+        "url": "URL",
+        "accountHandle": "Handle",
+        "externalId": "Externe ID",
+        "isPublic": "Sichtbar",
+        "isActive": "Aktiv",
+        "trustScore": "Trust-Score",
+        "discoveryMethod": "Discovery-Methode",
+        "lastCheckedAt": "Zuletzt geprüft",
+        "updatedAt": "Aktualisiert"
+      },
+      "badges": {
+        "public": "Öffentlich",
+        "private": "Intern",
+        "active": "Aktiv",
+        "inactive": "Inaktiv"
+      },
+      "fallbacks": {
+        "notAvailable": "Nicht verfügbar"
+      }
+    },
+    "sourceDetail": {
+      "title": "Quellendetail",
+      "description": "Interne Detailansicht für eine bekannte Discovery- oder Ingest-Quelle.",
+      "noName": "Unbenannte Quelle",
+      "notAvailable": "Nicht verfügbar",
+      "sourceKind": "Source-Kind",
+      "url": "URL",
+      "accountHandle": "Handle",
+      "externalId": "Externe ID",
+      "trustScore": "Trust-Score",
+      "discoveryMethod": "Discovery-Methode",
+      "lastCheckedAt": "Zuletzt geprüft",
+      "createdAt": "Erstellt",
+      "updatedAt": "Aktualisiert",
+      "ingestRunsTitle": "Letzte Ingest-Runs",
+      "noIngestRuns": "Für diese Quelle sind noch keine Ingest-Runs vorhanden.",
+      "rawItemsTitle": "Problematische Raw-Ingest-Items",
+      "noRawItems": "Für diese Quelle liegen aktuell keine problematischen Raw-Ingest-Items vor.",
+      "noRawTitle": "Ohne Roh-Titel",
+      "badges": {
+        "public": "Öffentlich",
+        "private": "Intern",
+        "active": "Aktiv",
+        "inactive": "Inaktiv"
+      }
+    },
+    "submissions": {
+      "title": "Submissions",
+      "description": "Interne Übersicht über eingegangene Submissions mit Zielbezug und Review-Metadaten.",
+      "empty": "Noch keine Submissions vorhanden.",
+      "summary": "{total, number} Submissions gesamt, {pending, number} pending, {approved, number} approved/done, {rejected, number} rejected/failed",
+      "filters": {
+        "all": "Alle Submissions ({count, number})",
+        "pending": "Nur PENDING ({count, number})",
+        "approved": "Nur APPROVED/DONE ({count, number})",
+        "rejected": "Nur REJECTED/FAILED ({count, number})"
+      },
+      "columns": {
+        "id": "ID",
+        "submissionType": "Submission-Typ",
+        "status": "Status",
+        "targetEntityType": "Target-Typ",
+        "targetEntityId": "Target-ID",
+        "submittedByUserId": "Eingereicht von",
+        "sourceUrl": "Source-URL",
+        "reviewedByUserId": "Geprüft von",
+        "reviewedAt": "Geprüft am",
+        "createdAt": "Erstellt",
+        "updatedAt": "Aktualisiert"
+      },
+      "fallbacks": {
+        "notAvailable": "Nicht verfügbar"
+      }
+    },
+    "rawIngest": {
+      "title": "Raw-Ingest-Probleme",
+      "description": "Interne Übersicht über fehlgeschlagene oder noch unprozessierte Raw-Ingest-Items.",
+      "empty": "Aktuell liegen keine problematischen Raw-Ingest-Items vor.",
+      "summary": "{total, number} Problemfälle gesamt, {failed, number} FAILED, {pending, number} PENDING",
+      "filters": {
+        "all": "Alle Problemfälle ({count, number})",
+        "failed": "Nur FAILED ({count, number})",
+        "pending": "Nur PENDING ({count, number})"
+      },
+      "columns": {
+        "id": "ID",
+        "status": "Status",
+        "entityGuess": "Entity Guess",
+        "rawTitle": "Roh-Titel",
+        "rawDatetimeText": "Roh-Datum/Zeit",
+        "rawLocationText": "Roh-Ort",
+        "languageHint": "Sprache",
+        "cityGuess": "Stadt-Guess",
+        "ingestedAt": "Ingested",
+        "processedAt": "Processed",
+        "source": "Quelle",
+        "errorMessage": "Fehlermeldung"
+      },
+      "fallbacks": {
+        "notAvailable": "Nicht verfügbar",
+        "unknownSource": "Unbekannte Quelle"
+      }
     },
     "reportStatuses": {
       "open": "Offen",
@@ -550,7 +725,8 @@
       "title": "Places und Ownership",
       "description": "Prüfe Owner-Zuordnung, Trust-Status und zuletzt gepflegte Business-Daten.",
       "empty": "Keine Places gefunden.",
-      "noOwner": "Kein verknüpfter Owner"
+      "noOwner": "Kein verknüpfter Owner",
+      "claimedFollowUpHint": "Bereits claimed, aber noch nicht verified."
     },
     "placeDetail": {
       "title": "Place-Trust steuern",
@@ -564,6 +740,7 @@
       "noWebsite": "Keine Website gepflegt.",
       "lastVerified": "Zuletzt verifiziert",
       "notVerified": "Bisher nicht verifiziert.",
+      "claimedFollowUpHint": "Der Place ist bereits claimed, benötigt aber noch einen manuellen Trust-Follow-up Richtung verified.",
       "aiTitle": "AI-Audit",
       "aiDescription": "Diese Werte stammen aus dem externen n8n/Gemini-Plausibilitätscheck. Sie unterstützen die Moderation, ersetzen aber keine manuelle Entscheidung.",
       "aiReviewStatus": "AI-Review-Status",
@@ -578,6 +755,35 @@
         "success": "Der Trust-Status wurde aktualisiert.",
         "error": "Der Trust-Status konnte nicht gespeichert werden."
       }
+    },
+    "eventDetail": {
+      "title": "Event-Moderation prüfen",
+      "description": "Prüfe Veröffentlichungsstatus, AI-Signale und vorhandene Meldungen dieses Events in einer kompakten Admin-Ansicht.",
+      "publicPage": "Öffentliche Seite",
+      "category": "Kategorie",
+      "startsAt": "Start",
+      "endsAt": "Ende",
+      "noStartsAt": "Kein Startzeitpunkt vorhanden.",
+      "noEndsAt": "Kein Endzeitpunkt vorhanden.",
+      "venue": "Venue",
+      "noVenue": "Kein Veranstaltungsort gepflegt.",
+      "organizer": "Organizer",
+      "noOrganizer": "Kein Organizer gepflegt.",
+      "externalUrl": "Externe URL",
+      "noExternalUrl": "Keine externe URL gepflegt.",
+      "moderationStatus": "Moderationsstatus",
+      "publicationStatus": {
+        "published": "Veröffentlicht",
+        "unpublished": "Nicht veröffentlicht"
+      },
+      "aiTitle": "AI-Audit",
+      "aiDescription": "Diese Werte stammen aus dem externen n8n/Gemini-Plausibilitätscheck. Sie helfen bei der Event-Moderation, ersetzen aber keine manuelle Entscheidung.",
+      "aiReviewStatus": "AI-Review-Status",
+      "aiConfidenceScore": "AI-Confidence-Score",
+      "aiLastCheckedAt": "Zuletzt AI-geprüft",
+      "aiNotChecked": "Noch nicht AI-geprüft.",
+      "reportsTitle": "Letzte Reports",
+      "noReports": "Für dieses Event liegen aktuell keine Reports vor."
     }
   },
   "footer": {

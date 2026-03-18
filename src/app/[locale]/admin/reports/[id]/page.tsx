@@ -41,6 +41,7 @@ export default async function AdminReportDetailPage({
         reports: t("nav.reports"),
         claims: t("nav.claims"),
         aiReview: t("nav.aiReview"),
+        ingest: t("nav.ingest"),
         places: t("nav.places"),
         logs: t("nav.logs"),
       }}

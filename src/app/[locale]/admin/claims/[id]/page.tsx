@@ -38,6 +38,7 @@ export default async function AdminClaimDetailPage({
         reports: t("nav.reports"),
         claims: t("nav.claims"),
         aiReview: t("nav.aiReview"),
+        ingest: t("nav.ingest"),
         places: t("nav.places"),
         logs: t("nav.logs"),
       }}
@@ -86,6 +87,11 @@ export default async function AdminClaimDetailPage({
                 <p className="text-muted-foreground">
                   {t(`verificationStatuses.${claim.place.verificationStatus.toLowerCase()}`)}
                 </p>
+                {claim.place.verificationStatus === "CLAIMED" ? (
+                  <p className="mt-1 text-xs text-amber-700">
+                    {t("claimDetail.claimedFollowUpHint")}
+                  </p>
+                ) : null}
               </div>
               <div>
                 <p className="font-medium text-foreground">{t("claimDetail.user")}</p>

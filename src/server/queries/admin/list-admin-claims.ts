@@ -26,6 +26,8 @@ export async function listAdminClaims(filters?: { status?: ClaimStatus }) {
           id: true,
           slug: true,
           name: true,
+          verificationStatus: true,
+          ownerUserId: true,
         },
       },
     },

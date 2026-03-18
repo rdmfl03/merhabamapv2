@@ -1,17 +1,68 @@
 import { prisma } from "@/lib/prisma";
+import { compareByAiRanking } from "@/server/queries/ai-shared";
 import {
   buildPublicEventWhere,
-  publicEventSelect,
+  publicEventSelectWithAi,
+  type PublicEventRecordWithAi,
 } from "@/server/queries/events/shared";
 import {
   buildPublicPlaceWhere,
-  publicPlaceSelect,
+  publicPlaceSelectWithAi,
+  type PublicPlaceRecordWithAi,
 } from "@/server/queries/places/shared";
 
 const pilotCityCenters: Record<string, { latitude: number; longitude: number }> = {
   berlin: { latitude: 52.52, longitude: 13.405 },
   koeln: { latitude: 50.9375, longitude: 6.9603 },
 };
+
+function rankCityEvents(events: PublicEventRecordWithAi[]) {
+  return [...events].sort((left, right) =>
+    compareByAiRanking<PublicEventRecordWithAi>(left, right, (eventLeft, eventRight) => {
+      const startsAtDiff = eventLeft.startsAt.getTime() - eventRight.startsAt.getTime();
+
+      if (startsAtDiff !== 0) {
+        return startsAtDiff;
+      }
+
+      return eventRight.createdAt.getTime() - eventLeft.createdAt.getTime();
+    }),
+  );
+}
+
+function rankCityPlaces(places: PublicPlaceRecordWithAi[]) {
+  return [...places].sort((left, right) =>
+    compareByAiRanking<PublicPlaceRecordWithAi>(left, right, (placeLeft, placeRight) => {
+      const verificationStatusDiff = placeLeft.verificationStatus.localeCompare(
+        placeRight.verificationStatus,
+      );
+
+      if (verificationStatusDiff !== 0) {
+        return -verificationStatusDiff;
+      }
+
+      return placeRight.createdAt.getTime() - placeLeft.createdAt.getTime();
+    }),
+  );
+}
+
+function stripCityEventAiFields(event: PublicEventRecordWithAi) {
+  const { aiReviewStatus: _aiReviewStatus, aiConfidenceScore: _aiConfidenceScore, createdAt: _createdAt, ...publicEvent } =
+    event;
+
+  return publicEvent;
+}
+
+function stripCityPlaceAiFields(place: PublicPlaceRecordWithAi) {
+  const {
+    aiReviewStatus: _aiReviewStatus,
+    aiConfidenceScore: _aiConfidenceScore,
+    createdAt: _createdAt,
+    ...publicPlace
+  } = place;
+
+  return publicPlace;
+}
 
 export async function getPublicCityPage(citySlug: string, userId?: string) {
   const city = await prisma.city.findUnique({
@@ -37,8 +88,8 @@ export async function getPublicCityPage(citySlug: string, userId?: string) {
         cityId: city.id,
       }),
       orderBy: [{ verificationStatus: "desc" }, { createdAt: "desc" }],
-      take: 18,
-      select: publicPlaceSelect,
+      take: 36,
+      select: publicPlaceSelectWithAi,
     }),
     prisma.event.findMany({
       where: buildPublicEventWhere({
@@ -48,8 +99,8 @@ export async function getPublicCityPage(citySlug: string, userId?: string) {
         },
       }),
       orderBy: { startsAt: "asc" },
-      take: 18,
-      select: publicEventSelect,
+      take: 36,
+      select: publicEventSelectWithAi,
     }),
     prisma.place.count({
       where: buildPublicPlaceWhere({
@@ -63,8 +114,10 @@ export async function getPublicCityPage(citySlug: string, userId?: string) {
     }),
   ]);
 
-  const featuredPlaces = mapPlaces.slice(0, 3);
-  const upcomingEvents = mapEvents.slice(0, 3);
+  const rankedPlaces = rankCityPlaces(mapPlaces).slice(0, 18);
+  const rankedEvents = rankCityEvents(mapEvents).slice(0, 18);
+  const featuredPlaces = rankedPlaces.slice(0, 3);
+  const upcomingEvents = rankedEvents.slice(0, 3);
 
   if (!userId) {
     return {
@@ -73,19 +126,19 @@ export async function getPublicCityPage(citySlug: string, userId?: string) {
       placeCount,
       eventCount,
       featuredPlaces: featuredPlaces.map((place) => ({
-        ...place,
+        ...stripCityPlaceAiFields(place),
         isSaved: false,
       })),
-      mapPlaces: mapPlaces.map((place) => ({
-        ...place,
+      mapPlaces: rankedPlaces.map((place) => ({
+        ...stripCityPlaceAiFields(place),
         isSaved: false,
       })),
       upcomingEvents: upcomingEvents.map((event) => ({
-        ...event,
+        ...stripCityEventAiFields(event),
         isSaved: false,
       })),
-      mapEvents: mapEvents.map((event) => ({
-        ...event,
+      mapEvents: rankedEvents.map((event) => ({
+        ...stripCityEventAiFields(event),
         isSaved: false,
       })),
     };
@@ -117,19 +170,19 @@ export async function getPublicCityPage(citySlug: string, userId?: string) {
     placeCount,
     eventCount,
     featuredPlaces: featuredPlaces.map((place) => ({
-      ...place,
+      ...stripCityPlaceAiFields(place),
       isSaved: savedPlaceIds.has(place.id),
     })),
-    mapPlaces: mapPlaces.map((place) => ({
-      ...place,
+    mapPlaces: rankedPlaces.map((place) => ({
+      ...stripCityPlaceAiFields(place),
       isSaved: savedPlaceIds.has(place.id),
     })),
     upcomingEvents: upcomingEvents.map((event) => ({
-      ...event,
+      ...stripCityEventAiFields(event),
       isSaved: savedEventIds.has(event.id),
     })),
-    mapEvents: mapEvents.map((event) => ({
-      ...event,
+    mapEvents: rankedEvents.map((event) => ({
+      ...stripCityEventAiFields(event),
       isSaved: savedEventIds.has(event.id),
     })),
   };

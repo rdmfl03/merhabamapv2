@@ -12,6 +12,7 @@ import {
 
 type AdminAiReviewPageProps = {
   params: Promise<{ locale: "de" | "tr" }>;
+  searchParams?: Promise<{ review?: string }>;
 };
 
 const allowedStatuses = new Set(["ok", "review", "unsure", "reject"]);
@@ -59,15 +60,34 @@ function formatReasonCodes(value: string[] | string | null | undefined) {
 
 export default async function AdminAiReviewPage({
   params,
+  searchParams,
 }: AdminAiReviewPageProps) {
   const { locale } = await params;
   setRequestLocale(locale);
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
 
   const [t, rows, summary] = await Promise.all([
     getTranslations("admin"),
     getAdminAiReviewQueue(),
     getAdminAiReviewSummary(),
   ]);
+
+  const reviewFilter =
+    resolvedSearchParams?.review === "manual" || resolvedSearchParams?.review === "clear"
+      ? resolvedSearchParams.review
+      : "all";
+
+  const filteredRows = rows.filter((row) => {
+    if (reviewFilter === "manual") {
+      return row.needsManualReview;
+    }
+
+    if (reviewFilter === "clear") {
+      return !row.needsManualReview;
+    }
+
+    return true;
+  });
 
   const summaryMap = new Map(
     summary.map((entry) => [normalizeStatusKey(entry.aiReviewStatus), entry.count]),
@@ -93,6 +113,7 @@ export default async function AdminAiReviewPage({
         reports: t("nav.reports"),
         claims: t("nav.claims"),
         aiReview: t("nav.aiReview"),
+        ingest: t("nav.ingest"),
         places: t("nav.places"),
         logs: t("nav.logs"),
       }}
@@ -114,7 +135,40 @@ export default async function AdminAiReviewPage({
 
       <Card className="bg-white/90">
         <CardContent className="space-y-4 p-6">
-          {rows.length === 0 ? (
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href={`/admin/ai-review`}
+              className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
+                reviewFilter === "all"
+                  ? "border-brand bg-brand text-white"
+                  : "border-border bg-white text-foreground hover:bg-muted"
+              }`}
+            >
+              {t("aiReview.filters.all")}
+            </Link>
+            <Link
+              href={`/admin/ai-review?review=manual`}
+              className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
+                reviewFilter === "manual"
+                  ? "border-brand bg-brand text-white"
+                  : "border-border bg-white text-foreground hover:bg-muted"
+              }`}
+            >
+              {t("aiReview.filters.manual")}
+            </Link>
+            <Link
+              href={`/admin/ai-review?review=clear`}
+              className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
+                reviewFilter === "clear"
+                  ? "border-brand bg-brand text-white"
+                  : "border-border bg-white text-foreground hover:bg-muted"
+              }`}
+            >
+              {t("aiReview.filters.clear")}
+            </Link>
+          </div>
+
+          {filteredRows.length === 0 ? (
             <p className="text-sm text-muted-foreground">{t("aiReview.empty")}</p>
           ) : (
             <div className="overflow-x-auto">
@@ -123,6 +177,7 @@ export default async function AdminAiReviewPage({
                   <tr className="text-left text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                     <th className="px-3">{t("aiReview.columns.entity")}</th>
                     <th className="px-3">{t("aiReview.columns.label")}</th>
+                    <th className="px-3">{t("aiReview.columns.reviewSignal")}</th>
                     <th className="px-3">{t("aiReview.columns.city")}</th>
                     <th className="px-3">{t("aiReview.columns.startsAt")}</th>
                     <th className="px-3">{t("aiReview.columns.status")}</th>
@@ -135,20 +190,23 @@ export default async function AdminAiReviewPage({
                   </tr>
                 </thead>
                 <tbody>
-                  {rows.map((row, index) => {
+                  {filteredRows.map((row, index) => {
                     const statusKey = normalizeStatusKey(row.aiReviewStatus);
+                    const normalizedEntityType = row.entityType?.toLowerCase();
                     const detailHref =
-                      row.entityType?.toLowerCase() === "place" && row.entityId
+                      row.entityId && normalizedEntityType === "place"
                         ? `/admin/places/${row.entityId}`
-                        : null;
+                        : row.entityId && normalizedEntityType === "event"
+                          ? `/admin/events/${row.entityId}`
+                          : null;
 
                     return (
                       <tr key={`${row.entityType ?? "unknown"}-${row.entityId ?? index}`}>
                         <td
-                          colSpan={11}
+                          colSpan={12}
                           className="rounded-2xl border border-border bg-white px-0 py-0 shadow-soft"
                         >
-                          <div className="grid gap-3 px-3 py-4 md:grid-cols-11 md:items-start">
+                          <div className="grid gap-3 px-3 py-4 md:grid-cols-12 md:items-start">
                             <div className="space-y-1 md:col-span-1">
                               <p className="text-sm font-medium text-foreground">
                                 {row.entityType ?? t("aiReview.fallbacks.unknown")}
@@ -164,9 +222,22 @@ export default async function AdminAiReviewPage({
                               </p>
                               {detailHref ? (
                                 <Link href={detailHref} className="text-xs text-brand">
-                                  {t("aiReview.openPlace")}
+                                  {normalizedEntityType === "event"
+                                    ? t("aiReview.openEvent")
+                                    : t("aiReview.openPlace")}
                                 </Link>
                               ) : null}
+                            </div>
+
+                            <div className="md:col-span-1">
+                              <StatusBadge
+                                tone={row.needsManualReview ? "warning" : "success"}
+                                label={
+                                  row.needsManualReview
+                                    ? t("aiReview.manualReview.required")
+                                    : t("aiReview.manualReview.notRequired")
+                                }
+                              />
                             </div>
 
                             <div className="text-sm text-muted-foreground md:col-span-1">

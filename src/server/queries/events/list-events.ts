@@ -3,16 +3,39 @@ import type { Prisma } from "@prisma/client";
 import { getBerlinDateFilter } from "@/lib/events";
 import { prisma } from "@/lib/prisma";
 import type { EventsFilterInput } from "@/lib/validators/events";
+import { compareByAiRanking } from "@/server/queries/ai-shared";
 
 import {
   buildPublicEventWhere,
-  publicEventSelect,
+  publicEventSelectWithAi,
   type PublicEventRecord,
+  type PublicEventRecordWithAi,
 } from "./shared";
 
 export type ListedEvent = PublicEventRecord & {
   isSaved: boolean;
 };
+
+function rankEvents(events: PublicEventRecordWithAi[]) {
+  return [...events].sort((left, right) =>
+    compareByAiRanking<PublicEventRecordWithAi>(left, right, (eventLeft, eventRight) => {
+      const startsAtDiff = eventLeft.startsAt.getTime() - eventRight.startsAt.getTime();
+
+      if (startsAtDiff !== 0) {
+        return startsAtDiff;
+      }
+
+      return eventRight.createdAt.getTime() - eventLeft.createdAt.getTime();
+    }),
+  );
+}
+
+function stripEventAiFields(event: PublicEventRecordWithAi): PublicEventRecord {
+  const { aiReviewStatus: _aiReviewStatus, aiConfidenceScore: _aiConfidenceScore, createdAt: _createdAt, ...publicEvent } =
+    event;
+
+  return publicEvent;
+}
 
 export async function listEvents(args: {
   filters: EventsFilterInput;
@@ -47,8 +70,8 @@ export async function listEvents(args: {
   let events = await prisma.event.findMany({
     where: buildPublicEventWhere(where),
     orderBy: [{ startsAt: "asc" }, { createdAt: "desc" }],
-    take: 36,
-    select: publicEventSelect,
+    take: 72,
+    select: publicEventSelectWithAi,
   });
 
   if (args.filters.date) {
@@ -57,8 +80,10 @@ export async function listEvents(args: {
     );
   }
 
+  events = rankEvents(events).slice(0, 36);
+
   if (!args.userId || events.length === 0) {
-    return events.map((event) => ({ ...event, isSaved: false }));
+    return events.map((event) => ({ ...stripEventAiFields(event), isSaved: false }));
   }
 
   const savedEvents = await prisma.savedEvent.findMany({
@@ -76,7 +101,7 @@ export async function listEvents(args: {
   const savedIds = new Set(savedEvents.map((entry) => entry.eventId));
 
   return events.map((event) => ({
-    ...event,
+    ...stripEventAiFields(event),
     isSaved: savedIds.has(event.id),
   }));
 }

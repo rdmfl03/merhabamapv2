@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { needsManualReview } from "@/server/queries/ai-shared";
 
 export type AdminAiReviewQueueRow = {
   entityType: string | null;
@@ -13,6 +14,7 @@ export type AdminAiReviewQueueRow = {
   reasonCodes: string[] | string | null;
   explanation: string | null;
   checkedAt: Date | string | null;
+  needsManualReview: boolean;
 };
 
 export type AdminAiReviewSummaryRow = {
@@ -21,7 +23,7 @@ export type AdminAiReviewSummaryRow = {
 };
 
 export async function getAdminAiReviewQueue() {
-  return prisma.$queryRaw<AdminAiReviewQueueRow[]>`
+  const rows = await prisma.$queryRaw<Omit<AdminAiReviewQueueRow, "needsManualReview">[]>`
     SELECT
       entity_type AS "entityType",
       entity_id AS "entityId",
@@ -46,6 +48,11 @@ export async function getAdminAiReviewQueue() {
       ai_confidence_score DESC NULLS LAST,
       checked_at DESC NULLS LAST
   `;
+
+  return rows.map((row) => ({
+    ...row,
+    needsManualReview: needsManualReview(row.aiReviewStatus),
+  }));
 }
 
 export async function getAdminAiReviewSummary() {

@@ -49,6 +49,17 @@ export const publicEventSelect = Prisma.validator<Prisma.EventSelect>()({
   },
 });
 
+export const publicEventSelectWithAi = Prisma.validator<Prisma.EventSelect>()({
+  ...publicEventSelect,
+  aiReviewStatus: true,
+  aiConfidenceScore: true,
+  createdAt: true,
+});
+
 export type PublicEventRecord = Prisma.EventGetPayload<{
   select: typeof publicEventSelect;
+}>;
+
+export type PublicEventRecordWithAi = Prisma.EventGetPayload<{
+  select: typeof publicEventSelectWithAi;
 }>;

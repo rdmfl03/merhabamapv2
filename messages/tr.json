@@ -397,6 +397,7 @@
       "reports": "Bildirimler",
       "claims": "Claimler",
       "aiReview": "AI inceleme",
+      "ingest": "Ingest",
       "places": "Placeler",
       "logs": "Loglar"
     },
@@ -440,9 +441,16 @@
       "description": "AI tarafından incelenmiş etkinlik ve mekanların moderasyon ile olasılık kontrolü için iç görünümü.",
       "empty": "Şu anda kuyrukta AI kaydı yok.",
       "openPlace": "Mekan detayını aç",
+      "openEvent": "Etkinlik moderasyonunu aç",
+      "filters": {
+        "all": "Tümü",
+        "manual": "Manuel inceleme",
+        "clear": "Acil inceleme yok"
+      },
       "columns": {
         "entity": "Varlık",
         "label": "Etiket",
+        "reviewSignal": "İnceleme sinyali",
         "city": "Şehir",
         "startsAt": "Başlangıç",
         "status": "AI durumu",
@@ -464,6 +472,10 @@
         "unknown": "Bilinmiyor",
         "untitled": "Etiketsiz",
         "notAvailable": "Yok"
+      },
+      "manualReview": {
+        "required": "Manuel inceleme",
+        "notRequired": "Acil inceleme yok"
       }
     },
     "aiModeration": {
@@ -505,6 +517,10 @@
       "title": "Business claimleri incele",
       "description": "Place claimlerini kontrol et ve onayla veya reddet.",
       "empty": "Claim bulunamadı.",
+      "ownerState": "Owner",
+      "ownerPresent": "atanmış",
+      "noOwner": "owner yok",
+      "claimedFollowUpHint": "Zaten claimed, ancak henüz verified değil.",
       "filters": {
         "reset": "Tüm claimler",
         "pending": "Sadece bekleyen",
@@ -525,6 +541,7 @@
       "noMessage": "Mesaj girilmemiş.",
       "noEvidence": "Kanıt girilmemiş.",
       "noOwner": "Henüz aktif bir owner bağlanmamış.",
+      "claimedFollowUpHint": "Place zaten claimed durumda, ancak verified aşamasına geçmek için hâlâ manuel trust takibi gerekiyor.",
       "unknown": "Bilinmiyor",
       "goToPlace": "Place trust ekranına git",
       "reviewActions": "İnceleme aksiyonları",
@@ -539,6 +556,164 @@
       "title": "Admin logları",
       "description": "İzlenebilirlik için son moderasyon ve admin aksiyonları.",
       "empty": "Henüz log yok."
+    },
+    "ingest": {
+      "title": "Ingest çalıştırmaları",
+      "description": "Son pipeline çalıştırmalarının, temel sonuç sayılarının ve bağlı kaynağın dahili görünümü.",
+      "problemItemsTitle": "Sorunlu raw ingest kayıtları",
+      "problemItemsDescription": "Ingest hattındaki başarısız veya henüz işlenmemiş ham kayıtları gösterir.",
+      "problemItemsAction": "Raw ingest sorunlarını aç",
+      "sourcesTitle": "Bilinen kaynaklar",
+      "sourcesDescription": "Şu anda bilinen discovery ve ingest kaynaklarını temel operasyonel metadatalarıyla gösterir.",
+      "sourcesAction": "Kaynakları aç",
+      "submissionsTitle": "Submissions",
+      "submissionsDescription": "Gelen submission kayıtlarının ve mevcut inceleme durumlarının dahili görünümü.",
+      "submissionsAction": "Submissions aç",
+      "empty": "Henüz ingest çalıştırması yok.",
+      "summary": "Toplam {total, number} çalıştırma, {running, number} RUNNING, {done, number} DONE, {failed, number} FAILED",
+      "filters": {
+        "all": "Tüm çalıştırmalar",
+        "running": "Sadece RUNNING",
+        "done": "Sadece DONE",
+        "failed": "Sadece FAILED"
+      },
+      "columns": {
+        "id": "ID",
+        "pipelineName": "Pipeline",
+        "triggerType": "Tetikleyici",
+        "status": "Durum",
+        "itemsFound": "Bulunan",
+        "itemsCreated": "Yeni",
+        "itemsUpdated": "Güncellenen",
+        "itemsFailed": "Hata",
+        "startedAt": "Başlangıç",
+        "finishedAt": "Bitiş",
+        "source": "Kaynak"
+      },
+      "fallbacks": {
+        "notAvailable": "Yok",
+        "unknownSource": "Bilinmeyen kaynak"
+      }
+    },
+    "sources": {
+      "title": "Kaynak görünümü",
+      "description": "Şu anda bilinen discovery ve ingest kaynaklarının dahili görünümü.",
+      "empty": "Henüz kaynak yok.",
+      "summary": "Toplam {total, number} kaynak, {active, number} aktif, {public, number} herkese açık",
+      "filters": {
+        "all": "Tüm kaynaklar ({count, number})",
+        "active": "Sadece aktif ({count, number})",
+        "public": "Sadece herkese açık ({count, number})"
+      },
+      "kindFilters": {
+        "all": "Tüm türler"
+      },
+      "columns": {
+        "id": "ID",
+        "sourceKind": "Kaynak türü",
+        "name": "Ad",
+        "url": "URL",
+        "accountHandle": "Handle",
+        "externalId": "Harici ID",
+        "isPublic": "Görünürlük",
+        "isActive": "Aktiflik",
+        "trustScore": "Trust skoru",
+        "discoveryMethod": "Discovery yöntemi",
+        "lastCheckedAt": "Son kontrol",
+        "updatedAt": "Güncellendi"
+      },
+      "badges": {
+        "public": "Herkese açık",
+        "private": "Dahili",
+        "active": "Aktif",
+        "inactive": "Pasif"
+      },
+      "fallbacks": {
+        "notAvailable": "Yok"
+      }
+    },
+    "sourceDetail": {
+      "title": "Kaynak detayı",
+      "description": "Bilinen bir discovery veya ingest kaynağı için dahili detay görünümü.",
+      "noName": "Adsız kaynak",
+      "notAvailable": "Yok",
+      "sourceKind": "Kaynak türü",
+      "url": "URL",
+      "accountHandle": "Handle",
+      "externalId": "Harici ID",
+      "trustScore": "Trust skoru",
+      "discoveryMethod": "Discovery yöntemi",
+      "lastCheckedAt": "Son kontrol",
+      "createdAt": "Oluşturuldu",
+      "updatedAt": "Güncellendi",
+      "ingestRunsTitle": "Son ingest çalıştırmaları",
+      "noIngestRuns": "Bu kaynak için henüz ingest çalıştırması yok.",
+      "rawItemsTitle": "Sorunlu raw ingest kayıtları",
+      "noRawItems": "Bu kaynak için şu anda sorunlu raw ingest kaydı yok.",
+      "noRawTitle": "Ham başlık yok",
+      "badges": {
+        "public": "Herkese açık",
+        "private": "Dahili",
+        "active": "Aktif",
+        "inactive": "Pasif"
+      }
+    },
+    "submissions": {
+      "title": "Submissions",
+      "description": "Hedef bağlantıları ve inceleme metadatalarıyla gelen submission kayıtlarının dahili görünümü.",
+      "empty": "Henüz submission yok.",
+      "summary": "Toplam {total, number} submission, {pending, number} pending, {approved, number} approved/done, {rejected, number} rejected/failed",
+      "filters": {
+        "all": "Tüm submissions ({count, number})",
+        "pending": "Sadece PENDING ({count, number})",
+        "approved": "Sadece APPROVED/DONE ({count, number})",
+        "rejected": "Sadece REJECTED/FAILED ({count, number})"
+      },
+      "columns": {
+        "id": "ID",
+        "submissionType": "Submission türü",
+        "status": "Durum",
+        "targetEntityType": "Hedef türü",
+        "targetEntityId": "Hedef ID",
+        "submittedByUserId": "Gönderen kullanıcı",
+        "sourceUrl": "Source URL",
+        "reviewedByUserId": "İnceleyen kullanıcı",
+        "reviewedAt": "İncelenme zamanı",
+        "createdAt": "Oluşturuldu",
+        "updatedAt": "Güncellendi"
+      },
+      "fallbacks": {
+        "notAvailable": "Yok"
+      }
+    },
+    "rawIngest": {
+      "title": "Raw ingest sorunları",
+      "description": "Başarısız olan veya henüz işlenmemiş raw ingest kayıtlarının dahili görünümü.",
+      "empty": "Şu anda sorunlu raw ingest kaydı yok.",
+      "summary": "Toplam {total, number} sorunlu kayıt, {failed, number} FAILED, {pending, number} PENDING",
+      "filters": {
+        "all": "Tüm sorunlu kayıtlar ({count, number})",
+        "failed": "Sadece FAILED ({count, number})",
+        "pending": "Sadece PENDING ({count, number})"
+      },
+      "columns": {
+        "id": "ID",
+        "status": "Durum",
+        "entityGuess": "Entity tahmini",
+        "rawTitle": "Ham başlık",
+        "rawDatetimeText": "Ham tarih/saat",
+        "rawLocationText": "Ham konum",
+        "languageHint": "Dil",
+        "cityGuess": "Şehir tahmini",
+        "ingestedAt": "İçe alındı",
+        "processedAt": "İşlendi",
+        "source": "Kaynak",
+        "errorMessage": "Hata mesajı"
+      },
+      "fallbacks": {
+        "notAvailable": "Yok",
+        "unknownSource": "Bilinmeyen kaynak"
+      }
     },
     "reportStatuses": {
       "open": "Açık",
@@ -560,7 +735,8 @@
       "title": "Place'ler ve ownership",
       "description": "Owner bağlantısını, trust durumunu ve son güncellenen business alanlarını incele.",
       "empty": "Place bulunamadı.",
-      "noOwner": "Bağlı owner yok"
+      "noOwner": "Bağlı owner yok",
+      "claimedFollowUpHint": "Zaten claimed, ancak henüz verified değil."
     },
     "placeDetail": {
       "title": "Place trust yönetimi",
@@ -574,6 +750,7 @@
       "noWebsite": "Web sitesi girilmemiş.",
       "lastVerified": "Son doğrulama",
       "notVerified": "Henüz doğrulanmadı.",
+      "claimedFollowUpHint": "Place zaten claimed durumda, ancak verified aşamasına geçmek için hâlâ manuel trust takibi gerekiyor.",
       "aiTitle": "AI denetimi",
       "aiDescription": "Bu değerler harici n8n/Gemini olasılık kontrolünden gelir. Moderasyona yardımcı olur, ama manuel kararı tek başına belirlemez.",
       "aiReviewStatus": "AI inceleme durumu",
@@ -588,6 +765,35 @@
         "success": "Trust durumu güncellendi.",
         "error": "Trust durumu kaydedilemedi."
       }
+    },
+    "eventDetail": {
+      "title": "Etkinlik moderasyonunu incele",
+      "description": "Bu etkinliğin yayın durumunu, AI sinyallerini ve mevcut bildirimlerini kompakt bir admin görünümünde incele.",
+      "publicPage": "Public sayfa",
+      "category": "Kategori",
+      "startsAt": "Başlangıç",
+      "endsAt": "Bitiş",
+      "noStartsAt": "Başlangıç zamanı yok.",
+      "noEndsAt": "Bitiş zamanı yok.",
+      "venue": "Venue",
+      "noVenue": "Venue bilgisi girilmemiş.",
+      "organizer": "Organizer",
+      "noOrganizer": "Organizer bilgisi girilmemiş.",
+      "externalUrl": "Harici URL",
+      "noExternalUrl": "Harici URL girilmemiş.",
+      "moderationStatus": "Moderasyon durumu",
+      "publicationStatus": {
+        "published": "Yayında",
+        "unpublished": "Yayında değil"
+      },
+      "aiTitle": "AI denetimi",
+      "aiDescription": "Bu değerler harici n8n/Gemini olasılık kontrolünden gelir. Etkinlik moderasyonuna yardımcı olur, ama manuel kararı tek başına belirlemez.",
+      "aiReviewStatus": "AI inceleme durumu",
+      "aiConfidenceScore": "AI güven puanı",
+      "aiLastCheckedAt": "Son AI kontrolü",
+      "aiNotChecked": "Henüz AI kontrolü yapılmadı.",
+      "reportsTitle": "Son bildirimler",
+      "noReports": "Bu etkinlik için şu anda bildirim yok."
     }
   },
   "footer": {

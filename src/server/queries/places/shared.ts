@@ -56,6 +56,17 @@ export const publicPlaceSelect = Prisma.validator<Prisma.PlaceSelect>()({
   },
 });
 
+export const publicPlaceSelectWithAi = Prisma.validator<Prisma.PlaceSelect>()({
+  ...publicPlaceSelect,
+  aiReviewStatus: true,
+  aiConfidenceScore: true,
+  createdAt: true,
+});
+
 export type PublicPlaceRecord = Prisma.PlaceGetPayload<{
   select: typeof publicPlaceSelect;
+}>;
+
+export type PublicPlaceRecordWithAi = Prisma.PlaceGetPayload<{
+  select: typeof publicPlaceSelectWithAi;
 }>;
