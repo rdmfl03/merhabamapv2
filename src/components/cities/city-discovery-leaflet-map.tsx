@@ -75,20 +75,42 @@ function createMarkerIcon(kind: "place" | "event", active: boolean): DivIcon {
     html: `<span style="
       position:relative;
       display:block;
-      width:${active ? 22 : 18}px;
-      height:${active ? 22 : 18}px;
+      width:${active ? 24 : 20}px;
+      height:${active ? 32 : 28}px;
+      filter:drop-shadow(0 10px 22px rgba(227,10,23,0.22));
+    "><span style="
+      position:absolute;
+      top:0;
+      left:50%;
+      width:${active ? 24 : 20}px;
+      height:${active ? 24 : 20}px;
+      transform:translateX(-50%);
       background:#e30a17;
       border:2px solid #ffffff;
       border-radius:999px;
-      box-shadow:0 10px 24px rgba(227,10,23,0.18),0 0 0 ${active ? 8 : 6}px rgba(227,10,23,0.16);
     "><span style="
       position:absolute;
-      inset:5px;
+      top:50%;
+      left:50%;
+      width:${active ? 8 : 7}px;
+      height:${active ? 8 : 7}px;
+      transform:translate(-50%, -50%);
       background:#ffffff;
       border-radius:999px;
+    "></span></span><span style="
+      position:absolute;
+      bottom:0;
+      left:50%;
+      width:${active ? 12 : 10}px;
+      height:${active ? 12 : 10}px;
+      transform:translateX(-50%) rotate(45deg);
+      background:#e30a17;
+      border-right:2px solid #ffffff;
+      border-bottom:2px solid #ffffff;
+      border-bottom-right-radius:3px;
     "></span></span>`,
-    iconSize: [active ? 22 : 18, active ? 22 : 18],
-    iconAnchor: [active ? 11 : 9, active ? 11 : 9],
+    iconSize: [active ? 24 : 20, active ? 32 : 28],
+    iconAnchor: [active ? 12 : 10, active ? 32 : 28],
   });
 }
 
@@ -214,6 +236,8 @@ export function CityDiscoveryLeafletMap({
   myLocationLabel,
 }: CityDiscoveryLeafletMapProps) {
   const shouldCluster = points.length > SMALL_DATASET_CLUSTER_THRESHOLD;
+  const placePoints = points.filter((point) => point.kind === "place");
+  const eventPoints = points.filter((point) => point.kind === "event");
 
   return (
     <div className="relative h-[36rem] overflow-hidden rounded-[1.9rem] border border-border/70 bg-[#f5f6f8] lg:h-[42rem]">
@@ -232,45 +256,87 @@ export function CityDiscoveryLeafletMap({
         <PanToActive points={points} activeId={selectedId} />
 
         {shouldCluster ? (
-          <MarkerClusterGroup
-            chunkedLoading
-            showCoverageOnHover={false}
-            spiderfyOnMaxZoom
-            maxClusterRadius={48}
-          >
-            {points.map((point) => (
-              <Marker
-                key={point.id}
-                position={[point.latitude, point.longitude]}
-                icon={createMarkerIcon(point.kind, activeId === point.id)}
-                eventHandlers={{
-                  mouseover: () => onHoverChange(point.id),
-                  click: () => onSelectChange(point.id),
-                  mouseout: () => onHoverChange(null),
-                }}
-              >
-                <Popup>
-                  <div className="space-y-1.5 min-w-[12rem]">
-                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#e30a17]">
-                      {point.categoryLabel}
-                    </p>
-                    <h4 className="text-sm font-semibold text-slate-900">{point.label}</h4>
-                    <p className="text-xs font-medium text-slate-500">{point.meta}</p>
-                    <p className="text-xs leading-5 text-slate-600">
-                      {point.description || point.meta}
-                    </p>
-                    <Link
-                      href={point.href}
-                      className="inline-block rounded-full bg-[#e30a17] px-3 py-1.5 text-xs font-semibold"
-                      style={{ color: "#ffffff", textDecoration: "none" }}
-                    >
-                      {point.kind === "place" ? viewPlaceLabel : viewEventLabel}
-                    </Link>
-                  </div>
-                </Popup>
-              </Marker>
-            ))}
-          </MarkerClusterGroup>
+          <>
+            <MarkerClusterGroup
+              chunkedLoading
+              showCoverageOnHover={false}
+              spiderfyOnMaxZoom
+              maxClusterRadius={48}
+            >
+              {placePoints.map((point) => (
+                <Marker
+                  key={point.id}
+                  position={[point.latitude, point.longitude]}
+                  icon={createMarkerIcon(point.kind, activeId === point.id)}
+                  eventHandlers={{
+                    mouseover: () => onHoverChange(point.id),
+                    click: () => onSelectChange(point.id),
+                    mouseout: () => onHoverChange(null),
+                  }}
+                >
+                  <Popup>
+                    <div className="space-y-1.5 min-w-[12rem]">
+                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#e30a17]">
+                        {point.categoryLabel}
+                      </p>
+                      <h4 className="text-sm font-semibold text-slate-900">{point.label}</h4>
+                      <p className="text-xs font-medium text-slate-500">{point.meta}</p>
+                      <p className="text-xs leading-5 text-slate-600">
+                        {point.description || point.meta}
+                      </p>
+                      <Link
+                        href={point.href}
+                        className="inline-block rounded-full bg-[#e30a17] px-3 py-1.5 text-xs font-semibold"
+                        style={{ color: "#ffffff", textDecoration: "none" }}
+                      >
+                        {viewPlaceLabel}
+                      </Link>
+                    </div>
+                  </Popup>
+                </Marker>
+              ))}
+            </MarkerClusterGroup>
+
+            <MarkerClusterGroup
+              chunkedLoading
+              showCoverageOnHover={false}
+              spiderfyOnMaxZoom
+              maxClusterRadius={48}
+            >
+              {eventPoints.map((point) => (
+                <Marker
+                  key={point.id}
+                  position={[point.latitude, point.longitude]}
+                  icon={createMarkerIcon(point.kind, activeId === point.id)}
+                  eventHandlers={{
+                    mouseover: () => onHoverChange(point.id),
+                    click: () => onSelectChange(point.id),
+                    mouseout: () => onHoverChange(null),
+                  }}
+                >
+                  <Popup>
+                    <div className="space-y-1.5 min-w-[12rem]">
+                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#e30a17]">
+                        {point.categoryLabel}
+                      </p>
+                      <h4 className="text-sm font-semibold text-slate-900">{point.label}</h4>
+                      <p className="text-xs font-medium text-slate-500">{point.meta}</p>
+                      <p className="text-xs leading-5 text-slate-600">
+                        {point.description || point.meta}
+                      </p>
+                      <Link
+                        href={point.href}
+                        className="inline-block rounded-full bg-[#e30a17] px-3 py-1.5 text-xs font-semibold"
+                        style={{ color: "#ffffff", textDecoration: "none" }}
+                      >
+                        {viewEventLabel}
+                      </Link>
+                    </div>
+                  </Popup>
+                </Marker>
+              ))}
+            </MarkerClusterGroup>
+          </>
         ) : (
           <>
             {points.map((point) => (

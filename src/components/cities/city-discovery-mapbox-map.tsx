@@ -34,12 +34,15 @@ type CityDiscoveryMapboxMapProps = {
 };
 
 const DEFAULT_CENTER: [number, number] = [10.4515, 51.1657];
-const POINTS_SOURCE_ID = "merhaba-points";
+const PLACE_SOURCE_ID = "merhaba-place-points";
+const EVENT_SOURCE_ID = "merhaba-event-points";
 const USER_SOURCE_ID = "merhaba-user-location";
-const CLUSTERS_LAYER_ID = "merhaba-clusters";
-const CLUSTER_COUNT_LAYER_ID = "merhaba-cluster-count";
-const PLACE_LAYER_ID = "merhaba-place-points";
-const EVENT_LAYER_ID = "merhaba-event-points";
+const PLACE_CLUSTERS_LAYER_ID = "merhaba-place-clusters";
+const PLACE_CLUSTER_COUNT_LAYER_ID = "merhaba-place-cluster-count";
+const PLACE_POINTS_LAYER_ID = "merhaba-place-points-layer";
+const EVENT_CLUSTERS_LAYER_ID = "merhaba-event-clusters";
+const EVENT_CLUSTER_COUNT_LAYER_ID = "merhaba-event-cluster-count";
+const EVENT_POINTS_LAYER_ID = "merhaba-event-points-layer";
 const USER_LAYER_ID = "merhaba-user-point";
 const SMALL_DATASET_CLUSTER_THRESHOLD = 8;
 
@@ -228,11 +231,22 @@ export function CityDiscoveryMapboxMap({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapboxMap | null>(null);
   const popupRef = useRef<mapboxgl.Popup | null>(null);
+  const suppressPopupCloseRef = useRef(false);
   const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 
-  const pointsData = useMemo(() => buildPointsGeoJson(points), [points]);
+  const placePoints = useMemo(
+    () => points.filter((point) => point.kind === "place"),
+    [points],
+  );
+  const eventPoints = useMemo(
+    () => points.filter((point) => point.kind === "event"),
+    [points],
+  );
+  const placePointsData = useMemo(() => buildPointsGeoJson(placePoints), [placePoints]);
+  const eventPointsData = useMemo(() => buildPointsGeoJson(eventPoints), [eventPoints]);
   const userData = useMemo(() => buildUserGeoJson(userLocation), [userLocation]);
-  const shouldCluster = points.length > SMALL_DATASET_CLUSTER_THRESHOLD;
+  const shouldClusterPlaces = placePoints.length > SMALL_DATASET_CLUSTER_THRESHOLD;
+  const shouldClusterEvents = eventPoints.length > SMALL_DATASET_CLUSTER_THRESHOLD;
 
   useEffect(() => {
     if (!containerRef.current || !token || mapRef.current) {
@@ -256,19 +270,19 @@ export function CityDiscoveryMapboxMap({
     map.on("style.load", () => {
       applyGermanLabels(map);
       applyNeutralGrayTheme(map);
-      map.addSource(POINTS_SOURCE_ID, {
+      map.addSource(PLACE_SOURCE_ID, {
         type: "geojson",
-        data: pointsData,
-        cluster: shouldCluster,
+        data: placePointsData,
+        cluster: shouldClusterPlaces,
         clusterMaxZoom: 14,
-        clusterRadius: shouldCluster ? 50 : 1,
+        clusterRadius: shouldClusterPlaces ? 50 : 1,
         promoteId: "id",
       });
 
       map.addLayer({
-        id: CLUSTERS_LAYER_ID,
+        id: PLACE_CLUSTERS_LAYER_ID,
         type: "circle",
-        source: POINTS_SOURCE_ID,
+        source: PLACE_SOURCE_ID,
         filter: ["has", "point_count"],
         paint: {
           "circle-color": "#e30a17",
@@ -288,9 +302,9 @@ export function CityDiscoveryMapboxMap({
       });
 
       map.addLayer({
-        id: CLUSTER_COUNT_LAYER_ID,
+        id: PLACE_CLUSTER_COUNT_LAYER_ID,
         type: "symbol",
-        source: POINTS_SOURCE_ID,
+        source: PLACE_SOURCE_ID,
         filter: ["has", "point_count"],
         layout: {
           "text-field": ["get", "point_count_abbreviated"],
@@ -303,10 +317,10 @@ export function CityDiscoveryMapboxMap({
       });
 
       map.addLayer({
-        id: PLACE_LAYER_ID,
+        id: PLACE_POINTS_LAYER_ID,
         type: "circle",
-        source: POINTS_SOURCE_ID,
-        filter: ["all", ["!", ["has", "point_count"]], ["==", ["get", "kind"], "place"]],
+        source: PLACE_SOURCE_ID,
+        filter: ["!", ["has", "point_count"]],
         paint: {
           "circle-color": "#e30a17",
           "circle-radius": [
@@ -323,11 +337,57 @@ export function CityDiscoveryMapboxMap({
         },
       });
 
+      map.addSource(EVENT_SOURCE_ID, {
+        type: "geojson",
+        data: eventPointsData,
+        cluster: shouldClusterEvents,
+        clusterMaxZoom: 14,
+        clusterRadius: shouldClusterEvents ? 50 : 1,
+        promoteId: "id",
+      });
+
       map.addLayer({
-        id: EVENT_LAYER_ID,
+        id: EVENT_CLUSTERS_LAYER_ID,
         type: "circle",
-        source: POINTS_SOURCE_ID,
-        filter: ["all", ["!", ["has", "point_count"]], ["==", ["get", "kind"], "event"]],
+        source: EVENT_SOURCE_ID,
+        filter: ["has", "point_count"],
+        paint: {
+          "circle-color": "#111827",
+          "circle-radius": [
+            "step",
+            ["get", "point_count"],
+            18,
+            10,
+            24,
+            25,
+            30,
+          ],
+          "circle-stroke-color": "#ffffff",
+          "circle-stroke-width": 3,
+          "circle-opacity": 0.95,
+        },
+      });
+
+      map.addLayer({
+        id: EVENT_CLUSTER_COUNT_LAYER_ID,
+        type: "symbol",
+        source: EVENT_SOURCE_ID,
+        filter: ["has", "point_count"],
+        layout: {
+          "text-field": ["get", "point_count_abbreviated"],
+          "text-size": 12,
+          "text-font": ["Open Sans Bold", "Arial Unicode MS Bold"],
+        },
+        paint: {
+          "text-color": "#ffffff",
+        },
+      });
+
+      map.addLayer({
+        id: EVENT_POINTS_LAYER_ID,
+        type: "circle",
+        source: EVENT_SOURCE_ID,
+        filter: ["!", ["has", "point_count"]],
         paint: {
           "circle-color": "#111827",
           "circle-radius": [
@@ -361,13 +421,13 @@ export function CityDiscoveryMapboxMap({
         },
       });
 
-      if (shouldCluster) {
-        map.on("click", CLUSTERS_LAYER_ID, (event) => {
+      if (shouldClusterPlaces) {
+        map.on("click", PLACE_CLUSTERS_LAYER_ID, (event) => {
           const feature = event.features?.[0];
           if (!feature) return;
 
           const clusterId = feature.properties?.cluster_id;
-          const source = map.getSource(POINTS_SOURCE_ID) as GeoJSONSource | undefined;
+          const source = map.getSource(PLACE_SOURCE_ID) as GeoJSONSource | undefined;
           if (!source || clusterId == null) return;
 
           const [longitude, latitude] = (feature.geometry as GeoJSON.Point).coordinates;
@@ -385,16 +445,49 @@ export function CityDiscoveryMapboxMap({
         });
       }
 
-      for (const layerId of [PLACE_LAYER_ID, EVENT_LAYER_ID]) {
+      if (shouldClusterEvents) {
+        map.on("click", EVENT_CLUSTERS_LAYER_ID, (event) => {
+          const feature = event.features?.[0];
+          if (!feature) return;
+
+          const clusterId = feature.properties?.cluster_id;
+          const source = map.getSource(EVENT_SOURCE_ID) as GeoJSONSource | undefined;
+          if (!source || clusterId == null) return;
+
+          const [longitude, latitude] = (feature.geometry as GeoJSON.Point).coordinates;
+          source.getClusterExpansionZoom(Number(clusterId), (error, zoom) => {
+            if (error || zoom == null) {
+              return;
+            }
+
+            map.easeTo({
+              center: [longitude, latitude],
+              zoom: Math.max(zoom, 15),
+              duration: 400,
+            });
+          });
+        });
+      }
+
+      for (const layerId of [
+        PLACE_CLUSTERS_LAYER_ID,
+        EVENT_CLUSTERS_LAYER_ID,
+        PLACE_POINTS_LAYER_ID,
+        EVENT_POINTS_LAYER_ID,
+      ]) {
         map.on("mouseenter", layerId, () => {
           map.getCanvas().style.cursor = "pointer";
         });
 
         map.on("mouseleave", layerId, () => {
           map.getCanvas().style.cursor = "";
-          onHoverChange(null);
         });
+      }
 
+      for (const [layerId, targetPoints] of [
+        [PLACE_POINTS_LAYER_ID, placePoints] as const,
+        [EVENT_POINTS_LAYER_ID, eventPoints] as const,
+      ]) {
         map.on("mousemove", layerId, (event) => {
           const feature = event.features?.[0];
           const featureId = feature?.properties?.id as string | undefined;
@@ -406,7 +499,7 @@ export function CityDiscoveryMapboxMap({
           if (!feature) return;
 
           const featureId = feature.properties?.id as string | undefined;
-          const point = points.find((entry) => entry.id === featureId);
+          const point = targetPoints.find((entry) => entry.id === featureId);
           if (!featureId || !point) return;
 
           onSelectChange(featureId);
@@ -428,12 +521,15 @@ export function CityDiscoveryMapboxMap({
       mapRef.current = null;
     };
   }, [
+    eventPoints,
+    eventPointsData,
     myLocationLabel,
     onHoverChange,
     onSelectChange,
-    points,
-    pointsData,
-    shouldCluster,
+    placePoints,
+    placePointsData,
+    shouldClusterEvents,
+    shouldClusterPlaces,
     token,
     userData,
   ]);
@@ -446,8 +542,11 @@ export function CityDiscoveryMapboxMap({
 
     applyGermanLabels(map);
 
-    const source = map.getSource(POINTS_SOURCE_ID) as GeoJSONSource | undefined;
-    source?.setData(pointsData);
+    const placeSource = map.getSource(PLACE_SOURCE_ID) as GeoJSONSource | undefined;
+    placeSource?.setData(placePointsData);
+
+    const eventSource = map.getSource(EVENT_SOURCE_ID) as GeoJSONSource | undefined;
+    eventSource?.setData(eventPointsData);
 
     const userSource = map.getSource(USER_SOURCE_ID) as GeoJSONSource | undefined;
     userSource?.setData(userData);
@@ -494,11 +593,22 @@ export function CityDiscoveryMapboxMap({
       ],
       {
         padding: 48,
-        maxZoom: shouldCluster ? 13.5 : 15,
+        maxZoom:
+          shouldClusterPlaces || shouldClusterEvents ? 13.5 : 15,
         duration: 0,
       },
     );
-  }, [cityCenter, points, pointsData, selectedId, shouldCluster, userData, userLocation]);
+  }, [
+    cityCenter,
+    eventPointsData,
+    placePointsData,
+    points,
+    selectedId,
+    shouldClusterEvents,
+    shouldClusterPlaces,
+    userData,
+    userLocation,
+  ]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -506,16 +616,26 @@ export function CityDiscoveryMapboxMap({
       return;
     }
 
-    for (const point of points) {
+    for (const point of placePoints) {
       map.setFeatureState(
-        { source: POINTS_SOURCE_ID, id: point.id },
+        { source: PLACE_SOURCE_ID, id: point.id },
         {
           hover: point.id === activeId,
           selected: point.id === selectedId,
         },
       );
     }
-  }, [activeId, points, selectedId]);
+
+    for (const point of eventPoints) {
+      map.setFeatureState(
+        { source: EVENT_SOURCE_ID, id: point.id },
+        {
+          hover: point.id === activeId,
+          selected: point.id === selectedId,
+        },
+      );
+    }
+  }, [activeId, eventPoints, placePoints, selectedId]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -523,8 +643,11 @@ export function CityDiscoveryMapboxMap({
       return;
     }
 
-    popupRef.current?.remove();
-    popupRef.current = null;
+    if (popupRef.current) {
+      suppressPopupCloseRef.current = true;
+      popupRef.current.remove();
+      popupRef.current = null;
+    }
 
     if (!selectedId) {
       return;
@@ -552,6 +675,10 @@ export function CityDiscoveryMapboxMap({
     });
 
     popupRef.current.on("close", () => {
+      if (suppressPopupCloseRef.current) {
+        suppressPopupCloseRef.current = false;
+        return;
+      }
       onSelectChange(null);
     });
   }, [onSelectChange, points, selectedId, viewEventLabel, viewPlaceLabel]);
