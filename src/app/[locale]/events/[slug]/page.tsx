@@ -77,6 +77,8 @@ export default async function EventDetailPage({
   const address = [event.addressLine1, event.postalCode, cityLabel]
     .filter(Boolean)
     .join(", ");
+  const showCurationHint =
+    event.moderationStatus === "APPROVED" && event.isPublished;
 
   return (
     <div className="mx-auto max-w-6xl space-y-8 px-4 py-10 sm:py-12">
@@ -137,6 +139,17 @@ export default async function EventDetailPage({
             </div>
 
             <p className="text-sm leading-7 text-muted-foreground">{description}</p>
+
+            {showCurationHint ? (
+              <div className="rounded-2xl border border-sky-200 bg-sky-50/70 px-4 py-3">
+                <p className="text-sm font-medium text-foreground">
+                  {t("detail.curationHintTitle")}
+                </p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {t("detail.curationHintDescription")}
+                </p>
+              </div>
+            ) : null}
 
             <div className="flex flex-wrap gap-3">
               <EventSaveButton

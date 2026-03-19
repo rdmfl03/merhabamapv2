@@ -36,6 +36,15 @@ export default async function SubmitEventPage({ params }: SubmitEventPageProps) 
         </div>
       </section>
 
+      <section className="rounded-2xl border border-border/80 bg-muted/40 px-4 py-4">
+        <p className="text-sm font-semibold text-foreground">
+          {t("common.expectation.title")}
+        </p>
+        <p className="mt-1 text-sm leading-6 text-muted-foreground">
+          {t("common.expectation.description")}
+        </p>
+      </section>
+
       <EventSubmissionForm
         locale={locale}
         isAuthenticated={Boolean(session?.user?.id)}

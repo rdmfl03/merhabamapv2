@@ -25,6 +25,8 @@ export function buildPublicPlaceWhere(
 export const publicPlaceSelect = Prisma.validator<Prisma.PlaceSelect>()({
   id: true,
   slug: true,
+  isPublished: true,
+  moderationStatus: true,
   name: true,
   descriptionDe: true,
   descriptionTr: true,

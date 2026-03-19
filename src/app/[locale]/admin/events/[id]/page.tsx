@@ -107,21 +107,21 @@ export default async function AdminEventDetailPage({
                     locale={locale}
                     entityType="EVENT"
                     entityId={event.id}
-                  labels={{
-                    title: t("eventDetail.moderationActions.title"),
-                    helper: t("eventDetail.moderationActions.helper"),
-                    approve: t("eventDetail.moderationActions.approve"),
-                    reject: t("eventDetail.moderationActions.reject"),
-                    rejectConfirm: t("eventDetail.moderationActions.rejectConfirm"),
-                    rejectCancel: t("eventDetail.moderationActions.rejectCancel"),
-                    success: t("eventDetail.moderationActions.success"),
-                    error: t("eventDetail.moderationActions.error"),
-                    rejectConfirmationRequired: t(
-                      "eventDetail.moderationActions.rejectConfirmationRequired",
-                    ),
-                  }}
-                />
-              </div>
+                    labels={{
+                      title: t("eventDetail.moderationActions.title"),
+                      helper: t("eventDetail.moderationActions.helper"),
+                      approve: t("eventDetail.moderationActions.approve"),
+                      reject: t("eventDetail.moderationActions.reject"),
+                      rejectConfirm: t("eventDetail.moderationActions.rejectConfirm"),
+                      rejectCancel: t("eventDetail.moderationActions.rejectCancel"),
+                      success: t("eventDetail.moderationActions.success"),
+                      error: t("eventDetail.moderationActions.error"),
+                      rejectConfirmationRequired: t(
+                        "eventDetail.moderationActions.rejectConfirmationRequired",
+                      ),
+                    }}
+                  />
+                </div>
                 <div className="rounded-2xl border border-border/80 bg-muted/40 p-4">
                   <p className="text-sm font-semibold text-foreground">
                     {t("eventDetail.reviewChecklist.title")}
@@ -129,12 +129,31 @@ export default async function AdminEventDetailPage({
                   <p className="mt-1 text-sm text-muted-foreground">
                     {t("eventDetail.reviewChecklist.description")}
                   </p>
+                  {event.submissionContext ? (
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      {t(
+                        `eventDetail.originGuidance.${event.submissionContext.origin}`,
+                      )}
+                    </p>
+                  ) : null}
                   <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
                     <li>{t("eventDetail.reviewChecklist.items.titlePlausible")}</li>
                     <li>{t("eventDetail.reviewChecklist.items.cityCorrect")}</li>
                     <li>{t("eventDetail.reviewChecklist.items.categoryFits")}</li>
-                    <li>{t("eventDetail.reviewChecklist.items.sourceSufficient")}</li>
-                    <li>{t("eventDetail.reviewChecklist.items.dateTimePlausible")}</li>
+                    <li>
+                      {t(
+                        event.submissionContext?.origin === "system_submission"
+                          ? "eventDetail.reviewChecklist.items.mappingSourceSufficient"
+                          : "eventDetail.reviewChecklist.items.sourceSufficient",
+                      )}
+                    </li>
+                    <li>
+                      {t(
+                        event.submissionContext?.origin === "system_submission"
+                          ? "eventDetail.reviewChecklist.items.duplicateAware"
+                          : "eventDetail.reviewChecklist.items.dateTimePlausible",
+                      )}
+                    </li>
                   </ul>
                 </div>
               </div>
@@ -153,6 +172,9 @@ export default async function AdminEventDetailPage({
                           `submissions.origins.${event.submissionContext.origin}`,
                         ),
                       })}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {t(`eventDetail.originGuidance.${event.submissionContext.origin}`)}
                     </p>
                   </div>
                   <StatusBadge

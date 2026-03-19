@@ -439,6 +439,9 @@ export default async function AdminSubmissionsPage({
                             {submission.label}
                           </h3>
                           <p className="break-all text-xs text-muted-foreground">{submission.id}</p>
+                          <p className="mt-1 text-sm text-muted-foreground">
+                            {t(`submissions.originGuidance.${submission.origin}`)}
+                          </p>
                         </div>
                       </div>
                       <p className="text-sm text-muted-foreground">
@@ -507,6 +510,9 @@ export default async function AdminSubmissionsPage({
                               `submissions.entityTypes.${(submission.targetEntityType ?? "unknown").toLowerCase()}`,
                             ),
                           })}
+                        </p>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          {t(`submissions.originGuidance.${submission.origin}`)}
                         </p>
                       </div>
                       <div>

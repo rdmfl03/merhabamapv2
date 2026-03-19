@@ -81,6 +81,8 @@ export default async function PlaceDetailPage({
   const cityLabel = locale === "tr" ? place.city.nameTr : place.city.nameDe;
   const categoryLabel = getLocalizedPlaceCategoryLabel(place.category, locale);
   const returnPath = `/${locale}/places/${place.slug}`;
+  const showCurationHint =
+    place.moderationStatus === "APPROVED" && place.isPublished;
 
   return (
     <div className="mx-auto max-w-6xl space-y-8 px-4 py-10 sm:py-12">
@@ -144,6 +146,17 @@ export default async function PlaceDetailPage({
             </div>
 
             <p className="text-sm leading-7 text-muted-foreground">{description}</p>
+
+            {showCurationHint ? (
+              <div className="rounded-2xl border border-sky-200 bg-sky-50/70 px-4 py-3">
+                <p className="text-sm font-medium text-foreground">
+                  {t("detail.curationHintTitle")}
+                </p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {t("detail.curationHintDescription")}
+                </p>
+              </div>
+            ) : null}
 
             {place.verificationStatus === "VERIFIED" ? (
               <PlaceTrustHelper

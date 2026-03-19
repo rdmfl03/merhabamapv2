@@ -25,6 +25,8 @@ export function buildPublicEventWhere(
 export const publicEventSelect = Prisma.validator<Prisma.EventSelect>()({
   id: true,
   slug: true,
+  isPublished: true,
+  moderationStatus: true,
   title: true,
   descriptionDe: true,
   descriptionTr: true,

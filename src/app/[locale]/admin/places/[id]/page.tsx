@@ -101,21 +101,21 @@ export default async function AdminPlaceDetailPage({
                     locale={locale}
                     entityType="PLACE"
                     entityId={place.id}
-                  labels={{
-                    title: t("placeDetail.moderationActions.title"),
-                    helper: t("placeDetail.moderationActions.helper"),
-                    approve: t("placeDetail.moderationActions.approve"),
-                    reject: t("placeDetail.moderationActions.reject"),
-                    rejectConfirm: t("placeDetail.moderationActions.rejectConfirm"),
-                    rejectCancel: t("placeDetail.moderationActions.rejectCancel"),
-                    success: t("placeDetail.moderationActions.success"),
-                    error: t("placeDetail.moderationActions.error"),
-                    rejectConfirmationRequired: t(
-                      "placeDetail.moderationActions.rejectConfirmationRequired",
-                    ),
-                  }}
-                />
-              </div>
+                    labels={{
+                      title: t("placeDetail.moderationActions.title"),
+                      helper: t("placeDetail.moderationActions.helper"),
+                      approve: t("placeDetail.moderationActions.approve"),
+                      reject: t("placeDetail.moderationActions.reject"),
+                      rejectConfirm: t("placeDetail.moderationActions.rejectConfirm"),
+                      rejectCancel: t("placeDetail.moderationActions.rejectCancel"),
+                      success: t("placeDetail.moderationActions.success"),
+                      error: t("placeDetail.moderationActions.error"),
+                      rejectConfirmationRequired: t(
+                        "placeDetail.moderationActions.rejectConfirmationRequired",
+                      ),
+                    }}
+                  />
+                </div>
                 <div className="rounded-2xl border border-border/80 bg-muted/40 p-4">
                   <p className="text-sm font-semibold text-foreground">
                     {t("placeDetail.reviewChecklist.title")}
@@ -123,12 +123,31 @@ export default async function AdminPlaceDetailPage({
                   <p className="mt-1 text-sm text-muted-foreground">
                     {t("placeDetail.reviewChecklist.description")}
                   </p>
+                  {place.submissionContext ? (
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      {t(
+                        `placeDetail.originGuidance.${place.submissionContext.origin}`,
+                      )}
+                    </p>
+                  ) : null}
                   <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
                     <li>{t("placeDetail.reviewChecklist.items.namePlausible")}</li>
                     <li>{t("placeDetail.reviewChecklist.items.cityCorrect")}</li>
                     <li>{t("placeDetail.reviewChecklist.items.categoryFits")}</li>
-                    <li>{t("placeDetail.reviewChecklist.items.sourceSufficient")}</li>
-                    <li>{t("placeDetail.reviewChecklist.items.addressPlausible")}</li>
+                    <li>
+                      {t(
+                        place.submissionContext?.origin === "system_submission"
+                          ? "placeDetail.reviewChecklist.items.mappingSourceSufficient"
+                          : "placeDetail.reviewChecklist.items.sourceSufficient",
+                      )}
+                    </li>
+                    <li>
+                      {t(
+                        place.submissionContext?.origin === "system_submission"
+                          ? "placeDetail.reviewChecklist.items.duplicateAware"
+                          : "placeDetail.reviewChecklist.items.addressPlausible",
+                      )}
+                    </li>
                   </ul>
                 </div>
               </div>
@@ -147,6 +166,9 @@ export default async function AdminPlaceDetailPage({
                           `submissions.origins.${place.submissionContext.origin}`,
                         ),
                       })}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {t(`placeDetail.originGuidance.${place.submissionContext.origin}`)}
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-2">

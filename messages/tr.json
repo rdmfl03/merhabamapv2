@@ -268,6 +268,8 @@
     "narrowResultsAction": "{city} içinde daha fazla mekan gör",
     "detail": {
       "fallbackDescription": "Bu mekan için henüz açıklama bulunmuyor.",
+      "curationHintTitle": "Yayınlanmadan önce manuel olarak incelendi",
+      "curationHintDescription": "Bu kayıt, yayınlanmadan önce MerhabaMap tarafından manuel olarak incelendi ve onaylandı.",
       "infoTitle": "Bilgiler",
       "address": "Adres",
       "missingAddress": "Adres daha sonra eklenecek.",
@@ -393,6 +395,8 @@
     "narrowResultsAction": "{city} içinde daha fazla etkinlik gör",
     "detail": {
       "fallbackDescription": "Bu etkinlik için henüz açıklama bulunmuyor.",
+      "curationHintTitle": "Yayınlanmadan önce manuel olarak incelendi",
+      "curationHintDescription": "Bu etkinlik, yayınlanmadan önce MerhabaMap tarafından manuel olarak incelendi ve onaylandı.",
       "infoTitle": "Bilgiler",
       "organizer": "Düzenleyen",
       "venue": "Mekan",
@@ -763,6 +767,10 @@
         "places": "Mekanlar",
         "events": "Etkinlikler"
       },
+      "originGuidance": {
+        "user_submission": "Kullanıcı gönderimlerinde özellikle kaynak, makullük ve bütünlüğe dikkat et.",
+        "system_submission": "Sistem/import kayıtlarında özellikle mapping kalitesi, veri tutarlılığı ve duplikat riskine dikkat et."
+      },
       "empty": "Henüz submission yok.",
       "summary": "Toplam {total, number} submission, {pending, number} pending, {approved, number} approved/done, {rejected, number} rejected/failed",
       "filters": {
@@ -944,6 +952,10 @@
         "error": "Moderasyon kararı kaydedilemedi.",
         "rejectConfirmationRequired": "Lütfen Reject işlemini bir kez daha açıkça onayla."
       },
+      "originGuidance": {
+        "user_submission": "Kullanıcı gönderimlerinde özellikle kaynak, makullük ve bütünlüğe dikkat et.",
+        "system_submission": "Sistem/import kayıtlarında özellikle mapping kalitesi, veri tutarlılığı ve duplikat riskine dikkat et."
+      },
       "reviewChecklist": {
         "title": "Kısa inceleme kontrol listesi",
         "description": "Karardan önce sadece kısa bir rehber olarak düşünülmeli.",
@@ -952,7 +964,9 @@
           "cityCorrect": "Şehir bilgisi doğru görünüyor",
           "categoryFits": "Kategori kayda uyuyor",
           "sourceSufficient": "Kaynak veya detaylar yeterli görünüyor",
-          "addressPlausible": "Adres veya web sitesi makul görünüyor"
+          "mappingSourceSufficient": "Kaynak, mapping ve detaylar yeterli görünüyor",
+          "addressPlausible": "Adres veya web sitesi makul görünüyor",
+          "duplicateAware": "Mapping hataları veya duplikatlar için dikkatli ol"
         }
       },
       "submissionContext": {
@@ -1011,6 +1025,10 @@
         "error": "Moderasyon kararı kaydedilemedi.",
         "rejectConfirmationRequired": "Lütfen Reject işlemini bir kez daha açıkça onayla."
       },
+      "originGuidance": {
+        "user_submission": "Kullanıcı gönderimlerinde özellikle kaynak, makullük ve bütünlüğe dikkat et.",
+        "system_submission": "Sistem/import kayıtlarında özellikle mapping kalitesi, veri tutarlılığı ve duplikat riskine dikkat et."
+      },
       "reviewChecklist": {
         "title": "Kısa inceleme kontrol listesi",
         "description": "Karardan önce sadece kısa bir rehber olarak düşünülmeli.",
@@ -1019,7 +1037,9 @@
           "cityCorrect": "Şehir bilgisi doğru görünüyor",
           "categoryFits": "Kategori etkinliğe uyuyor",
           "sourceSufficient": "Kaynak veya detaylar yeterli görünüyor",
-          "dateTimePlausible": "Tarih ve saat makul görünüyor"
+          "mappingSourceSufficient": "Kaynak, mapping ve detaylar yeterli görünüyor",
+          "dateTimePlausible": "Tarih ve saat makul görünüyor",
+          "duplicateAware": "Mapping hataları veya duplikatlar için dikkatli ol"
         }
       },
       "submissionContext": {
@@ -1267,6 +1287,10 @@
       "signInDescription": "MerhabaMap'te öneriler bilinçli şekilde incelenir. Hesapla gönderim yapmak süreci daha izlenebilir ve güvenli tutar.",
       "signIn": "Giriş yap",
       "requiredHint": "* Zorunlu alan",
+      "expectation": {
+        "title": "Önceden kısa bir not",
+        "description": "Her öneri yayınlanmadan önce manuel olarak incelenir. Bu nedenle bir gönderim otomatik olarak public görünür hale gelmez. Bu inceleme, MerhabaMap'in faydalı, ilgili ve güvenilir kalmasına yardımcı olur."
+      },
       "review": {
         "title": "Göndermeden önce",
         "city": "Şehir",

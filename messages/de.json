@@ -268,6 +268,8 @@
     "narrowResultsAction": "Mehr Orte in {city} ansehen",
     "detail": {
       "fallbackDescription": "Für diesen Ort ist noch keine Beschreibung verfügbar.",
+      "curationHintTitle": "Vor Veröffentlichung manuell geprüft",
+      "curationHintDescription": "Dieser Eintrag wurde vor der Veröffentlichung von MerhabaMap manuell geprüft und freigegeben.",
       "infoTitle": "Informationen",
       "address": "Adresse",
       "missingAddress": "Adresse wird ergänzt.",
@@ -393,6 +395,8 @@
     "narrowResultsAction": "Mehr Events in {city} ansehen",
     "detail": {
       "fallbackDescription": "Für dieses Event ist noch keine Beschreibung verfügbar.",
+      "curationHintTitle": "Vor Veröffentlichung manuell geprüft",
+      "curationHintDescription": "Dieses Event wurde vor der Veröffentlichung von MerhabaMap manuell geprüft und freigegeben.",
       "infoTitle": "Informationen",
       "organizer": "Veranstalter",
       "venue": "Veranstaltungsort",
@@ -754,6 +758,10 @@
         "places": "Places",
         "events": "Events"
       },
+      "originGuidance": {
+        "user_submission": "Bei User-Submissions besonders auf Quelle, Plausibilität und Vollständigkeit achten.",
+        "system_submission": "Bei System/import besonders auf Mapping-Qualität, Datenkonsistenz und Duplikate achten."
+      },
       "empty": "Noch keine Submissions vorhanden.",
       "summary": "{total, number} Submissions gesamt, {pending, number} pending, {approved, number} approved/done, {rejected, number} rejected/failed",
       "filters": {
@@ -935,6 +943,10 @@
         "error": "Moderationsentscheidung konnte nicht gespeichert werden.",
         "rejectConfirmationRequired": "Bitte Reject noch einmal ausdrücklich bestätigen."
       },
+      "originGuidance": {
+        "user_submission": "Bei User-Submissions besonders auf Quelle, Plausibilität und Vollständigkeit achten.",
+        "system_submission": "Bei System/import besonders auf Mapping-Qualität, Datenkonsistenz und Duplikate achten."
+      },
       "reviewChecklist": {
         "title": "Kleine Review-Checkliste",
         "description": "Nur als kurze Orientierung vor der Entscheidung.",
@@ -943,7 +955,9 @@
           "cityCorrect": "Stadtzuordnung stimmt",
           "categoryFits": "Kategorie passt zum Eintrag",
           "sourceSufficient": "Quelle oder Details sind ausreichend",
-          "addressPlausible": "Adresse oder Website wirkt plausibel"
+          "mappingSourceSufficient": "Quelle, Mapping und Details wirken ausreichend",
+          "addressPlausible": "Adresse oder Website wirkt plausibel",
+          "duplicateAware": "Auf Mapping-Fehler oder Duplikate achten"
         }
       },
       "submissionContext": {
@@ -1002,6 +1016,10 @@
         "error": "Moderationsentscheidung konnte nicht gespeichert werden.",
         "rejectConfirmationRequired": "Bitte Reject noch einmal ausdrücklich bestätigen."
       },
+      "originGuidance": {
+        "user_submission": "Bei User-Submissions besonders auf Quelle, Plausibilität und Vollständigkeit achten.",
+        "system_submission": "Bei System/import besonders auf Mapping-Qualität, Datenkonsistenz und Duplikate achten."
+      },
       "reviewChecklist": {
         "title": "Kleine Review-Checkliste",
         "description": "Nur als kurze Orientierung vor der Entscheidung.",
@@ -1010,7 +1028,9 @@
           "cityCorrect": "Stadtzuordnung stimmt",
           "categoryFits": "Kategorie passt zum Event",
           "sourceSufficient": "Quelle oder Details sind ausreichend",
-          "dateTimePlausible": "Datum und Uhrzeit wirken plausibel"
+          "mappingSourceSufficient": "Quelle, Mapping und Details wirken ausreichend",
+          "dateTimePlausible": "Datum und Uhrzeit wirken plausibel",
+          "duplicateAware": "Auf Mapping-Fehler oder Duplikate achten"
         }
       },
       "submissionContext": {
@@ -1258,6 +1278,10 @@
       "signInDescription": "Vorschläge werden bei MerhabaMap bewusst geprüft. Mit einem Konto bleibt die Einreichung nachvollziehbar und sicher.",
       "signIn": "Anmelden",
       "requiredHint": "* Pflichtfeld",
+      "expectation": {
+        "title": "Vorab kurz wichtig",
+        "description": "Jeder Vorschlag wird vor einer Veröffentlichung manuell geprüft. Eine Einreichung führt deshalb nicht automatisch zu einer öffentlichen Anzeige. Diese Prüfung hilft, MerhabaMap hilfreich, relevant und vertrauenswürdig zu halten."
+      },
       "review": {
         "title": "Vor dem Absenden",
         "city": "Stadt",
