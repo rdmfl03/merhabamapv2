@@ -117,6 +117,33 @@ export const ingestEventSchema = z.object({
     .refine((value) => {
       try {
         const url = new URL(value);
+      return url.protocol === "http:" || url.protocol === "https:";
+      } catch {
+        return false;
+      }
+    }, { message: "source_url_invalid" }),
+});
+
+export const ingestPlaceSchema = z.object({
+  name: trimmedString.min(2, "name_required").max(140),
+  citySlug: trimmedString.toLowerCase().refine((value) => ["berlin", "koeln"].includes(value), {
+    message: "city_not_allowed",
+  }),
+  description: optionalTrimmedString.pipe(z.string().max(1200).optional()),
+  categorySlug: optionalTrimmedString.pipe(z.string().max(80).optional()),
+  sourceCategory: optionalTrimmedString.pipe(z.string().max(80).optional()),
+  websiteUrl: httpUrlField,
+  addressLine1: optionalTrimmedString.pipe(z.string().max(180).optional()),
+  postalCode: optionalTrimmedString.pipe(z.string().max(32).optional()),
+  district: optionalTrimmedString.pipe(z.string().max(120).optional()),
+  phone: optionalTrimmedString.pipe(z.string().max(40).optional()),
+  latitude: z.coerce.number().min(-90).max(90).optional(),
+  longitude: z.coerce.number().min(-180).max(180).optional(),
+  sourceUrl: trimmedString
+    .min(1, "source_url_required")
+    .refine((value) => {
+      try {
+        const url = new URL(value);
         return url.protocol === "http:" || url.protocol === "https:";
       } catch {
         return false;
@@ -127,3 +154,4 @@ export const ingestEventSchema = z.object({
 export type PlaceSuggestionInput = z.infer<typeof placeSuggestionSchema>;
 export type EventSuggestionInput = z.infer<typeof eventSuggestionSchema>;
 export type IngestEventInput = z.infer<typeof ingestEventSchema>;
+export type IngestPlaceInput = z.infer<typeof ingestPlaceSchema>;
