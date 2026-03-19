@@ -15,12 +15,17 @@ export async function updateEntityModerationStatus(
 ): Promise<AdminActionState> {
   void _previousState;
 
+  const rejectConfirmationValue = formData.get("rejectConfirmation");
+
   const parsed = updateEntityModerationSchema.safeParse({
     locale: formData.get("locale"),
     entityType: formData.get("entityType"),
     entityId: formData.get("entityId"),
     nextStatus: formData.get("nextStatus"),
-    rejectConfirmation: formData.get("rejectConfirmation"),
+    rejectConfirmation:
+      typeof rejectConfirmationValue === "string"
+        ? rejectConfirmationValue
+        : undefined,
   });
 
   if (!parsed.success) {

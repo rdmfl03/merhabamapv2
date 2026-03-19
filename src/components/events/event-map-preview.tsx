@@ -1,4 +1,6 @@
-import { DetailLocationMap } from "@/components/maps/detail-location-map";
+"use client";
+
+import dynamic from "next/dynamic";
 
 type EventMapPreviewProps = {
   latitude: number | null;
@@ -11,6 +13,11 @@ type EventMapPreviewProps = {
     unavailable: string;
   };
 };
+
+const DetailLocationMap = dynamic(
+  () => import("@/components/maps/detail-location-map").then((mod) => mod.DetailLocationMap),
+  { ssr: false },
+);
 
 export function EventMapPreview(props: EventMapPreviewProps) {
   return <DetailLocationMap {...props} />;

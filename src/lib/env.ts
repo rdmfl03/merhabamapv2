@@ -45,6 +45,7 @@ const envSchema = z
     RESEND_API_KEY: optionalStringSchema,
     EMAIL_VERIFICATION_TOKEN_TTL_HOURS: integerStringSchema.default("24"),
     PASSWORD_RESET_TOKEN_TTL_MINUTES: integerStringSchema.default("60"),
+    INGEST_SECRET: optionalStringSchema,
 
     S3_REGION: optionalStringSchema,
     S3_BUCKET: optionalStringSchema,

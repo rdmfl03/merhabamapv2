@@ -100,5 +100,30 @@ export const eventSuggestionSchema = z
     }
   });
 
+export const ingestEventSchema = z.object({
+  title: trimmedString.min(2, "title_required").max(160),
+  description: optionalTrimmedString.pipe(z.string().max(1200).optional()),
+  startsAt: trimmedString.refine((value) => {
+    const date = new Date(value);
+    return !Number.isNaN(date.getTime());
+  }, { message: "date_invalid" }),
+  venueName: optionalTrimmedString.pipe(z.string().max(160).optional()),
+  citySlug: trimmedString.toLowerCase().refine((value) => value === "berlin", {
+    message: "city_not_allowed",
+  }),
+  sourceCategory: optionalTrimmedString.pipe(z.string().max(80).optional()),
+  sourceUrl: trimmedString
+    .min(1, "source_url_required")
+    .refine((value) => {
+      try {
+        const url = new URL(value);
+        return url.protocol === "http:" || url.protocol === "https:";
+      } catch {
+        return false;
+      }
+    }, { message: "source_url_invalid" }),
+});
+
 export type PlaceSuggestionInput = z.infer<typeof placeSuggestionSchema>;
 export type EventSuggestionInput = z.infer<typeof eventSuggestionSchema>;
+export type IngestEventInput = z.infer<typeof ingestEventSchema>;
