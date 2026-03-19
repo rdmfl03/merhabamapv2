@@ -101,11 +101,12 @@ export default async function AdminEventDetailPage({
             </div>
 
             {event.moderationStatus === "PENDING" ? (
-              <div className="rounded-2xl border border-sky-200 bg-sky-50/70 p-4">
-                <EntityModerationForm
-                  locale={locale}
-                  entityType="EVENT"
-                  entityId={event.id}
+              <div className="space-y-3">
+                <div className="rounded-2xl border border-sky-200 bg-sky-50/70 p-4">
+                  <EntityModerationForm
+                    locale={locale}
+                    entityType="EVENT"
+                    entityId={event.id}
                   labels={{
                     title: t("eventDetail.moderationActions.title"),
                     helper: t("eventDetail.moderationActions.helper"),
@@ -115,8 +116,27 @@ export default async function AdminEventDetailPage({
                     rejectCancel: t("eventDetail.moderationActions.rejectCancel"),
                     success: t("eventDetail.moderationActions.success"),
                     error: t("eventDetail.moderationActions.error"),
+                    rejectConfirmationRequired: t(
+                      "eventDetail.moderationActions.rejectConfirmationRequired",
+                    ),
                   }}
                 />
+              </div>
+                <div className="rounded-2xl border border-border/80 bg-muted/40 p-4">
+                  <p className="text-sm font-semibold text-foreground">
+                    {t("eventDetail.reviewChecklist.title")}
+                  </p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {t("eventDetail.reviewChecklist.description")}
+                  </p>
+                  <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+                    <li>{t("eventDetail.reviewChecklist.items.titlePlausible")}</li>
+                    <li>{t("eventDetail.reviewChecklist.items.cityCorrect")}</li>
+                    <li>{t("eventDetail.reviewChecklist.items.categoryFits")}</li>
+                    <li>{t("eventDetail.reviewChecklist.items.sourceSufficient")}</li>
+                    <li>{t("eventDetail.reviewChecklist.items.dateTimePlausible")}</li>
+                  </ul>
+                </div>
               </div>
             ) : null}
 

@@ -95,11 +95,12 @@ export default async function AdminPlaceDetailPage({
             </div>
 
             {place.moderationStatus === "PENDING" ? (
-              <div className="rounded-2xl border border-sky-200 bg-sky-50/70 p-4">
-                <EntityModerationForm
-                  locale={locale}
-                  entityType="PLACE"
-                  entityId={place.id}
+              <div className="space-y-3">
+                <div className="rounded-2xl border border-sky-200 bg-sky-50/70 p-4">
+                  <EntityModerationForm
+                    locale={locale}
+                    entityType="PLACE"
+                    entityId={place.id}
                   labels={{
                     title: t("placeDetail.moderationActions.title"),
                     helper: t("placeDetail.moderationActions.helper"),
@@ -109,8 +110,27 @@ export default async function AdminPlaceDetailPage({
                     rejectCancel: t("placeDetail.moderationActions.rejectCancel"),
                     success: t("placeDetail.moderationActions.success"),
                     error: t("placeDetail.moderationActions.error"),
+                    rejectConfirmationRequired: t(
+                      "placeDetail.moderationActions.rejectConfirmationRequired",
+                    ),
                   }}
                 />
+              </div>
+                <div className="rounded-2xl border border-border/80 bg-muted/40 p-4">
+                  <p className="text-sm font-semibold text-foreground">
+                    {t("placeDetail.reviewChecklist.title")}
+                  </p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {t("placeDetail.reviewChecklist.description")}
+                  </p>
+                  <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+                    <li>{t("placeDetail.reviewChecklist.items.namePlausible")}</li>
+                    <li>{t("placeDetail.reviewChecklist.items.cityCorrect")}</li>
+                    <li>{t("placeDetail.reviewChecklist.items.categoryFits")}</li>
+                    <li>{t("placeDetail.reviewChecklist.items.sourceSufficient")}</li>
+                    <li>{t("placeDetail.reviewChecklist.items.addressPlausible")}</li>
+                  </ul>
+                </div>
               </div>
             ) : null}
 

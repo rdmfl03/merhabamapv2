@@ -1,9 +1,10 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useRef, useState, useTransition } from "react";
 import { useFormStatus } from "react-dom";
 
 import { Button } from "@/components/ui/button";
+import { useRouter } from "@/i18n/navigation";
 import { updateEntityModerationStatus } from "@/server/actions/admin/update-entity-moderation-status";
 import {
   idleAdminActionState,
@@ -23,6 +24,7 @@ type EntityModerationFormProps = {
     rejectCancel: string;
     success: string;
     error: string;
+    rejectConfirmationRequired: string;
   };
 };
 
@@ -86,11 +88,40 @@ export function EntityModerationForm({
   entityId,
   labels,
 }: EntityModerationFormProps) {
+  const router = useRouter();
   const [state, formAction] = useActionState<AdminActionState, FormData>(
     updateEntityModerationStatus,
     idleAdminActionState,
   );
   const [confirmReject, setConfirmReject] = useState(false);
+  const [isRefreshing, startRefreshTransition] = useTransition();
+  const refreshTimeoutRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (state.status !== "success") {
+      return;
+    }
+
+    setConfirmReject(false);
+    refreshTimeoutRef.current = window.setTimeout(() => {
+      startRefreshTransition(() => {
+        router.refresh();
+      });
+    }, 700);
+
+    return () => {
+      if (refreshTimeoutRef.current !== null) {
+        window.clearTimeout(refreshTimeoutRef.current);
+      }
+    };
+  }, [router, state.status]);
+
+  const feedbackMessage =
+    state.status === "error"
+      ? state.message === "reject_confirmation_required"
+        ? labels.rejectConfirmationRequired
+        : labels.error
+      : labels.success;
 
   return (
     <form action={formAction} className="space-y-4">
@@ -124,7 +155,7 @@ export function EntityModerationForm({
             confirmReject={confirmReject}
             onConfirmReject={() => setConfirmReject(true)}
             onCancelReject={() => setConfirmReject(false)}
-            labels={{
+          labels={{
               reject: labels.reject,
               rejectCancel: labels.rejectCancel,
             }}
@@ -133,10 +164,10 @@ export function EntityModerationForm({
       </div>
 
       {state.status === "success" ? (
-        <p className="text-sm text-green-700">{labels.success}</p>
+        <p className="text-sm text-green-700">{feedbackMessage}</p>
       ) : null}
       {state.status === "error" ? (
-        <p className="text-sm text-brand">{labels.error}</p>
+        <p className="text-sm text-brand">{feedbackMessage}</p>
       ) : null}
     </form>
   );

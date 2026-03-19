@@ -749,6 +749,20 @@
     "submissions": {
       "title": "Submissions",
       "description": "Hedef bağlantıları ve inceleme metadatalarıyla gelen submission kayıtlarının dahili görünümü.",
+      "priority": {
+        "title": "Önce inceleme önceliği",
+        "description": "Pending → Uyarılar → Kullanıcı gönderimleri → En yeni"
+      },
+      "overview": {
+        "pending": "Pending",
+        "warnings": "Uyarılı",
+        "userSubmissions": "Kullanıcı gönderimleri",
+        "systemSubmissions": "Sistem/import",
+        "approved": "Approved/Done",
+        "rejected": "Rejected/Failed",
+        "places": "Mekanlar",
+        "events": "Etkinlikler"
+      },
       "empty": "Henüz submission yok.",
       "summary": "Toplam {total, number} submission, {pending, number} pending, {approved, number} approved/done, {rejected, number} rejected/failed",
       "filters": {
@@ -927,7 +941,19 @@
         "rejectConfirm": "Reject onayla",
         "rejectCancel": "İptal",
         "success": "Moderasyon kararı kaydedildi.",
-        "error": "Moderasyon kararı kaydedilemedi."
+        "error": "Moderasyon kararı kaydedilemedi.",
+        "rejectConfirmationRequired": "Lütfen Reject işlemini bir kez daha açıkça onayla."
+      },
+      "reviewChecklist": {
+        "title": "Kısa inceleme kontrol listesi",
+        "description": "Karardan önce sadece kısa bir rehber olarak düşünülmeli.",
+        "items": {
+          "namePlausible": "İsim makul görünüyor",
+          "cityCorrect": "Şehir bilgisi doğru görünüyor",
+          "categoryFits": "Kategori kayda uyuyor",
+          "sourceSufficient": "Kaynak veya detaylar yeterli görünüyor",
+          "addressPlausible": "Adres veya web sitesi makul görünüyor"
+        }
       },
       "submissionContext": {
         "title": "Gönderim bağlamı",
@@ -982,7 +1008,19 @@
         "rejectConfirm": "Reject onayla",
         "rejectCancel": "İptal",
         "success": "Moderasyon kararı kaydedildi.",
-        "error": "Moderasyon kararı kaydedilemedi."
+        "error": "Moderasyon kararı kaydedilemedi.",
+        "rejectConfirmationRequired": "Lütfen Reject işlemini bir kez daha açıkça onayla."
+      },
+      "reviewChecklist": {
+        "title": "Kısa inceleme kontrol listesi",
+        "description": "Karardan önce sadece kısa bir rehber olarak düşünülmeli.",
+        "items": {
+          "titlePlausible": "Başlık makul görünüyor",
+          "cityCorrect": "Şehir bilgisi doğru görünüyor",
+          "categoryFits": "Kategori etkinliğe uyuyor",
+          "sourceSufficient": "Kaynak veya detaylar yeterli görünüyor",
+          "dateTimePlausible": "Tarih ve saat makul görünüyor"
+        }
       },
       "submissionContext": {
         "title": "Gönderim bağlamı",

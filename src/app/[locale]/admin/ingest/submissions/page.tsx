@@ -36,6 +36,48 @@ function getOriginTone(origin: string) {
   return origin === "user_submission" ? "success" : "default";
 }
 
+function getStatusPriority(status: string) {
+  if (status === "PENDING") {
+    return 0;
+  }
+
+  if (status === "APPROVED" || status === "DONE") {
+    return 1;
+  }
+
+  if (status === "REJECTED" || status === "FAILED") {
+    return 2;
+  }
+
+  return 3;
+}
+
+function compareSubmissionsByReviewPriority<
+  T extends {
+    status: string;
+    hasWarnings: boolean;
+    origin: string;
+    createdAt: Date;
+  },
+>(left: T, right: T) {
+  const statusDiff = getStatusPriority(left.status) - getStatusPriority(right.status);
+  if (statusDiff !== 0) {
+    return statusDiff;
+  }
+
+  if (left.status === "PENDING" && right.status === "PENDING") {
+    if (left.hasWarnings !== right.hasWarnings) {
+      return left.hasWarnings ? -1 : 1;
+    }
+
+    if (left.origin !== right.origin) {
+      return left.origin === "user_submission" ? -1 : 1;
+    }
+  }
+
+  return right.createdAt.getTime() - left.createdAt.getTime();
+}
+
 function buildFilterHref(args: {
   statusFilter: string;
   viewFilter: string;
@@ -84,6 +126,9 @@ export default async function AdminSubmissionsPage({
   ).length;
   const warningCount = submissions.filter((submission) => submission.hasWarnings).length;
   const sourceCount = submissions.filter((submission) => submission.sourcePresent).length;
+  const systemSubmissionCount = submissions.filter(
+    (submission) => submission.origin === "system_submission",
+  ).length;
   const placeCount = submissions.filter((submission) => submission.targetEntityType === "PLACE").length;
   const eventCount = submissions.filter((submission) => submission.targetEntityType === "EVENT").length;
 
@@ -102,49 +147,51 @@ export default async function AdminSubmissionsPage({
       ? resolvedSearchParams.view
       : "all";
 
-  const filteredSubmissions = submissions.filter((submission) => {
-    if (statusFilter === "pending" && submission.status !== "PENDING") {
-      return false;
-    }
+  const filteredSubmissions = submissions
+    .filter((submission) => {
+      if (statusFilter === "pending" && submission.status !== "PENDING") {
+        return false;
+      }
 
-    if (
-      statusFilter === "approved" &&
-      submission.status !== "APPROVED" &&
-      submission.status !== "DONE"
-    ) {
-      return false;
-    }
+      if (
+        statusFilter === "approved" &&
+        submission.status !== "APPROVED" &&
+        submission.status !== "DONE"
+      ) {
+        return false;
+      }
 
-    if (
-      statusFilter === "rejected" &&
-      submission.status !== "REJECTED" &&
-      submission.status !== "FAILED"
-    ) {
-      return false;
-    }
+      if (
+        statusFilter === "rejected" &&
+        submission.status !== "REJECTED" &&
+        submission.status !== "FAILED"
+      ) {
+        return false;
+      }
 
-    if (viewFilter === "user" && submission.origin !== "user_submission") {
-      return false;
-    }
+      if (viewFilter === "user" && submission.origin !== "user_submission") {
+        return false;
+      }
 
-    if (viewFilter === "warnings" && !submission.hasWarnings) {
-      return false;
-    }
+      if (viewFilter === "warnings" && !submission.hasWarnings) {
+        return false;
+      }
 
-    if (viewFilter === "source" && !submission.sourcePresent) {
-      return false;
-    }
+      if (viewFilter === "source" && !submission.sourcePresent) {
+        return false;
+      }
 
-    if (viewFilter === "places" && submission.targetEntityType !== "PLACE") {
-      return false;
-    }
+      if (viewFilter === "places" && submission.targetEntityType !== "PLACE") {
+        return false;
+      }
 
-    if (viewFilter === "events" && submission.targetEntityType !== "EVENT") {
-      return false;
-    }
+      if (viewFilter === "events" && submission.targetEntityType !== "EVENT") {
+        return false;
+      }
 
-    return true;
-  });
+      return true;
+    })
+    .sort(compareSubmissionsByReviewPriority);
 
   return (
     <AdminShell
@@ -297,6 +344,68 @@ export default async function AdminSubmissionsPage({
                   rejected: rejectedCount,
                 })}
               </p>
+              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                <div className="rounded-2xl border border-border/80 bg-muted/40 px-4 py-3">
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    {t("submissions.overview.pending")}
+                  </p>
+                  <p className="mt-2 text-2xl font-semibold text-foreground">{pendingCount}</p>
+                </div>
+                <div className="rounded-2xl border border-border/80 bg-muted/40 px-4 py-3">
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    {t("submissions.overview.warnings")}
+                  </p>
+                  <p className="mt-2 text-2xl font-semibold text-foreground">{warningCount}</p>
+                </div>
+                <div className="rounded-2xl border border-border/80 bg-muted/40 px-4 py-3">
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    {t("submissions.overview.userSubmissions")}
+                  </p>
+                  <p className="mt-2 text-2xl font-semibold text-foreground">
+                    {userSubmissionCount}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-border/80 bg-muted/40 px-4 py-3">
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    {t("submissions.overview.systemSubmissions")}
+                  </p>
+                  <p className="mt-2 text-2xl font-semibold text-foreground">
+                    {systemSubmissionCount}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-border/80 bg-muted/40 px-4 py-3">
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    {t("submissions.overview.approved")}
+                  </p>
+                  <p className="mt-2 text-2xl font-semibold text-foreground">{approvedCount}</p>
+                </div>
+                <div className="rounded-2xl border border-border/80 bg-muted/40 px-4 py-3">
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    {t("submissions.overview.rejected")}
+                  </p>
+                  <p className="mt-2 text-2xl font-semibold text-foreground">{rejectedCount}</p>
+                </div>
+                <div className="rounded-2xl border border-border/80 bg-muted/40 px-4 py-3">
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    {t("submissions.overview.places")}
+                  </p>
+                  <p className="mt-2 text-2xl font-semibold text-foreground">{placeCount}</p>
+                </div>
+                <div className="rounded-2xl border border-border/80 bg-muted/40 px-4 py-3">
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    {t("submissions.overview.events")}
+                  </p>
+                  <p className="mt-2 text-2xl font-semibold text-foreground">{eventCount}</p>
+                </div>
+              </div>
+              <div className="rounded-2xl border border-sky-200 bg-sky-50/70 px-4 py-3">
+                <p className="text-sm font-semibold text-foreground">
+                  {t("submissions.priority.title")}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {t("submissions.priority.description")}
+                </p>
+              </div>
 
               <div className="space-y-3">
                 {filteredSubmissions.map((submission) => (

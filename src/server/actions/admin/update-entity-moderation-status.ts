@@ -93,6 +93,8 @@ export async function updateEntityModerationStatus(
     });
 
     revalidatePath(`/${parsed.data.locale}/admin`);
+    revalidatePath(`/${parsed.data.locale}/admin/places`);
+    revalidatePath(`/${parsed.data.locale}/admin/ingest`);
     revalidatePath(adminDetailPath);
     revalidatePath(`/${parsed.data.locale}/admin/ingest/submissions`);
     revalidatePath(publicListPath);
@@ -154,6 +156,8 @@ export async function updateEntityModerationStatus(
   });
 
   revalidatePath(`/${parsed.data.locale}/admin`);
+  revalidatePath(`/${parsed.data.locale}/admin/events`);
+  revalidatePath(`/${parsed.data.locale}/admin/ingest`);
   revalidatePath(adminDetailPath);
   revalidatePath(`/${parsed.data.locale}/admin/ingest/submissions`);
   revalidatePath(publicListPath);

@@ -740,6 +740,20 @@
     "submissions": {
       "title": "Submissions",
       "description": "Interne Übersicht über eingegangene Submissions mit Zielbezug und Review-Metadaten.",
+      "priority": {
+        "title": "Review-Priorität zuerst",
+        "description": "Pending → Warnhinweise → User-Submissions → Neueste"
+      },
+      "overview": {
+        "pending": "Pending",
+        "warnings": "Mit Warnhinweisen",
+        "userSubmissions": "User-Submissions",
+        "systemSubmissions": "System/import",
+        "approved": "Approved/Done",
+        "rejected": "Rejected/Failed",
+        "places": "Places",
+        "events": "Events"
+      },
       "empty": "Noch keine Submissions vorhanden.",
       "summary": "{total, number} Submissions gesamt, {pending, number} pending, {approved, number} approved/done, {rejected, number} rejected/failed",
       "filters": {
@@ -917,8 +931,20 @@
         "reject": "Reject",
         "rejectConfirm": "Reject bestätigen",
         "rejectCancel": "Abbrechen",
-        "success": "Die Moderationsentscheidung wurde gespeichert.",
-        "error": "Die Moderationsentscheidung konnte nicht gespeichert werden."
+        "success": "Moderationsentscheidung gespeichert.",
+        "error": "Moderationsentscheidung konnte nicht gespeichert werden.",
+        "rejectConfirmationRequired": "Bitte Reject noch einmal ausdrücklich bestätigen."
+      },
+      "reviewChecklist": {
+        "title": "Kleine Review-Checkliste",
+        "description": "Nur als kurze Orientierung vor der Entscheidung.",
+        "items": {
+          "namePlausible": "Name wirkt plausibel",
+          "cityCorrect": "Stadtzuordnung stimmt",
+          "categoryFits": "Kategorie passt zum Eintrag",
+          "sourceSufficient": "Quelle oder Details sind ausreichend",
+          "addressPlausible": "Adresse oder Website wirkt plausibel"
+        }
       },
       "submissionContext": {
         "title": "Submission-Kontext",
@@ -972,8 +998,20 @@
         "reject": "Reject",
         "rejectConfirm": "Reject bestätigen",
         "rejectCancel": "Abbrechen",
-        "success": "Die Moderationsentscheidung wurde gespeichert.",
-        "error": "Die Moderationsentscheidung konnte nicht gespeichert werden."
+        "success": "Moderationsentscheidung gespeichert.",
+        "error": "Moderationsentscheidung konnte nicht gespeichert werden.",
+        "rejectConfirmationRequired": "Bitte Reject noch einmal ausdrücklich bestätigen."
+      },
+      "reviewChecklist": {
+        "title": "Kleine Review-Checkliste",
+        "description": "Nur als kurze Orientierung vor der Entscheidung.",
+        "items": {
+          "titlePlausible": "Titel wirkt plausibel",
+          "cityCorrect": "Stadtzuordnung stimmt",
+          "categoryFits": "Kategorie passt zum Event",
+          "sourceSufficient": "Quelle oder Details sind ausreichend",
+          "dateTimePlausible": "Datum und Uhrzeit wirken plausibel"
+        }
       },
       "submissionContext": {
         "title": "Submission-Kontext",
