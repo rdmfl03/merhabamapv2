@@ -47,18 +47,33 @@ Recommended local validation order:
 1. use Node `20` or any version `>=18.18.0`
 2. `npm install`
 3. `cp .env.example .env.local`
-4. `npm run db:setup`
-5. `npm run prisma:validate`
-6. `npm run lint`
-7. `npm run typecheck`
-8. `npm run test:unit`
-9. `npm run build`
-10. `npm run test:smoke`
+4. `cp .env.test.example .env.test.local`
+5. update both files to use your local PostgreSQL databases
+6. ensure `.env.local` points to `merhabamap_dev` and `.env.test.local` points to `merhabamap_test`
+7. `npm run db:setup`
+8. `NODE_ENV=test npm run db:push && NODE_ENV=test npm run db:seed`
+9. `npm run prisma:validate`
+10. `npm run lint`
+11. `npm run typecheck`
+12. `npm run test:unit`
+13. `npm run build`
+14. `npm run test:smoke`
 
 `db:push` is the stable local baseline right now because the repository does not yet maintain a checked-in Prisma migrations history. `db:migrate` should only be used when you are intentionally creating a new migration.
 If you use `nvm`, the repository now includes an `.nvmrc` file pointing to Node 20.
-Prisma and seed scripts now load environment variables from `.env.local` or `.env`, so the local Next.js-style env setup works consistently across app and database commands.
-If no local env file exists yet, repository scripts fall back to `.env.example` for development convenience. As soon as you create `.env.local` or `.env`, those values take precedence.
+Repository scripts now use this env-file layout:
+
+- local development: `.env.local`
+- unit/integration/e2e tests: `.env.test.local`
+- production: deployment platform environment variables, not local env files
+
+The local defaults are:
+
+- dev database: `postgresql://localhost:5432/merhabamap_dev`
+- test database: `postgresql://localhost:5432/merhabamap_test`
+
+Repository scripts intentionally ignore `.env` to avoid accidental use of a real remote database during local work.
+If no local env file exists yet, repository scripts fall back to `.env.example` for development convenience and `.env.test.example` for test setup guidance.
 
 Current E2E coverage focuses on:
 

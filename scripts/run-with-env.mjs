@@ -1,10 +1,19 @@
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { spawn } from "node:child_process";
 
 const cwd = process.cwd();
-const envFiles = [".env.example", ".env", ".env.local"];
 const initialEnvKeys = new Set(Object.keys(process.env));
+const nodeEnv = process.env.NODE_ENV ?? "development";
+
+function getEnvFilesForMode(mode) {
+  if (mode === "test") {
+    return [".env.example", ".env.test", ".env.test.local"];
+  }
+
+  return [".env.example", ".env.local"];
+}
 
 function stripQuotes(value) {
   if (
@@ -48,9 +57,48 @@ function loadEnvFile(filename) {
   }
 }
 
-for (const filename of envFiles) {
+function applyLocalPostgresDefaults() {
+  const localUsername = os.userInfo().username;
+
+  for (const key of ["DATABASE_URL", "DIRECT_URL"]) {
+    const value = process.env[key];
+
+    if (!value) {
+      continue;
+    }
+
+    let parsedUrl;
+
+    try {
+      parsedUrl = new URL(value);
+    } catch {
+      continue;
+    }
+
+    const isLocalPostgres =
+      parsedUrl.protocol === "postgresql:" &&
+      (parsedUrl.hostname === "localhost" || parsedUrl.hostname === "127.0.0.1");
+
+    if (!isLocalPostgres || parsedUrl.username) {
+      continue;
+    }
+
+    parsedUrl.username = localUsername;
+    process.env[key] = parsedUrl.toString();
+  }
+}
+
+if (fs.existsSync(path.join(cwd, ".env"))) {
+  console.warn(
+    'Ignoring legacy ".env". Use ".env.local" for local development and ".env.test.local" for tests.',
+  );
+}
+
+for (const filename of getEnvFilesForMode(nodeEnv)) {
   loadEnvFile(filename);
 }
+
+applyLocalPostgresDefaults();
 
 const [command, ...args] = process.argv.slice(2);
 
