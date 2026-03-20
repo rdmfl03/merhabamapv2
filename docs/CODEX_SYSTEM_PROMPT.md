@@ -781,3 +781,38 @@ All work on this project must be:
 - production-oriented
 
 Build accordingly.
+
+
+---
+
+# 18. Wiki Sync Requirement
+
+MerhabaMap documentation is maintained in a separate repository:
+
+- `merhabamap-wiki`
+
+This wiki is the source of truth for:
+- architecture
+- domain rules
+- security
+- compliance
+- operations
+- major project decisions
+
+When working in the `merhabamap` repository:
+
+- do not try to directly edit the wiki repository from here
+- do not assume undocumented behavior is acceptable
+- check whether the requested implementation affects wiki-relevant behavior
+
+If a task changes architecture, domain logic, security, compliance, or operations, you must provide a **Wiki Update Summary** at the end.
+
+The Wiki Update Summary must contain:
+
+1. what changed in the code
+2. why it matters
+3. which files in `merhabamap-wiki` should be updated
+4. whether a new ADR is recommended
+
+Documentation updates must reflect actual implementation, not speculation.
+Keep the summary minimal, concrete, and accurate.
