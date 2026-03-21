@@ -7,6 +7,7 @@ import { StatusBadge } from "@/components/admin/status-badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { getSourceRolloutV1Sections } from "@/config/ingest-allowlist";
 import { Link } from "@/i18n/navigation";
+import { getAdminStagedEventIngestOverview } from "@/server/queries/admin/get-admin-staged-event-ingest-overview";
 import { listAdminIngestRuns } from "@/server/queries/admin/list-admin-ingest-runs";
 
 type AdminIngestPageProps = {
@@ -88,9 +89,10 @@ export default async function AdminIngestPage({
   setRequestLocale(locale);
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
 
-  const [t, ingestRuns] = await Promise.all([
+  const [t, ingestRuns, stagedEventOverview] = await Promise.all([
     getTranslations("admin"),
     listAdminIngestRuns(),
+    getAdminStagedEventIngestOverview(),
   ]);
   const sourceRolloutSections = getSourceRolloutV1Sections();
   const sourceRolloutLabels = getSourceRolloutLabels(t);
@@ -180,6 +182,169 @@ export default async function AdminIngestPage({
           >
             {t("ingest.submissionsAction")}
           </Link>
+        </CardContent>
+      </Card>
+
+      <Card className="bg-white/90">
+        <CardContent className="space-y-5 p-6">
+          <div className="space-y-1">
+            <h2 className="font-semibold text-foreground">{t("ingest.stagedEvents.title")}</h2>
+            <p className="text-sm text-muted-foreground">
+              {t("ingest.stagedEvents.description")}
+            </p>
+          </div>
+
+          <div className="grid gap-3 md:grid-cols-3">
+            <div className="rounded-2xl border border-border bg-muted/20 p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                {t("ingest.stagedEvents.cards.rawEventItems")}
+              </p>
+              <p className="mt-2 text-2xl font-semibold text-foreground">
+                {stagedEventOverview.rawEventItemsTotal}
+              </p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {t("ingest.stagedEvents.cards.rawEventItemsCopy", {
+                  staged: stagedEventOverview.rawEventItemsStaged,
+                  unstaged: stagedEventOverview.rawEventItemsUnstaged,
+                })}
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-border bg-muted/20 p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                {t("ingest.stagedEvents.cards.stagedEvents")}
+              </p>
+              <p className="mt-2 text-2xl font-semibold text-foreground">
+                {stagedEventOverview.stagedEventsTotal}
+              </p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {t("ingest.stagedEvents.cards.stagedEventsCopy", {
+                  promoted: stagedEventOverview.outcomes.promoted,
+                  pending:
+                    stagedEventOverview.outcomes.pendingReview +
+                    stagedEventOverview.outcomes.approvedForPromotion,
+                })}
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-border bg-muted/20 p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                {t("ingest.stagedEvents.cards.reviewOutcomes")}
+              </p>
+              <p className="mt-2 text-2xl font-semibold text-foreground">
+                {stagedEventOverview.outcomes.promoted}
+              </p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {t("ingest.stagedEvents.cards.reviewOutcomesCopy", {
+                  duplicate: stagedEventOverview.outcomes.duplicate,
+                  rejected:
+                    stagedEventOverview.outcomes.rejected +
+                    stagedEventOverview.outcomes.stale +
+                    stagedEventOverview.outcomes.superseded,
+                })}
+              </p>
+            </div>
+          </div>
+
+          <div className="grid gap-4 lg:grid-cols-2">
+            <div className="rounded-2xl border border-border bg-white p-4">
+              <p className="font-medium text-foreground">{t("ingest.stagedEvents.outcomesTitle")}</p>
+              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                <div className="rounded-xl border border-border/70 bg-muted/20 px-3 py-2 text-sm">
+                  <span className="text-muted-foreground">
+                    {t("ingest.stagedEvents.outcomes.pendingReview")}
+                  </span>
+                  <p className="font-semibold text-foreground">
+                    {stagedEventOverview.outcomes.pendingReview}
+                  </p>
+                </div>
+                <div className="rounded-xl border border-border/70 bg-muted/20 px-3 py-2 text-sm">
+                  <span className="text-muted-foreground">
+                    {t("ingest.stagedEvents.outcomes.approvedForPromotion")}
+                  </span>
+                  <p className="font-semibold text-foreground">
+                    {stagedEventOverview.outcomes.approvedForPromotion}
+                  </p>
+                </div>
+                <div className="rounded-xl border border-border/70 bg-muted/20 px-3 py-2 text-sm">
+                  <span className="text-muted-foreground">
+                    {t("ingest.stagedEvents.outcomes.promoted")}
+                  </span>
+                  <p className="font-semibold text-foreground">
+                    {stagedEventOverview.outcomes.promoted}
+                  </p>
+                </div>
+                <div className="rounded-xl border border-border/70 bg-muted/20 px-3 py-2 text-sm">
+                  <span className="text-muted-foreground">
+                    {t("ingest.stagedEvents.outcomes.duplicate")}
+                  </span>
+                  <p className="font-semibold text-foreground">
+                    {stagedEventOverview.outcomes.duplicate}
+                  </p>
+                </div>
+                <div className="rounded-xl border border-border/70 bg-muted/20 px-3 py-2 text-sm">
+                  <span className="text-muted-foreground">
+                    {t("ingest.stagedEvents.outcomes.rejected")}
+                  </span>
+                  <p className="font-semibold text-foreground">
+                    {stagedEventOverview.outcomes.rejected}
+                  </p>
+                </div>
+                <div className="rounded-xl border border-border/70 bg-muted/20 px-3 py-2 text-sm">
+                  <span className="text-muted-foreground">
+                    {t("ingest.stagedEvents.outcomes.stale")}
+                  </span>
+                  <p className="font-semibold text-foreground">
+                    {stagedEventOverview.outcomes.stale}
+                  </p>
+                </div>
+                <div className="rounded-xl border border-border/70 bg-muted/20 px-3 py-2 text-sm">
+                  <span className="text-muted-foreground">
+                    {t("ingest.stagedEvents.outcomes.superseded")}
+                  </span>
+                  <p className="font-semibold text-foreground">
+                    {stagedEventOverview.outcomes.superseded}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-border bg-white p-4">
+              <p className="font-medium text-foreground">{t("ingest.stagedEvents.qualityGapsTitle")}</p>
+              <div className="mt-3 space-y-2 text-sm text-muted-foreground">
+                <p>
+                  {t("ingest.stagedEvents.qualityGaps.rawMissingDatetime", {
+                    count: stagedEventOverview.qualityGaps.rawMissingDatetime,
+                  })}
+                </p>
+                <p>
+                  {t("ingest.stagedEvents.qualityGaps.rawMissingLocation", {
+                    count: stagedEventOverview.qualityGaps.rawMissingLocation,
+                  })}
+                </p>
+                <p>
+                  {t("ingest.stagedEvents.qualityGaps.rawMissingCityGuess", {
+                    count: stagedEventOverview.qualityGaps.rawMissingCityGuess,
+                  })}
+                </p>
+                <p>
+                  {t("ingest.stagedEvents.qualityGaps.stagedMissingVenue", {
+                    count: stagedEventOverview.qualityGaps.stagedMissingVenue,
+                  })}
+                </p>
+                <p>
+                  {t("ingest.stagedEvents.qualityGaps.stagedShortDescription", {
+                    count: stagedEventOverview.qualityGaps.stagedShortDescription,
+                  })}
+                </p>
+                <p>
+                  {t("ingest.stagedEvents.qualityGaps.stagedMissingSourceCategory", {
+                    count: stagedEventOverview.qualityGaps.stagedMissingSourceCategory,
+                  })}
+                </p>
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
 

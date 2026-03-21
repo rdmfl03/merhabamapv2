@@ -75,6 +75,14 @@ The local defaults are:
 Repository scripts intentionally ignore `.env` to avoid accidental use of a real remote database during local work.
 If no local env file exists yet, repository scripts fall back to `.env.example` for development convenience and `.env.test.example` for test setup guidance.
 
+## Local n8n
+
+For a minimal local-only n8n setup that can run the collector workflow against `postgresql://localhost:5432/merhabamap_dev`, use:
+
+- [`docker-compose.n8n.yml`](/Users/eoflu/merhabamap/docker-compose.n8n.yml)
+- [`.env.n8n.example`](/Users/eoflu/merhabamap/.env.n8n.example)
+- [`docs/local-n8n.md`](/Users/eoflu/merhabamap/docs/local-n8n.md)
+
 Current E2E coverage focuses on:
 
 - public landing and discovery smoke

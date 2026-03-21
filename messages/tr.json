@@ -621,6 +621,37 @@
       "submissionsTitle": "Submissions",
       "submissionsDescription": "Gelen submission kayıtlarının ve mevcut inceleme durumlarının dahili görünümü.",
       "submissionsAction": "Submissions aç",
+      "stagedEvents": {
+        "title": "Staged event kalite özeti",
+        "description": "Event ingest için raw-to-staged kapsamını, inceleme sonuçlarını ve sık görülen kalite boşluklarını özetler.",
+        "cards": {
+          "rawEventItems": "Raw event kayıtları",
+          "rawEventItemsCopy": "{staged, number} tanesi staged oldu, {unstaged, number} tanesi henüz staged event üretmedi",
+          "stagedEvents": "Staged eventler",
+          "stagedEventsCopy": "{promoted, number} tanesi promoted, {pending, number} tanesi hâlâ incelemede",
+          "reviewOutcomes": "Promoted",
+          "reviewOutcomesCopy": "{duplicate, number} tanesi duplikat, {rejected, number} tanesi başka nedenle promoted olmadı"
+        },
+        "outcomesTitle": "İnceleme sonuçları",
+        "outcomes": {
+          "pendingReview": "İnceleme bekliyor",
+          "approvedForPromotion": "Promosyona hazır",
+          "promoted": "Promoted",
+          "duplicate": "Duplikat",
+          "rejected": "Reddedildi",
+          "stale": "Bayat",
+          "superseded": "Yerine yenisi geçti"
+        },
+        "qualityGapsTitle": "Sık görülen kalite boşlukları",
+        "qualityGaps": {
+          "rawMissingDatetime": "{count, number} raw event kaydında tarih/saat ipucu yok",
+          "rawMissingLocation": "{count, number} raw event kaydında yer/venue ipucu yok",
+          "rawMissingCityGuess": "{count, number} raw event kaydında city guess yok",
+          "stagedMissingVenue": "{count, number} staged eventte normalize venue hâlâ eksik",
+          "stagedShortDescription": "{count, number} staged eventte açıklama çok kısa",
+          "stagedMissingSourceCategory": "{count, number} staged eventte source category eksik"
+        }
+      },
       "sourceRollout": {
         "title": "Aktif v1 kaynak rollout sözleşmesi",
         "description": "Berlin ve Köln için şu anda izinli olan kaynak konfigürasyonunun salt-okunur referansı. Veriler doğrudan merkezi allowlist konfigürasyonundan okunur.",
@@ -796,9 +827,19 @@
         "event": "Etkinlik",
         "unknown": "Bilinmiyor"
       },
+      "normalizedStatuses": {
+        "pending_review": "Staged: İnceleme bekliyor",
+        "approved_for_promotion": "Staged: Promosyona hazır",
+        "promoted": "Staged: Promote edildi",
+        "rejected": "Staged: Reddedildi",
+        "duplicate": "Staged: Duplikat",
+        "stale": "Staged: Bayat",
+        "superseded": "Staged: Yerine yenisi geçti"
+      },
       "cards": {
         "city": "Şehir",
         "category": "Kategori",
+        "title": "Başlık",
         "source": "Kaynak",
         "location": "Yer/Venue",
         "preview": "Açıklama özeti",
@@ -809,7 +850,31 @@
         "submissionContext": "Gönderim bağlamı",
         "noContext": "Ek gönderim bağlamı yok.",
         "notes": "Gönderim notu",
-        "openTarget": "Moderasyon hedefini aç"
+        "openTarget": "Moderasyon hedefini aç",
+        "rawItemId": "Raw item ID",
+        "normalizedEventId": "Normalized event ID",
+        "linkedEventId": "Bağlı event ID",
+        "rawSourceFields": "Kaynaktan gelen ham alanlar",
+        "normalizedFields": "Normalize edilmiş inceleme alanları",
+        "rawDateTime": "Ham tarih/saat",
+        "rawLocation": "Ham konum",
+        "rawCityGuess": "Ham şehir tahmini",
+        "normalizedDateTime": "Normalize edilmiş zaman",
+        "duplicateContext": "Duplikat bağlamı",
+        "duplicateLinked": "Bu staged event zaten mevcut bir ürün etkinliğine bağlanmış durumda.",
+        "duplicateNeedsManualCheck": "Bu staged event duplikat olarak işaretli, ancak hedef bağlantısı henüz net değil."
+      },
+      "stagedReview": {
+        "title": "Staged event incelemesi",
+        "helper": "Normalize edilen ingest verisini kontrol et ve ancak bundan sonra ürün etkinliği olarak oluştur.",
+        "reviewNote": "İnceleme notu",
+        "promote": "Etkinliği oluştur",
+        "reject": "Reddet",
+        "markDuplicate": "Duplikat olarak işaretle",
+        "markStale": "Bayat olarak işaretle",
+        "markSuperseded": "Yerine yenisi geçti olarak işaretle",
+        "success": "Staged ingest kararı kaydedildi.",
+        "error": "Staged ingest kararı kaydedilemedi."
       },
       "reviewSignals": {
         "missing_source": "Kaynak eksik",

@@ -612,6 +612,37 @@
       "submissionsTitle": "Submissions",
       "submissionsDescription": "Interne Übersicht über eingegangene Submissions und ihren aktuellen Prüfstatus.",
       "submissionsAction": "Submissions öffnen",
+      "stagedEvents": {
+        "title": "Staged Event Quality Snapshot",
+        "description": "Kompakte Sicht auf Raw-zu-Staged-Abdeckung, Review-Ausgänge und häufige Qualitätslücken bei Event-Ingest.",
+        "cards": {
+          "rawEventItems": "Raw Event Items",
+          "rawEventItemsCopy": "{staged, number} bereits staged, {unstaged, number} noch ohne staged Event",
+          "stagedEvents": "Staged Events",
+          "stagedEventsCopy": "{promoted, number} promoted, {pending, number} noch in Review",
+          "reviewOutcomes": "Promoted",
+          "reviewOutcomesCopy": "{duplicate, number} als Duplikat, {rejected, number} sonst nicht promoted"
+        },
+        "outcomesTitle": "Review-Ausgänge",
+        "outcomes": {
+          "pendingReview": "Pending Review",
+          "approvedForPromotion": "Zur Promotion freigegeben",
+          "promoted": "Promoted",
+          "duplicate": "Duplikat",
+          "rejected": "Rejected",
+          "stale": "Veraltet",
+          "superseded": "Ersetzt"
+        },
+        "qualityGapsTitle": "Häufige Qualitätslücken",
+        "qualityGaps": {
+          "rawMissingDatetime": "{count, number} Raw-Event-Items ohne Datum/Zeit-Hinweis",
+          "rawMissingLocation": "{count, number} Raw-Event-Items ohne Orts-/Venue-Hinweis",
+          "rawMissingCityGuess": "{count, number} Raw-Event-Items ohne City-Guess",
+          "stagedMissingVenue": "{count, number} staged Events noch ohne normalisiertes Venue",
+          "stagedShortDescription": "{count, number} staged Events mit sehr kurzer Beschreibung",
+          "stagedMissingSourceCategory": "{count, number} staged Events ohne Source-Kategorie"
+        }
+      },
       "sourceRollout": {
         "title": "Aktiver v1-Quellen-Rollout",
         "description": "Read-only Referenz der aktuell freigegebenen Quellen-Konfiguration für Berlin und Köln. Die Daten werden direkt aus der zentralen Allowlist gelesen.",
@@ -787,9 +818,19 @@
         "event": "Event",
         "unknown": "Unbekannt"
       },
+      "normalizedStatuses": {
+        "pending_review": "Staged: Pending Review",
+        "approved_for_promotion": "Staged: Zur Promotion freigegeben",
+        "promoted": "Staged: Promoted",
+        "rejected": "Staged: Rejected",
+        "duplicate": "Staged: Duplikat",
+        "stale": "Staged: Veraltet",
+        "superseded": "Staged: Ersetzt"
+      },
       "cards": {
         "city": "Stadt",
         "category": "Kategorie",
+        "title": "Titel",
         "source": "Quelle",
         "location": "Ort/Venue",
         "preview": "Beschreibungsvorschau",
@@ -800,7 +841,31 @@
         "submissionContext": "Submission-Kontext",
         "noContext": "Kein zusätzlicher Submission-Kontext vorhanden.",
         "notes": "Hinweis der Einreichung",
-        "openTarget": "Moderationsziel öffnen"
+        "openTarget": "Moderationsziel öffnen",
+        "rawItemId": "Raw Item ID",
+        "normalizedEventId": "Normalized Event ID",
+        "linkedEventId": "Verknüpfte Event ID",
+        "rawSourceFields": "Rohdaten aus der Quelle",
+        "normalizedFields": "Normalisierte Review-Felder",
+        "rawDateTime": "Roh-Datum/Zeit",
+        "rawLocation": "Roh-Ort",
+        "rawCityGuess": "Roh-Stadt-Guess",
+        "normalizedDateTime": "Normalisierte Zeit",
+        "duplicateContext": "Duplikat-Kontext",
+        "duplicateLinked": "Dieses staged Event ist bereits mit einem bestehenden Produkt-Event verknüpft.",
+        "duplicateNeedsManualCheck": "Dieses staged Event ist als Duplikat markiert, aber noch ohne klaren Zielbezug."
+      },
+      "stagedReview": {
+        "title": "Staged Event Review",
+        "helper": "Prüfe die normalisierten Ingest-Daten und promote sie erst danach in das Produkt-Event-Modell.",
+        "reviewNote": "Review-Notiz",
+        "promote": "Event anlegen",
+        "reject": "Ablehnen",
+        "markDuplicate": "Als Duplikat markieren",
+        "markStale": "Als veraltet markieren",
+        "markSuperseded": "Als ersetzt markieren",
+        "success": "Staged-Ingest-Entscheidung gespeichert.",
+        "error": "Staged-Ingest-Entscheidung konnte nicht gespeichert werden."
       },
       "reviewSignals": {
         "missing_source": "Quelle fehlt",

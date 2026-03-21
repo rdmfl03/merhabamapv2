@@ -1,4 +1,10 @@
-import { evaluateIngestAllowlist } from "@/config/ingest-allowlist";
+import {
+  deriveRawEventDatetimeTextFromText,
+  deriveRawEventCityGuessFromText,
+  deriveRawEventLocationTextFromText,
+  evaluateIngestAllowlist,
+  evaluateRawIngestAllowlist,
+} from "@/config/ingest-allowlist";
 
 describe("ingest allowlist source rollout v1", () => {
   it("allows Berlin events from configured event domains", () => {
@@ -82,5 +88,126 @@ describe("ingest allowlist source rollout v1", () => {
     if (decision.allowed) {
       expect(decision.matchedSourceKey).toBe("trusted-manual-submission");
     }
+  });
+
+  it("derives a conservative Berlin city guess from raw event text", () => {
+    expect(
+      deriveRawEventCityGuessFromText(
+        "Treffpunkt in Berlin-Neukoelln. Die Veranstaltung findet in Berlin statt.",
+      ),
+    ).toBe("berlin");
+  });
+
+  it("derives a conservative Koeln city guess from raw event text", () => {
+    expect(
+      deriveRawEventCityGuessFromText(
+        "Die neue Verbandszentrale in Köln-Müngersdorf lädt zum Abend in Cologne ein.",
+      ),
+    ).toBe("koeln");
+  });
+
+  it("ignores ambiguous raw event text that mentions both rollout cities", () => {
+    expect(
+      deriveRawEventCityGuessFromText(
+        "Auftakt in Berlin, Abschlussveranstaltung später in Köln.",
+      ),
+    ).toBeNull();
+  });
+
+  it("uses derived city guess from raw event text in raw ingest allowlist evaluation", () => {
+    const decision = evaluateRawIngestAllowlist({
+      entityGuess: "EVENT",
+      cityGuess: null,
+      rawText: "Community event in Berlin mit offenem Austausch vor Ort.",
+      rawTitle: "Community event",
+      sourceType: "official_event_page",
+      sourceUrl: "https://www.visitberlin.de/en/event/community-night",
+    });
+
+    expect(decision.allowed).toBe(true);
+    if (decision.allowed) {
+      expect(decision.normalizedCity).toBe("berlin");
+      expect(decision.matchedSourceKey).toBe("visitberlin-events");
+    }
+  });
+
+  it("derives a single clear numeric event date from raw text", () => {
+    expect(
+      deriveRawEventDatetimeTextFromText(
+        "Gesucht wird ab dem 16.04.2026 ein*e Projektkoordinator*in im Rahmen des Programms.",
+      ),
+    ).toBe("16.04.2026");
+  });
+
+  it("ignores raw text with multiple different numeric dates", () => {
+    expect(
+      deriveRawEventDatetimeTextFromText(
+        "18.03.2026 Botschaft zum Ramadan-Fest. 17.03.2026 DITIB BDMJ Iftar 2026.",
+      ),
+    ).toBeNull();
+  });
+
+  it("normalizes repeated numeric date variants to one raw datetime text value", () => {
+    expect(
+      deriveRawEventDatetimeTextFromText(
+        "16.4.2026 Gesucht wird ab dem 16.04.2026 ein*e Projektkoordinator*in.",
+      ),
+    ).toBe("16.04.2026");
+  });
+
+  it("appends a single explicit HH:MM time to a single clear numeric date", () => {
+    expect(
+      deriveRawEventDatetimeTextFromText(
+        "Das Event findet am 16.04.2026 um 19:30 Uhr im Saal statt.",
+      ),
+    ).toBe("16.04.2026 19:30");
+  });
+
+  it("normalizes explicit hour-only Uhr format to HH:00", () => {
+    expect(
+      deriveRawEventDatetimeTextFromText(
+        "Beginn 16.04.2026, 19 Uhr. Einlass spaeter.",
+      ),
+    ).toBe("16.04.2026 19:00");
+  });
+
+  it("keeps date-only output when multiple different times appear", () => {
+    expect(
+      deriveRawEventDatetimeTextFromText(
+        "16.04.2026 Einlass 18:00 Uhr, Beginn 19:30 Uhr.",
+      ),
+    ).toBe("16.04.2026");
+  });
+
+  it("derives a single clear Berlin address as raw event location text", () => {
+    expect(
+      deriveRawEventLocationTextFromText(
+        "Türkische Gemeinde in Deutschland e.V. Obentrautstr. 72 10963 Berlin Kontakt und weitere Hinweise.",
+      ),
+    ).toBe("Türkische Gemeinde in Deutschland e.V. Obentrautstr. 72 10963 Berlin");
+  });
+
+  it("derives a single clear Koeln address as raw event location text", () => {
+    expect(
+      deriveRawEventLocationTextFromText(
+        "Verband der Islamischen Kulturzentren e. V. Vogelsanger Str. 290 50825 Köln lädt ein.",
+      ),
+    ).toBe("Verband der Islamischen Kulturzentren e. V. Vogelsanger Str. 290 50825 Köln");
+  });
+
+  it("ignores raw text with multiple different address-like locations", () => {
+    expect(
+      deriveRawEventLocationTextFromText(
+        "Obentrautstr. 72 10963 Berlin und Vogelsanger Str. 290 50825 Köln stehen im Text.",
+      ),
+    ).toBeNull();
+  });
+
+  it("ignores plain city mentions without a clear address-like location", () => {
+    expect(
+      deriveRawEventLocationTextFromText(
+        "Community event in Berlin mit offenem Austausch vor Ort.",
+      ),
+    ).toBeNull();
   });
 });

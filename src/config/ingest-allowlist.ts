@@ -173,6 +173,7 @@ export type IngestAllowlistFailureGroup =
 type RawIngestAllowlistInput = {
   entityGuess?: string | null;
   cityGuess?: string | null;
+  rawText?: string | null;
   rawTitle?: string | null;
   sourceType?: string | null;
   sourceUrl?: string | null;
@@ -213,6 +214,126 @@ function normalizeCity(value: string | null | undefined) {
   }
 
   return normalized.replace(/\s+/g, "-");
+}
+
+export function deriveRawEventCityGuessFromText(value: string | null | undefined) {
+  const normalized = normalizeText(value)
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+  if (!normalized) {
+    return null;
+  }
+
+  const hasBerlin = /(^|[^a-z])berlin([^a-z]|$)/.test(normalized);
+  const hasKoeln =
+    /(^|[^a-z])(koeln|koln|cologne)([^a-z]|$)/.test(normalized);
+
+  if (hasBerlin === hasKoeln) {
+    return null;
+  }
+
+  return hasBerlin ? "berlin" : "koeln";
+}
+
+export function deriveRawEventDatetimeTextFromText(value: string | null | undefined) {
+  const normalized = normalizeText(value);
+
+  if (!normalized) {
+    return null;
+  }
+
+  const matches = Array.from(normalized.matchAll(/\b(\d{1,2})\.(\d{1,2})\.(\d{4})\b/g));
+
+  if (matches.length === 0) {
+    return null;
+  }
+
+  const uniqueNormalizedDates = new Set(
+    matches.map((match) => {
+      const day = match[1].padStart(2, "0");
+      const month = match[2].padStart(2, "0");
+      const year = match[3];
+      return `${day}.${month}.${year}`;
+    }),
+  );
+
+  if (uniqueNormalizedDates.size !== 1) {
+    return null;
+  }
+
+  const timeCandidates = [
+    ...Array.from(normalized.matchAll(/\b(\d{1,2}):(\d{2})\s*Uhr\b/gi)),
+    ...Array.from(normalized.matchAll(/\b(\d{1,2}):(\d{2})\b/gi)),
+    ...Array.from(normalized.matchAll(/\b(\d{1,2})\.(\d{2})(?!\.\d{4}\b)\b/gi)),
+    ...Array.from(normalized.matchAll(/\b(\d{1,2})\s*Uhr\b/gi)),
+  ];
+
+  const uniqueNormalizedTimes = new Set(
+    timeCandidates
+      .map((match) => {
+        const hourText = match[1];
+        const minuteText = match[2] ?? "00";
+        const hour = Number.parseInt(hourText ?? "", 10);
+        const minute = Number.parseInt(minuteText, 10);
+
+        if (
+          Number.isNaN(hour) ||
+          Number.isNaN(minute) ||
+          hour < 0 ||
+          hour > 23 ||
+          minute < 0 ||
+          minute > 59
+        ) {
+          return null;
+        }
+
+        return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+      })
+      .filter((time): time is string => Boolean(time)),
+  );
+
+  const normalizedDate = Array.from(uniqueNormalizedDates)[0] ?? null;
+  if (!normalizedDate) {
+    return null;
+  }
+
+  if (uniqueNormalizedTimes.size === 1) {
+    return `${normalizedDate} ${Array.from(uniqueNormalizedTimes)[0]}`;
+  }
+
+  return normalizedDate;
+}
+
+export function deriveRawEventLocationTextFromText(value: string | null | undefined) {
+  const normalized = normalizeText(value);
+
+  if (!normalized) {
+    return null;
+  }
+
+  const addressMatches = Array.from(
+    normalized.matchAll(
+      /\b([\p{L}0-9 .,'’()/-]{3,80}?(?:str\.|straße|strasse|platz|allee|weg|gasse|ufer|ring|damm|chaussee|kai)\s+\d{1,4}[a-zA-Z]?(?:,\s*|\s+)\d{5}\s+(?:Berlin|Köln|Koeln|Koln))\b/giu,
+    ),
+  );
+
+  if (addressMatches.length === 0) {
+    return null;
+  }
+
+  const uniqueLocations = new Set(
+    addressMatches
+      .map((match) => match[1]?.replace(/\s+/g, " ").trim() ?? "")
+      .filter(Boolean),
+  );
+
+  if (uniqueLocations.size !== 1) {
+    return null;
+  }
+
+  return Array.from(uniqueLocations)[0] ?? null;
 }
 
 function normalizePlaceCategory(value: string | null | undefined) {
@@ -601,10 +722,13 @@ export function evaluateIngestAllowlist(
 }
 
 export function evaluateRawIngestAllowlist(input: RawIngestAllowlistInput) {
+  const derivedCityGuess =
+    normalizeCity(input.cityGuess) ?? deriveRawEventCityGuessFromText(input.rawText);
+
   return evaluateIngestAllowlist(
     {
       entityType: input.entityGuess,
-      city: input.cityGuess,
+      city: derivedCityGuess,
       title: input.rawTitle,
       sourceType: input.sourceType,
       sourceUrl: input.sourceUrl,

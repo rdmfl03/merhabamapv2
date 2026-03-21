@@ -103,14 +103,13 @@ export const eventSuggestionSchema = z
 export const ingestEventSchema = z.object({
   title: trimmedString.min(2, "title_required").max(160),
   description: optionalTrimmedString.pipe(z.string().max(1200).optional()),
-  startsAt: trimmedString.refine((value) => {
-    const date = new Date(value);
-    return !Number.isNaN(date.getTime());
-  }, { message: "date_invalid" }),
+  rawText: optionalTrimmedString.pipe(z.string().max(20000).optional()),
+  startsAt: optionalTrimmedString.pipe(z.string().max(120).optional()),
+  rawDatetimeText: optionalTrimmedString.pipe(z.string().max(240).optional()),
   venueName: optionalTrimmedString.pipe(z.string().max(160).optional()),
-  citySlug: trimmedString.toLowerCase().refine((value) => value === "berlin", {
-    message: "city_not_allowed",
-  }),
+  rawLocationText: optionalTrimmedString.pipe(z.string().max(240).optional()),
+  citySlug: optionalTrimmedString.pipe(z.string().max(80).optional()),
+  cityGuess: optionalTrimmedString.pipe(z.string().max(80).optional()),
   sourceCategory: optionalTrimmedString.pipe(z.string().max(80).optional()),
   sourceUrl: trimmedString
     .min(1, "source_url_required")

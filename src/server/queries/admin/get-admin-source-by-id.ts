@@ -1,5 +1,8 @@
 import {
   buildAllowlistBlockedHandling,
+  deriveRawEventCityGuessFromText,
+  deriveRawEventDatetimeTextFromText,
+  deriveRawEventLocationTextFromText,
   evaluateRawIngestAllowlist,
   getAllowlistFailureGroup,
 } from "@/config/ingest-allowlist";
@@ -51,6 +54,7 @@ export async function getAdminSourceById(id: string) {
           status: true,
           entityGuess: true,
           rawTitle: true,
+          rawText: true,
           rawDatetimeText: true,
           rawLocationText: true,
           languageHint: true,
@@ -72,9 +76,19 @@ export async function getAdminSourceById(id: string) {
   return {
     ...source,
     rawIngestItems: source.rawIngestItems.map((item) => {
+      const derivedCityGuess =
+        item.cityGuess ??
+        (item.entityGuess === "EVENT" ? deriveRawEventCityGuessFromText(item.rawText) : null);
+      const derivedRawDatetimeText =
+        item.rawDatetimeText ??
+        (item.entityGuess === "EVENT" ? deriveRawEventDatetimeTextFromText(item.rawText) : null);
+      const derivedRawLocationText =
+        item.rawLocationText ??
+        (item.entityGuess === "EVENT" ? deriveRawEventLocationTextFromText(item.rawText) : null);
       const allowlistDecision = evaluateRawIngestAllowlist({
         entityGuess: item.entityGuess,
-        cityGuess: item.cityGuess,
+        cityGuess: derivedCityGuess,
+        rawText: item.rawText,
         rawTitle: item.rawTitle,
         sourceType: source.sourceKind,
         sourceUrl: item.sourceUrl ?? source.url,
@@ -85,6 +99,9 @@ export async function getAdminSourceById(id: string) {
 
       return {
         ...item,
+        cityGuess: derivedCityGuess,
+        rawDatetimeText: derivedRawDatetimeText,
+        rawLocationText: derivedRawLocationText,
         allowlistBlocked: !allowlistDecision.allowed,
         allowlistReasonCode: allowlistDecision.allowed ? null : allowlistDecision.reasonCode,
         allowlistEvaluation: {

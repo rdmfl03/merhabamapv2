@@ -1,0 +1,280 @@
+{
+  "name": "MerhabaMap AI Plausibility Checker v2 (Places)",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "d55daf82-656d-4725-9d81-fe74e5e5c23d",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1264,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT\n  p.id,\n  p.slug,\n  p.name,\n  p.description_de,\n  p.category_id,\n  pc.name_de AS category_name,\n  p.city_id,\n  c.name_de AS city_name,\n  p.address_line_1,\n  p.postal_code,\n  p.latitude,\n  p.longitude,\n  p.phone,\n  p.website_url,\n  p.created_at,\n  p.updated_at,\n  p.ai_last_checked_at\nFROM places p\nLEFT JOIN cities c ON c.id = p.city_id\nLEFT JOIN place_categories pc ON pc.id = p.category_id\nWHERE (\n  p.ai_last_checked_at IS NULL\n  OR p.updated_at > p.ai_last_checked_at\n)\nORDER BY p.created_at DESC\nLIMIT 100;",
+        "options": {}
+      },
+      "id": "f5f6b32b-5cc8-4bf2-b0c4-65de08a49b54",
+      "name": "Load Unchecked Places",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        -1024,
+        112
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "oU7owFOSEWav7sce",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "function compact(value, maxLen = 1200) {\n  const v = String(value || '').replace(/\\s+/g, ' ').trim();\n  return v.length > maxLen ? v.slice(0, maxLen) : v;\n}\n\nfunction normalizeUrl(url) {\n  const u = String(url || '').trim();\n  if (!u || u === 'undefined' || u === 'null') return null;\n  return u;\n}\n\nfunction normalizeAddress(line1, postalCode, cityName) {\n  const parts = [line1, postalCode, cityName]\n    .map(v => String(v || '').trim())\n    .filter(Boolean);\n  return parts.length ? parts.join(', ') : null;\n}\n\nreturn {\n  json: {\n    entity_type: 'place',\n    entity_id: $json.id,\n    model_name: 'gemini-2.5-flash',\n    ai_input: {\n      name: compact($json.name, 180),\n      description_de: compact($json.description_de, 1400),\n      category_id: $json.category_id || null,\n      category_name: $json.category_name || null,\n      city_id: $json.city_id || null,\n      city_name: $json.city_name || null,\n      address_line_1: compact($json.address_line_1, 200),\n      postal_code: compact($json.postal_code, 20),\n      address_compact: normalizeAddress($json.address_line_1, $json.postal_code, $json.city_name),\n      latitude: $json.latitude ?? null,\n      longitude: $json.longitude ?? null,\n      website_url: normalizeUrl($json.website_url),\n      phone: compact($json.phone, 80)\n    }\n  }\n};"
+      },
+      "id": "7007292b-bc52-4b05-913d-7d706f8c3821",
+      "name": "Prepare AI Input Places",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -784,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ \"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=AIzaSyATbxjaR9um663V2aBxwuKex2cGbPn_V0U\" }}",
+        "sendHeaders": true,
+        "specifyHeaders": "usingJSON",
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({\n  contents: [\n    {\n      parts: [\n        {\n          text: [\n            \"Du prüfst Place-Datensätze für MerhabaMap auf Plausibilität.\",\n            \"Antworte NUR als valides JSON.\",\n            \"Bewerte konservativ.\",\n            \"Wenn unklar, dann REVIEW oder UNSURE statt OK.\",\n            \"Erlaubte status-Werte: OK, REVIEW, REJECT, UNSURE\",\n            \"Erlaubte suggested_action-Werte: keep, send_to_moderation, reject\",\n            \"Ein Place ist z. B. ein realer Verein, Treffpunkt, Kulturort, Moschee, Community-Ort oder Geschäft.\",\n            \"Wenn es eher wie ein Event, eine reine Landingpage, Spam oder ein irrelevanter Link wirkt, dann nicht OK.\",\n            \"\",\n            \"Zu prüfender Datensatz:\",\n            JSON.stringify($json.ai_input)\n          ].join(\"\\n\")\n        }\n      ]\n    }\n  ],\n  generationConfig: {\n    responseMimeType: \"application/json\",\n    responseSchema: {\n      type: \"OBJECT\",\n      properties: {\n        status: {\n          type: \"STRING\",\n          enum: [\"OK\", \"REVIEW\", \"REJECT\", \"UNSURE\"]\n        },\n        confidence: {\n          type: \"NUMBER\"\n        },\n        reason_codes: {\n          type: \"ARRAY\",\n          items: {\n            type: \"STRING\"\n          }\n        },\n        is_plausible: {\n          type: \"BOOLEAN\"\n        },\n        suggested_action: {\n          type: \"STRING\",\n          enum: [\"keep\", \"send_to_moderation\", \"reject\"]\n        },\n        notes: {\n          type: \"STRING\"\n        }\n      },\n      required: [\n        \"status\",\n        \"confidence\",\n        \"reason_codes\",\n        \"is_plausible\",\n        \"suggested_action\",\n        \"notes\"\n      ]\n    }\n  }\n}) }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          },
+          "timeout": 60000
+        }
+      },
+      "id": "81c3bd6c-db45-4f12-b870-fead9384bb84",
+      "name": "Call Gemini AI",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -528,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const txt = $json.candidates?.[0]?.content?.parts?.[0]?.text || '{}';\n\nlet parsed;\ntry {\n  parsed = JSON.parse(txt);\n} catch (e) {\n  parsed = {\n    status: 'UNSURE',\n    confidence: 0,\n    reason_codes: ['INVALID_JSON'],\n    is_plausible: false,\n    suggested_action: 'send_to_moderation',\n    notes: 'Gemini-Antwort konnte nicht als JSON geparst werden.'\n  };\n}\n\nconst allowedStatus = ['OK', 'REVIEW', 'REJECT', 'UNSURE'];\nconst allowedAction = ['keep', 'send_to_moderation', 'reject'];\n\nreturn {\n  json: {\n    entity_type: 'place',\n    entity_id: $items('Prepare AI Input Places')[0].json.entity_id,\n    model_name: 'gemini-2.5-flash',\n    ai_status: allowedStatus.includes(parsed.status) ? parsed.status : 'UNSURE',\n    confidence_score: typeof parsed.confidence === 'number' ? Math.max(0, Math.min(1, parsed.confidence)) : 0,\n    reason_codes_json: JSON.stringify(Array.isArray(parsed.reason_codes) ? parsed.reason_codes : ['NO_REASON_CODES']),\n    explanation: parsed.notes || null,\n    suggested_action: allowedAction.includes(parsed.suggested_action) ? parsed.suggested_action : 'send_to_moderation',\n    raw_result_json: JSON.stringify(parsed)\n  }\n};"
+      },
+      "id": "681a8763-8a46-4ba3-80a5-148f8b4061eb",
+      "name": "Parse Gemini Result Places",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -256,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO ai_quality_checks (\n  id,\n  entity_type,\n  entity_id,\n  model_name,\n  ai_status,\n  confidence_score,\n  reason_codes,\n  explanation,\n  suggested_action,\n  raw_result_json,\n  checked_at,\n  created_at\n)\nVALUES (\n  gen_random_uuid()::text,\n  '{{ ($json.entity_type || \"place\").replace(/'/g, \"''\") }}',\n  '{{ ($json.entity_id || \"\").replace(/'/g, \"''\") }}',\n  '{{ ($json.model_name || \"unknown\").replace(/'/g, \"''\") }}',\n  '{{ ($json.ai_status || \"UNSURE\").replace(/'/g, \"''\") }}',\n  {{ $json.confidence_score !== undefined ? $json.confidence_score : 'NULL' }},\n  {{ $json.reason_codes_json ? \"'\" + $json.reason_codes_json.replace(/'/g, \"''\") + \"'::jsonb\" : \"'[]'::jsonb\" }},\n  {{ $json.explanation ? \"'\" + $json.explanation.replace(/'/g, \"''\") + \"'\" : 'NULL' }},\n  '{{ ($json.suggested_action || \"send_to_moderation\").replace(/'/g, \"''\") }}',\n  {{ $json.raw_result_json ? \"'\" + $json.raw_result_json.replace(/'/g, \"''\") + \"'::jsonb\" : 'NULL' }},\n  NOW(),\n  NOW()\n)\nRETURNING id, entity_type, entity_id, ai_status, confidence_score, checked_at;",
+        "options": {}
+      },
+      "id": "cf64c666-db30-4467-a25b-59acb4b3de06",
+      "name": "Insert AI Quality Check Places",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        0,
+        0
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "oU7owFOSEWav7sce",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE places\nSET ai_review_status = '{{ ($json.ai_status || \"UNSURE\").replace(/'/g, \"''\") }}',\n    ai_confidence_score = {{ $json.confidence_score !== undefined ? $json.confidence_score : 'NULL' }},\n    ai_last_checked_at = NOW(),\n    updated_at = NOW()\nWHERE id = '{{ ($json.entity_id || \"\").replace(/'/g, \"''\") }}'\nRETURNING id, ai_review_status, ai_confidence_score, ai_last_checked_at;",
+        "options": {}
+      },
+      "id": "e7d95221-15d5-498d-a90d-14fcb3dc7e7a",
+      "name": "Update Place AI Flags",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        0,
+        208
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "oU7owFOSEWav7sce",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "id": "f9b3cefb-7c03-47f7-ad10-418f2625cdbd",
+      "name": "Merge DB Results",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        240,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT\n  p.id,\n  p.name,\n  p.ai_review_status,\n  p.ai_confidence_score,\n  p.ai_last_checked_at\nFROM places p\nWHERE p.ai_last_checked_at IS NOT NULL\nORDER BY p.ai_last_checked_at DESC\nLIMIT 20;",
+        "options": {}
+      },
+      "id": "d2eaa7df-cd3d-4b4c-aaab-2614ae69c591",
+      "name": "Show Checked Places",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        480,
+        112
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "oU7owFOSEWav7sce",
+          "name": "Postgres account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Load Unchecked Places",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Unchecked Places": {
+      "main": [
+        [
+          {
+            "node": "Prepare AI Input Places",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare AI Input Places": {
+      "main": [
+        [
+          {
+            "node": "Call Gemini AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Gemini AI": {
+      "main": [
+        [
+          {
+            "node": "Parse Gemini Result Places",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Gemini Result Places": {
+      "main": [
+        [
+          {
+            "node": "Insert AI Quality Check Places",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Update Place AI Flags",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert AI Quality Check Places": {
+      "main": [
+        [
+          {
+            "node": "Merge DB Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Place AI Flags": {
+      "main": [
+        [
+          {
+            "node": "Merge DB Results",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge DB Results": {
+      "main": [
+        [
+          {
+            "node": "Show Checked Places",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "d54ef8fa-acff-42b7-8315-e644e0d04414",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "cb95f67de3eb2bd513200bc3cead3abaa69e890ba0a912740169783b0cf2958b"
+  },
+  "id": "k5BAHcKcY7Xoghbh",
+  "tags": []
+}

@@ -109,9 +109,10 @@ model City {
   lng             Float?
   source          String?
   sourceUpdatedAt DateTime? @map("source_updated_at") @db.Timestamp(6)
-  events          Event[]
-  places          Place[]
-  usersOnboarding User[]    @relation("OnboardingCity")
+  events                 Event[]
+  normalizedIngestEvents NormalizedIngestEvent[]
+  places                 Place[]
+  usersOnboarding        User[] @relation("OnboardingCity")
 
   @@index([stateCode])
   @@index([countryCode])
@@ -201,10 +202,11 @@ model Event {
   aiReviewStatus    String?          @map("ai_review_status")
   aiConfidenceScore Decimal?         @map("ai_confidence_score") @db.Decimal(5, 4)
   aiLastCheckedAt   DateTime?        @map("ai_last_checked_at") @db.Timestamp(6)
-  eventSources      EventSource[]
-  city              City             @relation(fields: [cityId], references: [id], onDelete: Cascade)
-  reports           Report[]
-  savedBy           SavedEvent[]
+  eventSources           EventSource[]
+  normalizedIngestEvents NormalizedIngestEvent[]
+  city                   City             @relation(fields: [cityId], references: [id], onDelete: Cascade)
+  reports                Report[]
+  savedBy                SavedEvent[]
 
   @@unique([title, cityId, startsAt], map: "events_unique_event")
   @@unique([title, cityId, startsAt], map: "events_unique_title_city_starts_at")
@@ -474,7 +476,8 @@ model RawIngestItem {
   ingestedAt      DateTime  @default(now()) @map("ingested_at") @db.Timestamp(6)
   createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt       DateTime  @default(now()) @map("updated_at") @db.Timestamp(6)
-  source          Source?   @relation(fields: [sourceId], references: [id], onUpdate: NoAction)
+  normalizedEvent NormalizedIngestEvent?
+  source          Source?                @relation(fields: [sourceId], references: [id], onUpdate: NoAction)
 
   @@index([entityGuess])
   @@index([externalId])
@@ -486,11 +489,42 @@ model RawIngestItem {
   @@map("raw_ingest_items")
 }
 
+model NormalizedIngestEvent {
+  id                  String                      @id
+  rawIngestItemId     String                      @unique @map("raw_ingest_item_id")
+  eventId             String?                     @unique @map("event_id")
+  cityId              String                      @map("city_id")
+  title               String
+  description         String?
+  category            EventCategory
+  venueName           String?                     @map("venue_name")
+  startsAt            DateTime                    @map("starts_at") @db.Timestamp(6)
+  sourceUrl           String                      @map("source_url")
+  sourceCategory      String?                     @map("source_category")
+  normalizationStatus NormalizedIngestEventStatus @default(PENDING_REVIEW) @map("normalization_status")
+  reviewedByUserId    String?                     @map("reviewed_by_user_id")
+  reviewedAt          DateTime?                   @map("reviewed_at") @db.Timestamp(6)
+  reviewNote          String?                     @map("review_note")
+  promotedAt          DateTime?                   @map("promoted_at") @db.Timestamp(6)
+  createdAt           DateTime                    @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt           DateTime                    @default(now()) @map("updated_at") @db.Timestamp(6)
+  city                City                        @relation(fields: [cityId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  event               Event?                      @relation(fields: [eventId], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  rawIngestItem       RawIngestItem               @relation(fields: [rawIngestItemId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([cityId])
+  @@index([normalizationStatus])
+  @@index([reviewedByUserId])
+  @@index([startsAt])
+  @@map("normalized_ingest_events")
+}
+
 model Submission {
   id                String    @id
   submissionType    String    @map("submission_type")
   targetEntityType  String?   @map("target_entity_type")
   targetEntityId    String?   @map("target_entity_id")
+  normalizedIngestEventId String? @map("normalized_ingest_event_id")
   submittedByUserId String?   @map("submitted_by_user_id")
   payloadJson       String    @map("payload_json")
   sourceUrl         String?   @map("source_url")
@@ -510,6 +544,7 @@ model Submission {
   @@index([submittedByUserId])
   @@index([targetEntityId])
   @@index([targetEntityType])
+  @@index([normalizedIngestEventId])
   @@map("submissions")
 }
 
@@ -570,6 +605,16 @@ enum ModerationStatus {
   PENDING
   APPROVED
   REJECTED
+}
+
+enum NormalizedIngestEventStatus {
+  PENDING_REVIEW
+  APPROVED_FOR_PROMOTION
+  PROMOTED
+  REJECTED
+  DUPLICATE
+  STALE
+  SUPERSEDED
 }
 
 enum EventCategory {

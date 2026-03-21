@@ -34,3 +34,22 @@ export const updateEntityModerationSchema = z.object({
   nextStatus: z.enum(["APPROVED", "REJECTED"]),
   rejectConfirmation: z.enum(["confirmed"]).optional(),
 });
+
+export const reviewNormalizedIngestEventSchema = z.object({
+  locale: z.enum(routing.locales),
+  normalizedIngestEventId: z.string().uuid(),
+  action: z.enum([
+    "PROMOTE",
+    "REJECT",
+    "MARK_DUPLICATE",
+    "MARK_STALE",
+    "MARK_SUPERSEDED",
+  ]),
+  reviewNote: z
+    .union([z.string(), z.undefined(), z.null()])
+    .transform((value) => {
+      const normalized = typeof value === "string" ? value.trim() : "";
+      return normalized.length > 0 ? normalized : undefined;
+    })
+    .pipe(z.string().max(500).optional()),
+});

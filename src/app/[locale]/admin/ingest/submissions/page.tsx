@@ -1,6 +1,7 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { AdminShell } from "@/components/admin/admin-shell";
+import { StagedIngestEventReviewForm } from "@/components/admin/staged-ingest-event-review-form";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "@/i18n/navigation";
@@ -34,6 +35,16 @@ function getStatusTone(status: string) {
 
 function getOriginTone(origin: string) {
   return origin === "user_submission" ? "success" : "default";
+}
+
+function getNormalizedIngestStatusTone(status: string) {
+  return status === "PROMOTED"
+    ? "success"
+    : status === "PENDING_REVIEW" || status === "APPROVED_FOR_PROMOTION"
+      ? "warning"
+      : status === "REJECTED" || status === "STALE"
+        ? "danger"
+        : "default";
 }
 
 function getStatusPriority(status: string) {
@@ -430,6 +441,16 @@ export default async function AdminSubmissionsPage({
                               `submissions.entityTypes.${(submission.targetEntityType ?? "unknown").toLowerCase()}`,
                             )}
                           />
+                          {submission.normalizedIngestEventStatus ? (
+                            <StatusBadge
+                              tone={getNormalizedIngestStatusTone(
+                                submission.normalizedIngestEventStatus,
+                              )}
+                              label={t(
+                                `submissions.normalizedStatuses.${submission.normalizedIngestEventStatus.toLowerCase()}`,
+                              )}
+                            />
+                          ) : null}
                           <span className="rounded-full border border-border/80 bg-muted px-2.5 py-1 text-xs text-muted-foreground">
                             {submission.submissionType}
                           </span>
@@ -514,6 +535,36 @@ export default async function AdminSubmissionsPage({
                         <p className="mt-1 text-xs text-muted-foreground">
                           {t(`submissions.originGuidance.${submission.origin}`)}
                         </p>
+                        {submission.normalizedIngestEventId || submission.rawIngestItemId ? (
+                          <div className="mt-3 space-y-1 rounded-2xl border border-border/70 bg-muted/30 px-3 py-3 text-xs text-muted-foreground">
+                            {submission.rawIngestItemId ? (
+                              <p>
+                                <span className="font-medium text-foreground">
+                                  {t("submissions.cards.rawItemId")}:
+                                </span>{" "}
+                                <span className="break-all">{submission.rawIngestItemId}</span>
+                              </p>
+                            ) : null}
+                            {submission.normalizedIngestEventId ? (
+                              <p>
+                                <span className="font-medium text-foreground">
+                                  {t("submissions.cards.normalizedEventId")}:
+                                </span>{" "}
+                                <span className="break-all">{submission.normalizedIngestEventId}</span>
+                              </p>
+                            ) : null}
+                            {submission.normalizedIngestEventEventId ? (
+                              <p>
+                                <span className="font-medium text-foreground">
+                                  {t("submissions.cards.linkedEventId")}:
+                                </span>{" "}
+                                <span className="break-all">
+                                  {submission.normalizedIngestEventEventId}
+                                </span>
+                              </p>
+                            ) : null}
+                          </div>
+                        ) : null}
                       </div>
                       <div>
                         <p className="font-medium text-foreground">
@@ -527,12 +578,130 @@ export default async function AdminSubmissionsPage({
                       </div>
                     </div>
 
+                    {submission.normalizedIngestEventId ? (
+                      <div className="mt-4 grid gap-3 text-sm lg:grid-cols-2">
+                        <div className="rounded-2xl border border-slate-200 bg-slate-50/70 px-4 py-3">
+                          <p className="font-medium text-foreground">
+                            {t("submissions.cards.rawSourceFields")}
+                          </p>
+                          <div className="mt-3 space-y-2 text-muted-foreground">
+                            <p>
+                              <span className="font-medium text-foreground">
+                                {t("submissions.cards.title")}:
+                              </span>{" "}
+                              {submission.rawIngestItemTitle ??
+                                t("submissions.fallbacks.notAvailable")}
+                            </p>
+                            <p>
+                              <span className="font-medium text-foreground">
+                                {t("submissions.cards.rawDateTime")}:
+                              </span>{" "}
+                              {submission.rawIngestItemDatetimeText ??
+                                t("submissions.fallbacks.notAvailable")}
+                            </p>
+                            <p>
+                              <span className="font-medium text-foreground">
+                                {t("submissions.cards.rawLocation")}:
+                              </span>{" "}
+                              {submission.rawIngestItemLocationText ??
+                                t("submissions.fallbacks.notAvailable")}
+                            </p>
+                            <p>
+                              <span className="font-medium text-foreground">
+                                {t("submissions.cards.rawCityGuess")}:
+                              </span>{" "}
+                              {submission.rawIngestItemCityGuess ??
+                                t("submissions.fallbacks.notAvailable")}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="rounded-2xl border border-emerald-200 bg-emerald-50/60 px-4 py-3">
+                          <p className="font-medium text-foreground">
+                            {t("submissions.cards.normalizedFields")}
+                          </p>
+                          <div className="mt-3 space-y-2 text-muted-foreground">
+                            <p>
+                              <span className="font-medium text-foreground">
+                                {t("submissions.cards.title")}:
+                              </span>{" "}
+                              {submission.normalizedIngestEventTitle ??
+                                t("submissions.fallbacks.notAvailable")}
+                            </p>
+                            <p>
+                              <span className="font-medium text-foreground">
+                                {t("submissions.cards.normalizedDateTime")}:
+                              </span>{" "}
+                              {submission.normalizedIngestEventStartsAt
+                                ? formatDate(
+                                    new Date(submission.normalizedIngestEventStartsAt),
+                                    locale,
+                                  ) ?? submission.normalizedIngestEventStartsAt
+                                : t("submissions.fallbacks.notAvailable")}
+                            </p>
+                            <p>
+                              <span className="font-medium text-foreground">
+                                {t("submissions.cards.city")}:
+                              </span>{" "}
+                              {submission.cityNameDe && submission.cityNameTr
+                                ? locale === "tr"
+                                  ? submission.cityNameTr
+                                  : submission.cityNameDe
+                                : t("submissions.fallbacks.notAvailable")}
+                            </p>
+                            <p>
+                              <span className="font-medium text-foreground">
+                                {t("submissions.cards.location")}:
+                              </span>{" "}
+                              {submission.normalizedIngestEventVenueName ??
+                                t("submissions.fallbacks.notAvailable")}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ) : null}
+
+                    {submission.normalizedIngestEventStatus === "DUPLICATE" ? (
+                      <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                        <p className="font-medium text-foreground">
+                          {t("submissions.cards.duplicateContext")}
+                        </p>
+                        <p className="mt-1 text-amber-900/80">
+                          {submission.normalizedIngestEventEventId
+                            ? t("submissions.cards.duplicateLinked")
+                            : t("submissions.cards.duplicateNeedsManualCheck")}
+                        </p>
+                      </div>
+                    ) : null}
+
                     {submission.notes ? (
                       <div className="mt-4 space-y-2">
                         <p className="font-medium text-foreground">{t("submissions.cards.notes")}</p>
                         <p className="text-sm leading-6 text-muted-foreground">
                           {submission.notes}
                         </p>
+                      </div>
+                    ) : null}
+
+                    {submission.needsNormalizedIngestReview &&
+                    submission.normalizedIngestEventId ? (
+                      <div className="mt-4">
+                        <StagedIngestEventReviewForm
+                          locale={locale}
+                          normalizedIngestEventId={submission.normalizedIngestEventId}
+                          labels={{
+                            title: t("submissions.stagedReview.title"),
+                            helper: t("submissions.stagedReview.helper"),
+                            reviewNote: t("submissions.stagedReview.reviewNote"),
+                            promote: t("submissions.stagedReview.promote"),
+                            reject: t("submissions.stagedReview.reject"),
+                            markDuplicate: t("submissions.stagedReview.markDuplicate"),
+                            markStale: t("submissions.stagedReview.markStale"),
+                            markSuperseded: t("submissions.stagedReview.markSuperseded"),
+                            success: t("submissions.stagedReview.success"),
+                            error: t("submissions.stagedReview.error"),
+                          }}
+                        />
                       </div>
                     ) : null}
 

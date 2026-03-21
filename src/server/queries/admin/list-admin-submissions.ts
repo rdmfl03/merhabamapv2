@@ -5,10 +5,19 @@ type SubmissionPayload = {
   name?: string;
   title?: string;
   description?: string;
+  startsAt?: string;
+  rawDatetimeText?: string;
   time?: string;
   note?: string;
   addressLine1?: string;
   venueName?: string;
+  rawLocationText?: string;
+  citySlug?: string;
+  cityGuess?: string;
+  sourceCategory?: string;
+  mappedCategory?: string;
+  normalizedEventId?: string;
+  rawIngestItemId?: string;
 };
 
 function parsePayload(payloadJson: string): SubmissionPayload {
@@ -34,6 +43,7 @@ export async function listAdminSubmissions() {
       status: true,
       targetEntityType: true,
       targetEntityId: true,
+      normalizedIngestEventId: true,
       submittedByUserId: true,
       payloadJson: true,
       sourceUrl: true,
@@ -55,8 +65,11 @@ export async function listAdminSubmissions() {
       ? [submission.targetEntityId]
       : [],
   );
+  const normalizedIngestEventIds = submissions.flatMap((submission) =>
+    submission.normalizedIngestEventId ? [submission.normalizedIngestEventId] : [],
+  );
 
-  const [places, events] = await Promise.all([
+  const [places, events, normalizedIngestEvents] = await Promise.all([
     placeIds.length
       ? prisma.place.findMany({
           where: {
@@ -113,10 +126,48 @@ export async function listAdminSubmissions() {
           },
         })
       : Promise.resolve([]),
+    normalizedIngestEventIds.length
+      ? prisma.normalizedIngestEvent.findMany({
+          where: {
+            id: {
+              in: normalizedIngestEventIds,
+            },
+          },
+          select: {
+            id: true,
+            normalizationStatus: true,
+            title: true,
+            description: true,
+            category: true,
+            venueName: true,
+            startsAt: true,
+            sourceUrl: true,
+            sourceCategory: true,
+            reviewedAt: true,
+            reviewedByUserId: true,
+            promotedAt: true,
+            reviewNote: true,
+            eventId: true,
+            rawIngestItem: {
+              select: {
+                id: true,
+                rawTitle: true,
+                rawDatetimeText: true,
+                rawLocationText: true,
+                cityGuess: true,
+                sourceUrl: true,
+              },
+            },
+          },
+        })
+      : Promise.resolve([]),
   ]);
 
   const placeById = new Map(places.map((place) => [place.id, place]));
   const eventById = new Map(events.map((event) => [event.id, event]));
+  const normalizedIngestEventById = new Map(
+    normalizedIngestEvents.map((normalizedEvent) => [normalizedEvent.id, normalizedEvent]),
+  );
 
   const placeDuplicateCounts = new Map<string, number>();
   for (const place of places) {
@@ -140,6 +191,9 @@ export async function listAdminSubmissions() {
       submission.targetEntityType === "EVENT" && submission.targetEntityId
         ? eventById.get(submission.targetEntityId)
         : null;
+    const normalizedIngestEvent = submission.normalizedIngestEventId
+      ? normalizedIngestEventById.get(submission.normalizedIngestEventId)
+      : null;
 
     const label = place?.name ?? event?.title ?? payload.name ?? payload.title ?? submission.id;
     const sourceUrl = submission.sourceUrl ?? place?.websiteUrl ?? event?.externalUrl ?? null;
@@ -154,7 +208,11 @@ export async function listAdminSubmissions() {
       ? [payload.venueName ?? event.venueName, payload.addressLine1 ?? event.addressLine1]
           .filter(Boolean)
           .join(" · ")
-      : [payload.addressLine1 ?? place?.addressLine1].filter(Boolean).join(" · ");
+      : submission.targetEntityType === "EVENT"
+        ? [payload.venueName, payload.startsAt, payload.rawIngestItemId]
+            .filter(Boolean)
+            .join(" · ")
+        : [payload.addressLine1 ?? place?.addressLine1].filter(Boolean).join(" · ");
 
     const reviewSignals: string[] = [];
 
@@ -166,7 +224,7 @@ export async function listAdminSubmissions() {
       reviewSignals.push("short_description");
     }
 
-    if (event && !payload.time) {
+    if (submission.targetEntityType === "EVENT" && !payload.time && !payload.startsAt) {
       reviewSignals.push("event_missing_time");
     }
 
@@ -190,24 +248,59 @@ export async function listAdminSubmissions() {
       status: submission.status,
       targetEntityType: submission.targetEntityType,
       targetEntityId: submission.targetEntityId,
+      normalizedIngestEventId: submission.normalizedIngestEventId,
       submittedByUserId: submission.submittedByUserId,
       reviewedByUserId: submission.reviewedByUserId,
       reviewedAt: submission.reviewedAt,
       createdAt: submission.createdAt,
       updatedAt: submission.updatedAt,
       label,
-      citySlug: place?.city.slug ?? event?.city.slug ?? null,
-      cityNameDe: place?.city.nameDe ?? event?.city.nameDe ?? null,
-      cityNameTr: place?.city.nameTr ?? event?.city.nameTr ?? null,
-      categoryLabelDe: place?.category.nameDe ?? event?.category ?? null,
-      categoryLabelTr: place?.category.nameTr ?? event?.category ?? null,
-      addressOrVenue: place?.addressLine1 ?? event?.venueName ?? event?.addressLine1 ?? null,
+      citySlug: place?.city.slug ?? event?.city.slug ?? payload.citySlug ?? null,
+      cityNameDe: place?.city.nameDe ?? event?.city.nameDe ?? payload.citySlug ?? null,
+      cityNameTr: place?.city.nameTr ?? event?.city.nameTr ?? payload.citySlug ?? null,
+      categoryLabelDe: place?.category.nameDe ?? event?.category ?? payload.mappedCategory ?? null,
+      categoryLabelTr: place?.category.nameTr ?? event?.category ?? payload.mappedCategory ?? null,
+      addressOrVenue:
+        place?.addressLine1 ?? event?.venueName ?? event?.addressLine1 ?? payload.venueName ?? null,
       descriptionPreview: description,
       notes: submission.notes ?? payload.note ?? null,
       compactPayloadSummary: compactPayloadSummary || null,
       sourceUrl,
       sourcePresent: Boolean(sourceUrl),
       origin: submission.submittedByUserId ? "user_submission" : "system_submission",
+      normalizedIngestEventStatus: normalizedIngestEvent?.normalizationStatus ?? null,
+      normalizedIngestEventReviewedAt: normalizedIngestEvent?.reviewedAt ?? null,
+      normalizedIngestEventReviewedByUserId: normalizedIngestEvent?.reviewedByUserId ?? null,
+      normalizedIngestEventPromotedAt: normalizedIngestEvent?.promotedAt ?? null,
+      normalizedIngestEventReviewNote: normalizedIngestEvent?.reviewNote ?? null,
+      normalizedIngestEventTitle: normalizedIngestEvent?.title ?? payload.title ?? null,
+      normalizedIngestEventDescription:
+        normalizedIngestEvent?.description ?? payload.description ?? null,
+      normalizedIngestEventCategory:
+        normalizedIngestEvent?.category ?? payload.mappedCategory ?? null,
+      normalizedIngestEventVenueName: normalizedIngestEvent?.venueName ?? payload.venueName ?? null,
+      normalizedIngestEventStartsAt:
+        normalizedIngestEvent?.startsAt?.toISOString() ?? payload.startsAt ?? null,
+      normalizedIngestEventSourceUrl: normalizedIngestEvent?.sourceUrl ?? sourceUrl,
+      normalizedIngestEventSourceCategory:
+        normalizedIngestEvent?.sourceCategory ?? payload.sourceCategory ?? null,
+      normalizedIngestEventEventId:
+        normalizedIngestEvent?.eventId ?? submission.targetEntityId ?? null,
+      rawIngestItemId: payload.rawIngestItemId ?? normalizedIngestEvent?.rawIngestItem.id ?? null,
+      rawIngestItemTitle: normalizedIngestEvent?.rawIngestItem.rawTitle ?? payload.title ?? null,
+      rawIngestItemDatetimeText:
+        normalizedIngestEvent?.rawIngestItem.rawDatetimeText ?? payload.rawDatetimeText ?? null,
+      rawIngestItemLocationText:
+        normalizedIngestEvent?.rawIngestItem.rawLocationText ?? payload.rawLocationText ?? null,
+      rawIngestItemCityGuess:
+        normalizedIngestEvent?.rawIngestItem.cityGuess ?? payload.cityGuess ?? payload.citySlug ?? null,
+      rawIngestItemSourceUrl:
+        normalizedIngestEvent?.rawIngestItem.sourceUrl ?? sourceUrl ?? null,
+      needsNormalizedIngestReview:
+        submission.targetEntityType === "EVENT" &&
+        !submission.targetEntityId &&
+        (normalizedIngestEvent?.normalizationStatus === "PENDING_REVIEW" ||
+          normalizedIngestEvent?.normalizationStatus === "APPROVED_FOR_PROMOTION"),
       targetAdminPath:
         submission.targetEntityType === "PLACE" && submission.targetEntityId
           ? `/admin/places/${submission.targetEntityId}`
