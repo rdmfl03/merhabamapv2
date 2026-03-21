@@ -1,0 +1,464 @@
+{
+  "name": "MerhabaMap Discovery v1",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "1d6a0c88-98d9-4139-b11c-6bb75e2c277a",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -2320,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO ingest_runs (id, pipeline_name, trigger_type, status, items_found, items_created, items_updated, items_failed, started_at, created_at, updated_at) VALUES (gen_random_uuid()::text, 'discovery-v1', 'manual', 'RUNNING', 0, 0, 0, 0, NOW(), NOW(), NOW()) RETURNING id AS run_id, pipeline_name, trigger_type, status, started_at;",
+        "options": {}
+      },
+      "id": "1110a8b4-0a8c-4346-a252-8a5334a836bb",
+      "name": "Create Discovery Run",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        -2096,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "return { json: { run_id: $json.run_id } };"
+      },
+      "id": "46bf42f5-56a9-4bea-b3b4-38b5f443e154",
+      "name": "Pass Discovery Run Context",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1872,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT '{{ $json.run_id }}'::text AS run_id, id AS source_id, name AS source_name, platform, source_kind, url, trust_score, discovery_method, notes FROM sources WHERE is_active = true AND url IS NOT NULL AND lower(COALESCE(platform, 'website')) IN ('website', 'web') ORDER BY trust_score DESC, updated_at DESC LIMIT 25;",
+        "options": {}
+      },
+      "id": "5b60ac17-fb04-48d7-a3d8-7ce7e9738092",
+      "name": "Load Seed Sources",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        -1872,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "\nconst input = $json;\n\nfunction normalizeUrl(raw) {\n  const value = String(raw ?? '').trim();\n\n  if (!value) {\n    return {\n      normalized: null,\n      host: null,\n      pathname: null,\n      error_code: 'INVALID_SOURCE_URL',\n      error_message: 'Source URL is empty'\n    };\n  }\n\n  let working = value;\n\n  if (!/^https?:\\/\\//i.test(working)) {\n    working = 'https://' + working;\n  }\n\n  const match = working.match(/^(https?):\\/\\/([^\\/?#]+)(\\/[^?#]*)?/i);\n\n  if (!match) {\n    return {\n      normalized: null,\n      host: null,\n      pathname: null,\n      error_code: 'INVALID_SOURCE_URL',\n      error_message: 'Source URL format is invalid'\n    };\n  }\n\n  const protocol = match[1].toLowerCase();\n  const host = match[2].toLowerCase().replace(/\\.$/, '');\n  const pathname = match[3] || '/';\n\n  const normalized = `${protocol}://${host}${pathname}`;\n\n  return {\n    normalized,\n    host,\n    pathname,\n    error_code: null,\n    error_message: null\n  };\n}\n\nconst rawUrl = input.source_url || input.url || null;\nconst result = normalizeUrl(rawUrl);\n\nreturn {\n  json: {\n    ...input,\n    source_id: input.source_id || input.id || null,\n    source_name: input.source_name || input.name || null,\n    source_url_original: rawUrl,\n    source_url_normalized: result.normalized,\n    fetch_url: result.normalized,\n    host: result.host,\n    pathname: result.pathname,\n    fetch_status: result.normalized ? 'PENDING' : 'INVALID_SOURCE_URL',\n    profile_status: 'PENDING',\n    parse_status: 'PENDING',\n    validation_status: 'PENDING',\n    error_code: result.error_code,\n    error_message: result.error_message\n  }\n};\n"
+      },
+      "id": "a2b0c756-5ff6-4e57-b029-251ac4c7e628",
+      "name": "Normalize Seed Source",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1648,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "\nconst items = $input.all();\n\nconst blockedFragments = [\n  '/impressum',\n  '/datenschutz',\n  '/privacy',\n  '/kontakt',\n  '/contact',\n  '/login',\n  '/signin',\n  '/spende',\n  '/donation'\n];\n\nreturn items.filter((item) => {\n  const j = item.json || {};\n  const normalizedUrl =\n    typeof j.source_url_normalized === 'string' ? j.source_url_normalized : null;\n\n  if (!normalizedUrl) return false;\n\n  const lower = normalizedUrl.toLowerCase();\n\n  if (blockedFragments.some((fragment) => lower.includes(fragment))) {\n    return false;\n  }\n\n  return true;\n});\n"
+      },
+      "id": "04189f41-ad03-497f-ad39-1d1febbe2d57",
+      "name": "Filter Fetchable Seed Sources",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1424,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.fetch_url }}",
+        "sendHeaders": true,
+        "specifyHeaders": "usingFieldsBelow",
+        "options": {
+          "redirect": {
+            "redirect": {
+              "maxRedirects": 4
+            }
+          },
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true,
+              "responseFormat": "text"
+            }
+          },
+          "timeout": 8000
+        }
+      },
+      "id": "43b60b91-7928-4468-9a16-33a9f6d19299",
+      "name": "Fetch Seed Source Page",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -1200,
+        80
+      ],
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "id": "454c940a-fdc0-4852-a2aa-a212cc8c88f5",
+      "name": "Merge Seed Source And Response",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -976,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "\nfunction classifyFetch(item) {\n  const statusCode = Number(item.statusCode ?? item.status_code ?? 0);\n  const body = typeof item.body === 'string'\n    ? item.body\n    : typeof item.data === 'string'\n      ? item.data\n      : item.data && typeof item.data.body === 'string'\n        ? item.data.body\n        : null;\n  const rawError = item.error ? String(item.error.message || item.error || '') : '';\n  const finalUrl = typeof item.url === 'string'\n    ? item.url\n    : typeof item.final_url === 'string'\n      ? item.final_url\n      : item.source_url_normalized;\n\n  if (item.fetch_status === 'INVALID_SOURCE_URL') {\n    return { fetch_status: 'INVALID_SOURCE_URL', error_code: 'INVALID_SOURCE_URL', error_message: item.error_message || 'Invalid source URL', body, statusCode, finalUrl };\n  }\n  if (/ENOTFOUND/i.test(rawError)) {\n    return { fetch_status: 'DNS_ERROR', error_code: 'DNS_ERROR', error_message: rawError, body, statusCode, finalUrl };\n  }\n  if (/EPROTO|SSL|TLS/i.test(rawError)) {\n    return { fetch_status: 'TLS_ERROR', error_code: 'TLS_ERROR', error_message: rawError, body, statusCode, finalUrl };\n  }\n  if (/timeout/i.test(rawError)) {\n    return { fetch_status: 'FETCH_TIMEOUT', error_code: 'FETCH_TIMEOUT', error_message: rawError, body, statusCode, finalUrl };\n  }\n  if (rawError) {\n    return { fetch_status: 'UNKNOWN_ERROR', error_code: 'UNKNOWN_ERROR', error_message: rawError, body, statusCode, finalUrl };\n  }\n  if (statusCode >= 400) {\n    return { fetch_status: 'HTTP_ERROR', error_code: 'HTTP_ERROR', error_message: `HTTP ${statusCode}`, body, statusCode, finalUrl };\n  }\n  if (typeof body !== 'string' || body.trim().length < 80) {\n    return { fetch_status: 'EMPTY_RESPONSE', error_code: 'EMPTY_RESPONSE', error_message: 'Response body missing or too short', body, statusCode, finalUrl };\n  }\n  if (/captcha|access denied|forbidden|enable cookies|anmelden|einloggen|login/i.test(body)) {\n    return { fetch_status: 'BLOCKED', error_code: 'BLOCKED', error_message: 'Blocked or login wall', body, statusCode, finalUrl };\n  }\n  return { fetch_status: 'SUCCESS', error_code: null, error_message: null, body, statusCode, finalUrl };\n}\n\nconst result = classifyFetch($json);\nreturn {\n  json: {\n    ...$json,\n    fetch_status: result.fetch_status,\n    profile_status: result.fetch_status === 'SUCCESS' ? 'READY' : 'FETCH_ERROR',\n    error_code: result.error_code,\n    error_message: result.error_message,\n    status_code: result.statusCode || null,\n    final_url: result.finalUrl || $json.source_url_normalized || null,\n    html: result.body,\n  }\n};\n"
+      },
+      "id": "08e23f90-21b0-4615-a589-0d15359b99ba",
+      "name": "Normalize Seed Fetch Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -752,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "\nconst html = typeof $json.data === 'string' ? $json.data : '';\nconst baseUrl = $json.url || $json.source_url_original || null;\n\nconst navigationLinks = [];\nconst seen = new Set();\nlet hrefMatchCount = 0;\nconst hrefSamples = [];\n\nfunction addSample(value) {\n  if (!value) return;\n  if (hrefSamples.length >= 10) return;\n  hrefSamples.push(String(value));\n}\n\nfunction parseAbsolute(url) {\n  const match = String(url || '').match(/^(https?):\\/\\/([^\\/?#]+)(\\/[^?#]*)?(\\?[^#]*)?/i);\n  if (!match) return null;\n  return {\n    protocol: match[1].toLowerCase(),\n    host: match[2].toLowerCase().replace(/\\.$/, ''),\n    path: match[3] || '/',\n    query: match[4] || ''\n  };\n}\n\nfunction normalizePath(path) {\n  const value = String(path || '/').replace(/\\/+/g, '/');\n  return value.startsWith('/') ? value : `/${value}`;\n}\n\nfunction resolveUrl(rawHref, rawBaseUrl) {\n  const href = String(rawHref || '').trim();\n  const base = parseAbsolute(rawBaseUrl);\n  if (!href || !base) return null;\n\n  if (/^https?:\\/\\//i.test(href)) {\n    const absolute = parseAbsolute(href);\n    return absolute\n      ? `${absolute.protocol}://${absolute.host}${normalizePath(absolute.path)}${absolute.query}`\n      : null;\n  }\n\n  if (/^\\/\\//.test(href)) {\n    return `${base.protocol}:${href}`;\n  }\n\n  if (href.startsWith('/')) {\n    return `${base.protocol}://${base.host}${normalizePath(href)}`;\n  }\n\n  const baseDir = (() => {\n    const path = normalizePath(base.path);\n    if (path === '/') return '/';\n    return path.replace(/\\/[^/]*$/, '/');\n  })();\n\n  return `${base.protocol}://${base.host}${normalizePath(baseDir + href)}`;\n}\n\nfunction addLink(rawHref) {\n  if (!rawHref) return;\n  const href = String(rawHref).trim();\n  if (!href) return;\n  addSample(href);\n  if (href.startsWith('#')) return;\n  if (/^(mailto:|tel:|javascript:)/i.test(href)) return;\n\n  const normalized = resolveUrl(href, baseUrl);\n  if (!normalized) return;\n\n  if (seen.has(normalized)) return;\n  seen.add(normalized);\n  navigationLinks.push(normalized);\n}\n\ntry {\n  if (html && baseUrl) {\n    const hrefRegex = /href\\s*=\\s*[\"']([^\"']+)[\"']/gi;\n\n    let match;\n    while ((match = hrefRegex.exec(html)) !== null) {\n      hrefMatchCount += 1;\n      addLink(match[1]);\n      if (navigationLinks.length >= 50) break;\n    }\n  }\n} catch (error) {\n  // niemals crashen\n}\n\nreturn {\n  json: {\n    ...$json,\n    profile_status: 'PROFILED',\n    navigation_links: navigationLinks,\n    debug_href_match_count: hrefMatchCount,\n    debug_href_samples: hrefSamples,\n    debug_navigation_link_count: navigationLinks.length\n  }\n};\n"
+      },
+      "id": "08a193e4-6868-45ef-8126-b6754838311b",
+      "name": "Build Source Profile",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -528,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "\nconst POSITIVE = [\n  'veranstaltung','veranstaltungen','event','events',\n  'termin','termine','kalender','programm','agenda',\n  'seminar','workshop','konferenz','kultur','festival'\n];\n\nconst NEGATIVE = [\n  'impressum','datenschutz','privacy','kontakt','contact',\n  'login','signin','spende','donation','mailto','tel'\n];\n\nconst links = Array.isArray($json.navigation_links)\n  ? $json.navigation_links\n  : [];\n\nconst seen = new Set();\nconst candidates = [];\n\nfor (const link of links) {\n  if (!link || typeof link !== 'string') continue;\n\n  const lower = link.toLowerCase();\n\n  if (NEGATIVE.some(n => lower.includes(n))) continue;\n\n  const positiveHits = POSITIVE.filter(p => lower.includes(p));\n\n  if (positiveHits.length === 0) continue;\n\n  if (seen.has(link)) continue;\n  seen.add(link);\n\n  candidates.push({\n    candidate_url: link,\n    candidate_label: null,\n    candidate_reasons: positiveHits,\n    candidate_negative_tokens: []\n  });\n\n  if (candidates.length >= 20) break;\n}\n\nreturn {\n  json: {\n    ...$json,\n    candidates\n  }\n};\n"
+      },
+      "id": "1ab70897-ed1f-4073-a57f-c78892f4f2c7",
+      "name": "Extract Discovery Candidates",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -304,
+        0
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "\nconst positivesRaw = Array.isArray($json.candidate_reason_tokens)\n  ? $json.candidate_reason_tokens\n  : [];\n\nconst negativesRaw = Array.isArray($json.candidate_negative_tokens)\n  ? $json.candidate_negative_tokens\n  : [];\n\nconst positives = [...new Set(positivesRaw)];\nconst negatives = [...new Set(negativesRaw)];\n\nfunction getHostname(rawUrl) {\n  const value = String(rawUrl || '').trim();\n  const match = value.match(/^https?:\\/\\/([^\\/?#]+)/i);\n  return match\n    ? match[1].toLowerCase().replace(/^www\\./i, '').replace(/\\.$/, '')\n    : null;\n}\n\nfunction getPath(rawUrl) {\n  const value = String(rawUrl || '').trim();\n  const match = value.match(/^https?:\\/\\/[^\\/?#]+(\\/[^?#]*)?/i);\n  return match ? (match[1] || '/') : '/';\n}\n\nconst seedHost = getHostname($json.seed_source_url);\nconst candidateHost = getHostname($json.candidate_url);\n\nconst sameDomain = Boolean(\n  seedHost &&\n  candidateHost &&\n  seedHost === candidateHost\n);\n\nconst hasCandidateUrl =\n  typeof $json.candidate_url === 'string' &&\n  $json.candidate_url.trim().length > 0;\n\nconst candidatePath = getPath($json.candidate_url).toLowerCase();\n\nconst eventPathHints = [\n  '/veranstaltung',\n  '/veranstaltungen',\n  '/event',\n  '/events',\n  '/kalender',\n  '/programm',\n  '/termine'\n];\n\nconst genericPathHints = [\n  '/news',\n  '/presse',\n  '/kontakt',\n  '/impressum',\n  '/datenschutz'\n];\n\nconst hasEventPathHint = eventPathHints.some((hint) =>\n  candidatePath.includes(hint)\n);\n\nconst hasGenericPathHint = genericPathHints.some((hint) =>\n  candidatePath.includes(hint)\n);\n\nconst pathDepth = candidatePath.split('/').filter(Boolean).length;\nconst hasDeeperPath = pathDepth >= 2;\n\nlet score =\n  18 +\n  positives.length * 7 -\n  negatives.length * 12 +\n  (sameDomain ? 12 : 0) +\n  (hasCandidateUrl ? 4 : 0) +\n  (hasEventPathHint ? 6 : 0) +\n  (hasDeeperPath ? 4 : 0) -\n  (hasGenericPathHint ? 6 : 0);\n\nscore = Math.max(10, Math.min(60, score));\n\nreturn {\n  json: {\n    ...$json,\n    discovery_confidence: score,\n    collector_ready: false,\n    review_required: true,\n    insertable: hasCandidateUrl && score >= 24,\n    discovery_notes:\n      `DISCOVERY_REVIEW_REQUIRED; ` +\n      `seed=${$json.source_name || 'unknown'}; ` +\n      `positives=${positives.join(',') || 'none'}; ` +\n      `negatives=${negatives.join(',') || 'none'}; ` +\n      `same_domain=${sameDomain ? 'yes' : 'no'}; ` +\n      `event_path=${hasEventPathHint ? 'yes' : 'no'}; ` +\n      `generic_path=${hasGenericPathHint ? 'yes' : 'no'}; ` +\n      `path_depth=${pathDepth}`\n  }\n};\n"
+      },
+      "id": "710f3dc6-b739-4724-b258-117cc67fbfd3",
+      "name": "Score Discovery Candidates",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -80,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "\nconst items = $input.all();\nconst out = [];\n\nfor (const item of items) {\n  const j = item.json || {};\n  const candidates = Array.isArray(j.candidates) ? j.candidates : [];\n\n  for (const candidate of candidates) {\n    if (!candidate || !candidate.candidate_url) continue;\n\n    out.push({\n      json: {\n        run_id: j.run_id || null,\n        source_id: j.source_id || null,\n        source_name: j.source_name || null,\n        platform: j.platform || null,\n        source_kind: j.source_kind || null,\n        trust_score: j.trust_score ?? null,\n        discovery_method: j.discovery_method || null,\n        seed_source_url: j.source_url_original || j.url || null,\n        source_url_original: j.source_url_original || j.url || null,\n        source_url_normalized: j.source_url_normalized || null,\n        profile_status: j.profile_status || null,\n        fetch_status: j.fetch_status || null,\n        candidate_url: candidate.candidate_url,\n        candidate_label: candidate.candidate_label || null,\n        candidate_reason_tokens: Array.isArray(candidate.candidate_reasons)\n          ? candidate.candidate_reasons\n          : [],\n        candidate_reasons: Array.isArray(candidate.candidate_reasons)\n          ? candidate.candidate_reasons\n          : [],\n        candidate_negative_tokens: Array.isArray(candidate.candidate_negative_tokens)\n          ? candidate.candidate_negative_tokens\n          : []\n      }\n    });\n  }\n}\n\nreturn out;\n"
+      },
+      "id": "5f21198d-b9d4-4b44-af9c-90cb2d952c6f",
+      "name": "Expand Discovery Candidates",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -192,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO sources (id, platform, source_kind, name, url, is_public, is_active, trust_score, account_handle, external_id, discovery_method, notes, created_at, updated_at) SELECT gen_random_uuid()::text, 'website', 'WEBSITE', {{ $json.candidate_label ? \"'\" + $json.candidate_label.replace(/'/g, \"''\") + \"'\" : 'NULL' }}, '{{ ($json.candidate_url || \"\").replace(/'/g, \"''\") }}', false, false, {{ Number($json.discovery_confidence || 20) }}, NULL, NULL, 'discovery-v1', '{{ ($json.discovery_notes || \"DISCOVERY_REVIEW_REQUIRED\").replace(/'/g, \"''\") }}', NOW(), NOW() WHERE {{ $json.insertable && $json.candidate_url ? 'true' : 'false' }} AND NOT EXISTS (SELECT 1 FROM sources WHERE lower(url) = lower('{{ ($json.candidate_url || \"\").replace(/'/g, \"''\") }}')) RETURNING id, url, name, trust_score;",
+        "options": {}
+      },
+      "id": "8172ecc1-153e-4b6b-96fe-b59156127aad",
+      "name": "Insert Discovered Sources",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        144,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "append"
+      },
+      "id": "6e4b1683-65e5-45ef-904b-8db7392d8bcd",
+      "name": "Merge Discovery Finalize Trigger",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        368,
+        -80
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "\nconst safeItems = (nodeName) => {\n  try {\n    const value = $items(nodeName);\n    return Array.isArray(value) ? value : [];\n  } catch (error) {\n    return [];\n  }\n};\n\nconst runId =\n  safeItems('Pass Discovery Run Context')[0]?.json?.run_id ??\n  $input.first()?.json?.run_id ??\n  null;\n\nconst loadSeedItems = safeItems('Load Seed Sources');\nconst normalizeFetchItems = safeItems('Normalize Seed Fetch Result');\nconst extractCandidateItems = safeItems('Extract Discovery Candidates');\nconst insertedItems = safeItems('Insert Discovered Sources');\n\nconst sourcesTotal = loadSeedItems.length;\nconst sourcesFetchedOk = normalizeFetchItems.filter(\n  item => item?.json?.fetch_status === 'SUCCESS'\n).length;\nconst sourcesFailed = normalizeFetchItems.filter(\n  item => item?.json?.fetch_status && item?.json?.fetch_status !== 'SUCCESS'\n).length;\n\nconst candidatesTotal = extractCandidateItems.length;\nconst candidatesInserted = insertedItems.length;\n\nconst log = {\n  sources_total: sourcesTotal,\n  sources_fetched_ok: sourcesFetchedOk,\n  sources_failed: sourcesFailed,\n  candidates_total: candidatesTotal,\n  candidates_inserted: candidatesInserted\n};\n\nreturn [\n  {\n    json: {\n      run_id: runId,\n      items_found: candidatesTotal,\n      items_created: candidatesInserted,\n      items_failed: sourcesFailed,\n      sources_total: sourcesTotal,\n      sources_fetched_ok: sourcesFetchedOk,\n      sources_failed: sourcesFailed,\n      candidates_total: candidatesTotal,\n      candidates_inserted: candidatesInserted,\n      log_text: JSON.stringify(log)\n    }\n  }\n];\n"
+      },
+      "id": "a0cc8be0-3324-47ed-8e52-80fe423e8e88",
+      "name": "Build Discovery Final Stats",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        592,
+        -80
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE ingest_runs SET status = 'FINISHED', items_found = {{ $json.items_found || 0 }}, items_created = {{ $json.items_created || 0 }}, items_updated = 0, items_failed = {{ $json.items_failed || 0 }}, finished_at = NOW(), updated_at = NOW(), log_text = {{ $json.log_text ? \"'\" + $json.log_text.replace(/'/g, \"''\") + \"'\" : 'NULL' }} WHERE id = '{{ $json.run_id }}' RETURNING id, status, items_found, items_created, items_failed, finished_at;",
+        "options": {}
+      },
+      "id": "fc068eac-e123-44ea-9be3-54e83a16857a",
+      "name": "Finalize Discovery Run",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        592,
+        -80
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Create Discovery Run",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Discovery Run": {
+      "main": [
+        [
+          {
+            "node": "Pass Discovery Run Context",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Load Seed Sources",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Seed Sources": {
+      "main": [
+        [
+          {
+            "node": "Normalize Seed Source",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge Seed Source And Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Seed Source": {
+      "main": [
+        [
+          {
+            "node": "Filter Fetchable Seed Sources",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Fetchable Seed Sources": {
+      "main": [
+        [
+          {
+            "node": "Fetch Seed Source Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Seed Source Page": {
+      "main": [
+        [
+          {
+            "node": "Merge Seed Source And Response",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Seed Source And Response": {
+      "main": [
+        [
+          {
+            "node": "Normalize Seed Fetch Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Seed Fetch Result": {
+      "main": [
+        [
+          {
+            "node": "Build Source Profile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Source Profile": {
+      "main": [
+        [
+          {
+            "node": "Extract Discovery Candidates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Discovery Candidates": {
+      "main": [
+        [
+          {
+            "node": "Expand Discovery Candidates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Expand Discovery Candidates": {
+      "main": [
+        [
+          {
+            "node": "Score Discovery Candidates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Score Discovery Candidates": {
+      "main": [
+        [
+          {
+            "node": "Insert Discovered Sources",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pass Discovery Run Context": {
+      "main": [
+        [
+          {
+            "node": "Merge Discovery Finalize Trigger",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Discovered Sources": {
+      "main": [
+        [
+          {
+            "node": "Merge Discovery Finalize Trigger",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Discovery Finalize Trigger": {
+      "main": [
+        [
+          {
+            "node": "Build Discovery Final Stats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Discovery Final Stats": {
+      "main": [
+        [
+          {
+            "node": "Finalize Discovery Run",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "67f75df3-9bea-4792-8066-c41c8455b6b1",
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "id": "8c2958dfb0a8467d",
+  "tags": []
+}
