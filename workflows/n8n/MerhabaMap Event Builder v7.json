@@ -1,0 +1,431 @@
+{
+  "name": "MerhabaMap Event Builder v7",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "4f2a96b0-cf60-4ea2-b378-972fd8072ee7",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1376,
+        32
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT id, slug, name_de, name_tr\nFROM cities\nORDER BY name_de ASC;",
+        "options": {}
+      },
+      "id": "e249400b-a291-4bdc-b13f-2a83d22e38c5",
+      "name": "Load Cities",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        -1152,
+        32
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "oU7owFOSEWav7sce",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT\n  id,\n  source_id,\n  platform,\n  source_url,\n  raw_title,\n  raw_text,\n  raw_payload_json,\n  language_hint,\n  city_guess,\n  country_code,\n  entity_guess,\n  status,\n  error_message,\n  created_at\nFROM raw_ingest_items\nWHERE status IN ('PENDING', 'REVIEW')\n  AND COALESCE(country_code, 'DE') = 'DE'\n  AND (\n    entity_guess IS NULL\n    OR entity_guess IN ('EVENT', 'event')\n  )\n  AND source_url IS NOT NULL\n  AND source_url <> ''\n  AND source_url !~* '(eventim|ticketmaster|getgo|reservix|adticket|koelticket)'\n  AND NOT (\n    source_url ~* '^https?://[^/]+/?$'\n    AND raw_text ~* '(kontakt|impressum|satzung|vorstand|spende|geschäftsstelle|ueber uns|über uns)'\n  )\nORDER BY created_at ASC\nLIMIT 100;",
+        "options": {}
+      },
+      "id": "0da0cbad-4473-4cf6-a6e3-3c583acbac9f",
+      "name": "Load Pending Raw Items",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        -928,
+        32
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "oU7owFOSEWav7sce",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "insert-route",
+              "leftValue": "={{ $json.route }}",
+              "rightValue": "INSERT",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "ce391150-ce23-42d6-b584-3dca3aac1695",
+      "name": "IF Insert Route",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -256,
+        32
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE raw_ingest_items\nSET status = CASE\n    WHEN '{{ ($json.resultType || \"\").replace(/'/g, \"''\") }}' = 'created' THEN 'PROCESSED'\n    WHEN '{{ ($json.resultType || \"\").replace(/'/g, \"''\") }}' = 'duplicate' THEN 'PROCESSED'\n    ELSE 'REVIEW'\n  END,\n  error_message = CASE\n    WHEN '{{ ($json.resultType || \"\").replace(/'/g, \"''\") }}' = 'duplicate' THEN 'DUPLICATE_EVENT'\n    WHEN '{{ ($json.resultType || \"\").replace(/'/g, \"''\") }}' = 'error' THEN 'INGEST_ERROR'\n    ELSE NULL\n  END,\n  processed_at = NOW(),\n  updated_at = NOW()\nWHERE id = '{{ ($json.raw_id || \"\").replace(/'/g, \"''\") }}'\nRETURNING id, status, error_message, processed_at;",
+        "options": {}
+      },
+      "id": "bad1d1f1-119a-4c8f-8a8b-c74dbbd06c8b",
+      "name": "Mark Raw Processed",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        864,
+        -64
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "oU7owFOSEWav7sce",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE raw_ingest_items\nSET status = 'REVIEW',\n    error_message = '{{ ($json.review_reason || \"\").replace(/'/g, \"''\") }}',\n    processed_at = NOW(),\n    updated_at = NOW()\nWHERE id = '{{ ($json.raw_id || \"\").replace(/'/g, \"''\") }}'\nRETURNING id, status, error_message, processed_at;",
+        "options": {}
+      },
+      "id": "bf9a4e66-79ac-4672-b22e-c8747ea69e9d",
+      "name": "Mark Raw Review",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        112,
+        176
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "oU7owFOSEWav7sce",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT id, raw_title, source_url, status, error_message, processed_at\nFROM raw_ingest_items\nWHERE status = 'REVIEW'\nORDER BY processed_at DESC NULLS LAST, created_at DESC\nLIMIT 20;",
+        "options": {}
+      },
+      "id": "15dded77-5473-4dda-9ed3-91ff396593cb",
+      "name": "Show Review Queue",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        368,
+        176
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "oU7owFOSEWav7sce",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "return {\n  json: {\n    raw_id: $json.raw_id,\n    title: $json.title,\n    city_id: $json.city_id,\n    city_slug: $json.city_slug,\n    starts_at: $json.starts_at,\n    venue_name: $json.venue_name,\n    category: $json.category,\n    external_url: $json.external_url,\n    quality_score: $json.quality_score,\n    route: $json.route,\n    review_reason: $json.review_reason\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -480,
+        32
+      ],
+      "id": "b05bb595-274d-4422-b639-d6e04d05c9ac",
+      "name": "Debug"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const cityItems = $items('Load Cities').map(i => i.json);\n\nfunction normalize(value) {\n  return (value || '')\n    .toString()\n    .toLowerCase()\n    .replace(/ä/g, 'ae')\n    .replace(/ö/g, 'oe')\n    .replace(/ü/g, 'ue')\n    .replace(/ß/g, 'ss')\n    .replace(/ç/g, 'c')\n    .replace(/ğ/g, 'g')\n    .replace(/ı/g, 'i')\n    .replace(/İ/g, 'i')\n    .replace(/ş/g, 's')\n    .replace(/Ş/g, 's')\n    .normalize('NFD')\n    .replace(/[\\u0300-\\u036f]/g, '')\n    .replace(/[^a-z0-9]+/g, ' ')\n    .replace(/\\s+/g, ' ')\n    .trim();\n}\n\nfunction slugify(value) {\n  return (value || '')\n    .toString()\n    .toLowerCase()\n    .replace(/ä/g, 'ae')\n    .replace(/ö/g, 'oe')\n    .replace(/ü/g, 'ue')\n    .replace(/ß/g, 'ss')\n    .replace(/ç/g, 'c')\n    .replace(/ğ/g, 'g')\n    .replace(/ı/g, 'i')\n    .replace(/İ/g, 'i')\n    .replace(/ş/g, 's')\n    .replace(/Ş/g, 's')\n    .normalize('NFD')\n    .replace(/[\\u0300-\\u036f]/g, '')\n    .replace(/[^a-z0-9]+/g, '-')\n    .replace(/-+/g, '-')\n    .replace(/^-|-$/g, '')\n    .slice(0, 90);\n}\n\nfunction decodeEntities(s) {\n  return String(s || '')\n    .replace(/&#8211;/g, '–')\n    .replace(/&#8212;/g, '—')\n    .replace(/&#8220;/g, '\"')\n    .replace(/&#8221;/g, '\"')\n    .replace(/&#039;/g, \"'\")\n    .replace(/&quot;/g, '\"')\n    .replace(/&amp;/g, '&')\n    .replace(/&nbsp;/g, ' ')\n    .replace(/&#(\\d+);/g, (_, n) => {\n      const code = Number(n);\n      return Number.isFinite(code) ? String.fromCharCode(code) : _;\n    });\n}\n\nfunction cleanText(value) {\n  return decodeEntities(String(value || ''))\n    .replace(/\\s+/g, ' ')\n    .trim();\n}\n\nfunction yearIsValid(year) {\n  const y = Number(year);\n  return y >= 2024 && y <= 2031;\n}\n\nfunction cleanTitle(value) {\n  let t = cleanText(value);\n\n  t = t.replace(/^home\\s*[-|:]\\s*/i, '');\n  t = t.replace(/^tickets?\\s*[-|:]\\s*/i, '');\n  t = t.replace(/^events?\\s*[-|:]\\s*/i, '');\n  t = t.replace(/^veranstaltungen\\s*[-|:]\\s*/i, '');\n  t = t.replace(/^termine\\s*[-|:]\\s*/i, '');\n  t = t.replace(/^discover\\s*/i, '');\n  t = t.replace(/^definition\\s+of\\s+/i, '');\n  t = t.replace(/^concert tickets?\\s*[-|:]\\s*/i, '');\n\n  t = t.replace(/\\s*\\|\\s*adticket\\.de$/i, '');\n  t = t.replace(/\\s*\\|\\s*eventim.*$/i, '');\n  t = t.replace(/\\s*\\|\\s*getgo.*$/i, '');\n  t = t.replace(/\\s*\\|\\s*ticketmaster.*$/i, '');\n  t = t.replace(/\\s*\\|\\s*reservix.*$/i, '');\n  t = t.replace(/\\s*[-–—]\\s*(tgd|ditib|vikz|igmg)$/i, '');\n\n  t = t.replace(/\\s+/g, ' ').trim();\n\n  return t || 'Untitled Event';\n}\n\nfunction isBadGenericTitle(title) {\n  const t = (title || '').toLowerCase().trim();\n  if (!t) return true;\n\n  return (\n    /^home\\b/.test(t) ||\n    /^discover\\b/.test(t) ||\n    /^definition\\b/.test(t) ||\n    /^tickets?\\b/.test(t) ||\n    /^concert tickets?\\b/.test(t) ||\n    /^events?\\b$/.test(t) ||\n    /^veranstaltungen\\b$/.test(t) ||\n    /^termine\\b$/.test(t) ||\n    /\\badticket\\b/.test(t) ||\n    /\\beventim\\b/.test(t) ||\n    /\\bgetgo\\b/.test(t) ||\n    /\\bticketmaster\\b/.test(t) ||\n    /\\breservix\\b/.test(t)\n  );\n}\n\nconst cityMatchers = cityItems.map(city => {\n  const aliases = [city.slug, city.name_de, city.name_tr]\n    .filter(Boolean)\n    .map(normalize)\n    .filter(v => v.length >= 3);\n\n  return {\n    ...city,\n    aliases: [...new Set(aliases)].sort((a, b) => b.length - a.length)\n  };\n});\n\nfunction findCityBySlug(slug) {\n  return cityMatchers.find(c => c.slug === slug) || null;\n}\n\nfunction detectCity(text, cityGuess, sourceUrl) {\n  const normalizedText = normalize(text);\n  const normalizedUrl = normalize(sourceUrl || '');\n\n  if (cityGuess) {\n    const normalizedGuess = normalize(cityGuess);\n    const direct = cityMatchers.find(c => c.aliases.includes(normalizedGuess));\n    if (direct) return direct;\n  }\n\n  // zuerst direkte eindeutige Berlin/Köln-Signale\n  if (/\\bberlin\\b/.test(normalizedText) || /\\bberlin\\b/.test(normalizedUrl)) {\n    return findCityBySlug('berlin');\n  }\n  if (/\\bkoeln\\b|\\bkoln\\b|\\bcologne\\b/.test(normalizedText) || /\\bkoeln\\b|\\bkoln\\b|\\bcologne\\b/.test(normalizedUrl)) {\n    return findCityBySlug('koeln');\n  }\n\n  for (const city of cityMatchers) {\n    for (const alias of city.aliases) {\n      if (normalizedText.includes(alias) || normalizedUrl.includes(alias)) return city;\n    }\n  }\n\n  if (/\\bnrw\\b|\\bnordrhein westfalen\\b/.test(normalizedText)) return findCityBySlug('koeln');\n  if (/\\bbayern\\b|\\bbavaria\\b/.test(normalizedText)) return findCityBySlug('muenchen');\n  if (/\\bhamburg\\b/.test(normalizedText)) return findCityBySlug('hamburg');\n  if (/\\bhessen\\b|\\bfrankfurt\\b/.test(normalizedText)) return findCityBySlug('frankfurt-am-main');\n  if (/\\bmuenchen\\b|\\bmunchen\\b|\\bmünchen\\b/.test(normalizedText)) return findCityBySlug('muenchen');\n\n  return null;\n}\n\nfunction parseDate(text) {\n  const t = cleanText(text);\n\n  // dd.mm.yyyy mit Uhrzeit\n  const m1 = t.match(/\\b(\\d{1,2})[.\\/-](\\d{1,2})[.\\/-](\\d{4})(?:[^\\d]{0,20}(?:(?:um|ab|beginn|einlass|uhr)\\s*)?(\\d{1,2})[:.](\\d{2}))?/i);\n  if (m1 && yearIsValid(m1[3])) {\n    const day = m1[1].padStart(2, '0');\n    const month = m1[2].padStart(2, '0');\n    const year = m1[3];\n    const hour = (m1[4] || '19').padStart(2, '0');\n    const minute = (m1[5] || '00').padStart(2, '0');\n    return `${year}-${month}-${day}T${hour}:${minute}:00`;\n  }\n\n  // ISO\n  const m2 = t.match(/\\b(\\d{4})-(\\d{2})-(\\d{2})(?:[T\\s](\\d{2}):(\\d{2}))?/);\n  if (m2 && yearIsValid(m2[1])) {\n    const year = m2[1];\n    const month = m2[2];\n    const day = m2[3];\n    const hour = (m2[4] || '19').padStart(2, '0');\n    const minute = (m2[5] || '00').padStart(2, '0');\n    return `${year}-${month}-${day}T${hour}:${minute}:00`;\n  }\n\n  const monthMap = {\n    januar: '01', jan: '01',\n    februar: '02', february: '02', feb: '02',\n    maerz: '03', märz: '03', marz: '03', march: '03', mar: '03',\n    april: '04', apr: '04',\n    mai: '05', may: '05',\n    juni: '06', june: '06', jun: '06',\n    juli: '07', july: '07', jul: '07',\n    august: '08', aug: '08',\n    september: '09', sept: '09', sep: '09',\n    oktober: '10', october: '10', okt: '10', oct: '10',\n    november: '11', nov: '11',\n    dezember: '12', december: '12', dez: '12', dec: '12'\n  };\n\n  // 12 April 2026\n  const m3 = t.match(/\\b(\\d{1,2})\\s+([A-Za-zÄÖÜäöüß]+)\\s+(\\d{4})(?:[^\\d]{0,20}(?:(?:um|ab|beginn|einlass|uhr)\\s*)?(\\d{1,2})[:.](\\d{2}))?/i);\n  if (m3 && yearIsValid(m3[3])) {\n    const day = m3[1].padStart(2, '0');\n    const monthName = m3[2].toLowerCase();\n    const year = m3[3];\n    const month = monthMap[monthName];\n    if (month) {\n      const hour = (m3[4] || '19').padStart(2, '0');\n      const minute = (m3[5] || '00').padStart(2, '0');\n      return `${year}-${month}-${day}T${hour}:${minute}:00`;\n    }\n  }\n\n  // April 12 2026\n  const m4 = t.match(/\\b([A-Za-zÄÖÜäöüß]+)\\s+(\\d{1,2})\\s+(\\d{4})(?:[^\\d]{0,20}(?:(?:um|ab|beginn|einlass|uhr)\\s*)?(\\d{1,2})[:.](\\d{2}))?/i);\n  if (m4 && yearIsValid(m4[3])) {\n    const monthName = m4[1].toLowerCase();\n    const day = m4[2].padStart(2, '0');\n    const year = m4[3];\n    const month = monthMap[monthName];\n    if (month) {\n      const hour = (m4[4] || '19').padStart(2, '0');\n      const minute = (m4[5] || '00').padStart(2, '0');\n      return `${year}-${month}-${day}T${hour}:${minute}:00`;\n    }\n  }\n\n  // 21.04 oder 21.04 um 19:30\n  const m5 = t.match(/\\b(\\d{1,2})[.\\/](\\d{1,2})(?:[.\\/](\\d{4}))?(?:[^\\d]{0,20}(?:(?:um|ab|beginn|einlass|uhr)\\s*)?(\\d{1,2})[:.](\\d{2}))?/i);\n  if (m5) {\n    const day = m5[1].padStart(2, '0');\n    const month = m5[2].padStart(2, '0');\n    const year = m5[3] && yearIsValid(m5[3]) ? m5[3] : String(new Date().getFullYear());\n    const hour = (m5[4] || '19').padStart(2, '0');\n    const minute = (m5[5] || '00').padStart(2, '0');\n    return `${year}-${month}-${day}T${hour}:${minute}:00`;\n  }\n\n  // Sonntag 21.04.\n  const m6 = t.match(/\\b(?:montag|dienstag|mittwoch|donnerstag|freitag|samstag|sonntag)[, ]+(\\d{1,2})[.\\/](\\d{1,2})(?:[.\\/](\\d{4}))?(?:[^\\d]{0,20}(?:(?:um|ab|beginn|einlass|uhr)\\s*)?(\\d{1,2})[:.](\\d{2}))?/i);\n  if (m6) {\n    const day = m6[1].padStart(2, '0');\n    const month = m6[2].padStart(2, '0');\n    const year = m6[3] && yearIsValid(m6[3]) ? m6[3] : String(new Date().getFullYear());\n    const hour = (m6[4] || '19').padStart(2, '0');\n    const minute = (m6[5] || '00').padStart(2, '0');\n    return `${year}-${month}-${day}T${hour}:${minute}:00`;\n  }\n\n  return null;\n}\n\nfunction parseJsonLdDate(rawPayloadJson) {\n  if (!rawPayloadJson) return null;\n\n  try {\n    const payload = typeof rawPayloadJson === 'string'\n      ? JSON.parse(rawPayloadJson)\n      : rawPayloadJson;\n\n    const candidates = [\n      payload?.startDate,\n      payload?.start_time,\n      payload?.date,\n      payload?.event?.startDate,\n      payload?.jsonld?.startDate,\n      payload?.fetch_meta?.startDate\n    ].filter(Boolean);\n\n    for (const c of candidates) {\n      const txt = String(c).trim();\n      const m = txt.match(/^(\\d{4}-\\d{2}-\\d{2})(?:[T\\s](\\d{2}):(\\d{2})(?::\\d{2})?)?/);\n      if (m && yearIsValid(m[1].slice(0, 4))) {\n        const day = m[1];\n        const hour = (m[2] || '19').padStart(2, '0');\n        const minute = (m[3] || '00').padStart(2, '0');\n        return `${day}T${hour}:${minute}:00`;\n      }\n    }\n  } catch (e) {}\n\n  return null;\n}\n\nfunction detectCategory(text, sourceUrl) {\n  const t = `${text || ''} ${sourceUrl || ''}`.toLowerCase();\n\n  if (/konzert|concert|live|muezik|müzik|sanat müziği|turk sanat|artist|band|singer|dj|performance/.test(t)) return 'concert';\n  if (/festival|fest|kulturfest|street food|show/.test(t)) return 'festival';\n  if (/theater|tiyatro|ausstellung|sergi|film|sinema|lesung|workshop|atolye|atelier|kultur|culture/.test(t)) return 'cultural';\n  if (/iftar|ramadan|ramazan|cami|moschee|mosque|dua|religion|religious|mevlid/.test(t)) return 'religious';\n  if (/familie|family|kinder|kids|child|cocuk|çocuk/.test(t)) return 'family';\n  if (/business|networking|unternehmer|girişim|girisim|startup|firma/.test(t)) return 'business';\n  if (/kurs|course|seminar|training|egitim|eğitim|panel|konferenz|conference/.test(t)) return 'education';\n  if (/essen|food|kulinar|iftar dinner|brunch|baklava|kahvalti|kahvaltı/.test(t)) return 'food';\n  if (/community|meetup|treffen|buluşma|bulusma|verein|dernek|etkinlik|veranstaltung|event/.test(t)) return 'community';\n\n  return 'other';\n}\n\nfunction detectVenue(text) {\n  const t = decodeEntities(String(text || ''));\n  const parts = t.split(/\\n|\\r|\\||;/).map(s => s.trim()).filter(Boolean);\n\n  const venue = parts.find(line =>\n    /halle|saal|zentrum|center|kultur|moschee|cami|hotel|arena|theater|cafe|restaurant|gemeinde|haus|salon|stage|club/i.test(line) &&\n    line.length >= 3 &&\n    line.length <= 90 &&\n    !/facebook|instagram|youtube|twitter|datenschutz|impressum|skip to main content/i.test(line)\n  );\n\n  return venue || null;\n}\n\nfunction normalizeVenue(venue) {\n  if (!venue) return null;\n\n  const v = cleanText(venue)\n    .replace(/^ort[:\\s-]*/i, '')\n    .replace(/^location[:\\s-]*/i, '')\n    .replace(/^venue[:\\s-]*/i, '')\n    .replace(/\\s{2,}/g, ' ')\n    .trim();\n\n  if (!v) return null;\n  if (v.length > 90) return null;\n  if (/facebook|instagram|youtube|twitter|datenschutz|impressum/i.test(v)) return null;\n\n  return v;\n}\n\nfunction detectOrganizer(text, sourceUrl) {\n  const t = cleanText(`${text || ''} ${sourceUrl || ''}`);\n\n  if (/\\bditib\\b/i.test(t)) return 'DITIB';\n  if (/\\bvikz\\b/i.test(t)) return 'VIKZ';\n  if (/\\btgd\\b/i.test(t)) return 'TGD';\n  if (/\\bigmg\\b/i.test(t)) return 'IGMG';\n  if (/yunus emre/i.test(t)) return 'Yunus Emre Enstitüsü';\n\n  return null;\n}\n\nfunction looksLikeLandingPage(title, sourceUrl, rawText) {\n  const t = `${title || ''}`.toLowerCase().trim();\n  const u = `${sourceUrl || ''}`.toLowerCase();\n  const body = `${rawText || ''}`.toLowerCase();\n\n  const genericTitle =\n    /^home\\b/.test(t) ||\n    /^discover\\b/.test(t) ||\n    /^definition\\b/.test(t) ||\n    /^tickets?\\b/.test(t) ||\n    /^events?\\b$/.test(t) ||\n    /^veranstaltungen\\b$/.test(t) ||\n    /^termine\\b$/.test(t);\n\n  const listingUrl = /\\/calendar\\b|\\/kalender\\b|\\/events\\b|\\/veranstaltungen\\b|\\/termine\\b/.test(u);\n  const hasDateHint = /\\d{1,2}[./-]\\d{1,2}([./-]\\d{4})?/.test(body) || /\\d{4}-\\d{2}-\\d{2}/.test(body);\n\n  return genericTitle || (listingUrl && !hasDateHint);\n}\n\nfunction isAggregator(sourceUrl) {\n  return /adticket\\.de|eventim|getgo\\.de|ticketmaster|reservix|koelticket/i.test(sourceUrl || '');\n}\n\nconst item = $json;\nconst itemId = String(item.id || '');\nconst text = cleanText(`${item.raw_title || ''}\\n${item.raw_text || ''}`);\nconst title = cleanTitle((item.raw_title || '').trim() || 'Untitled Event');\nconst city = detectCity(text, item.city_guess, item.source_url);\nconst parsedDate = parseDate(text);\nconst payloadDate = parseJsonLdDate(item.raw_payload_json);\nconst startsAt = parsedDate || payloadDate || null;\nconst category = detectCategory(text, item.source_url) || 'other';\nconst venueName = normalizeVenue(detectVenue(item.raw_text || ''));\nconst organizerName = detectOrganizer(item.raw_text || '', item.source_url || '');\nconst externalUrl = item.source_url && item.source_url !== 'undefined' ? item.source_url : null;\nconst slugBase = slugify(title) || `event-${itemId.slice(0, 8) || 'unknown'}`;\n\nlet score = 0;\nif (title && title.length >= 8 && title.length <= 140) score += 20;\nif (city) score += 30;\nif (startsAt) score += 30;\nif (venueName) score += 8;\nif (organizerName) score += 7;\nif (externalUrl) score += 5;\n\nlet route = 'REVIEW';\nlet reviewReason = null;\n\nconst landing = looksLikeLandingPage(title, externalUrl, item.raw_text);\nconst aggregator = isAggregator(externalUrl || '');\nconst hasCity = !!city;\nconst hasDate = !!startsAt;\nconst badTitle = isBadGenericTitle(title);\n\nif (badTitle) {\n  route = 'REVIEW';\n  reviewReason = 'BAD_TITLE';\n} else if (aggregator) {\n  route = 'REVIEW';\n  reviewReason = 'TICKET_PLATFORM';\n} else if (landing && !hasDate && score < 40) {\n  route = 'REVIEW';\n  reviewReason = 'LANDING_PAGE';\n} else if (!hasCity) {\n  route = 'REVIEW';\n  reviewReason = 'CITY_NOT_MATCHED';\n} else if (!hasDate) {\n  if (score >= 35) {\n    route = 'INSERT';\n    reviewReason = null;\n  } else {\n    route = 'REVIEW';\n    reviewReason = 'DATE_MISSING';\n  }\n} else {\n  route = 'INSERT';\n}\n\nif (route === 'INSERT' && score < 25) {\n  route = 'REVIEW';\n  reviewReason = 'LOW_CONFIDENCE';\n}\n\nreturn {\n  json: {\n    raw_id: itemId,\n    title,\n    slug: `${slugBase}-${itemId.slice(-6) || 'raw'}`,\n    description_de: item.raw_text || null,\n    category,\n    city_id: city ? city.id : null,\n    city_slug: city ? city.slug : null,\n    city_name_de: city ? city.name_de : null,\n    starts_at: startsAt,\n    venue_name: venueName,\n    organizer_name: organizerName,\n    external_url: externalUrl,\n    quality_score: score,\n    route,\n    review_reason: reviewReason\n  }\n};"
+      },
+      "id": "ce71ee21-19d9-475b-81dd-08ac6d7877ab",
+      "name": "Parse Event Fields v6.1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -704,
+        32
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "return {\n  json: {\n    raw_id: $json.raw_id,\n    title: $json.title,\n    description: $json.description_de || undefined,\n    startsAt: $json.starts_at || undefined,\n    venueName: $json.venue_name || undefined,\n    citySlug: $json.city_slug || undefined,\n    sourceCategory: ($json.category || 'other').toLowerCase(),\n    sourceUrl: $json.external_url || undefined\n  }\n};"
+      },
+      "id": "71b01968-43dd-46b7-8061-e5ca8bffe01f",
+      "name": "Normalize for Ingest",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -32,
+        -64
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "berlin-only",
+              "leftValue": "={{ $json.citySlug }}",
+              "rightValue": "berlin",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "3b6be2a8-846d-4168-b3cd-05ff0839daea",
+      "name": "Filter Berlin Only",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        192,
+        -64
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:3000/api/ingest/event",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "x-ingest-secret",
+              "value": "merhabamap_ingest_secret_dev_2026"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ title: $json.title, description: $json.description, startsAt: $json.startsAt, venueName: $json.venueName, citySlug: $json.citySlug, sourceCategory: $json.sourceCategory, sourceUrl: $json.sourceUrl, raw_id: $json.raw_id }) }}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "d17bceb9-66a9-4356-a9c7-bca87adb899d",
+      "name": "Ingest Event",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        416,
+        -64
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "function parseDuplicate(message) {\n  if (!message) return null;\n  const match = String(message).match(/\\{.*\\}$/);\n  if (!match) return null;\n  try {\n    return JSON.parse(match[0]);\n  } catch {\n    return null;\n  }\n}\n\nconst j = $json || {};\n\nif (j.error) {\n  const statusCode = j.error.status ?? null;\n  const duplicateBody = statusCode === 409 ? parseDuplicate(j.error.message) : null;\n\n  return {\n    json: {\n      raw_id: j.raw_id,\n      resultType: statusCode === 409 ? 'duplicate' : 'error',\n      eventId: duplicateBody?.eventId ?? null,\n      submissionId: null,\n      statusCode,\n      ingestMessage: statusCode === 409 ? 'DUPLICATE_EVENT' : 'INGEST_ERROR'\n    }\n  };\n}\n\nreturn {\n  json: {\n    raw_id: j.raw_id,\n    resultType: j.statusCode === 201 ? 'created' : 'error',\n    eventId: j.body?.eventId ?? null,\n    submissionId: j.body?.submissionId ?? null,\n    statusCode: j.statusCode ?? null,\n    ingestMessage: j.statusCode === 201 ? null : 'INGEST_ERROR'\n  }\n};"
+      },
+      "id": "4ad3a0ab-1fb0-426d-af26-f4fb97e4c5d0",
+      "name": "Classify Ingest Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        640,
+        -64
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Load Cities",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Cities": {
+      "main": [
+        [
+          {
+            "node": "Load Pending Raw Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Pending Raw Items": {
+      "main": [
+        [
+          {
+            "node": "Parse Event Fields v6.1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Insert Route": {
+      "main": [
+        [
+          {
+            "node": "Normalize for Ingest",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mark Raw Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Raw Review": {
+      "main": [
+        [
+          {
+            "node": "Show Review Queue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Debug": {
+      "main": [
+        [
+          {
+            "node": "IF Insert Route",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Event Fields v6.1": {
+      "main": [
+        [
+          {
+            "node": "Debug",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize for Ingest": {
+      "main": [
+        [
+          {
+            "node": "Filter Berlin Only",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Berlin Only": {
+      "main": [
+        [
+          {
+            "node": "Ingest Event",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mark Raw Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ingest Event": {
+      "main": [
+        [
+          {
+            "node": "Classify Ingest Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify Ingest Result": {
+      "main": [
+        [
+          {
+            "node": "Mark Raw Processed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "53b901d7-9bf4-4996-bba1-9b9c412aed69",
+  "meta": {
+    "instanceId": "cb95f67de3eb2bd513200bc3cead3abaa69e890ba0a912740169783b0cf2958b"
+  },
+  "id": "yK96Bjqc2sc0S1Jy",
+  "tags": []
+}
