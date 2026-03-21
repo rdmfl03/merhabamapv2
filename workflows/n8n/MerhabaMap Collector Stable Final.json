@@ -1,0 +1,383 @@
+{
+  "name": "MerhabaMap Collector Stable Final",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "cd9a6118-d4cd-4c6c-b815-ab31963c94e8",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -16,
+        -128
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT id, platform, source_kind, name, url, account_handle, external_id, is_public, is_active, trust_score, discovery_method, notes, last_checked_at\nFROM sources\nWHERE is_active = true\n  AND url IS NOT NULL\n  AND lower(COALESCE(platform, 'website')) IN ('website', 'web')\nORDER BY trust_score DESC, updated_at DESC\nLIMIT 5;",
+        "options": {}
+      },
+      "id": "ef4858e7-12ec-40a2-81b1-67720ef4fc84",
+      "name": "Load Active Website Sources",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        208,
+        -128
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "oU7owFOSEWav7sce",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "function normalizePlatform(p) {\n  const v = String(p || '').toLowerCase().trim();\n  if (v === 'web') return 'website';\n  return v || 'website';\n}\n\nconst BLOCKED_DOMAINS = [\n  'eventim.',\n  'ticketmaster.',\n  'getgo.',\n  'reservix.',\n  'adticket.',\n  'tickets.',\n  'koelnticket.',\n  'eventfrog.',\n  'rausgegangen.'\n];\n\nconst DETAIL_PATH_HINTS = [\n  '/event/',\n  '/veranstaltung/',\n  '/etkinlik/',\n  '/programm/',\n  '/program/'\n];\n\nconst LISTING_PATH_HINTS = [\n  '/calendar',\n  '/kalender',\n  '/events',\n  '/veranstaltungen',\n  '/termine',\n  '/program',\n  '/programm',\n  '/tag/',\n  '/category/',\n  '/kategorie/'\n];\n\nfunction normalizeUrl(rawUrl) {\n  let u = String(rawUrl || '').trim();\n  if (!u) return null;\n\n  if (!/^https?:\\/\\//i.test(u)) {\n    u = 'https://' + u;\n  }\n\n  try {\n    const parsed = new URL(u);\n    parsed.hash = '';\n    const host = parsed.hostname.replace(/^www\\./i, '');\n    const path = parsed.pathname || '/';\n    return `${parsed.protocol}//${host}${path}`;\n  } catch {\n    return u;\n  }\n}\n\nfunction getUrlMeta(rawUrl) {\n  try {\n    const parsed = new URL(rawUrl);\n    const host = parsed.hostname.replace(/^www\\./i, '').toLowerCase();\n    const path = (parsed.pathname || '/').toLowerCase();\n    const segments = path.split('/').filter(Boolean);\n    const blockedDomain = BLOCKED_DOMAINS.some(domain => host.includes(domain));\n    const isHome = path === '/' || path === '';\n    const detailish = DETAIL_PATH_HINTS.some(hint => path.includes(hint)) || segments.some(segment => segment.length >= 24 && segment.includes('-'));\n    const listingish = LISTING_PATH_HINTS.some(hint => path === hint || path.startsWith(`${hint}/`) || path.includes(`${hint}?`) || path.includes(hint));\n\n    return {\n      host,\n      path,\n      blockedDomain,\n      isHome,\n      detailish,\n      listingish,\n    };\n  } catch {\n    return {\n      host: null,\n      path: null,\n      blockedDomain: false,\n      isHome: false,\n      detailish: false,\n      listingish: false,\n    };\n  }\n}\n\nconst originalUrl = $json.url || null;\nconst normalizedUrl = normalizeUrl(originalUrl);\nconst urlMeta = normalizedUrl ? getUrlMeta(normalizedUrl) : getUrlMeta('');\n\nreturn {\n  json: {\n    ...$json,\n    platform: normalizePlatform($json.platform),\n    original_url: originalUrl,\n    fetch_url: normalizedUrl,\n    url: normalizedUrl,\n    source_host: urlMeta.host,\n    source_path: urlMeta.path,\n    blocked_domain: urlMeta.blockedDomain,\n    path_is_home: urlMeta.isHome,\n    path_is_detailish: urlMeta.detailish,\n    path_is_listingish: urlMeta.listingish,\n  }\n};"
+      },
+      "id": "016d9e54-fd39-4038-9c00-5b52e60dbb6a",
+      "name": "Normalize Source",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        432,
+        -64
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.fetch_url }}",
+        "sendHeaders": true,
+        "specifyHeaders": "usingFieldsBelow",
+        "options": {
+          "redirect": {
+            "redirect": {
+              "maxRedirects": 4
+            }
+          },
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true,
+              "responseFormat": "text"
+            }
+          },
+          "timeout": 8000
+        }
+      },
+      "id": "e2fdfe10-43da-4925-8ee6-dca39ef5f734",
+      "name": "Fetch Source Page",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        656,
+        -64
+      ],
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "id": "0090d1df-4d6f-46ca-b59b-591d8758918b",
+      "name": "Merge Source And Response",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        880,
+        -128
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "function stripHtml(html) {\n  return String(html || '')\n    .replace(/<script[\\s\\S]*?<\\/script>/gi, ' ')\n    .replace(/<style[\\s\\S]*?<\\/style>/gi, ' ')\n    .replace(/<noscript[\\s\\S]*?<\\/noscript>/gi, ' ')\n    .replace(/<!--.*?-->/gs, ' ')\n    .replace(/<[^>]+>/g, ' ')\n    .replace(/&nbsp;/gi, ' ')\n    .replace(/&amp;/gi, '&')\n    .replace(/&quot;/gi, '\"')\n    .replace(/&#39;/gi, \"'\")\n    .replace(/\\s+/g, ' ')\n    .trim();\n}\n\nfunction getTitle(html) {\n  const m = String(html || '').match(/<title[^>]*>([\\s\\S]*?)<\\/title>/i);\n  return m ? m[1].replace(/\\s+/g, ' ').trim() : null;\n}\n\nfunction getMetaContent(html, pattern) {\n  const m = String(html || '').match(pattern);\n  return m ? String(m[1] || '').trim() : null;\n}\n\nfunction hasJsonLdEvent(html) {\n  return /\"@type\"\\s*:\\s*\"Event\"|\"@type\"\\s*:\\s*\\[\\s*\"Event\"/i.test(String(html || ''));\n}\n\nfunction hasOgEvent(html) {\n  return /<meta[^>]+property=[\"']og:type[\"'][^>]+content=[\"']event[\"']/i.test(String(html || ''));\n}\n\nfunction detectLanguage(text) {\n  const t = (text || '').toLowerCase();\n  if (/[çğıöşü]/.test(t) || / turkce | türkçe | etkinlik | konser | bilet | dernek | vakif | cami /.test(` ${t} `)) {\n    return 'tr';\n  }\n  return 'de';\n}\n\nfunction guessEntity(text) {\n  const t = (text || '').toLowerCase();\n  if (/event|veranstaltung|konzert|festival|party|tickets|bilet|etkinlik|gece|iftar|meeting|meetup/.test(t)) {\n    return 'EVENT';\n  }\n  return 'UNKNOWN';\n}\n\nfunction looksGenericTitle(title) {\n  const t = String(title || '').toLowerCase().trim();\n  if (!t) return true;\n  return (\n    /^home\b/.test(t) ||\n    /^events?\b$/.test(t) ||\n    /^veranstaltungen\b$/.test(t) ||\n    /^termine\b$/.test(t) ||\n    /^calendar\b/.test(t) ||\n    /^programm\b$/.test(t) ||\n    /^program\b$/.test(t) ||\n    /^tickets?\b/.test(t) ||\n    /^discover\b/.test(t)\n  );\n}\n\nfunction hasDateSignal(text) {\n  const t = String(text || '');\n  return (\n    /\b\\d{1,2}[./-]\\d{1,2}([./-]\\d{4})?\b/.test(t) ||\n    /\b\\d{4}-\\d{2}-\\d{2}\b/.test(t) ||\n    /\b(januar|februar|märz|maerz|april|mai|juni|juli|august|september|oktober|november|dezember|january|february|march|april|may|june|july|august|september|october|november|december)\b/i.test(t)\n  );\n}\n\nfunction hasVenueSignal(text) {\n  return /halle|saal|zentrum|center|kultur|moschee|cami|hotel|arena|theater|cafe|restaurant|gemeinde|haus|salon|stage|club|venue|ort\b|location\b/i.test(String(text || ''));\n}\n\nfunction hasCommunitySignal(text) {\n  return /turk|türk|anatol|iftar|ramadan|ramazan|dernek|vakif|vakf|cami|moschee|konzert|etkinlik|buluşma|bulusma|community|kultur/i.test(String(text || '').toLowerCase());\n}\n\nconst item = $json;\nconst statusCode = Number(item.statusCode || 0);\n\nlet html = '';\nif (typeof item.body === 'string') {\n  html = item.body;\n} else if (typeof item.data === 'string') {\n  html = item.data;\n} else if (item.data && typeof item.data.body === 'string') {\n  html = item.data.body;\n}\n\nlet errorMessage = null;\n\nconst rawError = item.error ? String(item.error.message || item.error || '') : '';\nconst combinedError = `${rawError} ${html}`;\n\nif (item.blocked_domain) {\n  errorMessage = 'BLOCKED_DOMAIN';\n} else if (/ENOTFOUND/i.test(rawError)) {\n  errorMessage = 'DNS_NOT_FOUND';\n} else if (/EPROTO|SSL/i.test(rawError)) {\n  errorMessage = 'SSL_HANDSHAKE_FAILED';\n} else if (/timeout/i.test(rawError)) {\n  errorMessage = 'TIMEOUT';\n} else if (statusCode >= 400) {\n  errorMessage = `HTTP_${statusCode}`;\n} else if (!html || html.length < 50) {\n  errorMessage = 'EMPTY_OR_TOO_SHORT_RESPONSE';\n} else if (/captcha|access denied|forbidden|please enable cookies|temporarily unavailable|login|anmelden|einloggen/i.test(combinedError)) {\n  errorMessage = 'BLOCKED_OR_LOGIN_WALL';\n}\n\nconst rawTitle = getTitle(html) || item.name || item.fetch_url || item.url || 'Unknown Source';\nconst rawText = stripHtml(html).slice(0, 12000);\nconst normalizedSourceUrl = item.fetch_url || item.url || null;\n\nconst jsonLdEvent = hasJsonLdEvent(html);\nconst ogEvent = hasOgEvent(html);\nconst dateSignal = hasDateSignal(`${rawTitle} ${rawText}`);\nconst venueSignal = hasVenueSignal(rawText);\nconst communitySignal = hasCommunitySignal(`${rawTitle} ${rawText}`);\nconst citySignal = /\bberlin\b|\bkoeln\b|\bkoln\b|\bcologne\b/i.test(`${rawTitle} ${rawText} ${normalizedSourceUrl || ''}`);\nconst usefulSignalCount = [jsonLdEvent, ogEvent, dateSignal, venueSignal, communitySignal, citySignal].filter(Boolean).length;\nconst tooLittleText = rawText.length < 350;\nconst genericTitle = looksGenericTitle(rawTitle);\nconst weakListingPage = Boolean(item.path_is_listingish) && !item.path_is_detailish && usefulSignalCount < 2;\nconst weakHomePage = Boolean(item.path_is_home) && usefulSignalCount < 2;\nconst weakContent = tooLittleText && usefulSignalCount < 2;\n\nif (!errorMessage && genericTitle && usefulSignalCount < 2) {\n  errorMessage = 'GENERIC_TITLE';\n} else if (!errorMessage && weakListingPage) {\n  errorMessage = 'LISTING_PAGE';\n} else if (!errorMessage && weakHomePage) {\n  errorMessage = 'HOME_PAGE';\n} else if (!errorMessage && weakContent) {\n  errorMessage = 'WEAK_CONTENT';\n}\n\nconst status = errorMessage ? 'ERROR' : 'PENDING';\n\nconst payload = {\n  source: {\n    id: item.id,\n    platform: item.platform,\n    source_kind: item.source_kind,\n    name: item.name,\n    url: item.url,\n    original_url: item.original_url || null,\n    fetch_url: item.fetch_url || item.url || null,\n    account_handle: item.account_handle,\n    external_id: item.external_id,\n    trust_score: item.trust_score,\n    host: item.source_host || null,\n    path: item.source_path || null,\n  },\n  fetch_meta: {\n    statusCode: statusCode || null,\n    headers: item.headers || null,\n    error: rawError || null\n  },\n  fetched_at: new Date().toISOString(),\n  title: rawTitle,\n  text_excerpt_length: rawText.length,\n  quality_signals: {\n    jsonLdEvent,\n    ogEvent,\n    dateSignal,\n    venueSignal,\n    communitySignal,\n    citySignal,\n    usefulSignalCount,\n    pathIsDetailish: Boolean(item.path_is_detailish),\n    pathIsListingish: Boolean(item.path_is_listingish),\n    pathIsHome: Boolean(item.path_is_home),\n  }\n};\n\nreturn {\n  json: {\n    source_id: item.id || null,\n    platform: item.platform || 'website',\n    source_url: normalizedSourceUrl,\n    external_id: item.external_id || null,\n    raw_title: rawTitle,\n    raw_text: rawText || null,\n    raw_datetime_text: null,\n    raw_location_text: null,\n    raw_image_url: null,\n    raw_payload_json: JSON.stringify(payload),\n    language_hint: detectLanguage(`${rawTitle} ${rawText}`),\n    city_guess: null,\n    country_code: 'DE',\n    entity_guess: guessEntity(`${rawTitle} ${rawText}`),\n    status,\n    error_message: errorMessage\n  }\n};"
+      },
+      "id": "db273f10-26ed-428b-b342-48d289540d8f",
+      "name": "Parse Source Page",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1776,
+        -128
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO raw_ingest_items (\n  id,\n  source_id,\n  entity_guess,\n  platform,\n  source_url,\n  external_id,\n  raw_title,\n  raw_text,\n  raw_datetime_text,\n  raw_location_text,\n  raw_image_url,\n  raw_payload_json,\n  language_hint,\n  city_guess,\n  country_code,\n  status,\n  error_message,\n  processed_at,\n  ingested_at,\n  created_at,\n  updated_at\n)\nVALUES (\n  gen_random_uuid()::text,\n  {{ $json.source_id ? \"'\" + $json.source_id.replace(/'/g, \"''\") + \"'\" : 'NULL' }},\n  '{{ ($json.entity_guess || 'UNKNOWN').replace(/'/g, \"''\") }}',\n  '{{ ($json.platform || 'website').replace(/'/g, \"''\") }}',\n  {{ $json.source_url ? \"'\" + $json.source_url.replace(/'/g, \"''\") + \"'\" : 'NULL' }},\n  {{ $json.external_id ? \"'\" + $json.external_id.replace(/'/g, \"''\") + \"'\" : 'NULL' }},\n  {{ $json.raw_title ? \"'\" + $json.raw_title.replace(/'/g, \"''\") + \"'\" : 'NULL' }},\n  {{ $json.raw_text ? \"'\" + $json.raw_text.replace(/'/g, \"''\") + \"'\" : 'NULL' }},\n  NULL,\n  NULL,\n  NULL,\n  '{{ $json.raw_payload_json.replace(/'/g, \"''\") }}',\n  {{ $json.language_hint ? \"'\" + $json.language_hint.replace(/'/g, \"''\") + \"'\" : 'NULL' }},\n  NULL,\n  'DE',\n  '{{ ($json.status || 'PENDING').replace(/'/g, \"''\") }}',\n  {{ $json.error_message ? \"'\" + $json.error_message.replace(/'/g, \"''\") + \"'\" : 'NULL' }},\n  NULL,\n  NOW(),\n  NOW(),\n  NOW()\n)\nRETURNING id, source_id, source_url, raw_title, status, error_message, ingested_at;",
+        "options": {}
+      },
+      "id": "657e5253-6d23-4f91-9ff4-fdeaa74cd7ee",
+      "name": "Insert Raw Item",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        2000,
+        -128
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "oU7owFOSEWav7sce",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE sources\nSET platform = CASE WHEN platform = 'web' THEN 'website' ELSE platform END,\n    last_checked_at = NOW(),\n    updated_at = NOW()\nWHERE id = {{ $json.source_id ? \"'\" + $json.source_id.replace(/'/g, \"''\") + \"'\" : 'NULL' }};",
+        "options": {}
+      },
+      "id": "d7e2c2a0-39de-4f2c-8796-cd8497956187",
+      "name": "Update Source Checked At",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        2224,
+        -128
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "oU7owFOSEWav7sce",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT id, source_id, platform, source_url, raw_title, status, error_message, ingested_at\nFROM raw_ingest_items\nORDER BY ingested_at DESC\nLIMIT 20;",
+        "options": {}
+      },
+      "id": "a2b7f5e9-b75b-4093-b3c4-98aa3574ede4",
+      "name": "Show Latest Raw Items",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        2448,
+        -128
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "oU7owFOSEWav7sce",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const items = $input.all();\n\nconst BLOCKED_DOMAINS = [\n  'eventim.',\n  'ticketmaster.',\n  'getgo.',\n  'reservix.',\n  'adticket.',\n  'tickets.',\n  'koelnticket.',\n  'eventfrog.',\n  'rausgegangen.'\n];\n\nconst DETAIL_PATH_HINTS = [\n  '/event/',\n  '/veranstaltung/',\n  '/etkinlik/',\n  '/programm/',\n  '/program/'\n];\n\nconst EXCLUDED_PATH_HINTS = [\n  '/about',\n  '/kontakt',\n  '/contact',\n  '/impressum',\n  '/datenschutz',\n  '/privacy',\n  '/tag/',\n  '/category/',\n  '/kategorie/',\n  '/archive',\n  '/archiv',\n  '/page/',\n  '/author/'\n];\n\nconst LISTING_HINTS = [\n  '/calendar',\n  '/kalender',\n  '/events',\n  '/veranstaltungen',\n  '/termine',\n  '/program',\n  '/programm'\n];\n\nfunction normalizeUrl(rawUrl, baseUrl) {\n  if (!rawUrl) return null;\n\n  const value = String(rawUrl).trim();\n  if (!value || value.startsWith('#') || /^mailto:|^tel:|^javascript:/i.test(value)) {\n    return null;\n  }\n\n  try {\n    const url = baseUrl ? new URL(value, baseUrl) : new URL(value);\n    url.hash = '';\n    return url.toString();\n  } catch {\n    return null;\n  }\n}\n\nfunction getHost(url) {\n  try {\n    return new URL(url).hostname.replace(/^www\\./i, '').toLowerCase();\n  } catch {\n    return null;\n  }\n}\n\nfunction getPath(url) {\n  try {\n    return (new URL(url).pathname || '/').toLowerCase();\n  } catch {\n    return '/';\n  }\n}\n\nfunction isBlockedDomain(host) {\n  return host ? BLOCKED_DOMAINS.some(domain => host.includes(domain)) : false;\n}\n\nfunction looksLikeDetailPath(path) {\n  const segments = path.split('/').filter(Boolean);\n  return (\n    DETAIL_PATH_HINTS.some(hint => path.includes(hint)) ||\n    segments.some(segment => segment.length >= 24 && segment.includes('-'))\n  );\n}\n\nfunction looksExcludedPath(path) {\n  if (path === '/' || path === '') return true;\n  if (EXCLUDED_PATH_HINTS.some(hint => path.includes(hint))) return true;\n  if (/\\/(feed|rss)(\\/|$)/.test(path)) return true;\n  if (/\\/(page|seite)\\/\\d+(\\/|$)/.test(path)) return true;\n  return false;\n}\n\nfunction looksListingPath(path) {\n  return LISTING_HINTS.some(hint => path === hint || path.startsWith(`${hint}/`) || path.includes(hint));\n}\n\nfunction hasAnchorDateSignal(text) {\n  const value = String(text || '');\n  return (\n    /\\b\\d{1,2}[./-]\\d{1,2}([./-]\\d{2,4})?\\b/.test(value) ||\n    /\\b\\d{1,2}\\.\\s*(januar|februar|märz|maerz|april|mai|juni|juli|august|september|oktober|november|dezember)\\s+\\d{4}\\b/i.test(value)\n  );\n}\n\nfunction looksListingAnchorText(text) {\n  return /(tickets|termine|veranstaltungen|events|activities|kalender|calendar|programm|program)\\b/i.test(String(text || ''));\n}\n\nfunction hasSingularEventAnchorText(text) {\n  const value = String(text || '').toLowerCase();\n  if (!value || looksListingAnchorText(value)) return false;\n\n  return /(konzert|festival|iftar|gala|abend|konseri|veranstaltung|etkinlik|workshop|lesung|treffen|buluşma|bulusma)\\b/.test(value);\n}\n\nfunction scoreCandidate(url, anchorText) {\n  const path = getPath(url);\n  const text = String(anchorText || '').toLowerCase();\n  let score = 0;\n\n  if (DETAIL_PATH_HINTS.some(hint => path.includes(hint))) score += 5;\n  if (looksLikeDetailPath(path)) score += 4;\n  if (/event|veranstaltung|etkinlik|konzert|festival|iftar|programm|program/.test(`${path} ${text}`)) score += 3;\n  if (/\\d{4}|\\d{2}-\\d{2}|\\d{1,2}[.-]\\d{1,2}/.test(path)) score += 2;\n  if (hasAnchorDateSignal(anchorText)) score += 4;\n  if (hasSingularEventAnchorText(anchorText)) score += 3;\n  if (hasAnchorDateSignal(anchorText) && hasSingularEventAnchorText(anchorText)) score += 2;\n  if (looksListingAnchorText(anchorText)) score -= 4;\n  if (looksListingPath(path)) score -= 4;\n  if (looksExcludedPath(path)) score -= 8;\n\n  return score;\n}\n\nfunction extractAnchors(html) {\n  const results = [];\n  const regex = /<a\\b[^>]*href\\s*=\\s*([\"'])(.*?)\\1[^>]*>([\\s\\S]*?)<\\/a>/gi;\n  let match;\n  while ((match = regex.exec(String(html || ''))) !== null) {\n    const href = match[2];\n    const text = String(match[3] || '').replace(/<[^>]+>/g, ' ').replace(/\\s+/g, ' ').trim();\n    results.push({ href, text });\n  }\n  return results;\n}\n\nconst output = [];\n\nfor (const item of items) {\n  const data = item.json || {};\n  const baseUrl = data.fetch_url || data.url || null;\n  const html = typeof data.body === 'string'\n    ? data.body\n    : typeof data.data === 'string'\n      ? data.data\n      : data.data && typeof data.data.body === 'string'\n        ? data.data.body\n        : '';\n\n  const baseHost = getHost(baseUrl || '');\n  const seen = new Set();\n  const candidates = [];\n\n  if (baseUrl && data.path_is_detailish && !data.path_is_home && !data.blocked_domain) {\n    candidates.push({ url: baseUrl, anchorText: data.name || data.raw_title || '' });\n  }\n\n  for (const anchor of extractAnchors(html)) {\n    const normalized = normalizeUrl(anchor.href, baseUrl || undefined);\n    if (!normalized || seen.has(normalized)) continue;\n    seen.add(normalized);\n\n    const host = getHost(normalized);\n    if (!host || host !== baseHost) continue;\n    if (isBlockedDomain(host)) continue;\n\n    const path = getPath(normalized);\n    if (looksExcludedPath(path)) continue;\n\n    const score = scoreCandidate(normalized, anchor.text);\n    const detailish = looksLikeDetailPath(path);\n    const listingish = looksListingPath(path);\n\n    if (!detailish && score < 4) continue;\n    if (listingish && score < 6) continue;\n\n    candidates.push({ url: normalized, anchorText: anchor.text, score });\n  }\n\n  const bestCandidates = candidates\n    .map(candidate => ({ ...candidate, score: candidate.score ?? scoreCandidate(candidate.url, candidate.anchorText) }))\n    .sort((a, b) => b.score - a.score)\n    .slice(0, 12);\n\n  for (const candidate of bestCandidates) {\n    output.push({\n      json: {\n        ...data,\n        original_fetch_url: baseUrl,\n        fetch_url: candidate.url,\n        source_url: candidate.url,\n        candidate_anchor_text: candidate.anchorText || null,\n        candidate_score: candidate.score,\n      }\n    });\n  }\n}\n\nreturn output;"
+      },
+      "id": "1ea5697a-bcb9-4a92-b925-f022908bd8a0",
+      "name": "Extract Event Links",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1104,
+        -128
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.fetch_url }}",
+        "sendHeaders": true,
+        "specifyHeaders": "usingFieldsBelow",
+        "options": {
+          "redirect": {
+            "redirect": {
+              "maxRedirects": 4
+            }
+          },
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true,
+              "responseFormat": "text"
+            }
+          },
+          "timeout": 8000
+        }
+      },
+      "id": "a6b9e0ce-0645-4c0d-8e47-851142e5db1d",
+      "name": "Fetch Candidate Detail Page",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1328,
+        -128
+      ],
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "id": "f9131ebf-84e4-4da4-8333-83b5c919999f",
+      "name": "Merge Candidate And Response",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1552,
+        -128
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Load Active Website Sources",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Active Website Sources": {
+      "main": [
+        [
+          {
+            "node": "Normalize Source",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge Source And Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Source": {
+      "main": [
+        [
+          {
+            "node": "Fetch Source Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Source Page": {
+      "main": [
+        [
+          {
+            "node": "Merge Source And Response",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Source And Response": {
+      "main": [
+        [
+          {
+            "node": "Extract Event Links",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Source Page": {
+      "main": [
+        [
+          {
+            "node": "Insert Raw Item",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Raw Item": {
+      "main": [
+        [
+          {
+            "node": "Update Source Checked At",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Source Checked At": {
+      "main": [
+        [
+          {
+            "node": "Show Latest Raw Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Event Links": {
+      "main": [
+        [
+          {
+            "node": "Fetch Candidate Detail Page",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge Candidate And Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Candidate Detail Page": {
+      "main": [
+        [
+          {
+            "node": "Merge Candidate And Response",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Candidate And Response": {
+      "main": [
+        [
+          {
+            "node": "Parse Source Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "abf83651-136e-4b92-9a1d-d85e8756aab5",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "cb95f67de3eb2bd513200bc3cead3abaa69e890ba0a912740169783b0cf2958b"
+  },
+  "id": "bdUMvu4E7Mzkl003",
+  "tags": []
+}
