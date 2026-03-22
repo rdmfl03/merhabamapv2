@@ -1,6 +1,6 @@
 # MerhabaMap
 
-Germany-first community platform for discovering local places, events and connections within the Turkish diaspora in Germany.
+Community platform for discovering places, events and connections within the Turkish diaspora.
 
 ## Problem
 
