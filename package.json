@@ -2,6 +2,7 @@
   "name": "merhabamap",
   "version": "0.1.0",
   "private": true,
+  "license": "MIT",
   "description": "Germany-first community platform for Turkish diaspora discovery (places, events, connections).",
   "type": "module",
   "engines": {

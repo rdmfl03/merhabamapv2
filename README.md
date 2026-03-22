@@ -100,3 +100,7 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting changes.
 
 Actively developed and tested locally before production rollout.
 Current focus is on data quality, moderation workflows, and secure infrastructure.
+
+## License
+
+This project is licensed under the MIT License.
