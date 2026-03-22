@@ -1,6 +1,7 @@
 # Local n8n
 
 This setup is for local workflow runs only. It does not connect to any remote database.
+Operational workflows are managed privately and are not included in the public repository.
 
 ## Start n8n
 
@@ -32,15 +33,10 @@ Create a new `Postgres` credential in the n8n UI and use:
 
 This points n8n at the local development database on the host machine, not a containerized database and not any remote database.
 
-## Import and run the collector
+## Private Workflow Note
 
-1. In n8n, choose `Import from File`
-2. Import:
-   - [`workflows/n8n/MerhabaMap Collector Stable Final.json`](/Users/eoflu/merhabamap/workflows/n8n/MerhabaMap%20Collector%20Stable%20Final.json)
-3. Open the imported workflow
-4. For each `Postgres` node, select the credential you created above
-5. Save the workflow
-6. Click `Execute workflow`
+Workflow definitions are intentionally kept out of the public repository for security reasons.
+If you operate a local n8n instance, import only your own private workflow definitions and configure your own local credentials and secrets before execution.
 
 ## Validate a fresh raw ingest result
 
