@@ -23,6 +23,9 @@ No business logic, schema, or runtime behavior was changed in this pass.
 
 ## Files Kept
 
+- `AGENTS.md`
+  - kept public as repository-level development guidance
+  - reviewed for public safety and lightly sanitized to remove one-off task wording while preserving durable repo rules
 - `README.md`
   - kept public as the main project entry point
 - `CONTRIBUTING.md`
@@ -40,7 +43,7 @@ No business logic, schema, or runtime behavior was changed in this pass.
 
 ### `docs/go-live-checklist.md`
 
-- decision: manual review required
+- decision: leave unchanged but mark for manual decision
 - current assessment:
   - useful operationally
   - not referenced by setup or source code
@@ -51,7 +54,7 @@ No business logic, schema, or runtime behavior was changed in this pass.
 
 ### `docs/moderation-runbook.md`
 
-- decision: manual review required
+- decision: leave unchanged but mark for manual decision
 - current assessment:
   - useful as policy/process guidance
   - not referenced by setup or source code
@@ -77,6 +80,14 @@ No business logic, schema, or runtime behavior was changed in this pass.
 
 - `docs/go-live-checklist.md`
 - `docs/moderation-runbook.md`
+
+## AGENTS.md Decision
+
+- decision: keep public and add to the repository
+- reason:
+  - it contains only public-repo-safe development guidance
+  - it reinforces the existing public/private boundary
+  - it does not expose secrets, infrastructure details, private workflows, or internal operational values
 
 ## Non-Breaking Verification Performed
 
