@@ -1,58 +1,82 @@
 # MerhabaMap
 
-Germany-first bilingual community discovery for the Turkish diaspora in Germany.
+Germany-first community platform for discovering local places, events and connections within the Turkish diaspora in Germany.
+
+---
 
 ## Problem
 
-People with Turkish background in Germany often discover places, events, and community infrastructure through fragmented channels. MerhabaMap aims to provide a clearer local discovery layer with Turkish/German support and a trust-aware product approach.
+People with Turkish background in Germany often discover places, events and community infrastructure through fragmented channels.  
+MerhabaMap aims to provide a clearer, structured local discovery layer with bilingual (Turkish/German) support and a trust-aware product approach.
+
+---
+
+## Approach
+
+MerhabaMap focuses on data quality, moderation and trust-aware discovery, combining structured data pipelines with community-driven contributions.
+
+---
 
 ## Features
 
-- places and local business discovery
-- event discovery
-- bilingual Turkish/German UX
-- user profiles and saved content
-- community submissions and moderation workflows
+- places and local business discovery  
+- event discovery  
+- bilingual Turkish/German UX  
+- user profiles and saved content  
+- community submissions and moderation workflows  
+
+---
 
 ## Tech Stack
 
-- Next.js
-- TypeScript
-- Prisma
-- PostgreSQL
-- NextAuth
-- Vitest and Playwright
+- Next.js / React (frontend)
+- Node.js / API routes (backend)
+- PostgreSQL (data layer)
+- AI-assisted data processing and moderation
 
-## Local Development
+---
 
-1. Use Node `20` or any version `>=18.18.0`.
-2. Run `npm install`.
-3. Copy `.env.example` to `.env.local`.
-4. Copy `.env.test.example` to `.env.test.local`.
-5. Configure local PostgreSQL databases.
-6. Run `npm run db:setup`.
-7. Start the app with `npm run dev`.
+## Getting Started
 
-Common checks:
+### Prerequisites
+- Node.js (latest LTS)
+- npm or pnpm
 
-- `npm run lint`
-- `npm run typecheck`
-- `npm run test`
-- `npm run build`
+### Installation
 
-Deployment guidance and local orchestration notes are available in:
+```bash
+git clone https://github.com/rdmfl03/merhabamapv2
+cd merhabamapv2
+npm install
 
-- [docs/netlify-deploy.md](docs/netlify-deploy.md)
-- [docs/local-n8n.md](docs/local-n8n.md)
+Environment
 
-Operational workflows such as n8n definitions are intentionally kept private and are not part of the public repository.
+Create a .env.local file based on .env.example.
 
-## Security & Privacy
+Run locally
 
-MerhabaMap should remain security-first and GDPR-aware. Do not commit secrets, private operational details, or real user data. Transactional emails use `noreply@merhabamap.com` with `Reply-To: info@merhabamap.com`.
+npm run dev
 
-See [SECURITY.md](SECURITY.md) for reporting guidance and [CONTRIBUTING.md](CONTRIBUTING.md) for contribution expectations.
 
-## Status
+⸻
+
+Security & Privacy
+
+MerhabaMap handles user-generated content and location-based data.
+Security, abuse prevention and GDPR compliance (Germany/EU) are core design principles.
+
+Operational workflows (e.g. data ingestion, automation pipelines) are intentionally kept private and are not part of this repository.
+
+⸻
+
+Contributing
+
+Contributions are welcome.
+Please read CONTRIBUTING.md before submitting changes.
+
+⸻
+
+Status
 
 Actively developed and tested locally before production rollout.
+Current focus is on data quality, moderation workflows and secure infrastructure.
