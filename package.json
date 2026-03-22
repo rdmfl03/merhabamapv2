@@ -2,6 +2,7 @@
   "name": "merhabamap",
   "version": "0.1.0",
   "private": true,
+  "description": "Germany-first bilingual community discovery platform for the Turkish diaspora in Germany.",
   "type": "module",
   "engines": {
     "node": ">=18.18.0"

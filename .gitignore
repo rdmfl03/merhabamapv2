@@ -27,6 +27,8 @@
 *.DS_Store
 *.pem
 *.sql
+/MERHABAMAP_*
+/SOURCES_SCHEMA_*
 
 # debug
 npm-debug.log*
