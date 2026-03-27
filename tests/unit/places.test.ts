@@ -2,6 +2,7 @@ import {
   buildPlacesPath,
   computeRatingConfidence,
   computePlaceScore,
+  getTopPlaces,
   getLocalizedText,
   getPlaceImage,
   getPlaceScoreRatingCount,
@@ -106,5 +107,34 @@ describe("places helpers", () => {
 
     expect(confidence.value).toBe(1);
     expect(confidence.level).toBe("high");
+  });
+
+  it("returns top places with non-low confidence and enough ratings", () => {
+    const topPlaces = getTopPlaces(
+      [
+        {
+          id: "a",
+          displayRatingValue: 4.8,
+          displayRatingCount: 40,
+          ratingSourceCount: 2,
+        },
+        {
+          id: "b",
+          displayRatingValue: 4.9,
+          displayRatingCount: 3,
+          ratingSourceCount: 1,
+        },
+        {
+          id: "c",
+          displayRatingValue: 4.5,
+          displayRatingCount: 80,
+          ratingSourceCount: 2,
+        },
+      ],
+      2,
+    );
+
+    expect(topPlaces).toHaveLength(2);
+    expect(topPlaces.map((place) => place.id)).toEqual(["c", "a"]);
   });
 });

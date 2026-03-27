@@ -10,6 +10,7 @@ import { Link } from "@/i18n/navigation";
 import { buildPlacesListingMetadata } from "@/lib/metadata/places";
 import {
   buildPlacesPath,
+  getTopPlaces,
   getLocalizedPlaceCategoryLabel,
   getLocalizedText,
 } from "@/lib/places";
@@ -143,6 +144,7 @@ export default async function PlacesPage({
         }),
       }
     : null;
+  const topPlaces = getTopPlaces(places);
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 px-4 py-7 sm:py-8">
@@ -222,6 +224,40 @@ export default async function PlacesPage({
           >
             {t("activeFilters.clearAll")}
           </Link>
+        </section>
+      ) : null}
+
+      {topPlaces.length > 0 ? (
+        <section className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="font-display text-2xl text-foreground">Top Orte</h2>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {topPlaces.map((place) => (
+              <PlaceCard
+                key={`top-${place.id}`}
+                place={place}
+                locale={locale}
+                description={getLocalizedText(
+                  { de: place.descriptionDe, tr: place.descriptionTr },
+                  locale,
+                  t("card.fallbackDescription"),
+                )}
+                categoryLabel={getLocalizedPlaceCategoryLabel(place.category, locale)}
+                cityLabel={locale === "tr" ? place.city.nameTr : place.city.nameDe}
+                returnPath={currentPath}
+                isAuthenticated={Boolean(session?.user?.id)}
+                labels={{
+                  details: t("card.details"),
+                  save: t("card.save"),
+                  saved: t("card.saved"),
+                  saving: t("card.saving"),
+                  signIn: t("card.signIn"),
+                  verified: t("badges.verified"),
+                }}
+              />
+            ))}
+          </div>
         </section>
       ) : null}
 

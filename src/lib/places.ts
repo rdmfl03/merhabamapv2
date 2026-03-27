@@ -365,6 +365,23 @@ export function computeRatingConfidence(place: PlaceRatingSummaryLike): {
   };
 }
 
+export function getTopPlaces<TPlace extends PlaceRatingSummaryLike>(
+  places: readonly TPlace[],
+  limit = 5,
+) {
+  return [...places]
+    .filter((place) => {
+      const summary = getPlaceDisplayRatingSummary(place);
+      if (!summary || summary.count < 5) {
+        return false;
+      }
+
+      return computeRatingConfidence(place).level !== "low";
+    })
+    .sort((left, right) => computePlaceScore(right) - computePlaceScore(left))
+    .slice(0, limit);
+}
+
 export function buildPlacesPath(
   locale: "de" | "tr",
   filters?: { city?: string; category?: string; q?: string; sort?: string },
