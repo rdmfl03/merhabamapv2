@@ -7,13 +7,29 @@ import { z } from "zod";
 
 import { prisma } from "@/lib/prisma";
 import { verifyPassword } from "@/lib/auth/password";
-import { env, isProduction } from "@/lib/env";
-import { logger } from "@/lib/logger";
 
 const credentialsSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8).max(128),
 });
+
+function isProductionRuntime() {
+  return process.env.APP_ENV === "production" || process.env.NODE_ENV === "production";
+}
+
+function readBooleanEnv(name: string, defaultValue: boolean) {
+  const value = process.env[name];
+
+  if (value === "true") {
+    return true;
+  }
+
+  if (value === "false") {
+    return false;
+  }
+
+  return defaultValue;
+}
 
 function serializeNullableDate(value: Date | null | undefined) {
   return value ? value.toISOString() : null;
@@ -35,17 +51,17 @@ export const authConfig = {
     maxAge: 30 * 24 * 60 * 60,
   },
   trustHost: true,
-  useSecureCookies: isProduction(),
+  useSecureCookies: isProductionRuntime(),
   cookies: {
     sessionToken: {
-      name: isProduction()
+      name: isProductionRuntime()
         ? "__Secure-authjs.session-token"
         : "authjs.session-token",
       options: {
         httpOnly: true,
         sameSite: "lax",
         path: "/",
-        secure: isProduction(),
+        secure: isProductionRuntime(),
       },
     },
   },
@@ -63,8 +79,8 @@ export const authConfig = {
           return null;
         }
 
-        if (!env.AUTH_ENABLE_PASSWORD_LOGIN) {
-          logger.warn("credentials_sign_in_rejected", {
+        if (!readBooleanEnv("AUTH_ENABLE_PASSWORD_LOGIN", true)) {
+          console.warn("credentials_sign_in_rejected", {
             reason: "password_login_disabled",
           });
           return null;
@@ -85,14 +101,14 @@ export const authConfig = {
         });
 
         if (!user) {
-          logger.info("credentials_sign_in_failed", {
+          console.info("credentials_sign_in_failed", {
             reason: "user_not_found",
           });
           return null;
         }
 
         if (!verifyPassword(parsed.data.password, user.hashedPassword)) {
-          logger.info("credentials_sign_in_failed", {
+          console.info("credentials_sign_in_failed", {
             reason: "invalid_password",
           });
           return null;
@@ -106,7 +122,13 @@ export const authConfig = {
     redirect({ url, baseUrl }) {
       try {
         const target = new URL(url, baseUrl);
-        const allowedBase = new URL(env.APP_URL);
+        const allowedAppUrl = process.env.APP_URL;
+
+        if (!allowedAppUrl) {
+          return baseUrl;
+        }
+
+        const allowedBase = new URL(allowedAppUrl);
 
         if (target.origin !== allowedBase.origin) {
           return baseUrl;

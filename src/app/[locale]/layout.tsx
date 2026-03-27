@@ -45,7 +45,13 @@ export default async function LocaleLayout({
   }
 
   setRequestLocale(locale);
-  const session = await auth();
+  let session = null;
+
+  try {
+    session = await auth();
+  } catch {
+    session = null;
+  }
   const needsOnboarding =
     Boolean(session?.user?.id) && !session?.user?.onboardingCompletedAt;
 

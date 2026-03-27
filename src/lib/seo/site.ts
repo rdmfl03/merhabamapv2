@@ -1,26 +1,50 @@
 import type { Metadata } from "next";
 
 import { appConfig } from "@/lib/app-config";
-import { env } from "@/lib/env";
 import type { AppLocale } from "@/i18n/routing";
 
 export function getSiteUrl() {
-  return env.APP_URL;
+  const value = process.env.APP_URL?.trim();
+
+  if (!value) {
+    return null;
+  }
+
+  try {
+    return new URL(value).toString().replace(/\/$/, "");
+  } catch {
+    return null;
+  }
 }
 
 export function buildLocalizedUrl(locale: AppLocale, path = "") {
+  const siteUrl = getSiteUrl();
+
+  if (!siteUrl) {
+    return null;
+  }
+
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
-  return `${getSiteUrl()}/${locale}${normalizedPath === "/" ? "" : normalizedPath}`;
+  return `${siteUrl}/${locale}${normalizedPath === "/" ? "" : normalizedPath}`;
 }
 
 export function buildAlternateLocales(
   locale: AppLocale,
   path = "",
 ): Metadata["alternates"] {
+  const canonical = buildLocalizedUrl(locale, path);
+
+  if (!canonical) {
+    return undefined;
+  }
+
   return {
-    canonical: buildLocalizedUrl(locale, path),
+    canonical,
     languages: Object.fromEntries(
-      appConfig.locales.map((locale) => [locale, buildLocalizedUrl(locale, path)]),
+      appConfig.locales.flatMap((entry) => {
+        const localizedUrl = buildLocalizedUrl(entry, path);
+        return localizedUrl ? [[entry, localizedUrl] as const] : [];
+      }),
     ),
   };
 }
@@ -40,7 +64,7 @@ export function buildOpenGraphMetadata(args: {
     openGraph: {
       title: args.title,
       description: args.description,
-      url,
+      url: url ?? undefined,
       siteName: appConfig.name,
       locale: args.locale,
       type: args.type ?? "website",

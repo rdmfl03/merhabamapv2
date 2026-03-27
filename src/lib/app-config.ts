@@ -1,8 +1,7 @@
-import { env } from "@/lib/env";
 import { routing } from "@/i18n/routing";
 
 export const appConfig = {
-  name: env.APP_NAME,
+  name: process.env.APP_NAME?.trim() || "MerhabaMap",
   description:
     "Bilingual discovery platform for Turkish places and events in Germany.",
   defaultLocale: routing.defaultLocale,

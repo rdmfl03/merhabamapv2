@@ -36,20 +36,34 @@ export default async function LandingPage({ params }: LandingPageProps) {
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const session = await auth();
+  let session = null;
+
+  try {
+    session = await auth();
+  } catch {
+    session = null;
+  }
 
   if (session?.user?.id && session.user.onboardingCompletedAt) {
-    const profile = await getCurrentUserProfile(session.user.id);
+    try {
+      const profile = await getCurrentUserProfile(session.user.id);
 
-    if (profile?.onboardingCity?.slug) {
-      redirect(`/${locale}/cities/${profile.onboardingCity.slug}`);
+      if (profile?.onboardingCity?.slug) {
+        redirect(`/${locale}/cities/${profile.onboardingCity.slug}`);
+      }
+    } catch {
+      // Fall back to the public landing experience if auth-linked DB reads fail.
     }
   }
 
-  const [t, pilotCities] = await Promise.all([
-    getTranslations("landing"),
-    getPilotCities(),
-  ]);
+  const t = await getTranslations("landing");
+  let pilotCities: Awaited<ReturnType<typeof getPilotCities>> = [];
+
+  try {
+    pilotCities = await getPilotCities();
+  } catch {
+    pilotCities = [];
+  }
 
   return (
     <div className="pb-10 sm:pb-12">

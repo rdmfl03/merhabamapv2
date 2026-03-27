@@ -8,10 +8,14 @@ import { Link } from "@/i18n/navigation";
 import { canAccessBusiness } from "@/lib/permissions";
 
 export async function Header() {
-  const [t, session] = await Promise.all([
-    getTranslations("common"),
-    auth(),
-  ]);
+  const t = await getTranslations("common");
+  let session = null;
+
+  try {
+    session = await auth();
+  } catch {
+    session = null;
+  }
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/70 bg-background/90 backdrop-blur">

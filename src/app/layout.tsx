@@ -3,8 +3,21 @@ import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 
 import "@/app/globals.css";
-import { env } from "@/lib/env";
 import { appConfig } from "@/lib/app-config";
+
+function getMetadataBase() {
+  const value = process.env.APP_URL?.trim();
+
+  if (!value) {
+    return undefined;
+  }
+
+  try {
+    return new URL(value);
+  } catch {
+    return undefined;
+  }
+}
 
 export const metadata: Metadata = {
   title: {
@@ -12,7 +25,7 @@ export const metadata: Metadata = {
     template: `%s | ${appConfig.name}`,
   },
   description: appConfig.description,
-  metadataBase: new URL(env.APP_URL),
+  metadataBase: getMetadataBase(),
 };
 
 export default async function RootLayout({

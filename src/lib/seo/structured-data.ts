@@ -7,7 +7,7 @@ export function buildOrganizationSchema(locale: AppLocale) {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: appConfig.name,
-    url: buildLocalizedUrl(locale),
+    url: buildLocalizedUrl(locale) ?? undefined,
     description: appConfig.description,
   };
 }
@@ -23,7 +23,7 @@ export function buildCityCollectionSchema(args: {
     "@type": "CollectionPage",
     name: `${args.cityName} | ${appConfig.name}`,
     description: args.description,
-    url: buildLocalizedUrl(args.locale, args.path),
+    url: buildLocalizedUrl(args.locale, args.path) ?? undefined,
     inLanguage: args.locale,
   };
 }
@@ -49,7 +49,7 @@ export function buildPlaceSchema(args: {
     "@type": "Place",
     name: args.name,
     description: args.description,
-    url: buildLocalizedUrl(args.locale, `/places/${args.slug}`),
+    url: buildLocalizedUrl(args.locale, `/places/${args.slug}`) ?? undefined,
     image: args.image ?? undefined,
     telephone: args.phone ?? undefined,
     sameAs: args.websiteUrl ?? undefined,
@@ -98,7 +98,7 @@ export function buildEventSchema(args: {
     endDate: args.endsAt ?? undefined,
     eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
     eventStatus: "https://schema.org/EventScheduled",
-    url: args.externalUrl ?? buildLocalizedUrl(args.locale, `/events/${args.slug}`),
+    url: args.externalUrl ?? buildLocalizedUrl(args.locale, `/events/${args.slug}`) ?? undefined,
     image: args.image ? [args.image] : undefined,
     organizer: args.organizerName
       ? {
