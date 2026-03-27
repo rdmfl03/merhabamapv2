@@ -5,7 +5,11 @@ import { PlaceTrustBadge } from "@/components/places/place-trust-badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "@/i18n/navigation";
-import { getPlaceDisplayRatingSummary, resolvePlaceImage } from "@/lib/places";
+import {
+  computeRatingConfidence,
+  getPlaceDisplayRatingSummary,
+  resolvePlaceImage,
+} from "@/lib/places";
 import type { ListedPlace } from "@/server/queries/places/list-places";
 
 type PlaceCardProps = {
@@ -38,6 +42,19 @@ export function PlaceCard({
 }: PlaceCardProps) {
   const image = resolvePlaceImage(place);
   const ratingSummary = getPlaceDisplayRatingSummary(place);
+  const ratingConfidence = computeRatingConfidence(place);
+  const ratingConfidenceLabel =
+    ratingConfidence.level === "high"
+      ? locale === "tr"
+        ? "Cok sayida degerlendirme"
+        : "Sehr viele Bewertungen"
+      : ratingConfidence.level === "medium"
+        ? locale === "tr"
+          ? "Populer"
+          : "Beliebt"
+        : locale === "tr"
+          ? "Az degerlendirme"
+          : "Wenige Bewertungen";
 
   return (
     <Card className="overflow-hidden bg-white/90">
@@ -92,12 +109,15 @@ export function PlaceCard({
           </div>
 
           {ratingSummary ? (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Star className="h-4 w-4 fill-current text-amber-500" />
-              <span>
-                {ratingSummary.value.toFixed(1)} / 5
-              </span>
-              <span>({ratingSummary.count})</span>
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Star className="h-4 w-4 fill-current text-amber-500" />
+                <span>
+                  {ratingSummary.value.toFixed(1)} / 5
+                </span>
+                <span>({ratingSummary.count})</span>
+              </div>
+              <p className="text-xs text-muted-foreground">{ratingConfidenceLabel}</p>
             </div>
           ) : null}
 

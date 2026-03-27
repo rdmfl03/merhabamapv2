@@ -1,4 +1,13 @@
-import { buildPlacesPath, getLocalizedText, getPlaceImage, getVerificationTone, parseOpeningHours } from "@/lib/places";
+import {
+  buildPlacesPath,
+  computeRatingConfidence,
+  computePlaceScore,
+  getLocalizedText,
+  getPlaceImage,
+  getPlaceScoreRatingCount,
+  getVerificationTone,
+  parseOpeningHours,
+} from "@/lib/places";
 
 describe("places helpers", () => {
   it("falls back to the other locale when localized text is missing", () => {
@@ -32,5 +41,70 @@ describe("places helpers", () => {
     expect(getVerificationTone("VERIFIED")).toBe("verified");
     expect(getVerificationTone("CLAIMED")).toBe("claimed");
     expect(getVerificationTone("UNVERIFIED")).toBe("default");
+  });
+
+  it("computes a rating-weighted place score from display summary fields", () => {
+    expect(
+      computePlaceScore({
+        displayRatingValue: 4.6,
+        displayRatingCount: 99,
+        ratingSourceCount: 2,
+      }),
+    ).toBeCloseTo(4.6 * Math.log10(100));
+  });
+
+  it("falls back to legacy rating inputs for score calculation", () => {
+    expect(
+      computePlaceScore({
+        legacyRatingValue: 4.2,
+        legacyRatingCount: 24,
+      }),
+    ).toBeCloseTo(4.2 * Math.log10(25));
+    expect(
+      getPlaceScoreRatingCount({
+        legacyRatingValue: 4.2,
+        legacyRatingCount: 24,
+      }),
+    ).toBe(24);
+  });
+
+  it("returns zero score when no usable rating signal exists", () => {
+    expect(
+      computePlaceScore({
+        displayRatingValue: null,
+        displayRatingCount: null,
+        ratingSourceCount: null,
+      }),
+    ).toBe(0);
+    expect(getPlaceScoreRatingCount({})).toBe(0);
+  });
+
+  it("computes low rating confidence when rating counts are missing", () => {
+    expect(computeRatingConfidence({})).toEqual({
+      value: 0,
+      level: "low",
+    });
+  });
+
+  it("computes a medium confidence value from rating count", () => {
+    const confidence = computeRatingConfidence({
+      displayRatingValue: 4.7,
+      displayRatingCount: 99,
+      ratingSourceCount: 2,
+    });
+
+    expect(confidence.value).toBeCloseTo(Math.min(1, Math.log10(100) / 3));
+    expect(confidence.level).toBe("medium");
+  });
+
+  it("caps rating confidence at high for very large rating counts", () => {
+    const confidence = computeRatingConfidence({
+      displayRatingValue: 4.7,
+      displayRatingCount: 9999,
+      ratingSourceCount: 2,
+    });
+
+    expect(confidence.value).toBe(1);
+    expect(confidence.level).toBe("high");
   });
 });

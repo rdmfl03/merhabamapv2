@@ -65,6 +65,8 @@ type PlaceRatingSummaryLike = {
   ratingSourceCount?: number | null;
   ratingSummaryUpdatedAt?: Date | null;
   placeRatingSources?: PlaceRatingSourceLike[] | null;
+  legacyRatingCount?: number | null;
+  legacyRatingValue?: DecimalValue | null;
 };
 
 export type ResolvedPlaceRatingSummary = {
@@ -82,6 +84,8 @@ export type ResolvedPlaceRatingSummary = {
     observedAt: Date | null;
   }>;
 };
+
+export type RatingConfidenceLevel = "low" | "medium" | "high";
 
 const localizedPlaceCategoryLabels = {
   restaurants: { de: "Restaurants", tr: "Restoranlar" },
@@ -188,6 +192,20 @@ function toNumber(value: DecimalValue | null | undefined) {
         : Number(value.toString());
 
   return Number.isFinite(parsed) ? parsed : null;
+}
+
+function getLegacyPlaceRatingSummary(place: PlaceRatingSummaryLike) {
+  const value = toNumber(place.legacyRatingValue);
+  const count = place.legacyRatingCount ?? null;
+
+  if (value === null || count === null || count <= 0) {
+    return null;
+  }
+
+  return {
+    count,
+    value,
+  };
 }
 
 function getIncludedRatingSources(place: PlaceRatingSummaryLike) {
@@ -301,6 +319,50 @@ export function hasPlaceDisplayRatingSummary(
   summary: ResolvedPlaceRatingSummary | null,
 ) {
   return Boolean(summary && summary.count > 0 && summary.sourceCount > 0);
+}
+
+export function computePlaceScore(place: PlaceRatingSummaryLike) {
+  const summary = getPlaceDisplayRatingSummary(place);
+
+  if (summary) {
+    return summary.value * Math.log10(summary.count + 1);
+  }
+
+  const legacySummary = getLegacyPlaceRatingSummary(place);
+  if (!legacySummary) {
+    return 0;
+  }
+
+  return legacySummary.value * Math.log10(legacySummary.count + 1);
+}
+
+export function getPlaceScoreRatingCount(place: PlaceRatingSummaryLike) {
+  const summary = getPlaceDisplayRatingSummary(place);
+  if (summary) {
+    return summary.count;
+  }
+
+  return getLegacyPlaceRatingSummary(place)?.count ?? 0;
+}
+
+export function computeRatingConfidence(place: PlaceRatingSummaryLike): {
+  value: number;
+  level: RatingConfidenceLevel;
+} {
+  const ratingCount = getPlaceScoreRatingCount(place);
+  if (ratingCount <= 0) {
+    return {
+      value: 0,
+      level: "low",
+    };
+  }
+
+  const value = Math.min(1, Math.log10(ratingCount + 1) / 3);
+
+  return {
+    value,
+    level: value < 0.3 ? "low" : value < 0.7 ? "medium" : "high",
+  };
 }
 
 export function buildPlacesPath(

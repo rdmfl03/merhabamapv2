@@ -14,6 +14,7 @@ import { JsonLd } from "@/components/seo/json-ld";
 import { Card, CardContent } from "@/components/ui/card";
 import { buildPlaceDetailMetadata } from "@/lib/metadata/places";
 import {
+  computeRatingConfidence,
   formatOpeningHoursDay,
   getPlaceDisplayRatingSummary,
   getLocalizedText,
@@ -86,6 +87,7 @@ export default async function PlaceDetailPage({
   const safeRatingSummary = hasPlaceDisplayRatingSummary(ratingSummary)
     ? ratingSummary
     : null;
+  const ratingConfidence = computeRatingConfidence(place);
   const cityLabel = locale === "tr" ? place.city.nameTr : place.city.nameDe;
   const categoryLabel = getLocalizedPlaceCategoryLabel(place.category, locale);
   const returnPath = `/${locale}/places/${place.slug}`;
@@ -98,6 +100,18 @@ export default async function PlaceDetailPage({
           timeZone: "Europe/Berlin",
         }).format(safeRatingSummary.updatedAt)
       : null;
+  const ratingConfidenceLabel =
+    ratingConfidence.level === "high"
+      ? locale === "tr"
+        ? "Cok sayida degerlendirme"
+        : "Sehr viele Bewertungen"
+      : ratingConfidence.level === "medium"
+        ? locale === "tr"
+          ? "Populer"
+          : "Beliebt"
+        : locale === "tr"
+          ? "Az degerlendirme"
+          : "Wenige Bewertungen";
 
   return (
     <div className="mx-auto max-w-6xl space-y-8 px-4 py-10 sm:py-12">
@@ -207,6 +221,7 @@ export default async function PlaceDetailPage({
                       : ` · Stand ${ratingUpdatedLabel}`
                     : ""}
                 </p>
+                <p className="mt-1 text-xs text-muted-foreground">{ratingConfidenceLabel}</p>
               </div>
             ) : null}
 
