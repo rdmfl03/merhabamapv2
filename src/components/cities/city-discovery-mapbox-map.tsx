@@ -801,7 +801,7 @@ export function CityDiscoveryMapboxMap({
         </span>
       </div>
 
-      <div className="pointer-events-none absolute bottom-5 left-5 flex items-center gap-4 rounded-full border border-border/80 bg-white/94 px-4 py-2 text-xs text-muted-foreground shadow-sm">
+      <div className="pointer-events-none absolute bottom-5 left-5 flex items-center gap-4 rounded-full border border-slate-200 bg-white/98 px-4 py-2 text-xs text-slate-700 shadow-lg backdrop-blur-sm">
         <div className="flex items-center gap-2">
           <span className="relative block h-4 w-4">
             <span className="absolute left-1/2 top-0 h-3.5 w-3.5 -translate-x-1/2 rounded-full bg-brand" />

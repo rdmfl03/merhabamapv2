@@ -283,6 +283,31 @@ export function CityDiscoveryMap({
   const hasActiveFilters = Boolean(
     query || categoryFilter !== "all" || typeFilter !== "all",
   );
+  const activePointId = selectedId ?? hoveredId;
+  const filteredPlaces = useMemo(
+    () =>
+      [...filtered]
+        .filter((point) => point.kind === "place")
+        .sort((a, b) => Number(b.id === selectedId) - Number(a.id === selectedId))
+        .slice(0, 10),
+    [filtered, selectedId],
+  );
+  const filteredEvents = useMemo(
+    () =>
+      [...filtered]
+        .filter((point) => point.kind === "event")
+        .sort((a, b) => Number(b.id === selectedId) - Number(a.id === selectedId))
+        .slice(0, 10),
+    [filtered, selectedId],
+  );
+  const totalFilteredPlaces = useMemo(
+    () => filtered.filter((point) => point.kind === "place").length,
+    [filtered],
+  );
+  const totalFilteredEvents = useMemo(
+    () => filtered.filter((point) => point.kind === "event").length,
+    [filtered],
+  );
 
   function handleLocateMe() {
     if (!navigator.geolocation) {
@@ -317,6 +342,47 @@ export function CityDiscoveryMap({
     setTypeFilter("all");
     setHoveredId(null);
     setSelectedId(null);
+  }
+
+  function renderPointCard(point: NormalizedPoint) {
+    return (
+      <Link
+        key={point.id}
+        href={point.href}
+        className={`block rounded-[1.5rem] border p-4 transition ${
+          activePointId === point.id
+            ? "border-brand/40 bg-brand-soft/60 shadow-sm"
+            : "border-border/70 bg-white/92 hover:border-brand/30 hover:bg-white"
+        }`}
+        onMouseEnter={() => setHoveredId(point.id)}
+        onFocus={() => setHoveredId(point.id)}
+        onMouseLeave={() =>
+          setHoveredId((current) => (current === point.id ? null : current))
+        }
+      >
+        <div className="flex items-start justify-between gap-4">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              {point.kind === "place" ? (
+                <MapPin className="h-4 w-4 text-brand" />
+              ) : (
+                <CalendarDays className="h-4 w-4 text-foreground" />
+              )}
+              <span className="text-xs font-semibold uppercase tracking-[0.16em] text-brand">
+                {point.categoryLabel}
+              </span>
+            </div>
+            <h4 className="font-semibold text-foreground">{point.label}</h4>
+            <p className="text-sm leading-6 text-muted-foreground">
+              {point.description || point.meta}
+            </p>
+          </div>
+          <span className="shrink-0 text-xs font-semibold text-foreground">
+            {point.kind === "place" ? viewPlaceLabel : viewEventLabel}
+          </span>
+        </div>
+      </Link>
+    );
   }
 
   return (
@@ -449,7 +515,7 @@ export function CityDiscoveryMap({
             </p>
           </div>
 
-          <div className="grid gap-3 lg:grid-cols-2">
+          <div className="grid gap-4 lg:grid-cols-2">
             {filtered.length === 0 ? (
               <div className="rounded-2xl border border-border bg-white/90 px-4 py-5 text-sm text-muted-foreground lg:col-span-2">
                 {query || categoryFilter !== "all" || typeFilter !== "all"
@@ -457,44 +523,45 @@ export function CityDiscoveryMap({
                   : empty}
               </div>
             ) : (
-              filtered.map((point) => (
-                <Link
-                  key={point.id}
-                  href={point.href}
-                  className={`block rounded-[1.5rem] border p-4 transition ${
-                    (selectedId ?? hoveredId) === point.id
-                      ? "border-brand/40 bg-brand-soft/60 shadow-sm"
-                      : "border-border/70 bg-white/92 hover:border-brand/30 hover:bg-white"
-                  }`}
-                  onMouseEnter={() => setHoveredId(point.id)}
-                  onFocus={() => setHoveredId(point.id)}
-                  onMouseLeave={() =>
-                    setHoveredId((current) => (current === point.id ? null : current))
-                  }
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        {point.kind === "place" ? (
-                          <MapPin className="h-4 w-4 text-brand" />
-                        ) : (
-                          <CalendarDays className="h-4 w-4 text-foreground" />
-                        )}
-                        <span className="text-xs font-semibold uppercase tracking-[0.16em] text-brand">
-                          {point.categoryLabel}
-                        </span>
-                      </div>
-                      <h4 className="font-semibold text-foreground">{point.label}</h4>
-                      <p className="text-sm leading-6 text-muted-foreground">
-                        {point.description || point.meta}
-                      </p>
+              <>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between rounded-2xl border border-border/70 bg-white/92 px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4 text-brand" />
+                      <span className="font-semibold text-foreground">{legendPlaces}</span>
                     </div>
-                    <span className="shrink-0 text-xs font-semibold text-foreground">
-                      {point.kind === "place" ? viewPlaceLabel : viewEventLabel}
+                    <span className="text-sm text-muted-foreground">
+                      {filteredPlaces.length} von {totalFilteredPlaces}
                     </span>
                   </div>
-                </Link>
-              ))
+                  {filteredPlaces.length > 0 ? (
+                    filteredPlaces.map((point) => renderPointCard(point))
+                  ) : (
+                    <div className="rounded-2xl border border-dashed border-border bg-white/75 px-4 py-5 text-sm text-muted-foreground">
+                      {legendPlaces}: 0
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between rounded-2xl border border-border/70 bg-white/92 px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <CalendarDays className="h-4 w-4 text-foreground" />
+                      <span className="font-semibold text-foreground">{legendEvents}</span>
+                    </div>
+                    <span className="text-sm text-muted-foreground">
+                      {filteredEvents.length} von {totalFilteredEvents}
+                    </span>
+                  </div>
+                  {filteredEvents.length > 0 ? (
+                    filteredEvents.map((point) => renderPointCard(point))
+                  ) : (
+                    <div className="rounded-2xl border border-dashed border-border bg-white/75 px-4 py-5 text-sm text-muted-foreground">
+                      {legendEvents}: 0
+                    </div>
+                  )}
+                </div>
+              </>
             )}
           </div>
         </div>

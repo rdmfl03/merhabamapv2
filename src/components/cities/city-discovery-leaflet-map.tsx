@@ -41,9 +41,52 @@ type CityDiscoveryLeafletMapProps = {
 };
 
 const DEFAULT_CENTER: LatLngExpression = [51.1657, 10.4515];
-const SMALL_DATASET_CLUSTER_THRESHOLD = 8;
 
 function createMarkerIcon(kind: "place" | "event", active: boolean): DivIcon {
+  if (kind === "event") {
+    const size = active ? 32 : 28;
+    return L.divIcon({
+      className: "",
+      html: `<span style="
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        width:${size}px;
+        height:${size}px;
+        filter:drop-shadow(0 10px 24px rgba(17,24,39,0.18));
+      ">
+        <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 46 46" fill="none">
+          <rect x="11" y="11" width="24" height="24" rx="5" transform="rotate(45 23 23)" fill="#111827" stroke="#ffffff" stroke-width="3"/>
+          <rect x="18.5" y="18.5" width="9" height="9" rx="2" transform="rotate(45 23 23)" fill="#ffffff"/>
+        </svg>
+      </span>`,
+      iconSize: [size, size],
+      iconAnchor: [size / 2, size / 2],
+    });
+  }
+
+  const width = active ? 28 : 24;
+  const height = active ? 34 : 30;
+  return L.divIcon({
+    className: "",
+    html: `<span style="
+      display:block;
+      width:${width}px;
+      height:${height}px;
+      filter:drop-shadow(0 10px 22px rgba(227,10,23,0.22));
+    ">
+      <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 46 56" fill="none">
+        <path d="M23 4C13.6 4 6 11.5 6 20.8c0 12.5 13.8 25.4 16 27.2.6.6 1.6.6 2.2 0C26.2 46.2 40 33.3 40 20.8 40 11.5 32.4 4 23 4Z" fill="#e30a17" stroke="#ffffff" stroke-width="3"/>
+        <circle cx="23" cy="21" r="6" fill="#ffffff"/>
+        <circle cx="23" cy="21" r="2.4" fill="#e30a17"/>
+      </svg>
+    </span>`,
+    iconSize: [width, height],
+    iconAnchor: [width / 2, height],
+  });
+}
+
+function createClusterIcon(kind: "place" | "event", count: number): DivIcon {
   if (kind === "event") {
     return L.divIcon({
       className: "",
@@ -51,66 +94,35 @@ function createMarkerIcon(kind: "place" | "event", active: boolean): DivIcon {
         display:flex;
         align-items:center;
         justify-content:center;
-        width:${active ? 24 : 20}px;
-        height:${active ? 24 : 20}px;
-        background:#111827;
-        border:2px solid #ffffff;
-        border-radius:6px;
-        transform:rotate(45deg);
-        box-shadow:0 10px 24px rgba(17,24,39,0.18),0 0 0 ${active ? 8 : 6}px rgba(17,24,39,0.12);
-      "><span style="
-        width:7px;
-        height:7px;
-        background:#ffffff;
-        border-radius:999px;
-        transform:rotate(-45deg);
-      "></span></span>`,
-      iconSize: [active ? 24 : 20, active ? 24 : 20],
-      iconAnchor: [active ? 12 : 10, active ? 12 : 10],
+        width:44px;
+        height:44px;
+        filter:drop-shadow(0 10px 24px rgba(17,24,39,0.18));
+      ">
+        <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 44 44" fill="none">
+          <rect x="8" y="8" width="28" height="28" rx="6" transform="rotate(45 22 22)" fill="#111827" stroke="#ffffff" stroke-width="3"/>
+          <text x="22" y="27" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="16" font-weight="700" fill="#ffffff">${count}</text>
+        </svg>
+      </span>`,
+      iconSize: [44, 44],
+      iconAnchor: [22, 22],
     });
   }
 
   return L.divIcon({
     className: "",
     html: `<span style="
-      position:relative;
       display:block;
-      width:${active ? 24 : 20}px;
-      height:${active ? 32 : 28}px;
-      filter:drop-shadow(0 10px 22px rgba(227,10,23,0.22));
-    "><span style="
-      position:absolute;
-      top:0;
-      left:50%;
-      width:${active ? 24 : 20}px;
-      height:${active ? 24 : 20}px;
-      transform:translateX(-50%);
-      background:#e30a17;
-      border:2px solid #ffffff;
-      border-radius:999px;
-    "><span style="
-      position:absolute;
-      top:50%;
-      left:50%;
-      width:${active ? 8 : 7}px;
-      height:${active ? 8 : 7}px;
-      transform:translate(-50%, -50%);
-      background:#ffffff;
-      border-radius:999px;
-    "></span></span><span style="
-      position:absolute;
-      bottom:0;
-      left:50%;
-      width:${active ? 12 : 10}px;
-      height:${active ? 12 : 10}px;
-      transform:translateX(-50%) rotate(45deg);
-      background:#e30a17;
-      border-right:2px solid #ffffff;
-      border-bottom:2px solid #ffffff;
-      border-bottom-right-radius:3px;
-    "></span></span>`,
-    iconSize: [active ? 24 : 20, active ? 32 : 28],
-    iconAnchor: [active ? 12 : 10, active ? 32 : 28],
+      width:46px;
+      height:56px;
+      filter:drop-shadow(0 10px 24px rgba(227,10,23,0.24));
+    ">
+      <svg xmlns="http://www.w3.org/2000/svg" width="46" height="56" viewBox="0 0 46 56" fill="none">
+        <path d="M23 4C13.6 4 6 11.5 6 20.8c0 12.5 13.8 25.4 16 27.2.6.6 1.6.6 2.2 0C26.2 46.2 40 33.3 40 20.8 40 11.5 32.4 4 23 4Z" fill="#e30a17" stroke="#ffffff" stroke-width="3"/>
+        <text x="23" y="26" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="15" font-weight="700" fill="#ffffff">${count}</text>
+      </svg>
+    </span>`,
+    iconSize: [46, 56],
+    iconAnchor: [23, 56],
   });
 }
 
@@ -217,6 +229,27 @@ function PanToActive({
   return null;
 }
 
+function PanToUserLocation({
+  userLocation,
+}: {
+  userLocation: { latitude: number; longitude: number } | null;
+}) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!userLocation) {
+      return;
+    }
+
+    map.flyTo([userLocation.latitude, userLocation.longitude], Math.max(map.getZoom(), 13), {
+      animate: true,
+      duration: 0.5,
+    });
+  }, [map, userLocation]);
+
+  return null;
+}
+
 export function CityDiscoveryLeafletMap({
   points,
   cityCenter,
@@ -235,17 +268,18 @@ export function CityDiscoveryLeafletMap({
   viewEventLabel,
   myLocationLabel,
 }: CityDiscoveryLeafletMapProps) {
-  const shouldCluster = points.length > SMALL_DATASET_CLUSTER_THRESHOLD;
   const placePoints = points.filter((point) => point.kind === "place");
   const eventPoints = points.filter((point) => point.kind === "event");
+  const shouldClusterPlaces = placePoints.length > 1;
+  const shouldClusterEvents = eventPoints.length > 1;
 
   return (
-    <div className="relative h-[36rem] overflow-hidden rounded-[1.9rem] border border-border/70 bg-[#f5f6f8] lg:h-[42rem]">
+    <div className="relative isolate z-0 h-[36rem] overflow-hidden rounded-[1.9rem] border border-border/70 bg-[#f5f6f8] lg:h-[42rem]">
       <MapContainer
         center={DEFAULT_CENTER}
         zoom={6}
         zoomControl={false}
-        className="h-full w-full"
+        className="relative z-0 h-full w-full"
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -254,92 +288,19 @@ export function CityDiscoveryLeafletMap({
         <ZoomControl position="bottomright" />
         <FitToMarkers points={points} cityCenter={cityCenter} userLocation={userLocation} />
         <PanToActive points={points} activeId={selectedId} />
+        <PanToUserLocation userLocation={userLocation} />
 
-        {shouldCluster ? (
-          <>
-            <MarkerClusterGroup
-              chunkedLoading
-              showCoverageOnHover={false}
-              spiderfyOnMaxZoom
-              maxClusterRadius={48}
-            >
-              {placePoints.map((point) => (
-                <Marker
-                  key={point.id}
-                  position={[point.latitude, point.longitude]}
-                  icon={createMarkerIcon(point.kind, activeId === point.id)}
-                  eventHandlers={{
-                    mouseover: () => onHoverChange(point.id),
-                    click: () => onSelectChange(point.id),
-                    mouseout: () => onHoverChange(null),
-                  }}
-                >
-                  <Popup>
-                    <div className="space-y-1.5 min-w-[12rem]">
-                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#e30a17]">
-                        {point.categoryLabel}
-                      </p>
-                      <h4 className="text-sm font-semibold text-slate-900">{point.label}</h4>
-                      <p className="text-xs font-medium text-slate-500">{point.meta}</p>
-                      <p className="text-xs leading-5 text-slate-600">
-                        {point.description || point.meta}
-                      </p>
-                      <Link
-                        href={point.href}
-                        className="inline-block rounded-full bg-[#e30a17] px-3 py-1.5 text-xs font-semibold"
-                        style={{ color: "#ffffff", textDecoration: "none" }}
-                      >
-                        {viewPlaceLabel}
-                      </Link>
-                    </div>
-                  </Popup>
-                </Marker>
-              ))}
-            </MarkerClusterGroup>
-
-            <MarkerClusterGroup
-              chunkedLoading
-              showCoverageOnHover={false}
-              spiderfyOnMaxZoom
-              maxClusterRadius={48}
-            >
-              {eventPoints.map((point) => (
-                <Marker
-                  key={point.id}
-                  position={[point.latitude, point.longitude]}
-                  icon={createMarkerIcon(point.kind, activeId === point.id)}
-                  eventHandlers={{
-                    mouseover: () => onHoverChange(point.id),
-                    click: () => onSelectChange(point.id),
-                    mouseout: () => onHoverChange(null),
-                  }}
-                >
-                  <Popup>
-                    <div className="space-y-1.5 min-w-[12rem]">
-                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#e30a17]">
-                        {point.categoryLabel}
-                      </p>
-                      <h4 className="text-sm font-semibold text-slate-900">{point.label}</h4>
-                      <p className="text-xs font-medium text-slate-500">{point.meta}</p>
-                      <p className="text-xs leading-5 text-slate-600">
-                        {point.description || point.meta}
-                      </p>
-                      <Link
-                        href={point.href}
-                        className="inline-block rounded-full bg-[#e30a17] px-3 py-1.5 text-xs font-semibold"
-                        style={{ color: "#ffffff", textDecoration: "none" }}
-                      >
-                        {viewEventLabel}
-                      </Link>
-                    </div>
-                  </Popup>
-                </Marker>
-              ))}
-            </MarkerClusterGroup>
-          </>
-        ) : (
-          <>
-            {points.map((point) => (
+        {shouldClusterPlaces ? (
+          <MarkerClusterGroup
+            chunkedLoading
+            showCoverageOnHover={false}
+            spiderfyOnMaxZoom
+            maxClusterRadius={48}
+            iconCreateFunction={(cluster: { getChildCount(): number }) =>
+              createClusterIcon("place", cluster.getChildCount())
+            }
+          >
+            {placePoints.map((point) => (
               <Marker
                 key={point.id}
                 position={[point.latitude, point.longitude]}
@@ -365,7 +326,122 @@ export function CityDiscoveryLeafletMap({
                       className="inline-block rounded-full bg-[#e30a17] px-3 py-1.5 text-xs font-semibold"
                       style={{ color: "#ffffff", textDecoration: "none" }}
                     >
-                      {point.kind === "place" ? viewPlaceLabel : viewEventLabel}
+                      {viewPlaceLabel}
+                    </Link>
+                  </div>
+                </Popup>
+              </Marker>
+            ))}
+          </MarkerClusterGroup>
+        ) : (
+          <>
+            {placePoints.map((point) => (
+              <Marker
+                key={point.id}
+                position={[point.latitude, point.longitude]}
+                icon={createMarkerIcon(point.kind, activeId === point.id)}
+                eventHandlers={{
+                  mouseover: () => onHoverChange(point.id),
+                  click: () => onSelectChange(point.id),
+                  mouseout: () => onHoverChange(null),
+                }}
+              >
+                <Popup>
+                  <div className="space-y-1.5 min-w-[12rem]">
+                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#e30a17]">
+                      {point.categoryLabel}
+                    </p>
+                    <h4 className="text-sm font-semibold text-slate-900">{point.label}</h4>
+                    <p className="text-xs font-medium text-slate-500">{point.meta}</p>
+                    <p className="text-xs leading-5 text-slate-600">
+                      {point.description || point.meta}
+                    </p>
+                    <Link
+                      href={point.href}
+                      className="inline-block rounded-full bg-[#e30a17] px-3 py-1.5 text-xs font-semibold"
+                      style={{ color: "#ffffff", textDecoration: "none" }}
+                    >
+                      {viewPlaceLabel}
+                    </Link>
+                  </div>
+                </Popup>
+              </Marker>
+            ))}
+          </>
+        )}
+
+        {shouldClusterEvents ? (
+          <MarkerClusterGroup
+            chunkedLoading
+            showCoverageOnHover={false}
+            spiderfyOnMaxZoom
+            maxClusterRadius={48}
+            iconCreateFunction={(cluster: { getChildCount(): number }) =>
+              createClusterIcon("event", cluster.getChildCount())
+            }
+          >
+            {eventPoints.map((point) => (
+              <Marker
+                key={point.id}
+                position={[point.latitude, point.longitude]}
+                icon={createMarkerIcon(point.kind, activeId === point.id)}
+                eventHandlers={{
+                  mouseover: () => onHoverChange(point.id),
+                  click: () => onSelectChange(point.id),
+                  mouseout: () => onHoverChange(null),
+                }}
+              >
+                <Popup>
+                  <div className="space-y-1.5 min-w-[12rem]">
+                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#e30a17]">
+                      {point.categoryLabel}
+                    </p>
+                    <h4 className="text-sm font-semibold text-slate-900">{point.label}</h4>
+                    <p className="text-xs font-medium text-slate-500">{point.meta}</p>
+                    <p className="text-xs leading-5 text-slate-600">
+                      {point.description || point.meta}
+                    </p>
+                    <Link
+                      href={point.href}
+                      className="inline-block rounded-full bg-[#e30a17] px-3 py-1.5 text-xs font-semibold"
+                      style={{ color: "#ffffff", textDecoration: "none" }}
+                    >
+                      {viewEventLabel}
+                    </Link>
+                  </div>
+                </Popup>
+              </Marker>
+            ))}
+          </MarkerClusterGroup>
+        ) : (
+          <>
+            {eventPoints.map((point) => (
+              <Marker
+                key={point.id}
+                position={[point.latitude, point.longitude]}
+                icon={createMarkerIcon(point.kind, activeId === point.id)}
+                eventHandlers={{
+                  mouseover: () => onHoverChange(point.id),
+                  click: () => onSelectChange(point.id),
+                  mouseout: () => onHoverChange(null),
+                }}
+              >
+                <Popup>
+                  <div className="space-y-1.5 min-w-[12rem]">
+                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#e30a17]">
+                      {point.categoryLabel}
+                    </p>
+                    <h4 className="text-sm font-semibold text-slate-900">{point.label}</h4>
+                    <p className="text-xs font-medium text-slate-500">{point.meta}</p>
+                    <p className="text-xs leading-5 text-slate-600">
+                      {point.description || point.meta}
+                    </p>
+                    <Link
+                      href={point.href}
+                      className="inline-block rounded-full bg-[#e30a17] px-3 py-1.5 text-xs font-semibold"
+                      style={{ color: "#ffffff", textDecoration: "none" }}
+                    >
+                      {viewEventLabel}
                     </Link>
                   </div>
                 </Popup>
@@ -394,7 +470,7 @@ export function CityDiscoveryLeafletMap({
         </div>
       ) : null}
 
-      <div className="pointer-events-none absolute left-5 top-5 flex flex-wrap items-center gap-2">
+      <div className="pointer-events-none absolute left-5 top-5 z-20 flex flex-wrap items-center gap-2">
         <span className="rounded-full border border-border/80 bg-white/94 px-3 py-1.5 text-xs font-semibold text-foreground shadow-sm">
           OSM
         </span>
@@ -403,9 +479,20 @@ export function CityDiscoveryLeafletMap({
         </span>
       </div>
 
-      <div className="pointer-events-none absolute bottom-5 left-5 flex items-center gap-4 rounded-full border border-border/80 bg-white/94 px-4 py-2 text-xs text-muted-foreground shadow-sm">
+      <div className="pointer-events-none absolute bottom-5 left-5 z-20 flex items-center gap-4 rounded-full border border-slate-200 bg-white/98 px-4 py-2 text-xs text-slate-700 shadow-lg backdrop-blur-sm">
         <div className="flex items-center gap-2">
-          <span className="h-3 w-3 rounded-full bg-brand" />
+          <svg
+            aria-hidden="true"
+            width="12"
+            height="14"
+            viewBox="0 0 46 56"
+            className="shrink-0"
+          >
+            <path
+              d="M23 4C13.6 4 6 11.5 6 20.8c0 12.5 13.8 25.4 16 27.2.6.6 1.6.6 2.2 0C26.2 46.2 40 33.3 40 20.8 40 11.5 32.4 4 23 4Z"
+              fill="#e30a17"
+            />
+          </svg>
           <span>{legendPlaces}</span>
         </div>
         <div className="flex items-center gap-2">
