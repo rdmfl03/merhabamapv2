@@ -69,6 +69,16 @@ type PlaceRatingSummaryLike = {
   legacyRatingValue?: DecimalValue | null;
 };
 
+type LatLngLike = {
+  latitude: number;
+  longitude: number;
+};
+
+type PlaceMapScoreLike = PlaceRatingSummaryLike & {
+  latitude?: number | null;
+  longitude?: number | null;
+};
+
 type PlaceCategoryScoreLike = PlaceRatingSummaryLike & {
   category?: {
     slug?: string | null;
@@ -435,6 +445,49 @@ export function getTopPlaces<TPlace extends PlaceRatingSummaryLike>(
     })
     .sort((left, right) => computePlaceScore(right) - computePlaceScore(left))
     .slice(0, limit);
+}
+
+export function computeDistanceKm(a: LatLngLike, b: LatLngLike) {
+  const toRadians = (value: number) => (value * Math.PI) / 180;
+  const earthRadiusKm = 6371;
+  const latDiff = toRadians(b.latitude - a.latitude);
+  const lngDiff = toRadians(b.longitude - a.longitude);
+  const lat1 = toRadians(a.latitude);
+  const lat2 = toRadians(b.latitude);
+
+  const haversine =
+    Math.sin(latDiff / 2) * Math.sin(latDiff / 2) +
+    Math.cos(lat1) *
+      Math.cos(lat2) *
+      Math.sin(lngDiff / 2) *
+      Math.sin(lngDiff / 2);
+
+  return 2 * earthRadiusKm * Math.atan2(Math.sqrt(haversine), Math.sqrt(1 - haversine));
+}
+
+export function computeMapScore(
+  place: PlaceMapScoreLike,
+  userLocation: LatLngLike | null,
+) {
+  const baseScore = computePlaceScore(place);
+
+  if (
+    !userLocation ||
+    typeof place.latitude !== "number" ||
+    typeof place.longitude !== "number"
+  ) {
+    return baseScore;
+  }
+
+  const distanceKm = computeDistanceKm(
+    {
+      latitude: place.latitude,
+      longitude: place.longitude,
+    },
+    userLocation,
+  );
+
+  return baseScore / (1 + distanceKm * 0.5);
 }
 
 export function buildPlacesPath(

@@ -6,7 +6,11 @@ import { CalendarDays, Crosshair, LocateFixed, MapPin, Search } from "lucide-rea
 
 import { Link } from "@/i18n/navigation";
 import { formatEventDateRange, getEventCategoryLabelKey } from "@/lib/events";
-import { getLocalizedPlaceCategoryLabel, getLocalizedText } from "@/lib/places";
+import {
+  computeMapScore,
+  getLocalizedPlaceCategoryLabel,
+  getLocalizedText,
+} from "@/lib/places";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { CityMapPoint } from "@/components/cities/city-discovery-map-types";
@@ -29,6 +33,9 @@ type CityPlacePoint = {
   };
   descriptionDe: string | null;
   descriptionTr: string | null;
+  displayRatingValue?: number | string | { toString(): string } | null;
+  displayRatingCount?: number | null;
+  ratingSourceCount?: number | null;
   verificationStatus: string;
 };
 
@@ -288,9 +295,21 @@ export function CityDiscoveryMap({
     () =>
       [...filtered]
         .filter((point) => point.kind === "place")
-        .sort((a, b) => Number(b.id === selectedId) - Number(a.id === selectedId))
+        .sort((a, b) => {
+          const placeA = places.find((place) => `place-${place.id}` === a.id);
+          const placeB = places.find((place) => `place-${place.id}` === b.id);
+
+          const scoreDiff =
+            computeMapScore(placeB ?? {}, userLocation) -
+            computeMapScore(placeA ?? {}, userLocation);
+          if (scoreDiff !== 0) {
+            return scoreDiff;
+          }
+
+          return Number(b.id === selectedId) - Number(a.id === selectedId);
+        })
         .slice(0, 10),
-    [filtered, selectedId],
+    [filtered, places, selectedId, userLocation],
   );
   const filteredEvents = useMemo(
     () =>

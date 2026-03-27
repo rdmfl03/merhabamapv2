@@ -1,6 +1,8 @@
 import {
   buildPlacesPath,
   computeCategoryAdjustedScore,
+  computeDistanceKm,
+  computeMapScore,
   computeRatingConfidence,
   computePlaceScore,
   getCategoryKey,
@@ -171,5 +173,41 @@ describe("places helpers", () => {
 
     expect(topPlaces).toHaveLength(2);
     expect(topPlaces.map((place) => place.id)).toEqual(["c", "a"]);
+  });
+
+  it("computes distance in kilometers between two points", () => {
+    const distanceKm = computeDistanceKm(
+      { latitude: 52.52, longitude: 13.405 },
+      { latitude: 52.52, longitude: 13.505 },
+    );
+
+    expect(distanceKm).toBeGreaterThan(6);
+    expect(distanceKm).toBeLessThan(8);
+  });
+
+  it("falls back to base score when map score has no user location", () => {
+    const place = {
+      displayRatingValue: 4.6,
+      displayRatingCount: 99,
+      ratingSourceCount: 2,
+      latitude: 52.52,
+      longitude: 13.405,
+    };
+
+    expect(computeMapScore(place, null)).toBeCloseTo(computePlaceScore(place));
+  });
+
+  it("slightly deprioritizes far away places in map score", () => {
+    const place = {
+      displayRatingValue: 4.6,
+      displayRatingCount: 99,
+      ratingSourceCount: 2,
+      latitude: 52.52,
+      longitude: 13.505,
+    };
+
+    expect(
+      computeMapScore(place, { latitude: 52.52, longitude: 13.405 }),
+    ).toBeLessThan(computePlaceScore(place));
   });
 });
