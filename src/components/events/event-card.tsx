@@ -1,4 +1,4 @@
-import { CalendarDays, ExternalLink, MapPin } from "lucide-react";
+import { CalendarDays, ExternalLink, MapPin, Star } from "lucide-react";
 
 import { EventSaveButton } from "@/components/events/event-save-button";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +8,7 @@ import { Link } from "@/i18n/navigation";
 import {
   formatEventDateRange,
   formatEventDayBadge,
+  getEventVenueRatingSummary,
   resolveEventImage,
   getSafeExternalUrl,
 } from "@/lib/events";
@@ -43,6 +44,7 @@ export function EventCard({
 }: EventCardProps) {
   const externalUrl = getSafeExternalUrl(event.externalUrl);
   const image = resolveEventImage(event);
+  const venueRating = getEventVenueRatingSummary(event);
 
   return (
     <Card className="overflow-hidden bg-white/90">
@@ -92,6 +94,14 @@ export function EventCard({
                 {cityLabel}
               </span>
             </p>
+            {venueRating ? (
+              <p className="flex items-center gap-2">
+                <Star className="h-4 w-4 fill-current text-amber-500" />
+                <span>
+                  {venueRating.value.toFixed(1)} / 5 ({new Intl.NumberFormat(locale).format(venueRating.count)})
+                </span>
+              </p>
+            ) : null}
           </div>
           <p className="text-sm leading-6 text-muted-foreground">{description}</p>
         </div>

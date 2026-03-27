@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { CalendarDays, ExternalLink, Globe, MapPin, Users } from "lucide-react";
+import { CalendarDays, ExternalLink, Globe, MapPin, Star, Users } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 
@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   formatEventDateRange,
+  getEventVenueRatingSummary,
   getEventCategoryLabelKey,
   getLocalizedEventText,
   resolveEventImage,
@@ -79,11 +80,19 @@ export default async function EventDetailPage({
   const returnPath = `/${locale}/events/${event.slug}`;
   const externalUrl = getSafeExternalUrl(event.externalUrl);
   const image = resolveEventImage(event);
+  const venueRating = getEventVenueRatingSummary(event);
   const address = [event.addressLine1, event.postalCode, cityLabel]
     .filter(Boolean)
     .join(", ");
   const showCurationHint =
     event.moderationStatus === "APPROVED" && event.isPublished;
+  const venueRatingUpdatedLabel =
+    venueRating?.updatedAt
+      ? new Intl.DateTimeFormat(locale, {
+          dateStyle: "medium",
+          timeZone: "Europe/Berlin",
+        }).format(venueRating.updatedAt)
+      : null;
 
   return (
     <div className="mx-auto max-w-6xl space-y-8 px-4 py-10 sm:py-12">
@@ -163,6 +172,32 @@ export default async function EventDetailPage({
             </div>
 
             <p className="text-sm leading-7 text-muted-foreground">{description}</p>
+
+            {venueRating ? (
+              <div className="rounded-2xl border border-amber-200 bg-amber-50/70 px-4 py-3">
+                <p className="text-sm font-medium text-foreground">
+                  {locale === "tr" ? "Mekan puani" : "Venue rating"}
+                </p>
+                <div className="mt-2 flex items-center gap-2 text-base font-semibold text-foreground">
+                  <Star className="h-4 w-4 fill-current text-amber-500" />
+                  <span>{venueRating.value.toFixed(1)} / 5</span>
+                </div>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {locale === "tr"
+                    ? `${new Intl.NumberFormat(locale).format(venueRating.count)} degerlendirme`
+                    : `${new Intl.NumberFormat(locale).format(venueRating.count)} Bewertungen`}
+                  {" · "}
+                  {locale === "tr"
+                    ? `${new Intl.NumberFormat(locale).format(venueRating.sourceCount)} kaynak`
+                    : `${new Intl.NumberFormat(locale).format(venueRating.sourceCount)} Quellen`}
+                  {venueRatingUpdatedLabel
+                    ? locale === "tr"
+                      ? ` · Guncelleme ${venueRatingUpdatedLabel}`
+                      : ` · Stand ${venueRatingUpdatedLabel}`
+                    : ""}
+                </p>
+              </div>
+            ) : null}
 
             {showCurationHint ? (
               <div className="rounded-2xl border border-sky-200 bg-sky-50/70 px-4 py-3">

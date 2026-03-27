@@ -2,6 +2,11 @@ import type { EventCategory, Locale } from "@prisma/client";
 import { z } from "zod";
 
 import { getGalleryMediaAssets, resolveEntityImage, type ResolvedEntityImage } from "@/lib/media";
+import {
+  getPlaceDisplayRatingSummary,
+  hasPlaceDisplayRatingSummary,
+  type ResolvedPlaceRatingSummary,
+} from "@/lib/places";
 
 type LocalizedText = {
   de?: string | null;
@@ -29,6 +34,16 @@ type EventImageStateLike = {
   primaryImageAsset?: EventMediaAssetLike | null;
   fallbackImageAsset?: EventMediaAssetLike | null;
   mediaAssets?: EventMediaAssetLike[] | null;
+};
+
+type EventVenueRatingStateLike = {
+  venuePlaceId?: string | null;
+  venuePlace?: {
+    displayRatingValue?: number | string | { toString(): string } | null;
+    displayRatingCount?: number | null;
+    ratingSourceCount?: number | null;
+    ratingSummaryUpdatedAt?: Date | null;
+  } | null;
 };
 
 export function getLocalizedEventText(
@@ -215,4 +230,15 @@ export function getEventGalleryImages(event: EventImageStateLike) {
     primaryImageAsset: event.primaryImageAsset,
     fallbackImageAsset: event.fallbackImageAsset,
   });
+}
+
+export function getEventVenueRatingSummary(
+  event: EventVenueRatingStateLike,
+): ResolvedPlaceRatingSummary | null {
+  if (!event.venuePlaceId || !event.venuePlace) {
+    return null;
+  }
+
+  const summary = getPlaceDisplayRatingSummary(event.venuePlace);
+  return hasPlaceDisplayRatingSummary(summary) ? summary : null;
 }

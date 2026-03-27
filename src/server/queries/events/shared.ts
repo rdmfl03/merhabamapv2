@@ -38,6 +38,14 @@ export const publicEventMediaAssetSelect = Prisma.validator<Prisma.MediaAssetSel
   observedAt: true,
 });
 
+export const publicEventVenuePlaceSelect = Prisma.validator<Prisma.PlaceSelect>()({
+  id: true,
+  displayRatingValue: true,
+  displayRatingCount: true,
+  ratingSourceCount: true,
+  ratingSummaryUpdatedAt: true,
+});
+
 export const publicEventSelect = Prisma.validator<Prisma.EventSelect>()({
   id: true,
   slug: true,
@@ -66,6 +74,9 @@ export const publicEventSelect = Prisma.validator<Prisma.EventSelect>()({
   },
   fallbackImageAsset: {
     select: publicEventMediaAssetSelect,
+  },
+  venuePlace: {
+    select: publicEventVenuePlaceSelect,
   },
   city: {
     select: {
