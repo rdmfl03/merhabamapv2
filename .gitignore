@@ -27,6 +27,7 @@
 *.DS_Store
 *.pem
 *.sql
+*.dump
 /MERHABAMAP_*
 /SOURCES_SCHEMA_*
 
