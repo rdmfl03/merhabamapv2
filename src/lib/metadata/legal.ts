@@ -5,7 +5,7 @@ import { buildOpenGraphMetadata } from "@/lib/seo/site";
 
 export function buildLegalMetadata(args: {
   locale: AppLocale;
-  path: "/impressum" | "/privacy" | "/terms" | "/community-rules";
+  path: "/impressum" | "/privacy" | "/terms" | "/community-rules" | "/contact" | "/cookies";
   title: string;
   description: string;
 }): Metadata {

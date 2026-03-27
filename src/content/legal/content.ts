@@ -290,6 +290,108 @@ export function getPrivacyContent(locale: AppLocale): LegalPageContent {
   };
 }
 
+export function getContactContent(locale: AppLocale): LegalPageContent {
+  const company = getLegalCompanyProfile(locale);
+
+  if (locale === "tr") {
+    return {
+      title: "Iletisim",
+      intro:
+        "Bu sayfa MerhabaMap icin temel iletisim noktalarini teknik olarak hazirlar. Koseli parantezli alanlar canliya cikmadan once gercek bilgilerle tamamlanmalidir.",
+      sections: [
+        {
+          title: "Genel iletisim",
+          paragraphs: [
+            `E-posta: ${company.contactEmail}`,
+            `Telefon: ${company.contactPhone}`,
+          ],
+        },
+        {
+          title: "Gizlilik iletisimi",
+          paragraphs: [`Gizlilik e-postasi: ${company.privacyContactEmail}`],
+        },
+        {
+          title: "Adres",
+          paragraphs: company.addressLines,
+        },
+      ],
+    };
+  }
+
+  return {
+    title: "Kontakt",
+    intro:
+      "Diese Seite bereitet die technischen Kontaktpunkte fuer MerhabaMap vor. Platzhalter in eckigen Klammern muessen vor dem Livegang mit den finalen Angaben ersetzt werden.",
+    sections: [
+      {
+        title: "Allgemeiner Kontakt",
+        paragraphs: [
+          `E-Mail: ${company.contactEmail}`,
+          `Telefon: ${company.contactPhone}`,
+        ],
+      },
+      {
+        title: "Datenschutzkontakt",
+        paragraphs: [`Datenschutz-E-Mail: ${company.privacyContactEmail}`],
+      },
+      {
+        title: "Postanschrift",
+        paragraphs: company.addressLines,
+      },
+    ],
+  };
+}
+
+export function getCookiesContent(locale: AppLocale): LegalPageContent {
+  if (locale === "tr") {
+    return {
+      title: "Cookie ve Gizlilik Ayarlari",
+      intro:
+        "Bu sayfa zorunlu bir cerez yonetim merkezi yerine gecerli teknik durumun acik bir yer tutucusudur. Nihai hukuk ve consent akislari canliya cikmadan once ayrica gozden gecirilmelidir.",
+      sections: [
+        {
+          title: "Mevcut durum",
+          paragraphs: [
+            "MerhabaMap su anda teknik olarak gerekli oturum ve guvenlik mekanizmalarina dayanmaktadir.",
+            "Istege bagli pazarlama veya reklam cerezleri icin ayrica bir tercih merkezi bu taslakta etkin degildir.",
+          ],
+        },
+        {
+          title: "Canliya cikmadan once",
+          bullets: [
+            "Kullanilan teknolojilerin son kez dogrulanmasi",
+            "Gerekirse consent veya ayar akisinin eklenmesi",
+            "Gizlilik sayfasi ile teknik uygulamanin eslestirilmesi",
+          ],
+        },
+      ],
+    };
+  }
+
+  return {
+    title: "Cookies & Privatsphaere",
+    intro:
+      "Diese Seite ist ein technischer Platzhalter fuer die spaetere Cookie- und Privatsphaerensteuerung. Vor dem Livegang muessen Technik, Consent-Bedarf und Rechtstexte gemeinsam final geprueft werden.",
+    sections: [
+      {
+        title: "Aktueller Stand",
+        paragraphs: [
+          "MerhabaMap setzt derzeit technisch notwendige Sitzungs- und Sicherheitsmechanismen ein.",
+          "Ein separates Einstellungszentrum fuer optionale Marketing- oder Werbecookies ist in diesem Platzhalter noch nicht aktiviert.",
+        ],
+      },
+      {
+        title: "Vor dem Go-Live pruefen",
+        bullets: [
+          "eingesetzte Cookies und aehnliche Technologien",
+          "ob ein zusaetzlicher Consent-Flow erforderlich ist",
+          "Abgleich zwischen Privacy-Seite und technischer Implementierung",
+        ],
+      },
+    ],
+  };
+}
+
 export function getTermsContent(locale: AppLocale): LegalPageContent {
   const company = getLegalCompanyProfile(locale);
 

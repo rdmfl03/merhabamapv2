@@ -1151,6 +1151,8 @@
     "navigation": {
       "impressum": "Impressum",
       "privacy": "Datenschutz",
+      "contact": "Kontakt",
+      "cookies": "Cookies",
       "terms": "Nutzungsbedingungen",
       "communityRules": "Community-Regeln"
     },
@@ -1166,6 +1168,14 @@
     "privacy": {
       "metaTitle": "Datenschutzerklärung",
       "metaDescription": "Transparente Übersicht zur Datenverarbeitung bei MerhabaMap."
+    },
+    "contact": {
+      "metaTitle": "Kontakt",
+      "metaDescription": "Technische Kontakt- und Erreichbarkeitsseite für MerhabaMap."
+    },
+    "cookies": {
+      "metaTitle": "Cookies & Privatsphäre",
+      "metaDescription": "Technischer Platzhalter für Cookies, Privatsphäre und spätere Einstellungen."
     },
     "terms": {
       "metaTitle": "Nutzungsbedingungen",

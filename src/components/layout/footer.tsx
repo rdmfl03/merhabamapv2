@@ -40,6 +40,8 @@ export async function Footer() {
         <div className="flex flex-wrap gap-4 text-sm">
           <Link href="/impressum">{legal("navigation.impressum")}</Link>
           <Link href="/privacy">{legal("navigation.privacy")}</Link>
+          <Link href="/contact">{legal("navigation.contact")}</Link>
+          <Link href="/cookies">{legal("navigation.cookies")}</Link>
           <Link href="/terms">{legal("navigation.terms")}</Link>
           <Link href="/community-rules">{legal("navigation.communityRules")}</Link>
         </div>

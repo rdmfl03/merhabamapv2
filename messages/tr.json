@@ -1160,6 +1160,8 @@
     "navigation": {
       "impressum": "Impressum",
       "privacy": "Gizlilik",
+      "contact": "Iletisim",
+      "cookies": "Cookie ayarlari",
       "terms": "Kullanım koşulları",
       "communityRules": "Topluluk kuralları"
     },
@@ -1175,6 +1177,14 @@
     "privacy": {
       "metaTitle": "Gizlilik politikası",
       "metaDescription": "MerhabaMap'te veri işleme konusunda şeffaf genel bakış."
+    },
+    "contact": {
+      "metaTitle": "Iletisim",
+      "metaDescription": "MerhabaMap icin teknik iletisim ve erisilebilirlik sayfasi."
+    },
+    "cookies": {
+      "metaTitle": "Cookie ve gizlilik ayarlari",
+      "metaDescription": "Cookie, gizlilik ve ilerideki tercihler icin teknik yer tutucu."
     },
     "terms": {
       "metaTitle": "Kullanım koşulları",
