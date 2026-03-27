@@ -30,6 +30,7 @@
     "db:push": "node scripts/run-with-env.mjs prisma db push",
     "db:migrate": "node scripts/run-with-env.mjs prisma migrate dev",
     "db:migrate:deploy": "node scripts/run-with-env.mjs prisma migrate deploy",
+    "db:import:place-bridge": "node scripts/run-with-env.mjs tsx scripts/import-ingest-place-bridge.ts",
     "db:reset": "node scripts/run-with-env.mjs prisma db push --force-reset --skip-generate",
     "db:seed": "node scripts/run-with-env.mjs tsx prisma/seed.ts",
     "db:pilot:replace": "node scripts/run-with-env.mjs tsx scripts/replace-public-pilot-batch.ts",
