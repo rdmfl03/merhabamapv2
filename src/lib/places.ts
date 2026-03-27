@@ -1,5 +1,7 @@
 import type { Locale } from "@prisma/client";
 
+import { getGalleryMediaAssets, resolveEntityImage, type ResolvedEntityImage } from "@/lib/media";
+
 type LocalizedText = {
   de?: string | null;
   tr?: string | null;
@@ -15,6 +17,70 @@ type PlaceCategoryLike = {
   slug: string;
   nameDe: string;
   nameTr: string;
+};
+
+type DecimalValue = number | string | { toString(): string };
+
+type PlaceMediaAssetLike = {
+  id?: string | null;
+  assetUrl: string;
+  sourceProvider?: string | null;
+  sourceUrl?: string | null;
+  externalRef?: string | null;
+  role: string;
+  status: string;
+  rightsStatus: string;
+  attributionText?: string | null;
+  attributionUrl?: string | null;
+  altText?: string | null;
+  sortOrder?: number | null;
+  observedAt?: Date | null;
+};
+
+type PlaceRatingSourceLike = {
+  provider: string;
+  sourceUrl?: string | null;
+  externalRef?: string | null;
+  status: string;
+  ratingValue: DecimalValue;
+  ratingCount: number;
+  scaleMax: DecimalValue;
+  isIncludedInDisplay: boolean;
+  observedAt?: Date | null;
+  attributionText?: string | null;
+  attributionUrl?: string | null;
+  reviewTextRightsStatus: string;
+};
+
+type PlaceImageStateLike = {
+  images?: string[] | null;
+  primaryImageAsset?: PlaceMediaAssetLike | null;
+  fallbackImageAsset?: PlaceMediaAssetLike | null;
+  mediaAssets?: PlaceMediaAssetLike[] | null;
+};
+
+type PlaceRatingSummaryLike = {
+  displayRatingValue?: DecimalValue | null;
+  displayRatingCount?: number | null;
+  ratingSourceCount?: number | null;
+  ratingSummaryUpdatedAt?: Date | null;
+  placeRatingSources?: PlaceRatingSourceLike[] | null;
+};
+
+export type ResolvedPlaceRatingSummary = {
+  value: number;
+  count: number;
+  sourceCount: number;
+  updatedAt: Date | null;
+  sources: Array<{
+    provider: string;
+    ratingValue: number;
+    ratingCount: number;
+    scaleMax: number;
+    attributionText: string | null;
+    attributionUrl: string | null;
+    observedAt: Date | null;
+  }>;
 };
 
 const localizedPlaceCategoryLabels = {
@@ -107,6 +173,134 @@ export function getLocalizedPlaceCategoryLabel(
 
 export function getPlaceImage(images: string[] | null | undefined) {
   return images?.[0] ?? null;
+}
+
+function toNumber(value: DecimalValue | null | undefined) {
+  if (value === null || value === undefined) {
+    return null;
+  }
+
+  const parsed =
+    typeof value === "number"
+      ? value
+      : typeof value === "string"
+        ? Number(value)
+        : Number(value.toString());
+
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function getIncludedRatingSources(place: PlaceRatingSummaryLike) {
+  return (
+    place.placeRatingSources?.filter(
+      (source) =>
+        source.status === "ACTIVE" &&
+        source.isIncludedInDisplay &&
+        source.ratingCount > 0,
+    ) ?? []
+  );
+}
+
+export function resolvePlaceImage(place: PlaceImageStateLike): ResolvedEntityImage | null {
+  return resolveEntityImage({
+    primaryImageAsset: place.primaryImageAsset,
+    fallbackImageAsset: place.fallbackImageAsset,
+    legacyImageUrl: getPlaceImage(place.images),
+  });
+}
+
+export function getPlaceGalleryImages(place: PlaceImageStateLike) {
+  return getGalleryMediaAssets({
+    mediaAssets: place.mediaAssets,
+    primaryImageAsset: place.primaryImageAsset,
+    fallbackImageAsset: place.fallbackImageAsset,
+    legacyImageUrls: place.images,
+  });
+}
+
+export function getPlaceDisplayRatingSummary(
+  place: PlaceRatingSummaryLike,
+): ResolvedPlaceRatingSummary | null {
+  const displayValue = toNumber(place.displayRatingValue);
+  const displayCount = place.displayRatingCount ?? null;
+  const sourceCount = place.ratingSourceCount ?? null;
+  const includedSources = getIncludedRatingSources(place);
+
+  if (
+    displayValue !== null &&
+    displayCount !== null &&
+    displayCount > 0 &&
+    sourceCount !== null &&
+    sourceCount > 0
+  ) {
+    return {
+      value: displayValue,
+      count: displayCount,
+      sourceCount,
+      updatedAt: place.ratingSummaryUpdatedAt ?? null,
+      sources: includedSources.map((source) => ({
+        provider: source.provider,
+        ratingValue: toNumber(source.ratingValue) ?? 0,
+        ratingCount: source.ratingCount,
+        scaleMax: toNumber(source.scaleMax) ?? 5,
+        attributionText: source.attributionText ?? null,
+        attributionUrl: source.attributionUrl ?? null,
+        observedAt: source.observedAt ?? null,
+      })),
+    };
+  }
+
+  if (includedSources.length === 0) {
+    return null;
+  }
+
+  const aggregateCount = includedSources.reduce((sum, source) => sum + source.ratingCount, 0);
+  if (aggregateCount <= 0) {
+    return null;
+  }
+
+  const weightedTotal = includedSources.reduce((sum, source) => {
+    const sourceValue = toNumber(source.ratingValue);
+    if (sourceValue === null) {
+      return sum;
+    }
+
+    return sum + sourceValue * source.ratingCount;
+  }, 0);
+
+  const updatedAt = includedSources.reduce<Date | null>((latest, source) => {
+    if (!source.observedAt) {
+      return latest;
+    }
+
+    if (!latest || source.observedAt > latest) {
+      return source.observedAt;
+    }
+
+    return latest;
+  }, null);
+
+  return {
+    value: Number((weightedTotal / aggregateCount).toFixed(2)),
+    count: aggregateCount,
+    sourceCount: includedSources.length,
+    updatedAt,
+    sources: includedSources.map((source) => ({
+      provider: source.provider,
+      ratingValue: toNumber(source.ratingValue) ?? 0,
+      ratingCount: source.ratingCount,
+      scaleMax: toNumber(source.scaleMax) ?? 5,
+      attributionText: source.attributionText ?? null,
+      attributionUrl: source.attributionUrl ?? null,
+      observedAt: source.observedAt ?? null,
+    })),
+  };
+}
+
+export function hasPlaceDisplayRatingSummary(
+  summary: ResolvedPlaceRatingSummary | null,
+) {
+  return Boolean(summary && summary.count > 0 && summary.sourceCount > 0);
 }
 
 export function buildPlacesPath(

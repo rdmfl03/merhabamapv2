@@ -22,6 +22,22 @@ export function buildPublicEventWhere(
   };
 }
 
+export const publicEventMediaAssetSelect = Prisma.validator<Prisma.MediaAssetSelect>()({
+  id: true,
+  assetUrl: true,
+  sourceProvider: true,
+  sourceUrl: true,
+  externalRef: true,
+  role: true,
+  status: true,
+  rightsStatus: true,
+  attributionText: true,
+  attributionUrl: true,
+  altText: true,
+  sortOrder: true,
+  observedAt: true,
+});
+
 export const publicEventSelect = Prisma.validator<Prisma.EventSelect>()({
   id: true,
   slug: true,
@@ -41,6 +57,16 @@ export const publicEventSelect = Prisma.validator<Prisma.EventSelect>()({
   organizerName: true,
   externalUrl: true,
   imageUrl: true,
+  primaryImageAssetId: true,
+  fallbackImageAssetId: true,
+  imageSetStatus: true,
+  venuePlaceId: true,
+  primaryImageAsset: {
+    select: publicEventMediaAssetSelect,
+  },
+  fallbackImageAsset: {
+    select: publicEventMediaAssetSelect,
+  },
   city: {
     select: {
       id: true,
@@ -48,6 +74,17 @@ export const publicEventSelect = Prisma.validator<Prisma.EventSelect>()({
       nameDe: true,
       nameTr: true,
     },
+  },
+});
+
+export const publicEventDetailSelect = Prisma.validator<Prisma.EventSelect>()({
+  ...publicEventSelect,
+  mediaAssets: {
+    where: {
+      status: "ACTIVE",
+    },
+    orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+    select: publicEventMediaAssetSelect,
   },
 });
 
@@ -60,6 +97,10 @@ export const publicEventSelectWithAi = Prisma.validator<Prisma.EventSelect>()({
 
 export type PublicEventRecord = Prisma.EventGetPayload<{
   select: typeof publicEventSelect;
+}>;
+
+export type PublicEventDetailRecord = Prisma.EventGetPayload<{
+  select: typeof publicEventDetailSelect;
 }>;
 
 export type PublicEventRecordWithAi = Prisma.EventGetPayload<{

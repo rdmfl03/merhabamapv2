@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 
-import { buildPublicEventWhere, publicEventSelect } from "./shared";
+import { buildPublicEventWhere, publicEventDetailSelect } from "./shared";
 
 export async function getEventBySlug(args: {
   slug: string;
@@ -10,7 +10,7 @@ export async function getEventBySlug(args: {
     where: buildPublicEventWhere({
       slug: args.slug,
     }),
-    select: publicEventSelect,
+    select: publicEventDetailSelect,
   });
 
   if (!event) {

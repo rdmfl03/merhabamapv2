@@ -1,9 +1,34 @@
 import type { EventCategory, Locale } from "@prisma/client";
 import { z } from "zod";
 
+import { getGalleryMediaAssets, resolveEntityImage, type ResolvedEntityImage } from "@/lib/media";
+
 type LocalizedText = {
   de?: string | null;
   tr?: string | null;
+};
+
+type EventMediaAssetLike = {
+  id?: string | null;
+  assetUrl: string;
+  sourceProvider?: string | null;
+  sourceUrl?: string | null;
+  externalRef?: string | null;
+  role: string;
+  status: string;
+  rightsStatus: string;
+  attributionText?: string | null;
+  attributionUrl?: string | null;
+  altText?: string | null;
+  sortOrder?: number | null;
+  observedAt?: Date | null;
+};
+
+type EventImageStateLike = {
+  imageUrl?: string | null;
+  primaryImageAsset?: EventMediaAssetLike | null;
+  fallbackImageAsset?: EventMediaAssetLike | null;
+  mediaAssets?: EventMediaAssetLike[] | null;
 };
 
 export function getLocalizedEventText(
@@ -174,4 +199,20 @@ export function getSafeExternalUrl(value: string | null | undefined) {
   } catch {
     return null;
   }
+}
+
+export function resolveEventImage(event: EventImageStateLike): ResolvedEntityImage | null {
+  return resolveEntityImage({
+    primaryImageAsset: event.primaryImageAsset,
+    fallbackImageAsset: event.fallbackImageAsset,
+    legacyImageUrl: event.imageUrl ?? null,
+  });
+}
+
+export function getEventGalleryImages(event: EventImageStateLike) {
+  return getGalleryMediaAssets({
+    mediaAssets: event.mediaAssets,
+    primaryImageAsset: event.primaryImageAsset,
+    fallbackImageAsset: event.fallbackImageAsset,
+  });
 }

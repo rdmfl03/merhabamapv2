@@ -80,6 +80,7 @@ Optional setup and deployment guidance:
 
 - [docs/local-n8n.md](docs/local-n8n.md)
 - [docs/netlify-deploy.md](docs/netlify-deploy.md)
+- [docs/images-ratings-foundation.md](docs/images-ratings-foundation.md)
 
 Operational workflows such as private automation and ingestion pipelines are intentionally not included in the public repository.
 

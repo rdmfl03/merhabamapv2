@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 
-import { buildPublicPlaceWhere, publicPlaceSelect } from "./shared";
+import { buildPublicPlaceWhere, publicPlaceDetailSelect } from "./shared";
 
 export async function getPlaceBySlug(args: {
   slug: string;
@@ -10,7 +10,7 @@ export async function getPlaceBySlug(args: {
     where: buildPublicPlaceWhere({
       slug: args.slug,
     }),
-    select: publicPlaceSelect,
+    select: publicPlaceDetailSelect,
   });
 
   if (!place) {

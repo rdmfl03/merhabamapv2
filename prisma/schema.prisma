@@ -149,6 +149,13 @@ model Place {
   websiteUrl           String?            @map("website_url")
   openingHoursJson     String?            @map("opening_hours_json")
   images               String[]           @default([])
+  primaryImageAssetId  String?            @map("primary_image_asset_id")
+  fallbackImageAssetId String?            @map("fallback_image_asset_id")
+  imageSetStatus       ImageSetStatus     @default(MISSING) @map("image_set_status")
+  displayRatingValue   Decimal?           @map("display_rating_value") @db.Decimal(3, 2)
+  displayRatingCount   Int?               @map("display_rating_count")
+  ratingSourceCount    Int                @default(0) @map("rating_source_count")
+  ratingSummaryUpdatedAt DateTime?        @map("rating_summary_updated_at") @db.Timestamp(6)
   isPublished          Boolean            @default(false) @map("is_published")
   verificationStatus   VerificationStatus @default(UNVERIFIED) @map("verification_status")
   verifiedAt           DateTime?          @map("verified_at")
@@ -161,19 +168,27 @@ model Place {
   aiConfidenceScore    Decimal?           @map("ai_confidence_score") @db.Decimal(5, 4)
   aiLastCheckedAt      DateTime?          @map("ai_last_checked_at") @db.Timestamp(6)
   claims               BusinessClaim[]
+  mediaAssets          MediaAsset[]       @relation("PlaceMediaAssets")
+  primaryImageAsset    MediaAsset?        @relation("PlacePrimaryImageAsset", fields: [primaryImageAssetId], references: [id], onDelete: SetNull)
+  fallbackImageAsset   MediaAsset?        @relation("PlaceFallbackImageAsset", fields: [fallbackImageAssetId], references: [id], onDelete: SetNull)
   placeSources         PlaceSource[]
+  placeRatingSources   PlaceRatingSource[]
   category             PlaceCategory      @relation(fields: [categoryId], references: [id])
   city                 City               @relation(fields: [cityId], references: [id], onDelete: Cascade)
   owner                User?              @relation("PlaceOwner", fields: [ownerUserId], references: [id])
   verifiedBy           User?              @relation("PlaceVerifier", fields: [verifiedByUserId], references: [id])
   reports              Report[]
   savedBy              SavedPlace[]
+  venueEvents          Event[]            @relation("EventVenuePlace")
 
   @@index([cityId])
   @@index([categoryId])
   @@index([ownerUserId])
   @@index([moderationStatus])
   @@index([isPublished])
+  @@index([imageSetStatus])
+  @@index([primaryImageAssetId])
+  @@index([fallbackImageAssetId])
   @@map("places")
 }
 
@@ -195,6 +210,10 @@ model Event {
   organizerName     String?          @map("organizer_name")
   externalUrl       String?          @map("external_url")
   imageUrl          String?          @map("image_url")
+  primaryImageAssetId  String?       @map("primary_image_asset_id")
+  fallbackImageAssetId String?       @map("fallback_image_asset_id")
+  imageSetStatus       ImageSetStatus @default(MISSING) @map("image_set_status")
+  venuePlaceId         String?       @map("venue_place_id")
   isPublished       Boolean          @default(false) @map("is_published")
   moderationStatus  ModerationStatus @default(PENDING) @map("moderation_status")
   createdAt         DateTime         @default(now()) @map("created_at")
@@ -202,9 +221,13 @@ model Event {
   aiReviewStatus    String?          @map("ai_review_status")
   aiConfidenceScore Decimal?         @map("ai_confidence_score") @db.Decimal(5, 4)
   aiLastCheckedAt   DateTime?        @map("ai_last_checked_at") @db.Timestamp(6)
+  mediaAssets           MediaAsset[]       @relation("EventMediaAssets")
+  primaryImageAsset     MediaAsset?        @relation("EventPrimaryImageAsset", fields: [primaryImageAssetId], references: [id], onDelete: SetNull)
+  fallbackImageAsset    MediaAsset?        @relation("EventFallbackImageAsset", fields: [fallbackImageAssetId], references: [id], onDelete: SetNull)
   eventSources           EventSource[]
   normalizedIngestEvents NormalizedIngestEvent[]
   city                   City             @relation(fields: [cityId], references: [id], onDelete: Cascade)
+  venuePlace             Place?           @relation("EventVenuePlace", fields: [venuePlaceId], references: [id], onDelete: SetNull)
   reports                Report[]
   savedBy                SavedEvent[]
 
@@ -215,6 +238,10 @@ model Event {
   @@index([startsAt])
   @@index([isPublished])
   @@index([moderationStatus])
+  @@index([imageSetStatus])
+  @@index([primaryImageAssetId])
+  @@index([fallbackImageAssetId])
+  @@index([venuePlaceId])
   @@index([title(ops: raw("gin_trgm_ops"))], map: "events_title_trgm_idx", type: Gin)
   @@map("events")
 }
@@ -346,6 +373,8 @@ model Source {
   updatedAt       DateTime        @default(now()) @map("updated_at") @db.Timestamp(6)
   eventSources    EventSource[]
   ingestRuns      IngestRun[]
+  mediaAssets     MediaAsset[]
+  placeRatingSources PlaceRatingSource[]
   placeSources    PlaceSource[]
   rawIngestItems  RawIngestItem[]
 
@@ -354,6 +383,42 @@ model Source {
   @@index([sourceKind])
   @@index([trustScore])
   @@map("sources")
+}
+
+model MediaAsset {
+  id              String              @id @default(cuid())
+  placeId          String?             @map("place_id")
+  eventId          String?             @map("event_id")
+  sourceId         String?             @map("source_id")
+  assetUrl         String              @map("asset_url")
+  sourceProvider   MediaSourceProvider @map("source_provider")
+  sourceUrl        String?             @map("source_url")
+  externalRef      String?             @map("external_ref")
+  role             MediaAssetRole
+  status           MediaAssetStatus    @default(PENDING_REVIEW)
+  rightsStatus     MediaRightsStatus   @default(UNKNOWN) @map("rights_status")
+  attributionText  String?             @map("attribution_text")
+  attributionUrl   String?             @map("attribution_url")
+  altText          String?             @map("alt_text")
+  sortOrder        Int                 @default(0) @map("sort_order")
+  observedAt       DateTime?           @map("observed_at") @db.Timestamp(6)
+  createdAt        DateTime            @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt        DateTime            @updatedAt @map("updated_at") @db.Timestamp(6)
+  place            Place?              @relation("PlaceMediaAssets", fields: [placeId], references: [id], onDelete: Cascade)
+  event            Event?              @relation("EventMediaAssets", fields: [eventId], references: [id], onDelete: Cascade)
+  source           Source?             @relation(fields: [sourceId], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  primaryForPlaces Place[]             @relation("PlacePrimaryImageAsset")
+  fallbackForPlaces Place[]            @relation("PlaceFallbackImageAsset")
+  primaryForEvents Event[]             @relation("EventPrimaryImageAsset")
+  fallbackForEvents Event[]            @relation("EventFallbackImageAsset")
+
+  @@index([placeId, status, role, sortOrder])
+  @@index([eventId, status, role, sortOrder])
+  @@index([sourceId])
+  @@index([sourceProvider])
+  @@index([status])
+  @@index([rightsStatus])
+  @@map("media_assets")
 }
 
 model EventSource {
@@ -452,6 +517,34 @@ model PlaceSource {
   @@index([placeId])
   @@index([sourceId])
   @@map("place_sources")
+}
+
+model PlaceRatingSource {
+  id                   String                 @id @default(cuid())
+  placeId              String                 @map("place_id")
+  sourceId             String?                @map("source_id")
+  provider             RatingSourceProvider
+  sourceUrl            String?                @map("source_url")
+  externalRef          String?                @map("external_ref")
+  status               PlaceRatingSourceStatus @default(PENDING_REVIEW)
+  ratingValue          Decimal                @map("rating_value") @db.Decimal(3, 2)
+  ratingCount          Int                    @map("rating_count")
+  scaleMax             Decimal                @map("scale_max") @db.Decimal(4, 2)
+  isIncludedInDisplay  Boolean                @default(true) @map("is_included_in_display")
+  observedAt           DateTime?              @map("observed_at") @db.Timestamp(6)
+  attributionText      String?                @map("attribution_text")
+  attributionUrl       String?                @map("attribution_url")
+  reviewTextRightsStatus ReviewTextRightsStatus @default(UNKNOWN) @map("review_text_rights_status")
+  createdAt            DateTime               @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt            DateTime               @updatedAt @map("updated_at") @db.Timestamp(6)
+  place                Place                  @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  source               Source?                @relation(fields: [sourceId], references: [id], onDelete: SetNull, onUpdate: NoAction)
+
+  @@index([placeId, status, isIncludedInDisplay])
+  @@index([sourceId])
+  @@index([provider])
+  @@index([observedAt])
+  @@map("place_rating_sources")
 }
 
 model RawIngestItem {
@@ -601,6 +694,12 @@ enum VerificationStatus {
   VERIFIED
 }
 
+enum ImageSetStatus {
+  REAL_IMAGE_AVAILABLE
+  FALLBACK_ONLY
+  MISSING
+}
+
 enum ModerationStatus {
   PENDING
   APPROVED
@@ -625,6 +724,55 @@ enum EventCategory {
   FAMILY
   BUSINESS
   RELIGIOUS
+}
+
+enum MediaAssetRole {
+  PRIMARY_CANDIDATE
+  GALLERY
+  FALLBACK
+}
+
+enum MediaAssetStatus {
+  ACTIVE
+  HIDDEN
+  REJECTED
+  PENDING_REVIEW
+}
+
+enum MediaRightsStatus {
+  UNKNOWN
+  DISPLAY_ALLOWED
+  DISPLAY_RESTRICTED
+  INTERNAL_FALLBACK_ONLY
+}
+
+enum MediaSourceProvider {
+  GOOGLE
+  YELP
+  TRIPADVISOR
+  MERHABAMAP
+  OTHER
+}
+
+enum RatingSourceProvider {
+  GOOGLE
+  YELP
+  TRIPADVISOR
+  MERHABAMAP
+  OTHER
+}
+
+enum PlaceRatingSourceStatus {
+  ACTIVE
+  HIDDEN
+  REJECTED
+  PENDING_REVIEW
+}
+
+enum ReviewTextRightsStatus {
+  UNKNOWN
+  NOT_STORED
+  DISPLAY_RESTRICTED
 }
 
 enum ClaimStatus {

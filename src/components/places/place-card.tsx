@@ -1,11 +1,11 @@
-import { MapPin } from "lucide-react";
+import { MapPin, Star } from "lucide-react";
 
 import { PlaceSaveButton } from "@/components/places/place-save-button";
 import { PlaceTrustBadge } from "@/components/places/place-trust-badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "@/i18n/navigation";
-import { getPlaceImage } from "@/lib/places";
+import { getPlaceDisplayRatingSummary, resolvePlaceImage } from "@/lib/places";
 import type { ListedPlace } from "@/server/queries/places/list-places";
 
 type PlaceCardProps = {
@@ -36,7 +36,8 @@ export function PlaceCard({
   isAuthenticated,
   labels,
 }: PlaceCardProps) {
-  const image = getPlaceImage(place.images);
+  const image = resolvePlaceImage(place);
+  const ratingSummary = getPlaceDisplayRatingSummary(place);
 
   return (
     <Card className="overflow-hidden bg-white/90">
@@ -44,7 +45,11 @@ export function PlaceCard({
         <div className="flex h-44 items-center justify-center bg-[#f5f6f8]">
           {image ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={image} alt={place.name} className="h-full w-full object-cover" />
+            <img
+              src={image.url}
+              alt={image.altText ?? place.name}
+              className="h-full w-full object-cover"
+            />
           ) : (
             <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#f5f6f8] via-white to-[#eef1f5] text-sm font-medium text-brand">
               {place.name}
@@ -59,6 +64,11 @@ export function PlaceCard({
                 verified: labels.verified,
               }}
             />
+          </div>
+        ) : null}
+        {image?.isFallback ? (
+          <div className="absolute bottom-4 right-4 rounded-full bg-white/90 px-3 py-1 text-[11px] font-medium text-foreground shadow-sm">
+            {locale === "tr" ? "Fallback gorsel" : "Fallback-Bild"}
           </div>
         ) : null}
       </div>
@@ -80,6 +90,16 @@ export function PlaceCard({
             <MapPin className="h-4 w-4" />
             <span>{cityLabel}</span>
           </div>
+
+          {ratingSummary ? (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Star className="h-4 w-4 fill-current text-amber-500" />
+              <span>
+                {ratingSummary.value.toFixed(1)} / 5
+              </span>
+              <span>({ratingSummary.count})</span>
+            </div>
+          ) : null}
 
           <p className="text-sm leading-6 text-muted-foreground">{description}</p>
         </div>

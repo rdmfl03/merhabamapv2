@@ -39,6 +39,10 @@ export function buildPlaceSchema(args: {
   phone?: string | null;
   websiteUrl?: string | null;
   image?: string | null;
+  aggregateRating?: {
+    ratingValue: number;
+    ratingCount: number;
+  } | null;
 }) {
   return {
     "@context": "https://schema.org",
@@ -49,6 +53,17 @@ export function buildPlaceSchema(args: {
     image: args.image ?? undefined,
     telephone: args.phone ?? undefined,
     sameAs: args.websiteUrl ?? undefined,
+    aggregateRating:
+      args.aggregateRating && args.aggregateRating.ratingCount > 0
+        ? {
+            "@type": "AggregateRating",
+            ratingValue: args.aggregateRating.ratingValue,
+            reviewCount: args.aggregateRating.ratingCount,
+            ratingCount: args.aggregateRating.ratingCount,
+            bestRating: 5,
+            worstRating: 0,
+          }
+        : undefined,
     address: {
       "@type": "PostalAddress",
       streetAddress: args.addressLine1 ?? undefined,

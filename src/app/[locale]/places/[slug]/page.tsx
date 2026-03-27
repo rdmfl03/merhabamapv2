@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import { Globe, MapPin, Phone } from "lucide-react";
+import { Globe, MapPin, Phone, Star } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 
 import { auth } from "@/auth";
+import { MediaAttribution } from "@/components/media/media-attribution";
 import { PlaceClaimForm } from "@/components/places/place-claim-form";
 import { PlaceMapPreview } from "@/components/places/place-map-preview";
 import { PlaceReportForm } from "@/components/places/place-report-form";
@@ -14,10 +15,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { buildPlaceDetailMetadata } from "@/lib/metadata/places";
 import {
   formatOpeningHoursDay,
+  getPlaceDisplayRatingSummary,
   getLocalizedText,
   getLocalizedPlaceCategoryLabel,
-  getPlaceImage,
+  hasPlaceDisplayRatingSummary,
   parseOpeningHours,
+  resolvePlaceImage,
 } from "@/lib/places";
 import { buildPlaceSchema } from "@/lib/seo/structured-data";
 import { getPlaceBySlug } from "@/server/queries/places/get-place-by-slug";
@@ -41,13 +44,14 @@ export async function generateMetadata({
     locale,
     place.name,
   );
+  const image = resolvePlaceImage(place);
 
   return buildPlaceDetailMetadata({
     locale,
     slug,
     title: place.name,
     description,
-    image: getPlaceImage(place.images),
+    image: image?.url,
   });
 }
 
@@ -77,12 +81,23 @@ export default async function PlaceDetailPage({
     t("detail.fallbackDescription"),
   );
   const openingHours = parseOpeningHours(place.openingHoursJson);
-  const image = getPlaceImage(place.images);
+  const image = resolvePlaceImage(place);
+  const ratingSummary = getPlaceDisplayRatingSummary(place);
+  const safeRatingSummary = hasPlaceDisplayRatingSummary(ratingSummary)
+    ? ratingSummary
+    : null;
   const cityLabel = locale === "tr" ? place.city.nameTr : place.city.nameDe;
   const categoryLabel = getLocalizedPlaceCategoryLabel(place.category, locale);
   const returnPath = `/${locale}/places/${place.slug}`;
   const showCurationHint =
     place.moderationStatus === "APPROVED" && place.isPublished;
+  const ratingUpdatedLabel =
+    safeRatingSummary?.updatedAt
+      ? new Intl.DateTimeFormat(locale, {
+          dateStyle: "medium",
+          timeZone: "Europe/Berlin",
+        }).format(safeRatingSummary.updatedAt)
+      : null;
 
   return (
     <div className="mx-auto max-w-6xl space-y-8 px-4 py-10 sm:py-12">
@@ -97,7 +112,13 @@ export default async function PlaceDetailPage({
           postalCode: place.postalCode,
           phone: place.phone,
           websiteUrl: place.websiteUrl,
-          image,
+          image: image?.url,
+          aggregateRating: safeRatingSummary
+            ? {
+                ratingValue: safeRatingSummary.value,
+                ratingCount: safeRatingSummary.count,
+              }
+            : null,
         })}
       />
       <section className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
@@ -105,7 +126,11 @@ export default async function PlaceDetailPage({
           <div className="flex h-72 items-center justify-center bg-gradient-to-br from-[#f5f6f8] via-white to-[#eef1f5] sm:h-96">
             {image ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={image} alt={place.name} className="h-full w-full object-cover" />
+              <img
+                src={image.url}
+                alt={image.altText ?? place.name}
+                className="h-full w-full object-cover"
+              />
             ) : (
               <div className="text-center">
                 <p className="text-sm font-semibold uppercase tracking-[0.2em] text-brand">
@@ -117,6 +142,21 @@ export default async function PlaceDetailPage({
               </div>
             )}
           </div>
+          {image ? (
+            <div className="space-y-2 border-t border-border/70 bg-white/90 px-5 py-3">
+              {image.isFallback ? (
+                <p className="text-xs font-medium text-muted-foreground">
+                  {locale === "tr"
+                    ? "Bu gorsel acikca fallback olarak isaretlenmistir ve mekanin gercek fotografi olmayabilir."
+                    : "Dieses Bild ist klar als Fallback markiert und zeigt moeglicherweise nicht den realen Ort."}
+                </p>
+              ) : null}
+              <MediaAttribution
+                attributionText={image.attributionText}
+                attributionUrl={image.attributionUrl}
+              />
+            </div>
+          ) : null}
         </div>
 
         <Card className="bg-white/90">
@@ -146,6 +186,29 @@ export default async function PlaceDetailPage({
             </div>
 
             <p className="text-sm leading-7 text-muted-foreground">{description}</p>
+
+            {safeRatingSummary ? (
+              <div className="rounded-2xl border border-amber-200 bg-amber-50/70 px-4 py-3">
+                <div className="flex items-center gap-2 text-base font-semibold text-foreground">
+                  <Star className="h-4 w-4 fill-current text-amber-500" />
+                  <span>{safeRatingSummary.value.toFixed(1)} / 5</span>
+                </div>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {locale === "tr"
+                    ? `${new Intl.NumberFormat(locale).format(safeRatingSummary.count)} degerlendirme`
+                    : `${new Intl.NumberFormat(locale).format(safeRatingSummary.count)} Bewertungen`}
+                  {" · "}
+                  {locale === "tr"
+                    ? `${new Intl.NumberFormat(locale).format(safeRatingSummary.sourceCount)} kaynak`
+                    : `${new Intl.NumberFormat(locale).format(safeRatingSummary.sourceCount)} Quellen`}
+                  {ratingUpdatedLabel
+                    ? locale === "tr"
+                      ? ` · Guncelleme ${ratingUpdatedLabel}`
+                      : ` · Stand ${ratingUpdatedLabel}`
+                    : ""}
+                </p>
+              </div>
+            ) : null}
 
             {showCurationHint ? (
               <div className="rounded-2xl border border-sky-200 bg-sky-50/70 px-4 py-3">

@@ -4,6 +4,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 
 import { auth } from "@/auth";
+import { MediaAttribution } from "@/components/media/media-attribution";
 import { EventMapPreview } from "@/components/events/event-map-preview";
 import { EventReportForm } from "@/components/events/event-report-form";
 import { EventSaveButton } from "@/components/events/event-save-button";
@@ -15,6 +16,7 @@ import {
   formatEventDateRange,
   getEventCategoryLabelKey,
   getLocalizedEventText,
+  resolveEventImage,
   getSafeExternalUrl,
 } from "@/lib/events";
 import { buildEventDetailMetadata } from "@/lib/metadata/events";
@@ -35,6 +37,8 @@ export async function generateMetadata({
     return {};
   }
 
+  const image = resolveEventImage(event);
+
   return buildEventDetailMetadata({
     locale,
     slug,
@@ -44,7 +48,7 @@ export async function generateMetadata({
       locale,
       event.title,
     ),
-    image: event.imageUrl,
+    image: image?.url,
   });
 }
 
@@ -74,6 +78,7 @@ export default async function EventDetailPage({
   const categoryLabel = t(`categories.${getEventCategoryLabelKey(event.category)}`);
   const returnPath = `/${locale}/events/${event.slug}`;
   const externalUrl = getSafeExternalUrl(event.externalUrl);
+  const image = resolveEventImage(event);
   const address = [event.addressLine1, event.postalCode, cityLabel]
     .filter(Boolean)
     .join(", ");
@@ -95,16 +100,20 @@ export default async function EventDetailPage({
           addressLine1: event.addressLine1,
           postalCode: event.postalCode,
           externalUrl,
-          image: event.imageUrl,
+          image: image?.url,
           organizerName: event.organizerName,
         })}
       />
       <section className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
         <div className="overflow-hidden rounded-[2rem] border border-border bg-white shadow-soft">
           <div className="flex h-72 items-center justify-center bg-gradient-to-br from-[#f5f6f8] via-white to-[#eef1f5] sm:h-96">
-            {event.imageUrl ? (
+            {image ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={event.imageUrl} alt={event.title} className="h-full w-full object-cover" />
+              <img
+                src={image.url}
+                alt={image.altText ?? event.title}
+                className="h-full w-full object-cover"
+              />
             ) : (
               <div className="space-y-3 px-8 text-center">
                 <Badge>{categoryLabel}</Badge>
@@ -114,6 +123,21 @@ export default async function EventDetailPage({
               </div>
             )}
           </div>
+          {image ? (
+            <div className="space-y-2 border-t border-border/70 bg-white/90 px-5 py-3">
+              {image.isFallback ? (
+                <p className="text-xs font-medium text-muted-foreground">
+                  {locale === "tr"
+                    ? "Bu gorsel acikca fallback olarak isaretlenmistir ve etkinligin gercek fotografi olmayabilir."
+                    : "Dieses Bild ist klar als Fallback markiert und zeigt moeglicherweise nicht das reale Event."}
+                </p>
+              ) : null}
+              <MediaAttribution
+                attributionText={image.attributionText}
+                attributionUrl={image.attributionUrl}
+              />
+            </div>
+          ) : null}
         </div>
 
         <Card className="bg-white/90">

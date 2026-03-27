@@ -8,6 +8,7 @@ import { Link } from "@/i18n/navigation";
 import {
   formatEventDateRange,
   formatEventDayBadge,
+  resolveEventImage,
   getSafeExternalUrl,
 } from "@/lib/events";
 import type { ListedEvent } from "@/server/queries/events/list-events";
@@ -41,14 +42,19 @@ export function EventCard({
   labels,
 }: EventCardProps) {
   const externalUrl = getSafeExternalUrl(event.externalUrl);
+  const image = resolveEventImage(event);
 
   return (
     <Card className="overflow-hidden bg-white/90">
       <div className="relative">
         <div className="flex h-44 items-center justify-center bg-gradient-to-br from-[#f5f6f8] via-white to-[#eef1f5]">
-          {event.imageUrl ? (
+          {image ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={event.imageUrl} alt={event.title} className="h-full w-full object-cover" />
+            <img
+              src={image.url}
+              alt={image.altText ?? event.title}
+              className="h-full w-full object-cover"
+            />
           ) : (
             <div className="space-y-2 text-center">
               <Badge>{formatEventDayBadge(locale, event.startsAt)}</Badge>
@@ -59,6 +65,11 @@ export function EventCard({
         <div className="absolute left-4 top-4">
           <Badge>{formatEventDayBadge(locale, event.startsAt)}</Badge>
         </div>
+        {image?.isFallback ? (
+          <div className="absolute bottom-4 right-4 rounded-full bg-white/90 px-3 py-1 text-[11px] font-medium text-foreground shadow-sm">
+            {locale === "tr" ? "Fallback gorsel" : "Fallback-Bild"}
+          </div>
+        ) : null}
       </div>
 
       <CardContent className="space-y-4 p-5">
