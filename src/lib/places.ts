@@ -69,6 +69,12 @@ type PlaceRatingSummaryLike = {
   legacyRatingValue?: DecimalValue | null;
 };
 
+type PlaceCategoryScoreLike = PlaceRatingSummaryLike & {
+  category?: {
+    slug?: string | null;
+  } | null;
+};
+
 export type ResolvedPlaceRatingSummary = {
   value: number;
   count: number;
@@ -86,6 +92,14 @@ export type ResolvedPlaceRatingSummary = {
 };
 
 export type RatingConfidenceLevel = "low" | "medium" | "high";
+
+const CATEGORY_FACTORS = {
+  restaurant: 1,
+  cafe: 1,
+  mosque: 0.6,
+  shop: 0.8,
+  default: 1,
+} as const;
 
 const localizedPlaceCategoryLabels = {
   restaurants: { de: "Restaurants", tr: "Restoranlar" },
@@ -334,6 +348,47 @@ export function computePlaceScore(place: PlaceRatingSummaryLike) {
   }
 
   return legacySummary.value * Math.log10(legacySummary.count + 1);
+}
+
+export function getCategoryKey(place: PlaceCategoryScoreLike) {
+  const slug = place.category?.slug?.trim().toLowerCase();
+
+  if (!slug) {
+    return "default";
+  }
+
+  if (slug === "restaurants" || slug === "restaurant") {
+    return "restaurant";
+  }
+
+  if (slug === "cafes" || slug === "cafe") {
+    return "cafe";
+  }
+
+  if (slug === "mosques" || slug === "mosque") {
+    return "mosque";
+  }
+
+  if (
+    slug === "markets" ||
+    slug === "market" ||
+    slug === "shop" ||
+    slug === "shops" ||
+    slug === "store" ||
+    slug === "stores"
+  ) {
+    return "shop";
+  }
+
+  return "default";
+}
+
+export function computeCategoryAdjustedScore(place: PlaceCategoryScoreLike) {
+  const baseScore = computePlaceScore(place);
+  const categoryKey = getCategoryKey(place);
+  const factor = CATEGORY_FACTORS[categoryKey] ?? CATEGORY_FACTORS.default;
+
+  return baseScore / factor;
 }
 
 export function getPlaceScoreRatingCount(place: PlaceRatingSummaryLike) {

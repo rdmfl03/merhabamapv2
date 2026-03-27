@@ -1,6 +1,6 @@
 import type { Prisma } from "@prisma/client";
 
-import { computePlaceScore, getPlaceScoreRatingCount } from "@/lib/places";
+import { computeCategoryAdjustedScore, getPlaceScoreRatingCount } from "@/lib/places";
 import type { PlacesFilterInput } from "@/lib/validators/places";
 import { prisma } from "@/lib/prisma";
 import { compareByAiRanking } from "@/server/queries/ai-shared";
@@ -19,7 +19,8 @@ export type ListedPlace = PublicPlaceRecord & {
 function rankPlaces(places: PublicPlaceRecordWithAi[]) {
   return [...places].sort((left, right) =>
     compareByAiRanking<PublicPlaceRecordWithAi>(left, right, (placeLeft, placeRight) => {
-      const scoreDiff = computePlaceScore(placeRight) - computePlaceScore(placeLeft);
+      const scoreDiff =
+        computeCategoryAdjustedScore(placeRight) - computeCategoryAdjustedScore(placeLeft);
       if (scoreDiff !== 0) {
         return scoreDiff;
       }

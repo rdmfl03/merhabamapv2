@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { computePlaceScore, getPlaceScoreRatingCount } from "@/lib/places";
+import { computeCategoryAdjustedScore, getPlaceScoreRatingCount } from "@/lib/places";
 import { compareByAiRanking } from "@/server/queries/ai-shared";
 import {
   buildPublicEventWhere,
@@ -34,7 +34,8 @@ function rankCityEvents(events: PublicEventRecordWithAi[]) {
 function rankCityPlaces(places: PublicPlaceRecordWithAi[]) {
   return [...places].sort((left, right) =>
     compareByAiRanking<PublicPlaceRecordWithAi>(left, right, (placeLeft, placeRight) => {
-      const scoreDiff = computePlaceScore(placeRight) - computePlaceScore(placeLeft);
+      const scoreDiff =
+        computeCategoryAdjustedScore(placeRight) - computeCategoryAdjustedScore(placeLeft);
       if (scoreDiff !== 0) {
         return scoreDiff;
       }

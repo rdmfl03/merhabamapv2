@@ -1,7 +1,9 @@
 import {
   buildPlacesPath,
+  computeCategoryAdjustedScore,
   computeRatingConfidence,
   computePlaceScore,
+  getCategoryKey,
   getTopPlaces,
   getLocalizedText,
   getPlaceImage,
@@ -78,6 +80,39 @@ describe("places helpers", () => {
       }),
     ).toBe(0);
     expect(getPlaceScoreRatingCount({})).toBe(0);
+  });
+
+  it("normalizes place categories to stable ranking keys", () => {
+    expect(getCategoryKey({ category: { slug: "restaurants" } })).toBe("restaurant");
+    expect(getCategoryKey({ category: { slug: "cafes" } })).toBe("cafe");
+    expect(getCategoryKey({ category: { slug: "mosques" } })).toBe("mosque");
+    expect(getCategoryKey({ category: { slug: "markets" } })).toBe("shop");
+    expect(getCategoryKey({})).toBe("default");
+  });
+
+  it("boosts smaller important categories through category-adjusted score", () => {
+    const baseScore = computePlaceScore({
+      displayRatingValue: 4.2,
+      displayRatingCount: 24,
+      ratingSourceCount: 1,
+    });
+
+    expect(
+      computeCategoryAdjustedScore({
+        category: { slug: "mosques" },
+        displayRatingValue: 4.2,
+        displayRatingCount: 24,
+        ratingSourceCount: 1,
+      }),
+    ).toBeCloseTo(baseScore / 0.6);
+    expect(
+      computeCategoryAdjustedScore({
+        category: { slug: "markets" },
+        displayRatingValue: 4.2,
+        displayRatingCount: 24,
+        ratingSourceCount: 1,
+      }),
+    ).toBeCloseTo(baseScore / 0.8);
   });
 
   it("computes low rating confidence when rating counts are missing", () => {
