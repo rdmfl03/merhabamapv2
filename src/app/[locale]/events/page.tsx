@@ -40,9 +40,15 @@ export async function generateMetadata({
     sort: typeof rawSearchParams.sort === "string" ? rawSearchParams.sort : undefined,
   });
   const filters = parsedFilters.success ? parsedFilters.data : {};
-  const filterData = await getEventFilters();
-  const city = filterData.cities.find((entry) => entry.slug === filters.city);
-  const cityLabel = city ? (locale === "tr" ? city.nameTr : city.nameDe) : null;
+  let cityLabel: string | null = null;
+
+  try {
+    const filterData = await getEventFilters();
+    const city = filterData.cities.find((entry) => entry.slug === filters.city);
+    cityLabel = city ? (locale === "tr" ? city.nameTr : city.nameDe) : null;
+  } catch {
+    cityLabel = null;
+  }
   const categoryLabel = filters.category
     ? t(`categories.${getEventCategoryLabelKey(filters.category)}`)
     : null;
@@ -83,15 +89,36 @@ export default async function EventsPage({
   });
   const filters = parsedFilters.success ? parsedFilters.data : {};
 
-  const session = await auth();
-  const [t, filterData, events] = await Promise.all([
-    getTranslations("events"),
-    getEventFilters(),
-    listEvents({
-      filters,
-      userId: session?.user?.id,
-    }),
-  ]);
+  let session = null;
+
+  try {
+    session = await auth();
+  } catch {
+    session = null;
+  }
+
+  const t = await getTranslations("events");
+  let filterData: Awaited<ReturnType<typeof getEventFilters>> = {
+    cities: [],
+    categories: [],
+  };
+  let events: Awaited<ReturnType<typeof listEvents>> = [];
+
+  try {
+    [filterData, events] = await Promise.all([
+      getEventFilters(),
+      listEvents({
+        filters,
+        userId: session?.user?.id,
+      }),
+    ]);
+  } catch {
+    filterData = {
+      cities: [],
+      categories: [],
+    };
+    events = [];
+  }
 
   const currentPath = buildEventsPath(locale, filters);
   const city = filterData.cities.find((entry) => entry.slug === filters.city);
