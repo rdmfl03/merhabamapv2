@@ -1,3 +1,10 @@
+export type MapViewportBounds = {
+  south: number;
+  west: number;
+  north: number;
+  east: number;
+};
+
 export type CityMapPoint = {
   id: string;
   kind: "place" | "event";

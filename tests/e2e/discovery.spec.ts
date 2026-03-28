@@ -12,7 +12,7 @@ test("@smoke localized public discovery pages load", async ({ page }) => {
   await page.goto("/de/events");
   await expect(page.getByText("Anatolia Late Session Berlin")).toBeVisible();
 
-  await page.goto("/de/cities/map?city=berlin");
+  await page.goto("/de/map?city=berlin");
   await expect(page.getByText("Nar Lokantasi Berlin")).toBeVisible();
 });
 

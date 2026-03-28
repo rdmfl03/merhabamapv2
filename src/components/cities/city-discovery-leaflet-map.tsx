@@ -13,7 +13,7 @@ import {
 import MarkerClusterGroup from "react-leaflet-cluster";
 
 import { Link } from "@/i18n/navigation";
-import type { CityMapPoint } from "@/components/cities/city-discovery-map-types";
+import type { CityMapPoint, MapViewportBounds } from "@/components/cities/city-discovery-map-types";
 
 type CityDiscoveryLeafletMapProps = {
   points: CityMapPoint[];
@@ -38,6 +38,7 @@ type CityDiscoveryLeafletMapProps = {
   viewPlaceLabel: string;
   viewEventLabel: string;
   myLocationLabel: string;
+  onViewportBoundsChange?: (bounds: MapViewportBounds) => void;
 };
 
 const DEFAULT_CENTER: LatLngExpression = [51.1657, 10.4515];
@@ -250,6 +251,40 @@ function PanToUserLocation({
   return null;
 }
 
+function ViewportBoundsReporter({
+  onBoundsChange,
+}: {
+  onBoundsChange?: (bounds: MapViewportBounds) => void;
+}) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!onBoundsChange) {
+      return;
+    }
+
+    const report = () => {
+      const b = map.getBounds();
+      onBoundsChange({
+        south: b.getSouth(),
+        west: b.getWest(),
+        north: b.getNorth(),
+        east: b.getEast(),
+      });
+    };
+
+    report();
+    map.on("moveend", report);
+    map.on("zoomend", report);
+    return () => {
+      map.off("moveend", report);
+      map.off("zoomend", report);
+    };
+  }, [map, onBoundsChange]);
+
+  return null;
+}
+
 export function CityDiscoveryLeafletMap({
   points,
   cityCenter,
@@ -267,6 +302,7 @@ export function CityDiscoveryLeafletMap({
   viewPlaceLabel,
   viewEventLabel,
   myLocationLabel,
+  onViewportBoundsChange,
 }: CityDiscoveryLeafletMapProps) {
   const placePoints = points.filter((point) => point.kind === "place");
   const eventPoints = points.filter((point) => point.kind === "event");
@@ -287,6 +323,7 @@ export function CityDiscoveryLeafletMap({
         />
         <ZoomControl position="bottomright" />
         <FitToMarkers points={points} cityCenter={cityCenter} userLocation={userLocation} />
+        <ViewportBoundsReporter onBoundsChange={onViewportBoundsChange} />
         <PanToActive points={points} activeId={selectedId} />
         <PanToUserLocation userLocation={userLocation} />
 

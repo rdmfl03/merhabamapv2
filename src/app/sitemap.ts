@@ -5,7 +5,7 @@ const publicPaths = [
   "",
   "/places",
   "/events",
-  "/cities/map",
+  "/map",
   "/impressum",
   "/privacy",
   "/terms",

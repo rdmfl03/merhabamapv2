@@ -76,7 +76,7 @@
       "description": "MerhabaMap soll nützlich und glaubwürdig sein, ohne mehr zu versprechen als Daten, Moderation und Produktrealität tatsächlich tragen.",
       "items": {
         "quality": {
-          "title": "Kuratiertes Discovery-MVP",
+          "title": "Kuratierte öffentliche Inhalte",
           "description": "Öffentlich sichtbar sind nur veröffentlichte und freigegebene Orte und Events mit nachvollziehbarer Einordnung."
         },
         "reports": {
@@ -169,7 +169,7 @@
     "cityTitle": "Stadt",
     "cityDescription": "Pilotstädte: {cities}. Weitere Städte können später ohne Strukturbruch ergänzt werden.",
     "interestsTitle": "Interessen",
-    "interestsDescription": "Interessen werden bewusst flexibel gespeichert, damit der MVP ohne starres Profilmodell starten kann.",
+    "interestsDescription": "Interessen werden bewusst flexibel gespeichert, damit dein Profil ohne starres Modell zu dir passt.",
     "submit": "Weiter zu MerhabaMap",
     "success": "Deine Einstellungen wurden gespeichert.",
     "error": "Die Einstellungen konnten nicht gespeichert werden.",
@@ -413,7 +413,7 @@
       "mapUnavailable": "Für dieses Event sind noch keine Koordinaten hinterlegt. Die Adresse kann trotzdem in Google Maps geöffnet werden.",
       "openMap": "In Karte öffnen",
       "noticeTitle": "Hinweis zu externen Links",
-      "noticeDescription": "Wenn ein externer Link vorhanden ist, führt er zu einer Drittseite des Veranstalters. MerhabaMap verkauft keine Tickets in diesem MVP."
+      "noticeDescription": "Wenn ein externer Link vorhanden ist, führt er zu einer Drittseite des Veranstalters. MerhabaMap verkauft keine Tickets."
     },
     "report": {
       "title": "Event melden",
@@ -1145,7 +1145,7 @@
     "tagline": "Discovery-Plattform für türkische Orte und Events in Deutschland.",
     "berlin": "Berlin entdecken",
     "koeln": "Köln entdecken",
-    "essentialNotice": "Der aktuelle MVP verwendet nach heutigem Stand nur notwendige Sitzungsmechanismen und keine optionalen Marketing- oder Werbetracker.",
+    "essentialNotice": "MerhabaMap verwendet nur notwendige Sitzungsmechanismen und keine optionalen Marketing- oder Werbetracker.",
     "copyright": "© MerhabaMap. Alle Rechte vorbehalten."
   },
   "legal": {
@@ -1161,7 +1161,7 @@
     },
     "essentialServices": {
       "title": "Hinweis zu Cookies und ähnlichen Technologien",
-      "description": "MerhabaMap nutzt im aktuellen MVP nach heutigem Stand nur technisch notwendige Sitzungsmechanismen für Anmeldung und Kontonutzung. Es gibt derzeit keine optionalen Marketing- oder Werbetracker, für die ein separates \"Alles akzeptieren\" erforderlich wäre.",
+      "description": "MerhabaMap nutzt technisch notwendige Sitzungsmechanismen für Anmeldung und Kontonutzung. Es gibt keine optionalen Marketing- oder Werbetracker, für die ein separates \"Alles akzeptieren\" erforderlich wäre.",
       "linkLabel": "Zur Datenschutzerklärung"
     },
     "impressum": {
@@ -1217,12 +1217,16 @@
       "legendPlaces": "Orte",
       "legendEvents": "Events",
       "empty": "Sobald Orte oder Events mit Koordinaten vorliegen, erscheint hier deine Stadtkarte.",
-      "noResults": "Für diese Filterkombination gibt es aktuell keine passenden Treffer auf der Karte."
+      "noResults": "Für diese Filterkombination gibt es aktuell keine passenden Treffer auf der Karte.",
+      "noResultsInViewport": "In diesem Kartenausschnitt liegen keine Treffer mit den aktuellen Filtern. Zoome oder verschiebe die Karte, oder passe die Suche an.",
+      "awaitingMapViewport": "Die Trefferliste richtet sich nach dem sichtbaren Kartenausschnitt und erscheint, sobald die Karte geladen ist.",
+      "cityPickerLabel": "Stadt",
+      "cityPickerAll": "Ganz Deutschland"
     },
     "stats": {
       "places": "Veröffentlichte Orte",
       "events": "Veröffentlichte Events",
-      "status": "MVP Status",
+      "status": "Produktstatus",
       "statusValue": "Live"
     },
     "ctas": {
@@ -1346,7 +1350,7 @@
       "descriptionDe": "Beschreibung (DE)",
       "descriptionTr": "Beschreibung (TR)",
       "openingHours": "Öffnungszeiten JSON",
-      "openingHoursHint": "Für den MVP werden Öffnungszeiten als einfaches JSON-Array gepflegt.",
+      "openingHoursHint": "Öffnungszeiten werden als einfaches JSON-Array gepflegt.",
       "submit": "Änderungen speichern",
       "success": "Die Business-Informationen wurden aktualisiert.",
       "error": "Die Änderungen konnten nicht gespeichert werden."

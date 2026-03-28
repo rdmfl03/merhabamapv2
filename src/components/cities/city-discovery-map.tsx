@@ -1,10 +1,11 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { CalendarDays, Crosshair, LocateFixed, MapPin, Search } from "lucide-react";
 
-import { Link } from "@/i18n/navigation";
+import type { CityMapPoint, MapViewportBounds } from "@/components/cities/city-discovery-map-types";
+import { Link, useRouter } from "@/i18n/navigation";
 import { formatEventDateRange, getEventCategoryLabelKey } from "@/lib/events";
 import {
   computeMapScore,
@@ -13,7 +14,7 @@ import {
 } from "@/lib/places";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import type { CityMapPoint } from "@/components/cities/city-discovery-map-types";
+import type { DiscoveryMapCityOption } from "@/server/queries/cities/get-discovery-map-cities";
 
 type CityPlacePoint = {
   id: string;
@@ -68,12 +69,16 @@ type CityDiscoveryMapProps = {
   description: string;
   placeCount: number;
   eventCount: number;
-  pilotLabel: string;
-  pilotValue: string;
+  mapCityOptions: DiscoveryMapCityOption[];
+  selectedCitySlug: string;
+  cityPickerLabel: string;
+  cityPickerAllLabel: string;
   legendPlaces: string;
   legendEvents: string;
   empty: string;
   noResults: string;
+  noResultsInViewport: string;
+  awaitingMapViewport: string;
   searchPlaceholder: string;
   allLabel: string;
   placesOnlyLabel: string;
@@ -121,6 +126,10 @@ type NormalizedPoint =
       tone: "dark";
     };
 
+function pointInBounds(lat: number, lng: number, bounds: MapViewportBounds): boolean {
+  return lat >= bounds.south && lat <= bounds.north && lng >= bounds.west && lng <= bounds.east;
+}
+
 const CityDiscoveryInteractiveMap = dynamic(
   () =>
     process.env.NEXT_PUBLIC_MAP_PROVIDER === "mapbox" &&
@@ -147,12 +156,16 @@ export function CityDiscoveryMap({
   description,
   placeCount,
   eventCount,
-  pilotLabel,
-  pilotValue,
+  mapCityOptions,
+  selectedCitySlug,
+  cityPickerLabel,
+  cityPickerAllLabel,
   legendPlaces,
   legendEvents,
   empty,
   noResults,
+  noResultsInViewport,
+  awaitingMapViewport,
   searchPlaceholder,
   allLabel,
   placesOnlyLabel,
@@ -171,6 +184,7 @@ export function CityDiscoveryMap({
   places,
   events,
 }: CityDiscoveryMapProps) {
+  const router = useRouter();
   const [typeFilter, setTypeFilter] = useState<"all" | "place" | "event">("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [query, setQuery] = useState("");
@@ -183,6 +197,15 @@ export function CityDiscoveryMap({
   const [locationState, setLocationState] = useState<
     "idle" | "loading" | "unavailable"
   >("idle");
+  const [viewportBounds, setViewportBounds] = useState<MapViewportBounds | null>(null);
+
+  const handleViewportBounds = useCallback((bounds: MapViewportBounds) => {
+    setViewportBounds(bounds);
+  }, []);
+
+  useEffect(() => {
+    setViewportBounds(null);
+  }, [selectedCitySlug]);
 
   const normalized = useMemo<NormalizedPoint[]>(() => {
     const normalizedPlaces = places
@@ -271,9 +294,22 @@ export function CityDiscoveryMap({
     });
   }, [categoryFilter, normalized, query, typeFilter]);
 
+  const inViewFiltered = useMemo(() => {
+    if (!viewportBounds) {
+      return [];
+    }
+    return filtered.filter((point) =>
+      pointInBounds(point.latitude, point.longitude, viewportBounds),
+    );
+  }, [filtered, viewportBounds]);
+
+  const markersForMap = useMemo(() => {
+    return viewportBounds ? inViewFiltered : filtered;
+  }, [filtered, inViewFiltered, viewportBounds]);
+
   const mapPoints = useMemo<CityMapPoint[]>(
     () =>
-      filtered.map((point) => ({
+      markersForMap.map((point) => ({
         id: point.id,
         kind: point.kind,
         label: point.label,
@@ -284,49 +320,56 @@ export function CityDiscoveryMap({
         categoryLabel: point.categoryLabel,
         meta: point.meta,
       })),
-    [filtered],
+    [markersForMap],
   );
 
   const hasActiveFilters = Boolean(
     query || categoryFilter !== "all" || typeFilter !== "all",
   );
   const activePointId = selectedId ?? hoveredId;
+  const listSource = viewportBounds ? inViewFiltered : null;
+
   const filteredPlaces = useMemo(
     () =>
-      [...filtered]
-        .filter((point) => point.kind === "place")
-        .sort((a, b) => {
-          const placeA = places.find((place) => `place-${place.id}` === a.id);
-          const placeB = places.find((place) => `place-${place.id}` === b.id);
+      listSource
+        ? [...listSource]
+            .filter((point) => point.kind === "place")
+            .sort((a, b) => {
+              const placeA = places.find((place) => `place-${place.id}` === a.id);
+              const placeB = places.find((place) => `place-${place.id}` === b.id);
 
-          const scoreDiff =
-            computeMapScore(placeB ?? {}, userLocation) -
-            computeMapScore(placeA ?? {}, userLocation);
-          if (scoreDiff !== 0) {
-            return scoreDiff;
-          }
+              const scoreDiff =
+                computeMapScore(placeB ?? {}, userLocation) -
+                computeMapScore(placeA ?? {}, userLocation);
+              if (scoreDiff !== 0) {
+                return scoreDiff;
+              }
 
-          return Number(b.id === selectedId) - Number(a.id === selectedId);
-        })
-        .slice(0, 10),
-    [filtered, places, selectedId, userLocation],
+              return Number(b.id === selectedId) - Number(a.id === selectedId);
+            })
+            .slice(0, 10)
+        : [],
+    [listSource, places, selectedId, userLocation],
   );
   const filteredEvents = useMemo(
     () =>
-      [...filtered]
-        .filter((point) => point.kind === "event")
-        .sort((a, b) => Number(b.id === selectedId) - Number(a.id === selectedId))
-        .slice(0, 10),
-    [filtered, selectedId],
+      listSource
+        ? [...listSource]
+            .filter((point) => point.kind === "event")
+            .sort((a, b) => Number(b.id === selectedId) - Number(a.id === selectedId))
+            .slice(0, 10)
+        : [],
+    [listSource, selectedId],
   );
   const totalFilteredPlaces = useMemo(
-    () => filtered.filter((point) => point.kind === "place").length,
-    [filtered],
+    () => (listSource ? listSource.filter((point) => point.kind === "place").length : 0),
+    [listSource],
   );
   const totalFilteredEvents = useMemo(
-    () => filtered.filter((point) => point.kind === "event").length,
-    [filtered],
+    () => (listSource ? listSource.filter((point) => point.kind === "event").length : 0),
+    [listSource],
   );
+  const listCount = listSource?.length ?? 0;
 
   function handleLocateMe() {
     if (!navigator.geolocation) {
@@ -361,6 +404,14 @@ export function CityDiscoveryMap({
     setTypeFilter("all");
     setHoveredId(null);
     setSelectedId(null);
+  }
+
+  function handleCityPickerChange(slug: string) {
+    if (!slug) {
+      router.push("/map");
+      return;
+    }
+    router.push(`/map?city=${slug}`);
   }
 
   function renderPointCard(point: NormalizedPoint) {
@@ -427,13 +478,26 @@ export function CityDiscoveryMap({
             <div className="rounded-full border border-border bg-white/92 px-3 py-2">
               <span className="font-semibold text-foreground">{eventCount}</span> {legendEvents}
             </div>
-            <div className="rounded-full border border-border bg-white/92 px-3 py-2">
-              <span className="font-semibold text-foreground">{pilotLabel}:</span> {pilotValue}
-            </div>
           </div>
         </div>
 
-        <div className="mb-4 grid gap-3 lg:grid-cols-[1.3fr_0.7fr_auto]">
+        <div className="mb-4 grid gap-3 lg:grid-cols-[minmax(10rem,0.95fr)_minmax(0,1.25fr)_minmax(0,0.7fr)_auto]">
+          <label className="flex min-w-0 flex-col gap-1.5 text-xs font-medium text-muted-foreground">
+            <span className="sr-only sm:not-sr-only">{cityPickerLabel}</span>
+            <select
+              value={selectedCitySlug}
+              onChange={(event) => handleCityPickerChange(event.target.value)}
+              className="h-11 w-full min-w-0 rounded-2xl border border-border bg-white px-3 text-sm text-foreground shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              aria-label={cityPickerLabel}
+            >
+              <option value="">{cityPickerAllLabel}</option>
+              {mapCityOptions.map((city) => (
+                <option key={city.slug} value={city.slug}>
+                  {locale === "tr" ? city.nameTr : city.nameDe}
+                </option>
+              ))}
+            </select>
+          </label>
           <div className="relative">
             <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -524,22 +588,39 @@ export function CityDiscoveryMap({
           viewPlaceLabel={viewPlaceLabel}
           viewEventLabel={viewEventLabel}
           myLocationLabel={myLocationLabel}
+          onViewportBoundsChange={handleViewportBounds}
         />
 
         <div className="mt-5">
           <div className="mb-4 flex items-center justify-between">
             <h3 className="font-display text-xl text-foreground">{resultsTitle}</h3>
             <p className="text-sm text-muted-foreground">
-              {filtered.length} {resultsSummaryUnitLabel}
+              {viewportBounds ? (
+                <>
+                  {listCount} {resultsSummaryUnitLabel}
+                </>
+              ) : (
+                <span className="text-muted-foreground/80">—</span>
+              )}
             </p>
           </div>
 
           <div className="grid gap-4 lg:grid-cols-2">
-            {filtered.length === 0 ? (
+            {!viewportBounds ? (
               <div className="rounded-2xl border border-border bg-white/90 px-4 py-5 text-sm text-muted-foreground lg:col-span-2">
-                {query || categoryFilter !== "all" || typeFilter !== "all"
-                  ? noResults
-                  : empty}
+                {awaitingMapViewport}
+              </div>
+            ) : normalized.length === 0 ? (
+              <div className="rounded-2xl border border-border bg-white/90 px-4 py-5 text-sm text-muted-foreground lg:col-span-2">
+                {empty}
+              </div>
+            ) : filtered.length === 0 ? (
+              <div className="rounded-2xl border border-border bg-white/90 px-4 py-5 text-sm text-muted-foreground lg:col-span-2">
+                {hasActiveFilters ? noResults : empty}
+              </div>
+            ) : listCount === 0 ? (
+              <div className="rounded-2xl border border-border bg-white/90 px-4 py-5 text-sm text-muted-foreground lg:col-span-2">
+                {noResultsInViewport}
               </div>
             ) : (
               <>

@@ -6,7 +6,7 @@ import mapboxgl, {
   type Map as MapboxMap,
 } from "mapbox-gl";
 
-import type { CityMapPoint } from "@/components/cities/city-discovery-map-types";
+import type { CityMapPoint, MapViewportBounds } from "@/components/cities/city-discovery-map-types";
 import { Link } from "@/i18n/navigation";
 
 type CityDiscoveryMapboxMapProps = {
@@ -32,6 +32,7 @@ type CityDiscoveryMapboxMapProps = {
   viewPlaceLabel: string;
   viewEventLabel: string;
   myLocationLabel: string;
+  onViewportBoundsChange?: (bounds: MapViewportBounds) => void;
 };
 
 const DEFAULT_CENTER: [number, number] = [10.4515, 51.1657];
@@ -254,9 +255,12 @@ export function CityDiscoveryMapboxMap({
   viewPlaceLabel,
   viewEventLabel,
   myLocationLabel,
+  onViewportBoundsChange,
 }: CityDiscoveryMapboxMapProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapboxMap | null>(null);
+  const onViewportBoundsRef = useRef(onViewportBoundsChange);
+  onViewportBoundsRef.current = onViewportBoundsChange;
   const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 
   const placePoints = useMemo(
@@ -627,9 +631,27 @@ export function CityDiscoveryMapboxMap({
       });
     });
 
+    const reportViewportBounds = () => {
+      const b = map.getBounds();
+      if (!b) {
+        return;
+      }
+      onViewportBoundsRef.current?.({
+        south: b.getSouth(),
+        west: b.getWest(),
+        north: b.getNorth(),
+        east: b.getEast(),
+      });
+    };
+
+    map.on("moveend", reportViewportBounds);
+    map.on("zoomend", reportViewportBounds);
+
     mapRef.current = map;
 
     return () => {
+      map.off("moveend", reportViewportBounds);
+      map.off("zoomend", reportViewportBounds);
       map.remove();
       mapRef.current = null;
     };

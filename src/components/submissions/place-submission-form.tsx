@@ -141,7 +141,7 @@ function PlaceSubmissionFormInner({
           </div>
           <div className="flex flex-wrap gap-3">
             <Button asChild>
-              <Link href={`/cities/map?city=${state.submitted.citySlug}`}>{labels.success.backToCity}</Link>
+              <Link href={`/map?city=${state.submitted.citySlug}`}>{labels.success.backToCity}</Link>
             </Button>
             <Button type="button" variant="outline" onClick={onReset}>
               {labels.success.submitAnother}

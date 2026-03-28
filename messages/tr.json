@@ -76,7 +76,7 @@
       "description": "MerhabaMap yalnızca veri, moderasyon ve ürün gerçeğinin taşıyabildiği kadar iddialı olmalı; fazlasını vaat etmemelidir.",
       "items": {
         "quality": {
-          "title": "Seçilmiş discovery MVP",
+          "title": "Özenle seçilmiş herkese açık içerikler",
           "description": "Herkese açık olarak yalnızca yayınlanmış ve onaylanmış mekanlar ile etkinlikler gösterilir."
         },
         "reports": {
@@ -169,7 +169,7 @@
     "cityTitle": "Şehir",
     "cityDescription": "Pilot şehirler: {cities}. Daha fazla şehir yapıyı bozmadan daha sonra eklenebilir.",
     "interestsTitle": "İlgi alanları",
-    "interestsDescription": "İlgi alanları MVP boyunca esnek tutuluyor; katı bir profil modeli zorunlu değil.",
+    "interestsDescription": "İlgi alanları esnek tutulur; katı bir profil modeli zorunlu değil.",
     "submit": "MerhabaMap'e devam et",
     "success": "Tercihlerin kaydedildi.",
     "error": "Tercihler kaydedilemedi.",
@@ -413,7 +413,7 @@
       "mapUnavailable": "Bu etkinlik için henüz koordinat yok. Yine de adres Google Maps üzerinde açılabilir.",
       "openMap": "Haritada aç",
       "noticeTitle": "Harici link notu",
-      "noticeDescription": "Harici link varsa, etkinlik düzenleyicisinin üçüncü taraf sayfasına gider. Bu MVP'de MerhabaMap bilet satmaz."
+      "noticeDescription": "Harici link varsa, etkinlik düzenleyicisinin üçüncü taraf sayfasına gider. MerhabaMap bilet satmaz."
     },
     "report": {
       "title": "Etkinliği bildir",
@@ -1154,7 +1154,7 @@
     "tagline": "Almanya'daki Türk mekanları ve etkinlikleri için keşif platformu.",
     "berlin": "Berlin'i keşfet",
     "koeln": "Köln'ü keşfet",
-    "essentialNotice": "Mevcut MVP yapısında bugün itibarıyla yalnızca gerekli oturum mekanizmaları kullanılır; isteğe bağlı reklam veya pazarlama izleyicileri yer almaz.",
+    "essentialNotice": "MerhabaMap yalnızca gerekli oturum mekanizmalarını kullanır; isteğe bağlı reklam veya pazarlama izleyicileri yer almaz.",
     "copyright": "© MerhabaMap. Tüm hakları saklıdır."
   },
   "legal": {
@@ -1170,7 +1170,7 @@
     },
     "essentialServices": {
       "title": "Çerez ve benzeri teknolojiler notu",
-      "description": "MerhabaMap'in mevcut MVP sürümünde bugün itibarıyla yalnızca giriş ve hesap kullanımı için gerekli oturum mekanizmaları bulunur. Ayrı bir \"hepsini kabul et\" akışı gerektiren isteğe bağlı reklam veya pazarlama izleyicileri şu anda kullanılmamaktadır.",
+      "description": "MerhabaMap yalnızca giriş ve hesap kullanımı için gerekli oturum mekanizmalarını kullanır. Ayrı bir \"hepsini kabul et\" akışı gerektiren isteğe bağlı reklam veya pazarlama izleyicileri kullanılmaz.",
       "linkLabel": "Gizlilik sayfasına git"
     },
     "impressum": {
@@ -1226,12 +1226,16 @@
       "legendPlaces": "Mekanlar",
       "legendEvents": "Etkinlikler",
       "empty": "Koordinatlı mekanlar veya etkinlikler geldikçe burada şehir haritası görünür.",
-      "noResults": "Bu filtre kombinasyonu için haritada uygun sonuç bulunmuyor."
+      "noResults": "Bu filtre kombinasyonu için haritada uygun sonuç bulunmuyor.",
+      "noResultsInViewport": "Bu harita görünümünde mevcut filtrelerle sonuç yok. Yakınlaştır, kaydır veya aramayı değiştir.",
+      "awaitingMapViewport": "Sonuç listesi görünür harita alanına göre güncellenir; harita yüklenince görünür.",
+      "cityPickerLabel": "Şehir",
+      "cityPickerAll": "Tüm Almanya"
     },
     "stats": {
       "places": "Yayınlanan mekanlar",
       "events": "Yayınlanan etkinlikler",
-      "status": "MVP durumu",
+      "status": "Ürün durumu",
       "statusValue": "Yayında"
     },
     "ctas": {
@@ -1355,7 +1359,7 @@
       "descriptionDe": "Açıklama (DE)",
       "descriptionTr": "Açıklama (TR)",
       "openingHours": "Açılış saatleri JSON",
-      "openingHoursHint": "MVP için açılış saatleri basit bir JSON dizi yapısıyla tutulur.",
+      "openingHoursHint": "Açılış saatleri basit bir JSON dizi yapısıyla tutulur.",
       "submit": "Değişiklikleri kaydet",
       "success": "Business bilgileri güncellendi.",
       "error": "Değişiklikler kaydedilemedi."

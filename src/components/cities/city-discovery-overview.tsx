@@ -8,6 +8,7 @@ import { getEventCategoryLabelKey, getLocalizedEventText } from "@/lib/events";
 import { getLocalizedPlaceCategoryLabel, getLocalizedText } from "@/lib/places";
 import type { PublicEventRecord } from "@/server/queries/events/shared";
 import type { PublicPlaceRecord } from "@/server/queries/places/shared";
+import type { DiscoveryMapCityOption } from "@/server/queries/cities/get-discovery-map-cities";
 
 type CityPlaceCardRecord = PublicPlaceRecord & {
   isSaved: boolean;
@@ -28,6 +29,8 @@ type CityDiscoveryOverviewProps = {
       longitude: number;
     } | null;
   };
+  mapCityOptions: DiscoveryMapCityOption[];
+  selectedMapCitySlug: string | null;
   placesListHref: string;
   eventsListHref: string;
   cardReturnPath: string;
@@ -46,12 +49,14 @@ type CityDiscoveryOverviewProps = {
     description: string;
     statsPlaces: string;
     statsEvents: string;
-    statsPilot: string;
-    statsPilotValue: string;
     mapTitle: string;
     mapDescription: string;
     mapEmpty: string;
     noResults: string;
+    noResultsInViewport: string;
+    awaitingMapViewport: string;
+    cityPickerLabel: string;
+    cityPickerAll: string;
     searchPlaceholder: string;
     allResults: string;
     placesOnly: string;
@@ -91,6 +96,8 @@ type CityDiscoveryOverviewProps = {
 export function CityDiscoveryOverview({
   locale,
   city,
+  mapCityOptions,
+  selectedMapCitySlug,
   placesListHref,
   eventsListHref,
   cardReturnPath,
@@ -139,12 +146,16 @@ export function CityDiscoveryOverview({
           description={labels.mapDescription}
           placeCount={placeCount}
           eventCount={eventCount}
-          pilotLabel={labels.statsPilot}
-          pilotValue={labels.statsPilotValue}
+          mapCityOptions={mapCityOptions}
+          selectedCitySlug={selectedMapCitySlug ?? ""}
+          cityPickerLabel={labels.cityPickerLabel}
+          cityPickerAllLabel={labels.cityPickerAll}
           legendPlaces={labels.legendPlaces}
           legendEvents={labels.legendEvents}
           empty={labels.mapEmpty}
           noResults={labels.noResults}
+          noResultsInViewport={labels.noResultsInViewport}
+          awaitingMapViewport={labels.awaitingMapViewport}
           searchPlaceholder={labels.searchPlaceholder}
           allLabel={labels.allResults}
           placesOnlyLabel={labels.placesOnly}

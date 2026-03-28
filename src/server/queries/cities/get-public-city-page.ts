@@ -1,3 +1,4 @@
+import { GERMANY_DISCOVERY_CENTER } from "@/lib/cities/discovery-city-center";
 import { prisma } from "@/lib/prisma";
 import { computeCategoryAdjustedScore, getPlaceScoreRatingCount } from "@/lib/places";
 import { compareByAiRanking } from "@/server/queries/ai-shared";
@@ -16,8 +17,6 @@ const pilotCityCenters: Record<string, { latitude: number; longitude: number }> 
   berlin: { latitude: 52.52, longitude: 13.405 },
   koeln: { latitude: 50.9375, longitude: 6.9603 },
 };
-
-const GERMANY_MAP_CENTER = { latitude: 51.1657, longitude: 10.4515 };
 
 const GERMANY_MAP_VIRTUAL_CITY = {
   id: "virtual-de-discovery-map",
@@ -258,7 +257,7 @@ export async function getPublicGermanyDiscoveryPage(userId?: string) {
   if (!userId) {
     return {
       city,
-      cityCenter: GERMANY_MAP_CENTER,
+      cityCenter: GERMANY_DISCOVERY_CENTER,
       placeCount,
       eventCount,
       featuredPlaces: featuredPlacesRanked.map((place) => ({
@@ -302,7 +301,7 @@ export async function getPublicGermanyDiscoveryPage(userId?: string) {
 
   return {
     city,
-    cityCenter: GERMANY_MAP_CENTER,
+    cityCenter: GERMANY_DISCOVERY_CENTER,
     placeCount,
     eventCount,
     featuredPlaces: featuredPlacesRanked.map((place) => ({

@@ -49,7 +49,7 @@ export default async function LandingPage({ params }: LandingPageProps) {
       const profile = await getCurrentUserProfile(session.user.id);
 
       if (profile?.onboardingCity?.slug) {
-        redirect(`/${locale}/cities/map?city=${profile.onboardingCity.slug}`);
+        redirect(`/${locale}/map?city=${profile.onboardingCity.slug}`);
       }
     } catch {
       // Fall back to the public landing experience if auth-linked DB reads fail.

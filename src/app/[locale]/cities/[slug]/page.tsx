@@ -10,7 +10,7 @@ export default async function CitySlugRedirect({ params }: CitySlugRedirectProps
   const { locale, slug } = await params;
 
   if (slug === "map") {
-    redirect(`/${locale}/cities/map`);
+    redirect(`/${locale}/map`);
   }
 
   const city = await prisma.city.findUnique({
@@ -22,5 +22,5 @@ export default async function CitySlugRedirect({ params }: CitySlugRedirectProps
     notFound();
   }
 
-  redirect(`/${locale}/cities/map?city=${city.slug}`);
+  redirect(`/${locale}/map?city=${city.slug}`);
 }
