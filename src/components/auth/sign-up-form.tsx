@@ -20,6 +20,7 @@ type SignUpFormProps = {
     validationError: string;
     emailInUse: string;
     passwordMismatch: string;
+    registrationDisabled: string;
     legalAcknowledgementPrefix: string;
     legalAcknowledgementTerms: string;
     legalAcknowledgementConnector: string;
@@ -36,6 +37,8 @@ function getMessage(message: string | undefined, labels: SignUpFormProps["labels
       return labels.emailInUse;
     case "password_mismatch":
       return labels.passwordMismatch;
+    case "registration_disabled":
+      return labels.registrationDisabled;
     default:
       return labels.validationError;
   }

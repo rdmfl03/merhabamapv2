@@ -4,6 +4,7 @@ import { SignUpForm } from "@/components/auth/sign-up-form";
 import { EssentialServicesNotice } from "@/components/legal/essential-services-notice";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "@/i18n/navigation";
+import { isUserRegistrationEnabled } from "@/lib/auth/config";
 import { isAppLocale } from "@/i18n/routing";
 import { notFound } from "next/navigation";
 
@@ -24,6 +25,7 @@ export default async function SignUpPage({ params }: SignUpPageProps) {
     getTranslations({ locale, namespace: "auth" }),
     getTranslations({ locale, namespace: "legal" }),
   ]);
+  const registrationEnabled = isUserRegistrationEnabled();
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-12">
@@ -40,25 +42,35 @@ export default async function SignUpPage({ params }: SignUpPageProps) {
               </p>
             </div>
 
-            <SignUpForm
-              locale={locale}
-              labels={{
-                name: t("nameLabel"),
-                email: t("emailLabel"),
-                password: t("passwordLabel"),
-                confirmPassword: t("confirmPasswordLabel"),
-                submit: t("signUpButton"),
-                success: t("signUpSuccess"),
-                validationError: t("signUpError"),
-                emailInUse: t("signUpEmailInUse"),
-                passwordMismatch: t("passwordMismatch"),
-                legalAcknowledgementPrefix: t("legalAcknowledgementPrefix"),
-                legalAcknowledgementTerms: legal("navigation.terms"),
-                legalAcknowledgementConnector: t("legalAcknowledgementConnector"),
-                legalAcknowledgementPrivacy: legal("navigation.privacy"),
-                legalAcknowledgementSuffix: t("legalAcknowledgementSuffix"),
-              }}
-            />
+            {registrationEnabled ? (
+              <SignUpForm
+                locale={locale}
+                labels={{
+                  name: t("nameLabel"),
+                  email: t("emailLabel"),
+                  password: t("passwordLabel"),
+                  confirmPassword: t("confirmPasswordLabel"),
+                  submit: t("signUpButton"),
+                  success: t("signUpSuccess"),
+                  validationError: t("signUpError"),
+                  emailInUse: t("signUpEmailInUse"),
+                  passwordMismatch: t("passwordMismatch"),
+                  registrationDisabled: t("signUpDisabledMessage"),
+                  legalAcknowledgementPrefix: t("legalAcknowledgementPrefix"),
+                  legalAcknowledgementTerms: legal("navigation.terms"),
+                  legalAcknowledgementConnector: t("legalAcknowledgementConnector"),
+                  legalAcknowledgementPrivacy: legal("navigation.privacy"),
+                  legalAcknowledgementSuffix: t("legalAcknowledgementSuffix"),
+                }}
+              />
+            ) : (
+              <div className="rounded-3xl border border-border bg-muted/30 p-6">
+                <h2 className="font-display text-2xl text-foreground">{t("signUpDisabledTitle")}</h2>
+                <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                  {t("signUpDisabledDescription")}
+                </p>
+              </div>
+            )}
 
             <EssentialServicesNotice
               title={legal("essentialServices.title")}

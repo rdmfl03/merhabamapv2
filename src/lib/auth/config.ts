@@ -13,11 +13,11 @@ const credentialsSchema = z.object({
   password: z.string().min(8).max(128),
 });
 
-function isProductionRuntime() {
+export function isProductionRuntime() {
   return process.env.APP_ENV === "production" || process.env.NODE_ENV === "production";
 }
 
-function readBooleanEnv(name: string, defaultValue: boolean) {
+export function readBooleanEnv(name: string, defaultValue: boolean) {
   const value = process.env[name];
 
   if (value === "true") {
@@ -42,6 +42,12 @@ function parseNullableDate(value: unknown) {
 
   const parsed = new Date(value);
   return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+export function isUserRegistrationEnabled() {
+  return isProductionRuntime()
+    ? readBooleanEnv("AUTH_ALLOW_SIGNUP", false)
+    : readBooleanEnv("AUTH_ALLOW_SIGNUP", true);
 }
 
 export const authConfig = {

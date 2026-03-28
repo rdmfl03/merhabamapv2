@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/auth/password";
 import { createAndSendEmailVerification } from "@/lib/auth/email-verification";
+import { isUserRegistrationEnabled } from "@/lib/auth/config";
 import { registrationSchema } from "@/lib/validators/auth";
 
 import { idleAuthActionState, type AuthActionState } from "./state";
@@ -12,6 +13,13 @@ export async function registerUser(
   formData: FormData,
 ): Promise<AuthActionState> {
   void _previousState;
+
+  if (!isUserRegistrationEnabled()) {
+    return {
+      status: "error",
+      message: "registration_disabled",
+    };
+  }
 
   const parsed = registrationSchema.safeParse({
     locale: formData.get("locale"),
