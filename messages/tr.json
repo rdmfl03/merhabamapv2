@@ -1156,17 +1156,17 @@
   },
   "legal": {
     "eyebrow": "Hukuki bilgiler",
-    "draftNotice": "Not: Bu sayfa bireysel hukuki danışmanlığın yerine geçmez. Bağlayıcı canlı yayına geçmeden önce metinlerin ayrıca hukuki olarak gözden geçirilmesi önerilir.",
+    "draftNotice": "Not: Bu sayfa bireysel hukuki danışmanlığın yerine geçmez. Hukuki değerlendirmede Almanca sürüm esas alınır; bağlayıcı canlı yayına geçmeden önce metinlerin ayrıca hukuki olarak gözden geçirilmesi önerilir.",
     "navigation": {
       "impressum": "Impressum",
       "privacy": "Gizlilik",
-      "contact": "Iletisim",
-      "cookies": "Cookie ayarlari",
+      "contact": "İletişim",
+      "cookies": "Çerezler",
       "terms": "Kullanım koşulları",
       "communityRules": "Topluluk kuralları"
     },
     "essentialServices": {
-      "title": "Cookie ve benzeri teknolojiler notu",
+      "title": "Çerez ve benzeri teknolojiler notu",
       "description": "MerhabaMap'in mevcut MVP sürümünde bugün itibarıyla yalnızca giriş ve hesap kullanımı için gerekli oturum mekanizmaları bulunur. Ayrı bir \"hepsini kabul et\" akışı gerektiren isteğe bağlı reklam veya pazarlama izleyicileri şu anda kullanılmamaktadır.",
       "linkLabel": "Gizlilik sayfasına git"
     },
@@ -1179,19 +1179,19 @@
       "metaDescription": "MerhabaMap'te veri işleme konusunda şeffaf genel bakış."
     },
     "contact": {
-      "metaTitle": "Iletisim",
-      "metaDescription": "MerhabaMap icin teknik iletisim ve erisilebilirlik sayfasi."
+      "metaTitle": "İletişim",
+      "metaDescription": "MerhabaMap için iletişim ve erişilebilirlik bilgileri."
     },
     "cookies": {
-      "metaTitle": "Cookie ve gizlilik ayarlari",
-      "metaDescription": "Cookie, gizlilik ve ilerideki tercihler icin teknik yer tutucu."
+      "metaTitle": "Çerezler ve benzeri teknolojiler",
+      "metaDescription": "MerhabaMap'te kullanılan gerekli çerezler ve yerel depolama mekanizmaları hakkında bilgiler."
     },
     "terms": {
       "metaTitle": "Kullanım koşulları",
-      "metaDescription": "MerhabaMap kullanımi için temel kurallar ve koşullar."
+        "metaDescription": "MerhabaMap kullanımı için temel kurallar ve koşullar."
     },
     "communityRules": {
-      "metaTitle": "Topluluk kurallari",
+        "metaTitle": "Topluluk kuralları",
       "metaDescription": "MerhabaMap üzerindeki temel davranış beklentileri."
     }
   },

@@ -26,35 +26,35 @@ export function getImpressumContent(locale: AppLocale): LegalPageContent {
     return {
       title: "Impressum",
       intro:
-        "Bu sayfa, MerhabaMap platformunu isleten sirket hakkindaki temel saglayici bilgilerini Almanya odakli yayin icin yapilandirilmis bicimde sunar.",
+        "Bu sayfa, MerhabaMap platformu için sağlayıcı bilgilerini Almanya odaklı yayın yükümlülükleri bakımından özetler.",
       sections: [
         {
-          title: "Saglayici bilgileri",
+          title: "Sağlayıcı bilgileri",
           paragraphs: [
-            `Ad / sirket: ${company.entityName}`,
+            `Ad / şirket: ${company.entityName}`,
             "Platform: MerhabaMap",
             ...company.addressLines,
           ],
         },
         {
           title: "Temsil yetkisi",
-          paragraphs: [`Temsil yetkili kisi: ${company.legalRepresentative}`],
+          paragraphs: [`Temsil yetkili kişi: ${company.legalRepresentative}`],
         },
         {
-          title: "Iletisim",
+          title: "İletişim",
           paragraphs: contactParagraphs,
         },
         {
-          title: "Icerikten sorumlu kisi",
+          title: "İçerikten sorumlu kişi",
           paragraphs: [
-            `Gazetecilik ve editorluk icerikleri icin sorumlu kisi: ${company.contentResponsiblePerson}`,
+            `Gazetecilik ve editoryal içerikler için sorumlu kişi: ${company.contentResponsiblePerson}`,
           ],
         },
         ...(company.registerEntry
           ? [
               {
                 title: "Ticaret sicili bilgisi",
-                paragraphs: [`Kayit bilgisi: ${company.registerEntry}`],
+                paragraphs: [`Kayıt bilgisi: ${company.registerEntry}`],
               },
             ]
           : []),
@@ -73,10 +73,10 @@ export function getImpressumContent(locale: AppLocale): LegalPageContent {
   return {
     title: "Impressum",
     intro:
-      "Diese Seite enthaelt die grundlegenden Anbieterangaben fuer die in Deutschland angebotene Plattform MerhabaMap.",
+      "Dieses Impressum enthält die Anbieterkennzeichnung für die Plattform MerhabaMap.",
     sections: [
       {
-        title: "Angaben gemaess § 5 DDG",
+        title: "Angaben gemäß § 5 DDG",
         paragraphs: [
           `Name / Firma: ${company.entityName}`,
           "Plattform: MerhabaMap",
@@ -92,7 +92,7 @@ export function getImpressumContent(locale: AppLocale): LegalPageContent {
         paragraphs: contactParagraphs,
       },
       {
-        title: "Verantwortlich fuer journalistisch-redaktionelle Inhalte",
+        title: "Verantwortlich für journalistisch-redaktionelle Inhalte gemäß § 18 Abs. 2 MStV",
         paragraphs: [`${company.contentResponsiblePerson}`],
       },
       ...(company.registerEntry
@@ -120,9 +120,9 @@ export function getPrivacyContent(locale: AppLocale): LegalPageContent {
 
   if (locale === "tr") {
     return {
-      title: "Gizlilik Politikasi",
+      title: "Gizlilik Politikası",
       intro:
-        "Bu metin, MerhabaMap'in su anki urun ve isletim yapisina gore hazirlanmis ihtiyatli bir taslaktir. Nihai hukuk incelemesinin yerini tutmaz; amaci hangi veri akislari ve hizmetlerin dikkate alinmasi gerektigini acik gostermektir.",
+        "Bu gizlilik metni, MerhabaMap kullanılırken hangi kişisel verilerin hangi amaçlarla işlendiğini mevcut teknik kurguya göre özetler.",
       sections: [
         {
           title: "Veri sorumlusu",
@@ -132,84 +132,85 @@ export function getPrivacyContent(locale: AppLocale): LegalPageContent {
           ],
         },
         {
-          title: "Iletisim",
+          title: "İletişim",
           paragraphs: [
-            `Genel iletisim: ${company.contactEmail}`,
-            `Gizlilik konulari icin iletisim: ${company.privacyContactEmail}`,
+            `Genel iletişim: ${company.contactEmail}`,
+            `Gizlilik konuları için iletişim: ${company.privacyContactEmail}`,
           ],
         },
         {
-          title: "Islenen veriler",
+          title: "İşlenen veri kategorileri",
           bullets: [
-            "kayit ve hesap yonetimi icin e-posta adresi, kullanici adi ve parola hash'i",
-            "giris ve oturum yonetimi bilgileri",
-            "kaydedilen yerler ve etkinlikler",
-            "raporlar, bildirimler ve business claim basvurularinda girilen veriler",
-            "e-posta ile iletisime gecildiginde paylasilan iletisim ve mesaj icerigi",
+            "kayıt ve hesap yönetimi için e-posta adresi, kullanıcı adı ve parola özeti",
+            "giriş, oturum ve güvenlik için gerekli teknik veriler",
+            "tarayıcıda yerel olarak tutulan kayıtlı yer bilgileri, ilgili işlev kullanıldığında",
+            "raporlar, bildirimler, talep ve business claim süreçlerinde paylaşılan veriler",
+            "e-posta ile iletişime geçildiğinde paylaşılan iletişim ve mesaj içeriği",
+            "web sitesinin güvenli sunumu için gerekli bağlantı ve altyapı verileri",
           ],
         },
         {
-          title: "Isleme amaclari",
+          title: "İşleme amaçları ve hukuki dayanaklar",
           bullets: [
-            "platformu calistirmak ve hesaplari yonetmek",
-            "topluluk odakli islevleri sunmak",
-            "kaydetme, raporlama ve business claim akislarini isletmek",
-            "iletisim taleplerini islemek",
+            "hesap, giriş ve temel platform işlevlerinin sağlanması (sözleşmenin kurulması ve ifası)",
+            "kayıtlı içerikler, bildirimler, claims ve destek süreçlerinin yürütülmesi (duruma göre sözleşme öncesi tedbirler veya meşru menfaat)",
+            "BT güvenliği, istikrar, hata analizi ve kötüye kullanımın önlenmesi (meşru menfaat)",
+            "yasal yükümlülüklerin ve saklama zorunluluklarının yerine getirilmesi (yasal yükümlülük)",
           ],
         },
         {
-          title: "Hukuki dayanaklar",
+          title: "Hosting ve teknik hizmet sağlayıcıları",
           bullets: [
-            "sozlesmenin kurulmasi ve ifasi",
-            "mesru menfaatler, ozellikle guvenlik, hata analizi ve platformun istikrari",
+            "Netlify (uygulama yayınlama ve çalışma zamanı)",
+            "DigitalOcean (veritabanı barındırma)",
+            "Cloudflare (CDN ve istek yönlendirme katmanı)",
+            "harita görünümlerinde, teknik kurguya bağlı olarak OpenStreetMap veya Mapbox",
           ],
         },
         {
-          title: "Hosting ve teknik hizmetler",
-          bullets: [
-            "Netlify (uygulama yayinlama ve runtime)",
-            "DigitalOcean (veritabani barindirma)",
-            "Cloudflare (CDN ve istek yonlendirme katmani)",
-          ],
-        },
-        {
-          title: "E-posta gonderimi",
+          title: "E-posta iletişimi",
           paragraphs: [
-            "Hesapla ilgili islemler ve is iletisimi icin Zoho kullanilir. Bu iletiler reklam veya analiz amacli degildir.",
+            "Mevcut üretim kurulumunda hesapla ilgili iletiler ve doğrudan e-posta iletişimi için Zoho kullanılmaktadır.",
           ],
         },
         {
-          title: "Cookie ve oturum mekanizmalari",
+          title: "Alıcılar ve olası üçüncü ülke aktarımı",
           paragraphs: [
-            "MerhabaMap su anda istege bagli analiz veya pazarlama takibi kullanmaz. Giris ve oturumun surmesi icin gerekli teknik cookie ve benzeri mekanizmalar kullanilabilir.",
+            "Kişisel veriler, platformun işletilmesi için gerekli olduğu ölçüde teknik hizmet sağlayıcılarına aktarılabilir. Tekil hizmet sağlayıcılar verileri Avrupa Birliği veya Avrupa Ekonomik Alanı dışındaki ülkelerde de işleyebilir; bu durumda ilgili sağlayıcının sunduğu geçerli aktarım mekanizmaları esas alınır.",
           ],
         },
         {
-          title: "Iletisim kanallari",
+          title: "Çerezler ve benzeri teknolojiler",
           paragraphs: [
-            "Su anda ayrica bir bulten veya ayri bir iletisim formu sunulmamaktadir. Iletisim agirlikli olarak dogrudan e-posta uzerinden gerceklesir.",
+            "MerhabaMap şu anda yalnızca oturum, kimlik doğrulama ve yerel kayıt işlevleri için gerekli teknik çerezleri veya benzeri depolama mekanizmalarını kullanır. İsteğe bağlı analiz veya pazarlama takibi mevcut değildir.",
           ],
         },
         {
-          title: "Saklama suresi",
+          title: "İletişim kanalları",
           paragraphs: [
-            "Veriler, ilgili amac devam ettigi surece ve yasal saklama yukumlulukleri gerektirdigi olcude tutulur. Ayrintili silme ve saklama politikalari canliya cikmadan once son kez gozden gecirilmelidir.",
+            "Şu anda ayrıca bir bülten veya ayrı bir iletişim formu sunulmamaktadır. İletişim ağırlıklı olarak doğrudan e-posta üzerinden gerçekleşir.",
           ],
         },
         {
-          title: "Haklariniz",
+          title: "Saklama süresi",
+          paragraphs: [
+            "Veriler, ilgili amaç için gerekli olduğu sürece, hesap mevcut olduğu sürece veya yasal saklama yükümlülükleri gerektirdiği ölçüde saklanır. Yerel olarak kaydedilen içerikler kullanıcının kendi tarayıcısında tutulur ve kullanıcı tarafından silinebilir.",
+          ],
+        },
+        {
+          title: "Haklarınız",
           bullets: [
             "bilgi talep etme",
-            "duzeltme isteme",
-            "silme veya kisitlama talep etme",
+            "düzeltme isteme",
+            "silme veya kısıtlama talep etme",
             "itiraz etme",
-            "veri tasinabilirligi",
+            "veri taşınabilirliği",
           ],
         },
         {
-          title: "Sikayet hakki",
+          title: "Şikâyet hakkı",
           paragraphs: [
-            "Kullanicilar, veri isleme ile ilgili olarak yetkili bir denetim makamuna sikayette bulunma hakkina sahiptir.",
+            "İlgili kişiler, kişisel verilerinin işlenmesiyle ilgili olarak yetkili bir veri koruma denetim makamına şikâyette bulunabilir.",
           ],
         },
       ],
@@ -217,9 +218,9 @@ export function getPrivacyContent(locale: AppLocale): LegalPageContent {
   }
 
   return {
-    title: "Datenschutzerklaerung",
+    title: "Datenschutzerklärung",
     intro:
-      "Diese Datenschutzerklaerung ist als ehrliche Basis fuer den aktuellen Produktstand formuliert. Sie soll die tatsaechlich erkennbaren Datenfluesse und Dienstleister transparent machen und spaeter juristisch verfeinert werden.",
+      "Diese Datenschutzerklärung informiert darüber, welche personenbezogenen Daten bei der Nutzung von MerhabaMap verarbeitet werden und zu welchen Zwecken dies geschieht.",
     sections: [
       {
         title: "Verantwortlicher",
@@ -229,69 +230,69 @@ export function getPrivacyContent(locale: AppLocale): LegalPageContent {
         ],
       },
       {
-        title: "Kontakt",
+        title: "Kontakt für Datenschutzanliegen",
         paragraphs: [
           `Allgemeine Kontaktadresse: ${company.contactEmail}`,
-          `Kontakt fuer Datenschutzanliegen: ${company.privacyContactEmail}`,
+          `Kontakt für Datenschutzanliegen: ${company.privacyContactEmail}`,
         ],
       },
       {
-        title: "Welche Daten verarbeitet werden",
+        title: "Verarbeitete Datenkategorien",
         bullets: [
-          "Registrierungsdaten wie E-Mail-Adresse, Nutzername und Passwort-Hash",
-          "Login- und Sitzungsdaten",
-          "gespeicherte Orte und Events",
-          "Angaben aus Reports und Meldungen",
-          "Angaben aus Business-Claims",
-          "Angaben, die bei einer direkten Kontaktaufnahme per E-Mail uebermittelt werden",
+          "Registrierungs- und Kontodaten wie E-Mail-Adresse, Nutzername und Passwort-Hash",
+          "Login-, Session- und Sicherheitsdaten, soweit sie für Anmeldung und Schutz des Dienstes erforderlich sind",
+          "lokal im Browser gespeicherte Merkliste, soweit die Funktion „Gespeichert“ genutzt wird",
+          "Angaben aus Meldungen, Einreichungen, Claims und vergleichbaren Interaktionen",
+          "Inhalte und Metadaten von Kontaktanfragen per E-Mail",
+          "technische Verbindungs- und Infrastrukturdaten, die für die sichere Bereitstellung der Website erforderlich sein können",
         ],
       },
       {
-        title: "Zwecke der Verarbeitung",
+        title: "Zwecke der Verarbeitung und Rechtsgrundlagen",
         bullets: [
-          "Betrieb und Absicherung der Plattform",
-          "Bereitstellung von Community-Funktionen wie Speichern, Melden und Claims",
-          "Kommunikation zu konto- und plattformbezogenen Vorgaengen",
-          "Bearbeitung von Kontaktanfragen",
-        ],
-      },
-      {
-        title: "Rechtsgrundlagen",
-        bullets: [
-          "Vertragserfuellung und vorvertragliche Kommunikation",
-          "berechtigte Interessen, insbesondere fuer Sicherheit, Stabilitaet, Missbrauchsvermeidung und Weiterentwicklung des Plattformbetriebs",
+          "Bereitstellung des Dienstes, des Nutzerkontos sowie der Login- und Speicherfunktionen (Art. 6 Abs. 1 lit. b DSGVO)",
+          "Bearbeitung von Meldungen, Claims, Support- und Kontaktanfragen (je nach Anlass Art. 6 Abs. 1 lit. b oder lit. f DSGVO)",
+          "Gewährleistung von IT-Sicherheit, Stabilität, Fehleranalyse und Missbrauchsprävention (Art. 6 Abs. 1 lit. f DSGVO)",
+          "Erfüllung gesetzlicher Pflichten und Aufbewahrungspflichten (Art. 6 Abs. 1 lit. c DSGVO)",
         ],
       },
       {
         title: "Hosting und technische Dienstleister",
         bullets: [
-          "Netlify fuer Deployment und Auslieferung der Anwendung",
-          "DigitalOcean fuer die Datenbank",
-          "Cloudflare fuer CDN- und Edge-Auslieferung",
+          "Netlify für Deployment und Auslieferung der Anwendung",
+          "DigitalOcean für die Datenbank",
+          "Cloudflare für CDN- und Edge-Auslieferung",
+          "für Kartenansichten je nach technischer Konfiguration OpenStreetMap oder Mapbox",
         ],
       },
       {
-        title: "E-Mail-Versand",
+        title: "E-Mail-Kommunikation",
         paragraphs: [
-          "Fuer transaktionale E-Mails und die geschäftliche Kommunikation wird Zoho eingesetzt.",
+          "Im aktuellen Produktivbetrieb wird für transaktionale E-Mails und die direkte geschäftliche Kommunikation Zoho eingesetzt.",
         ],
       },
       {
-        title: "Cookies und Sessions",
+        title: "Empfänger und mögliche Drittlandübermittlung",
         paragraphs: [
-          "Nach heutigem Stand verwendet MerhabaMap nur technisch notwendige Session- und Auth-Cookies. Optionale Analytics- oder Marketing-Tracker sind derzeit nicht Teil des Produkts.",
+          "Personenbezogene Daten können an technische Dienstleister übermittelt werden, soweit dies für Betrieb, Kommunikation oder sichere Auslieferung der Plattform erforderlich ist. Einzelne Dienstleister können Daten außerhalb der Europäischen Union oder des Europäischen Wirtschaftsraums verarbeiten; in diesen Fällen richtet sich die Verarbeitung nach den jeweils vorgesehenen zulässigen Übermittlungsmechanismen.",
         ],
       },
       {
-        title: "Kontaktkanaele",
+        title: "Cookies und ähnliche Technologien",
         paragraphs: [
-          "Aktuell gibt es keinen Newsletter und kein eigenstaendiges Kontaktformular. Kontaktaufnahmen erfolgen derzeit in erster Linie per E-Mail.",
+          "MerhabaMap verwendet nach aktuellem Stand nur technisch erforderliche Session- und Auth-Cookies sowie lokalen Browser-Speicher, soweit dies für Anmeldung, Kontonutzung oder lokal gespeicherte Orte nötig ist. Optionale Analytics-, Marketing- oder Werbe-Tracker werden derzeit nicht eingesetzt.",
+        ],
+      },
+      {
+        title: "Kontaktkanäle",
+        paragraphs: [
+          "Aktuell gibt es keinen Newsletter und kein eigenständiges Kontaktformular. Kontaktaufnahmen erfolgen derzeit in erster Linie per E-Mail.",
         ],
       },
       {
         title: "Speicherdauer",
         paragraphs: [
-          "Personenbezogene Daten werden nur so lange gespeichert, wie es fuer den jeweiligen Zweck, den Plattformbetrieb oder gesetzliche Aufbewahrungspflichten erforderlich ist.",
+          "Personenbezogene Daten werden nur so lange gespeichert, wie es für den jeweiligen Zweck, den Betrieb der Plattform oder gesetzliche Aufbewahrungspflichten erforderlich ist. Lokal gespeicherte Merkinhalte verbleiben im Browser der Nutzer und können dort gelöscht werden.",
         ],
       },
       {
@@ -299,16 +300,16 @@ export function getPrivacyContent(locale: AppLocale): LegalPageContent {
         bullets: [
           "Auskunft",
           "Berichtigung",
-          "Loeschung",
-          "Einschraenkung der Verarbeitung",
+          "Löschung",
+          "Einschränkung der Verarbeitung",
           "Widerspruch",
-          "Datenuebertragbarkeit",
+          "Datenübertragbarkeit",
         ],
       },
       {
         title: "Beschwerderecht",
         paragraphs: [
-          "Betroffene koennen sich bei einer zustaendigen Datenschutzaufsichtsbehoerde beschweren.",
+          "Betroffene können sich bei einer zuständigen Datenschutzaufsichtsbehörde beschweren.",
         ],
       },
     ],
@@ -325,18 +326,28 @@ export function getContactContent(locale: AppLocale): LegalPageContent {
 
   if (locale === "tr") {
     return {
-      title: "Iletisim",
+      title: "İletişim",
       intro:
-        "MerhabaMap ile iletisime gecmek icin e-posta ana kanal olarak kullanilir. Telefonla ulasim da mumkundur; geri donus suresi yogunluga gore degisebilir.",
+        "MerhabaMap ile iletişime geçmek için ana kanal e-postadır. Telefonla iletişim de mümkündür; yanıt süresi konuya ve yoğunluğa göre değişebilir.",
       sections: [
         {
-          title: "Genel iletisim",
-          paragraphs: [...contactParagraphs, "MerhabaMap, topluluk odakli bir platform olarak mesajlari siraya gore yanitlar."],
+          title: "Genel iletişim",
+          paragraphs: [...contactParagraphs, "MerhabaMap, topluluk odaklı bir platform olarak talepleri mümkün olduğunca sırayla yanıtlar."],
         },
         {
-          title: "Yanit beklentisi",
+          title: "Gizlilik konuları",
+          paragraphs: [`Gizlilik talepleri için: ${company.privacyContactEmail}`],
+        },
+        {
+          title: "İletişim şekli",
           paragraphs: [
-            "Taleplerin niteligine ve yogunluga bagli olarak geri donus suresi degisebilir.",
+            "Şu anda ayrıca bir bülten veya ayrı bir iletişim formu sunulmamaktadır. İletişim ağırlıklı olarak doğrudan e-posta üzerinden gerçekleşir.",
+          ],
+        },
+        {
+          title: "Yanıt beklentisi",
+          paragraphs: [
+            "Taleplerin niteliğine ve yoğunluğa bağlı olarak geri dönüş süresi değişebilir.",
           ],
         },
       ],
@@ -346,16 +357,26 @@ export function getContactContent(locale: AppLocale): LegalPageContent {
   return {
     title: "Kontakt",
     intro:
-      "Fuer Kontaktanfragen ist E-Mail derzeit der wichtigste Weg. Telefonische Kontaktaufnahme ist ebenfalls moeglich; Antwortzeiten koennen je nach Auslastung und Thema variieren.",
+      "Für Kontaktanfragen ist E-Mail derzeit der wichtigste Weg. Telefonische Kontaktaufnahme ist ebenfalls möglich; Antwortzeiten können je nach Auslastung und Thema variieren.",
     sections: [
       {
-        title: "Kontaktmoeglichkeit",
-        paragraphs: [...contactParagraphs, "MerhabaMap ist eine community-orientierte Plattform und beantwortet Anfragen nach Verfuegbarkeit."],
+        title: "Kontaktmöglichkeiten",
+        paragraphs: [...contactParagraphs, "MerhabaMap ist eine community-orientierte Plattform und beantwortet Anfragen nach Verfügbarkeit."],
+      },
+      {
+        title: "Datenschutzanfragen",
+        paragraphs: [`Für Datenschutzanliegen: ${company.privacyContactEmail}`],
+      },
+      {
+        title: "Kontaktweg",
+        paragraphs: [
+          "Aktuell gibt es keinen Newsletter und kein eigenständiges Kontaktformular. Kontaktaufnahmen erfolgen in erster Linie per E-Mail.",
+        ],
       },
       {
         title: "Hinweis zu Antwortzeiten",
         paragraphs: [
-          "Rueckmeldungen koennen je nach Umfang und Dringlichkeit einer Anfrage unterschiedlich schnell erfolgen.",
+          "Rückmeldungen können je nach Umfang und Dringlichkeit einer Anfrage unterschiedlich schnell erfolgen.",
         ],
       },
     ],
@@ -365,26 +386,26 @@ export function getContactContent(locale: AppLocale): LegalPageContent {
 export function getCookiesContent(locale: AppLocale): LegalPageContent {
   if (locale === "tr") {
     return {
-      title: "Cookies ve Gizlilik",
+      title: "Çerezler ve benzeri teknolojiler",
       intro:
-        "Bu sayfa su anki teknik durumu aciklar. MerhabaMap'te bugun itibariyla pazarlama veya analiz takibi yerine yalnizca isletim icin gerekli mekanizmalar dikkate alinmistir.",
+        "Bu sayfa, MerhabaMap'te kullanılan çerezleri ve benzeri yerel depolama mekanizmalarını mevcut teknik kurguya göre özetler.",
       sections: [
         {
-          title: "Teknik olarak gerekli cookies",
+          title: "Teknik olarak gerekli çerezler ve depolama",
           paragraphs: [
-            "MerhabaMap, oturumun surmesi ve giris islemlerinin calismasi icin gerekli cookie veya benzeri depolama mekanizmalari kullanabilir.",
+            "MerhabaMap, oturumun sürmesi ve giriş işlemlerinin çalışması için gerekli çerezleri kullanabilir. Yerel olarak kaydedilen yerler için tarayıcı depolaması da kullanılabilir.",
           ],
         },
         {
-          title: "Takip ve analiz durumu",
+          title: "İsteğe bağlı takip bulunmaması",
           paragraphs: [
-            "Mevcut urun durumunda istege bagli tracking, analytics veya pazarlama cookies'i bu sayfada beyan edilmemektedir.",
+            "Mevcut ürün durumunda isteğe bağlı analiz, pazarlama veya reklam çerezleri kullanılmamaktadır.",
           ],
         },
         {
-          title: "Gelecekte degisirse",
+          title: "Onay ve gelecekteki değişiklikler",
           paragraphs: [
-            "Teknik kapsam degisirse bu sayfa ve gerekirse ilgili tercih/cozumlendirme akislari ayrica guncellenmelidir.",
+            "Mevcut kurulumda isteğe bağlı takip çerezleri bulunmadığı için ayrıca bir pazarlama onayı akışı öngörülmemektedir. Teknik kapsam değişirse bu sayfa ve gerekirse ilgili onay mekanizmaları ayrıca güncellenmelidir.",
           ],
         },
       ],
@@ -392,26 +413,26 @@ export function getCookiesContent(locale: AppLocale): LegalPageContent {
   }
 
   return {
-    title: "Cookies & Privatsphaere",
+    title: "Cookies und ähnliche Technologien",
     intro:
-      "Diese Seite beschreibt den aktuellen technischen Stand. MerhabaMap setzt derzeit keine optionalen Tracking- oder Analytics-Mechanismen voraus, sondern nur das, was fuer Betrieb und Anmeldung notwendig ist.",
+      "Diese Seite beschreibt, welche Cookies und vergleichbaren Speichermechanismen MerhabaMap nach aktuellem Stand verwendet.",
     sections: [
       {
-        title: "Technisch notwendige Cookies",
+        title: "Technisch erforderliche Cookies und Speichermechanismen",
         paragraphs: [
-          "MerhabaMap kann Session- und Auth-Cookies verwenden, damit Anmeldung, Sitzung und sicherheitsrelevante Funktionen funktionieren.",
+          "MerhabaMap verwendet technisch erforderliche Session- und Auth-Cookies, damit Anmeldung, Sitzung und sicherheitsrelevante Funktionen funktionieren. Für lokal gespeicherte Orte kann zusätzlich lokaler Browser-Speicher eingesetzt werden.",
         ],
       },
       {
         title: "Kein optionales Tracking nach aktuellem Stand",
         paragraphs: [
-          "Fuer den derzeitigen Produktstand werden keine separaten Analytics-, Marketing- oder Werbe-Cookies eingesetzt oder auf dieser Seite beschrieben.",
+          "Für den derzeitigen Produktstand werden keine separaten Analytics-, Marketing- oder Werbe-Cookies eingesetzt.",
         ],
       },
       {
-        title: "Spaetere Erweiterungen",
+        title: "Einwilligung und spätere Änderungen",
         paragraphs: [
-          "Wenn kuenftig Tracking oder weitere Dritttools hinzukommen, muessen diese Seite und gegebenenfalls zusaetzliche Einwilligungs- oder Einstellungsmechanismen angepasst werden.",
+          "Da aktuell keine optionalen Tracking- oder Marketing-Cookies eingesetzt werden, ist derzeit kein gesonderter Einwilligungsmechanismus für solche Zwecke vorgesehen. Falls sich der technische Umfang ändert, müssen diese Seite und gegebenenfalls zusätzliche Einwilligungs- oder Einstellungsmechanismen angepasst werden.",
         ],
       },
     ],
@@ -423,45 +444,51 @@ export function getTermsContent(locale: AppLocale): LegalPageContent {
 
   if (locale === "tr") {
     return {
-      title: "Kullanim Kosullari",
+      title: "Kullanım koşulları",
       intro:
-        "Bu metin, MerhabaMap'in mevcut urun mantigi icin ihtiyatli bir temel saglar. Amaci kullanicilarin sorumluluklarini ve platformun mudahale imkanlarini acik ve olculu bicimde gostermektir.",
+        "Bu kullanım koşulları, MerhabaMap'in mevcut ürün yapısı için kullanıcı sorumluluklarını, platform sınırlarını ve müdahale imkanlarını ana hatlarıyla açıklar.",
       sections: [
         {
           title: "Platformun konusu",
           paragraphs: [
-            "MerhabaMap, topluluk baglaminda mekanlar, etkinlikler ve ilgili giris noktalarini gosteren bir platformdur.",
+            "MerhabaMap, topluluk bağlamında mekânlar, etkinlikler ve ilgili giriş noktalarını gösteren bir bilgi ve keşif platformudur.",
           ],
         },
         {
-          title: "Kullanici sorumlulugu",
+          title: "Kullanıcı sorumluluğu",
           paragraphs: [
-            "Kullanicilar, gonderdikleri veya bildirdikleri iceriklerden ve hesap bilgilerinin guvenliginden kendileri sorumludur.",
+            "Kullanıcılar, ilettikleri içeriklerden, bildirimlerden ve hesap bilgilerinin güvenliğinden kendileri sorumludur.",
           ],
         },
         {
-          title: "Yasak icerikler ve davranislar",
+          title: "Yasak içerikler ve davranışlar",
           bullets: [
-            "nefret soylemi veya ayrimci icerikler",
-            "hukuka aykiri icerikler",
-            "spam veya sistemin kotuye kullanimi",
+            "nefret söylemi veya ayrımcı içerikler",
+            "hukuka aykırı içerikler",
+            "spam veya sistemin kötüye kullanımı",
           ],
         },
         {
-          title: "Moderasyon",
+          title: "Moderasyon ve hesaplar",
           paragraphs: [
-            "MerhabaMap, icerikleri inceleyebilir, sinirlayabilir veya kaldirabilir. Gerekirse hesaplara gecici ya da kalici kisitlamalar uygulanabilir.",
+            "MerhabaMap, içerikleri inceleyebilir, sınırlandırabilir veya kaldırabilir. Gerekirse hesaplara geçici ya da kalıcı kısıtlamalar uygulanabilir.",
           ],
         },
         {
-          title: "Harici icerikler",
+          title: "Kullanılabilirlik ve değişiklikler",
           paragraphs: [
-            "Harici baglantilar veya ucuncu taraf etkinlik sayfalari ilgili saglayicilarin sorumlulugundadir.",
+            "MerhabaMap, platform özelliklerini ve içerik kapsamını geliştirebilir, sınırlayabilir veya değiştirebilir. Belirli bir işlevin sürekli erişilebilir olacağına dair ayrıca bir taahhüt verilmez.",
           ],
         },
         {
-          title: "Iletisim",
-          paragraphs: [`Genel iletisim: ${company.contactEmail}`],
+          title: "Harici içerikler",
+          paragraphs: [
+            "Harici bağlantılar veya üçüncü taraf sayfalar ilgili sağlayıcıların sorumluluğundadır.",
+          ],
+        },
+        {
+          title: "İletişim",
+          paragraphs: [`Genel iletişim: ${company.contactEmail}`],
         },
       ],
     };
@@ -470,32 +497,38 @@ export function getTermsContent(locale: AppLocale): LegalPageContent {
   return {
     title: "Nutzungsbedingungen",
     intro:
-      "Diese Nutzungsbedingungen schaffen eine vorsichtige Basis fuer den derzeitigen Produktstand von MerhabaMap. Sie sollen Verantwortung, Grenzen und Moderationsmoeglichkeiten klar benennen, ohne unzutreffende Versprechen zu machen.",
+      "Diese Nutzungsbedingungen beschreiben die grundlegenden Regeln für die Nutzung von MerhabaMap, die Verantwortlichkeiten der Nutzer und die Grenzen des Plattformbetriebs.",
     sections: [
       {
         title: "Gegenstand der Plattform",
         paragraphs: [
-          "MerhabaMap ist eine Plattform fuer Community-bezogene Orte, Events und lokale Orientierung.",
+          "MerhabaMap ist eine Plattform für community-bezogene Orte, Events und lokale Orientierung.",
         ],
       },
       {
         title: "Verantwortung der Nutzer",
         paragraphs: [
-          "Nutzer sind fuer Inhalte, Meldungen und Angaben verantwortlich, die sie ueber die Plattform uebermitteln.",
+          "Nutzer sind für Inhalte, Meldungen und Angaben verantwortlich, die sie über die Plattform übermitteln.",
         ],
       },
       {
-        title: "Unzulaessige Inhalte",
+        title: "Unzulässige Inhalte",
         bullets: [
           "Hassrede oder diskriminierende Inhalte",
           "rechtswidrige Inhalte",
-          "Spam oder missbraeuchliche Nutzung der Plattform",
+          "Spam oder missbräuchliche Nutzung der Plattform",
         ],
       },
       {
         title: "Moderation und Konten",
         paragraphs: [
-          "MerhabaMap kann Inhalte pruefen, einschränken oder entfernen. Bei erheblichen oder wiederholten Verstoessen koennen Konten voruebergehend oder dauerhaft gesperrt werden.",
+          "MerhabaMap kann Inhalte prüfen, einschränken oder entfernen. Bei erheblichen oder wiederholten Verstößen können Konten vorübergehend oder dauerhaft gesperrt werden.",
+        ],
+      },
+      {
+        title: "Verfügbarkeit und Änderungen",
+        paragraphs: [
+          "MerhabaMap kann Funktionen, Inhalte und technische Ausgestaltung weiterentwickeln, einschränken oder ändern. Ein Anspruch auf jederzeitige Verfügbarkeit bestimmter Funktionen besteht nicht.",
         ],
       },
       {
@@ -515,29 +548,36 @@ export function getTermsContent(locale: AppLocale): LegalPageContent {
 export function getCommunityRulesContent(locale: AppLocale): LegalPageContent {
   if (locale === "tr") {
     return {
-      title: "Topluluk Kurallari",
+      title: "Topluluk kuralları",
       intro:
-        "Bu kurallar, MerhabaMap'te topluluk odakli ve saygili bir ortami korumak icin sade bicimde formulize edilmistir.",
+        "Bu kurallar, MerhabaMap'te saygılı, güvenilir ve topluluk odaklı bir ortamı korumaya yardımcı olmak için hazırlanmıştır.",
       sections: [
         {
-          title: "Saygili davranis",
+          title: "Saygılı davranış",
           bullets: [
-            "saygili ve topluluk duyarliligina uygun iletisim kur",
-            "ayrimci veya asagilayici dil kullanma",
+            "saygılı ve topluluk duyarlılığına uygun iletişim kur",
+            "ayrımcı veya aşağılayıcı dil kullanma",
           ],
         },
         {
-          title: "Dogru bilgi",
+          title: "Doğru bilgi",
           bullets: [
-            "sahte mekan veya sahte etkinlik girmeyin",
-            "yaniltici claim veya rapor gondermeyin",
+            "sahte mekân veya sahte etkinlik girmeyin",
+            "yanıltıcı claim veya rapor göndermeyin",
           ],
         },
         {
-          title: "Reklam ve tanitim",
+          title: "Reklam ve tanıtım",
           bullets: [
-            "baglamsiz reklam veya spam paylasmayin",
-            "topluluga fayda saglamayan tanitimlari zorlamayin",
+            "bağlamsız reklam veya spam paylaşmayın",
+            "topluluğa fayda sağlamayan tanıtımları zorlamayın",
+          ],
+        },
+        {
+          title: "Bildirimleri sorumlu kullanın",
+          bullets: [
+            "bildirim ve rapor araçlarını yalnızca gerçek bir sorun veya gerçek bir hak talebi için kullanın",
+            "kişilere zarar vermek amacıyla kötüye kullanımda bulunmayın",
           ],
         },
       ],
@@ -547,7 +587,7 @@ export function getCommunityRulesContent(locale: AppLocale): LegalPageContent {
   return {
     title: "Community-Regeln",
     intro:
-      "Diese Regeln sollen einen respektvollen, glaubwuerdigen und community-orientierten Umgang auf MerhabaMap foerdern.",
+      "Diese Regeln sollen einen respektvollen, glaubwürdigen und community-orientierten Umgang auf MerhabaMap fördern.",
     sections: [
       {
         title: "Respektvoller Umgang",
@@ -560,7 +600,7 @@ export function getCommunityRulesContent(locale: AppLocale): LegalPageContent {
         title: "Keine Fake-Inhalte",
         bullets: [
           "keine Fake-Events oder Fake-Orte einreichen",
-          "keine bewusst irrefuehrenden Claims oder Meldungen absenden",
+          "keine bewusst irreführenden Claims oder Meldungen absenden",
         ],
       },
       {
@@ -568,6 +608,13 @@ export function getCommunityRulesContent(locale: AppLocale): LegalPageContent {
         bullets: [
           "keine aufdringliche oder kontextlose Werbung",
           "keine Spam- oder Massenbeiträge ohne erkennbaren Community-Bezug",
+        ],
+      },
+      {
+        title: "Melde- und Claim-Funktionen verantwortungsvoll nutzen",
+        bullets: [
+          "Meldungen und Claims nur bei tatsächlichem Anlass absenden",
+          "keine Werkzeuge missbrauchen, um andere Personen oder Unternehmen zu behindern",
         ],
       },
     ],
