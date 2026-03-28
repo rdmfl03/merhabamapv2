@@ -35,6 +35,8 @@ type PlacePageTrendingItem = PlacePageItem & {
   createdAt?: Date | null;
 };
 
+export const dynamic = "force-dynamic";
+
 function getTopPlacesByCategoryLocal(
   places: readonly PlacePageItem[],
   category: string,
@@ -184,18 +186,20 @@ export default async function PlacesPage({
   let places: Awaited<ReturnType<typeof listPlaces>> = [];
 
   try {
-    [filterData, places] = await Promise.all([
-      getPlaceFilters(),
-      listPlaces({
-        filters,
-        userId: session?.user?.id,
-      }),
-    ]);
+    filterData = await getPlaceFilters();
   } catch {
     filterData = {
       cities: [],
       categories: [],
     };
+  }
+
+  try {
+    places = await listPlaces({
+      filters,
+      userId: session?.user?.id,
+    });
+  } catch {
     places = [];
   }
 

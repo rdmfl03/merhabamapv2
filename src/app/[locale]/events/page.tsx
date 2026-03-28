@@ -22,6 +22,8 @@ type EventsPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata({
   params,
   searchParams,
@@ -105,18 +107,20 @@ export default async function EventsPage({
   let events: Awaited<ReturnType<typeof listEvents>> = [];
 
   try {
-    [filterData, events] = await Promise.all([
-      getEventFilters(),
-      listEvents({
-        filters,
-        userId: session?.user?.id,
-      }),
-    ]);
+    filterData = await getEventFilters();
   } catch {
     filterData = {
       cities: [],
       categories: [],
     };
+  }
+
+  try {
+    events = await listEvents({
+      filters,
+      userId: session?.user?.id,
+    });
+  } catch {
     events = [];
   }
 
