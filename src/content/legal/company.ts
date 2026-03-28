@@ -5,7 +5,7 @@ export type LegalCompanyProfile = {
   legalRepresentative: string;
   addressLines: string[];
   contactEmail: string;
-  contactPhone: string;
+  registerEntry: string;
   vatId: string;
   contentResponsiblePerson: string;
   privacyContactEmail: string;
@@ -22,9 +22,9 @@ export function getLegalCompanyProfile(locale: AppLocale): LegalCompanyProfile {
       "[PLZ Ort, Deutschland bitte ergänzen]",
     ],
     contactEmail: "info@merhabamap.com",
-    contactPhone: "[Telefonnummer bitte ergänzen]",
+    registerEntry: "[Registergericht und Registernummer, falls vorhanden, bitte ergänzen]",
     vatId: "[USt-IdNr. / Steuerangabe falls vorhanden bitte ergänzen]",
     contentResponsiblePerson: "[verantwortliche Person nach § 18 Abs. 2 MStV bitte ergänzen]",
-    privacyContactEmail: "privacy@merhabamap.com",
+    privacyContactEmail: "info@merhabamap.com",
   };
 }
