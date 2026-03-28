@@ -1,25 +1,37 @@
 import type { Page } from "@playwright/test";
 
+function requireDemoPassword() {
+  const password = process.env.DEMO_ACCOUNT_PASSWORD?.trim();
+
+  if (!password) {
+    throw new Error(
+      "Missing DEMO_ACCOUNT_PASSWORD for e2e auth. Set it in .env.test.local before running demo-account sign-in flows.",
+    );
+  }
+
+  return password;
+}
+
 export const demoAccounts = {
   user: {
     email: "demo.user@example.com",
-    password: "DemoPass!123",
+    password: requireDemoPassword(),
   },
   businessOwner: {
     email: "demo.business@example.com",
-    password: "DemoPass!123",
+    password: requireDemoPassword(),
   },
   moderator: {
     email: "demo.moderator@example.com",
-    password: "DemoPass!123",
+    password: requireDemoPassword(),
   },
   admin: {
     email: "demo.admin@example.com",
-    password: "DemoPass!123",
+    password: requireDemoPassword(),
   },
   fresh: {
     email: "demo.fresh@example.com",
-    password: "DemoPass!123",
+    password: requireDemoPassword(),
   },
 } as const;
 

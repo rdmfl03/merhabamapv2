@@ -20,11 +20,10 @@ export function DemoAccountsCard({ labels }: DemoAccountsCardProps) {
       <div className="mt-4 space-y-3">
         {demoAccounts.map((account) => (
           <div
-            key={account.email}
+            key={account.key}
             className="rounded-2xl border border-amber-200 bg-white px-4 py-3 text-sm"
           >
             <p className="font-medium text-foreground">{account.label}</p>
-            <p className="text-muted-foreground">{account.email}</p>
             <p className="text-xs uppercase tracking-[0.14em] text-amber-900">
               {labels.role}: {account.role}
             </p>

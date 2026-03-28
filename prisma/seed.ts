@@ -1,3 +1,5 @@
+import { randomUUID } from "node:crypto";
+
 import {
   Prisma,
   PrismaClient,
@@ -23,6 +25,22 @@ const placeholderImages = {
 
 const berlinInterests = JSON.stringify(["FOOD", "EVENTS", "COMMUNITY"]);
 const koelnInterests = JSON.stringify(["FAMILY", "SHOPPING", "EVENTS"]);
+
+function resolveDemoAccountPassword() {
+  const configuredPassword = process.env.DEMO_ACCOUNT_PASSWORD?.trim();
+
+  if (configuredPassword) {
+    return {
+      password: configuredPassword,
+      source: "configured",
+    } as const;
+  }
+
+  return {
+    password: randomUUID(),
+    source: "generated",
+  } as const;
+}
 
 function openingHours(entries: Array<{ day: string; open: string; close: string }>) {
   return JSON.stringify(entries);
@@ -86,15 +104,14 @@ async function seedCategories() {
 }
 
 async function seedUsers(cityIds: { berlin: string; koeln: string }) {
-  const basePasswordHashes = Object.fromEntries(
-    demoAccounts.map((account) => [account.email, hashPassword(account.password)]),
-  );
+  const demoPassword = resolveDemoAccountPassword();
+  const hashedDemoPassword = hashPassword(demoPassword.password);
 
   const [demoUser, businessOwner, moderator, admin, freshUser] = await Promise.all([
     prisma.user.create({
       data: {
         email: "demo.user@example.com",
-        hashedPassword: basePasswordHashes["demo.user@example.com"],
+        hashedPassword: hashedDemoPassword,
         emailVerified: new Date(),
         name: "Demo User",
         username: "demo_user",
@@ -108,7 +125,7 @@ async function seedUsers(cityIds: { berlin: string; koeln: string }) {
     prisma.user.create({
       data: {
         email: "demo.business@example.com",
-        hashedPassword: basePasswordHashes["demo.business@example.com"],
+        hashedPassword: hashedDemoPassword,
         emailVerified: new Date(),
         name: "Demo Business Owner",
         username: "demo_business",
@@ -122,7 +139,7 @@ async function seedUsers(cityIds: { berlin: string; koeln: string }) {
     prisma.user.create({
       data: {
         email: "demo.moderator@example.com",
-        hashedPassword: basePasswordHashes["demo.moderator@example.com"],
+        hashedPassword: hashedDemoPassword,
         emailVerified: new Date(),
         name: "Demo Moderator",
         username: "demo_moderator",
@@ -136,7 +153,7 @@ async function seedUsers(cityIds: { berlin: string; koeln: string }) {
     prisma.user.create({
       data: {
         email: "demo.admin@example.com",
-        hashedPassword: basePasswordHashes["demo.admin@example.com"],
+        hashedPassword: hashedDemoPassword,
         emailVerified: new Date(),
         name: "Demo Admin",
         username: "demo_admin",
@@ -150,7 +167,7 @@ async function seedUsers(cityIds: { berlin: string; koeln: string }) {
     prisma.user.create({
       data: {
         email: "demo.fresh@example.com",
-        hashedPassword: basePasswordHashes["demo.fresh@example.com"],
+        hashedPassword: hashedDemoPassword,
         emailVerified: new Date(),
         name: "Fresh Demo User",
         username: "demo_fresh",
@@ -649,9 +666,15 @@ async function main() {
   });
 
   console.log("Seed complete");
-  console.log("Demo accounts:");
+  if (demoPassword.source === "configured") {
+    console.log("Demo accounts use the locally configured DEMO_ACCOUNT_PASSWORD value.");
+  } else {
+    console.log("Demo accounts were seeded with a generated local-only password.");
+    console.log("Set DEMO_ACCOUNT_PASSWORD locally before seeding if you need deterministic demo sign-in.");
+  }
+  console.log("Demo account labels:");
   demoAccounts.forEach((account) => {
-    console.log(`- ${account.label}: ${account.email} / ${account.password}`);
+    console.log(`- ${account.label} (${account.role})`);
   });
   console.log(`Pending claim: ${pendingClaim.id}`);
   console.log(`Approved claim: ${approvedClaim.id}`);

@@ -31,6 +31,14 @@ export function readBooleanEnv(name: string, defaultValue: boolean) {
   return defaultValue;
 }
 
+function isDemoCredentialsEnabledRuntime() {
+  return !isProductionRuntime() && readBooleanEnv("AUTH_DEMO_CREDENTIALS_ENABLED", false);
+}
+
+function isDemoAccountEmail(email: string) {
+  return /^demo\.(user|business|moderator|admin|fresh)@example\.com$/i.test(email);
+}
+
 function serializeNullableDate(value: Date | null | undefined) {
   return value ? value.toISOString() : null;
 }
@@ -88,6 +96,13 @@ export const authConfig = {
         if (!readBooleanEnv("AUTH_ENABLE_PASSWORD_LOGIN", true)) {
           console.warn("credentials_sign_in_rejected", {
             reason: "password_login_disabled",
+          });
+          return null;
+        }
+
+        if (isDemoAccountEmail(parsed.data.email) && !isDemoCredentialsEnabledRuntime()) {
+          console.warn("credentials_sign_in_rejected", {
+            reason: "demo_credentials_disabled",
           });
           return null;
         }
