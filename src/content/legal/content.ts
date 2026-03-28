@@ -16,7 +16,7 @@ export type LegalPageContent = {
 
 export function getImpressumContent(locale: AppLocale): LegalPageContent {
   const company = getLegalCompanyProfile(locale);
-  const contactParagraphs = [`E-Mail: ${company.contactEmail}`];
+  const contactParagraphs = [`E-Mail: ${company.adminEmail}`];
 
   if (company.contactPhone) {
     contactParagraphs.push(`Telefon: ${company.contactPhone}`);
@@ -134,7 +134,7 @@ export function getPrivacyContent(locale: AppLocale): LegalPageContent {
         {
           title: "İletişim",
           paragraphs: [
-            `Genel iletişim: ${company.contactEmail}`,
+            `Genel iletişim: ${company.infoEmail}`,
             `Gizlilik konuları için iletişim: ${company.privacyContactEmail}`,
           ],
         },
@@ -232,7 +232,7 @@ export function getPrivacyContent(locale: AppLocale): LegalPageContent {
       {
         title: "Kontakt für Datenschutzanliegen",
         paragraphs: [
-          `Allgemeine Kontaktadresse: ${company.contactEmail}`,
+          `Allgemeine Kontaktadresse: ${company.infoEmail}`,
           `Kontakt für Datenschutzanliegen: ${company.privacyContactEmail}`,
         ],
       },
@@ -488,7 +488,7 @@ export function getTermsContent(locale: AppLocale): LegalPageContent {
         },
         {
           title: "İletişim",
-          paragraphs: [`Genel iletişim: ${company.contactEmail}`],
+          paragraphs: [`Genel iletişim: ${company.supportEmail}`],
         },
       ],
     };
@@ -539,13 +539,15 @@ export function getTermsContent(locale: AppLocale): LegalPageContent {
       },
       {
         title: "Kontakt",
-        paragraphs: [`Allgemeine Kontaktadresse: ${company.contactEmail}`],
+        paragraphs: [`Allgemeine Kontaktadresse: ${company.supportEmail}`],
       },
     ],
   };
 }
 
 export function getCommunityRulesContent(locale: AppLocale): LegalPageContent {
+  const company = getLegalCompanyProfile(locale);
+
   if (locale === "tr") {
     return {
       title: "Topluluk kuralları",
@@ -579,6 +581,10 @@ export function getCommunityRulesContent(locale: AppLocale): LegalPageContent {
             "bildirim ve rapor araçlarını yalnızca gerçek bir sorun veya gerçek bir hak talebi için kullanın",
             "kişilere zarar vermek amacıyla kötüye kullanımda bulunmayın",
           ],
+        },
+        {
+          title: "Destek ve uyuşmazlık iletişimi",
+          paragraphs: [`Genel destek ve uyuşmazlık iletişimi: ${company.supportEmail}`],
         },
       ],
     };
@@ -616,6 +622,10 @@ export function getCommunityRulesContent(locale: AppLocale): LegalPageContent {
           "Meldungen und Claims nur bei tatsächlichem Anlass absenden",
           "keine Werkzeuge missbrauchen, um andere Personen oder Unternehmen zu behindern",
         ],
+      },
+      {
+        title: "Support und Konfliktkontakt",
+        paragraphs: [`Allgemeiner Support- und Konfliktkontakt: ${company.supportEmail}`],
       },
     ],
   };
