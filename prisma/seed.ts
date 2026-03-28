@@ -177,7 +177,14 @@ async function seedUsers(cityIds: { berlin: string; koeln: string }) {
     }),
   ]);
 
-  return { demoUser, businessOwner, moderator, admin, freshUser };
+  return {
+    demoUser,
+    businessOwner,
+    moderator,
+    admin,
+    freshUser,
+    demoPasswordSource: demoPassword.source,
+  };
 }
 
 async function seedPlaces(args: {
@@ -666,7 +673,7 @@ async function main() {
   });
 
   console.log("Seed complete");
-  if (demoPassword.source === "configured") {
+  if (users.demoPasswordSource === "configured") {
     console.log("Demo accounts use the locally configured DEMO_ACCOUNT_PASSWORD value.");
   } else {
     console.log("Demo accounts were seeded with a generated local-only password.");
