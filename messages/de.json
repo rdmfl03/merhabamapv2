@@ -2,7 +2,7 @@
   "common": {
     "brandName": "MerhabaMap",
     "taglineShort": "Türkische Orte und Events",
-    "cities": "Städte",
+    "cities": "Karte",
     "places": "Orte",
     "events": "Events",
     "business": "Business",
@@ -14,7 +14,7 @@
   },
   "landing": {
     "metaTitle": "Türkische Orte und Events in Deutschland",
-    "metaDescription": "Entdecke türkische Orte, Events und lokale Businesses in Berlin und Köln.",
+    "metaDescription": "Entdecke türkische Orte, Events und lokale Businesses in Deutschland – zuerst auf der Karte, optional nach Stadt gefiltert.",
     "eyebrow": "Bilingualer Start in Deutschland",
     "title": "Die digitale Karte für türkische Orte, Events und Community-Relevanz in Deutschland.",
     "subtitle": "MerhabaMap verbindet lokale Entdeckung, Community-Kontext und vertrauenswürdige Orientierung für Berlin und Köln in einer zweisprachigen, kartenbasierten Erfahrung.",
@@ -37,17 +37,17 @@
         "title": "Events mit Stadtbezug",
         "description": "Kulturabende, Treffen und Veranstaltungen erscheinen dort, wo sie für die Community tatsächlich lokal relevant sind."
       },
-      "cities": {
-        "eyebrow": "Städte",
-        "title": "Pilotstädte als Einstieg",
-        "description": "Öffentliche Stadtseiten geben Berlin und Köln eine klare, vertrauenswürdige Struktur für Orte, Events und nächste Schritte."
+      "map": {
+        "eyebrow": "Karte",
+        "title": "Deutschlandweite Discovery-Karte",
+        "description": "Orte und Events erscheinen auf einer gemeinsamen Karte; Pilotstädte wie Berlin und Köln kannst du gezielt per Filter ansteuern."
       }
     },
     "pilotSection": {
       "eyebrow": "Pilotstädte",
       "title": "Beginne dort, wo Community im Alltag sichtbar wird.",
       "description": "Berlin und Köln sind die ersten öffentlichen Einstiegspunkte. Von hier aus wächst MerhabaMap als lokales, vertrauenswürdiges Discovery-Netzwerk weiter.",
-      "cta": "Stadt entdecken",
+      "cta": "Karte öffnen",
       "placesLabel": "Orte",
       "eventsLabel": "Events"
     },
@@ -1190,6 +1190,7 @@
     }
   },
   "cities": {
+    "countryLabel": "Deutschland",
     "metaTitle": "Türkische Orte und Events in {city}",
     "metaDescription": "Entdecke türkische Orte, Events und lokale Einstiegspunkte in {city}.",
     "eyebrow": "Stadt entdecken",
@@ -1233,7 +1234,9 @@
       "places": "Ausgewählte Orte",
       "events": "Kommende Events",
       "viewAllPlaces": "Alle Orte der Stadt",
-      "viewAllEvents": "Alle Events der Stadt"
+      "viewAllEvents": "Alle Events der Stadt",
+      "viewAllPlacesNational": "Alle Orte",
+      "viewAllEventsNational": "Alle Events"
     },
     "emptyPlaces": "Für diese Stadt sind noch keine hervorgehobenen Orte sichtbar. Nutze trotzdem die Places-Liste für neue Einträge.",
     "emptyEvents": "Für diese Stadt sind aktuell keine kommenden Events sichtbar. Über die Events-Liste findest du neue Einträge, sobald sie veröffentlicht werden."

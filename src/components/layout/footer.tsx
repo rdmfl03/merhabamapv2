@@ -33,8 +33,8 @@ export async function Footer() {
         <div className="flex flex-wrap gap-4 text-sm">
           <Link href="/places">{common("places")}</Link>
           <Link href="/events">{common("events")}</Link>
-          <Link href="/cities/berlin">{t("berlin")}</Link>
-          <Link href="/cities/koeln">{t("koeln")}</Link>
+          <Link href="/cities/map?city=berlin">{t("berlin")}</Link>
+          <Link href="/cities/map?city=koeln">{t("koeln")}</Link>
           <Link href="/auth/signup">{common("signUp")}</Link>
         </div>
         <div className="flex flex-wrap gap-4 text-sm">

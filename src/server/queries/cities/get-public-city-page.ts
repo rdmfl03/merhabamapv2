@@ -17,6 +17,19 @@ const pilotCityCenters: Record<string, { latitude: number; longitude: number }> 
   koeln: { latitude: 50.9375, longitude: 6.9603 },
 };
 
+const GERMANY_MAP_CENTER = { latitude: 51.1657, longitude: 10.4515 };
+
+const GERMANY_MAP_VIRTUAL_CITY = {
+  id: "virtual-de-discovery-map",
+  slug: "deutschland",
+  nameDe: "Deutschland",
+  nameTr: "Almanya",
+  isPilot: false,
+} as const;
+
+const GERMANY_MAP_FETCH_LIMIT = 200;
+const GERMANY_MAP_MARKER_LIMIT = 72;
+
 function rankCityEvents(events: PublicEventRecordWithAi[]) {
   return [...events].sort((left, right) =>
     compareByAiRanking<PublicEventRecordWithAi>(left, right, (eventLeft, eventRight) => {
@@ -195,6 +208,116 @@ export async function getPublicCityPage(citySlug: string, userId?: string) {
       isSaved: savedEventIds.has(event.id),
     })),
     mapEvents: rankedEvents.map((event) => ({
+      ...stripCityEventAiFields(event),
+      isSaved: savedEventIds.has(event.id),
+    })),
+  };
+}
+
+export async function getPublicGermanyDiscoveryPage(userId?: string) {
+  const wherePlace = buildPublicPlaceWhere({
+    city: { countryCode: "DE" },
+  });
+  const whereEvent = buildPublicEventWhere({
+    city: { countryCode: "DE" },
+    startsAt: {
+      gte: new Date(),
+    },
+  });
+
+  const [rawMapPlaces, rawMapEvents, placeCount, eventCount] = await prisma.$transaction([
+    prisma.place.findMany({
+      where: wherePlace,
+      orderBy: [{ verificationStatus: "desc" }, { createdAt: "desc" }],
+      take: GERMANY_MAP_FETCH_LIMIT,
+      select: publicPlaceSelectWithAi,
+    }),
+    prisma.event.findMany({
+      where: whereEvent,
+      orderBy: { startsAt: "asc" },
+      take: GERMANY_MAP_FETCH_LIMIT,
+      select: publicEventSelectWithAi,
+    }),
+    prisma.place.count({ where: wherePlace }),
+    prisma.event.count({
+      where: buildPublicEventWhere({
+        city: { countryCode: "DE" },
+      }),
+    }),
+  ]);
+
+  const rankedPlacesAll = rankCityPlaces(rawMapPlaces);
+  const rankedEventsAll = rankCityEvents(rawMapEvents);
+  const featuredPlacesRanked = rankedPlacesAll.slice(0, 3);
+  const upcomingEventsRanked = rankedEventsAll.slice(0, 3);
+  const mapPlacesRanked = rankedPlacesAll.slice(0, GERMANY_MAP_MARKER_LIMIT);
+  const mapEventsRanked = rankedEventsAll.slice(0, GERMANY_MAP_MARKER_LIMIT);
+
+  const city = { ...GERMANY_MAP_VIRTUAL_CITY };
+
+  if (!userId) {
+    return {
+      city,
+      cityCenter: GERMANY_MAP_CENTER,
+      placeCount,
+      eventCount,
+      featuredPlaces: featuredPlacesRanked.map((place) => ({
+        ...stripCityPlaceAiFields(place),
+        isSaved: false,
+      })),
+      mapPlaces: mapPlacesRanked.map((place) => ({
+        ...stripCityPlaceAiFields(place),
+        isSaved: false,
+      })),
+      upcomingEvents: upcomingEventsRanked.map((event) => ({
+        ...stripCityEventAiFields(event),
+        isSaved: false,
+      })),
+      mapEvents: mapEventsRanked.map((event) => ({
+        ...stripCityEventAiFields(event),
+        isSaved: false,
+      })),
+    };
+  }
+
+  const [savedPlaces, savedEvents] = await prisma.$transaction([
+    prisma.savedPlace.findMany({
+      where: {
+        userId,
+        placeId: { in: mapPlacesRanked.map((place) => place.id) },
+      },
+      select: { placeId: true },
+    }),
+    prisma.savedEvent.findMany({
+      where: {
+        userId,
+        eventId: { in: mapEventsRanked.map((event) => event.id) },
+      },
+      select: { eventId: true },
+    }),
+  ]);
+
+  const savedPlaceIds = new Set(savedPlaces.map((entry) => entry.placeId));
+  const savedEventIds = new Set(savedEvents.map((entry) => entry.eventId));
+
+  return {
+    city,
+    cityCenter: GERMANY_MAP_CENTER,
+    placeCount,
+    eventCount,
+    featuredPlaces: featuredPlacesRanked.map((place) => ({
+      ...stripCityPlaceAiFields(place),
+      isSaved: savedPlaceIds.has(place.id),
+    })),
+    mapPlaces: mapPlacesRanked.map((place) => ({
+      ...stripCityPlaceAiFields(place),
+      isSaved: savedPlaceIds.has(place.id),
+    })),
+    upcomingEvents: upcomingEventsRanked.map((event) => ({
+      ...stripCityEventAiFields(event),
+      isSaved: savedEventIds.has(event.id),
+    })),
+    mapEvents: mapEventsRanked.map((event) => ({
       ...stripCityEventAiFields(event),
       isSaved: savedEventIds.has(event.id),
     })),

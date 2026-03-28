@@ -28,6 +28,11 @@ type CityDiscoveryOverviewProps = {
       longitude: number;
     } | null;
   };
+  placesListHref: string;
+  eventsListHref: string;
+  cardReturnPath: string;
+  explorePlacesLinkLabel: string;
+  exploreEventsLinkLabel: string;
   placeCount: number;
   eventCount: number;
   featuredPlaces: CityPlaceCardRecord[];
@@ -79,8 +84,6 @@ type CityDiscoveryOverviewProps = {
     eventExternal: string;
     placeFallback: string;
     eventFallback: string;
-    exploreCityPlaces: string;
-    exploreCityEvents: string;
     eventCategoryLabels: Record<string, string>;
   };
 };
@@ -88,6 +91,11 @@ type CityDiscoveryOverviewProps = {
 export function CityDiscoveryOverview({
   locale,
   city,
+  placesListHref,
+  eventsListHref,
+  cardReturnPath,
+  explorePlacesLinkLabel,
+  exploreEventsLinkLabel,
   placeCount,
   eventCount,
   featuredPlaces,
@@ -112,10 +120,10 @@ export function CityDiscoveryOverview({
           </p>
           <div className="flex flex-col gap-3 sm:flex-row">
             <Button asChild>
-              <Link href={`/places?city=${city.slug}`}>{labels.placesCta}</Link>
+              <Link href={placesListHref}>{labels.placesCta}</Link>
             </Button>
             <Button variant="outline" asChild>
-              <Link href={`/events?city=${city.slug}`}>{labels.eventsCta}</Link>
+              <Link href={eventsListHref}>{labels.eventsCta}</Link>
             </Button>
             <Button variant="outline" asChild>
               <Link href="/auth/signup">{labels.signUpCta}</Link>
@@ -160,8 +168,8 @@ export function CityDiscoveryOverview({
       <section className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="font-display text-2xl text-foreground">{labels.featuredPlaces}</h2>
-          <Link href={`/places?city=${city.slug}`} className="text-sm text-brand">
-            {labels.exploreCityPlaces}
+          <Link href={placesListHref} className="text-sm text-brand">
+            {explorePlacesLinkLabel}
           </Link>
         </div>
         {featuredPlaces.length === 0 ? (
@@ -184,7 +192,7 @@ export function CityDiscoveryOverview({
                 )}
                 categoryLabel={getLocalizedPlaceCategoryLabel(place.category, locale)}
                 cityLabel={locale === "tr" ? place.city.nameTr : place.city.nameDe}
-                returnPath={`/${locale}/cities/${city.slug}`}
+                returnPath={cardReturnPath}
                 isAuthenticated={isAuthenticated}
                 labels={{
                   details: labels.cardDetails,
@@ -203,8 +211,8 @@ export function CityDiscoveryOverview({
       <section className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="font-display text-2xl text-foreground">{labels.featuredEvents}</h2>
-          <Link href={`/events?city=${city.slug}`} className="text-sm text-brand">
-            {labels.exploreCityEvents}
+          <Link href={eventsListHref} className="text-sm text-brand">
+            {exploreEventsLinkLabel}
           </Link>
         </div>
         {upcomingEvents.length === 0 ? (
@@ -229,7 +237,7 @@ export function CityDiscoveryOverview({
                   labels.eventCategoryLabels[getEventCategoryLabelKey(event.category)]
                 }
                 cityLabel={locale === "tr" ? event.city.nameTr : event.city.nameDe}
-                returnPath={`/${locale}/cities/${city.slug}`}
+                returnPath={cardReturnPath}
                 isAuthenticated={isAuthenticated}
                 labels={{
                   details: labels.cardDetails,

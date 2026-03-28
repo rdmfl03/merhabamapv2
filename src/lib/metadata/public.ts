@@ -22,16 +22,16 @@ export function buildLandingMetadata(args: {
 
 export function buildCityMetadata(args: {
   locale: AppLocale;
-  citySlug: string;
   title: string;
   description: string;
+  path: string;
 }): Metadata {
   return {
     title: args.title,
     description: args.description,
     ...buildOpenGraphMetadata({
       locale: args.locale,
-      path: `/cities/${args.citySlug}`,
+      path: args.path,
       title: args.title,
       description: args.description,
     }),

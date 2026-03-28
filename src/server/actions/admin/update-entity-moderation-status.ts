@@ -104,7 +104,7 @@ export async function updateEntityModerationStatus(
     revalidatePath(`/${parsed.data.locale}/admin/ingest/submissions`);
     revalidatePath(publicListPath);
     revalidatePath(`/${parsed.data.locale}/places/${place.slug}`);
-    revalidatePath(`/${parsed.data.locale}/cities/${place.city.slug}`);
+    revalidatePath(`/${parsed.data.locale}/cities/map`);
 
     return { status: "success", message: "moderation_updated" };
   }
@@ -167,7 +167,7 @@ export async function updateEntityModerationStatus(
   revalidatePath(`/${parsed.data.locale}/admin/ingest/submissions`);
   revalidatePath(publicListPath);
   revalidatePath(`/${parsed.data.locale}/events/${event.slug}`);
-  revalidatePath(`/${parsed.data.locale}/cities/${event.city.slug}`);
+  revalidatePath(`/${parsed.data.locale}/cities/map`);
 
   return { status: "success", message: "moderation_updated" };
 }

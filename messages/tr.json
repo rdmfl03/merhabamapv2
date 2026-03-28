@@ -2,7 +2,7 @@
   "common": {
     "brandName": "MerhabaMap",
     "taglineShort": "Türk mekanları ve etkinlikleri",
-    "cities": "Şehirler",
+    "cities": "Harita",
     "places": "Mekanlar",
     "events": "Etkinlikler",
     "business": "Business",
@@ -14,7 +14,7 @@
   },
   "landing": {
     "metaTitle": "Almanya'da Türk mekanları ve etkinlikler",
-    "metaDescription": "Berlin ve Köln odaklı Türk mekanlarını, etkinlikleri ve yerel işletmeleri keşfet.",
+    "metaDescription": "Almanya genelinde Türk mekanlarını, etkinlikleri ve yerel işletmeleri keşfet – önce haritada, isteğe bağlı şehir filtresiyle.",
     "eyebrow": "Almanya için iki dilli başlangıç",
     "title": "Almanya'daki Türk mekanları, etkinlikleri ve topluluk bağlarını görünür kılan dijital harita.",
     "subtitle": "MerhabaMap; Berlin ve Köln için yerel keşfi, topluluk bağlamını ve güvenilir yönlendirmeyi iki dilli, harita merkezli bir deneyimde bir araya getirir.",
@@ -37,17 +37,17 @@
         "title": "Şehre bağlı etkinlikler",
         "description": "Kültür buluşmaları, topluluk etkinlikleri ve organizasyonlar, topluluk için gerçekten yerel anlam taşıdığı yerde görünür olur."
       },
-      "cities": {
-        "eyebrow": "Şehirler",
-        "title": "Pilot şehirlerden giriş",
-        "description": "Berlin ve Köln için açık şehir sayfaları, mekanları, etkinlikleri ve sonraki adımları güvenilir bir yapıda bir araya getirir."
+      "map": {
+        "eyebrow": "Harita",
+        "title": "Almanya geneli keşif haritası",
+        "description": "Mekanlar ve etkinlikler ortak bir haritada görünür; Berlin ve Köln gibi pilot şehirlere filtreyle odaklanabilirsin."
       }
     },
     "pilotSection": {
       "eyebrow": "Pilot şehirler",
       "title": "Topluluğun günlük hayatta görünür olduğu yerden başla.",
       "description": "Berlin ve Köln ilk açık giriş noktalarıdır. MerhabaMap buradan yerel, güvenilir ve ölçeklenebilir bir discovery ağı olarak büyür.",
-      "cta": "Şehri keşfet",
+      "cta": "Haritayı aç",
       "placesLabel": "Mekanlar",
       "eventsLabel": "Etkinlikler"
     },
@@ -1199,6 +1199,7 @@
     }
   },
   "cities": {
+    "countryLabel": "Almanya",
     "metaTitle": "{city} için Türk mekanları ve etkinlikleri",
     "metaDescription": "{city} içinde Türk mekanlarını, etkinliklerini ve yerel giriş noktalarını keşfet.",
     "eyebrow": "Şehir keşfi",
@@ -1242,7 +1243,9 @@
       "places": "Öne çıkan mekanlar",
       "events": "Yaklaşan etkinlikler",
       "viewAllPlaces": "Şehrin tüm mekanları",
-      "viewAllEvents": "Şehrin tüm etkinlikleri"
+      "viewAllEvents": "Şehrin tüm etkinlikleri",
+      "viewAllPlacesNational": "Tüm mekanlar",
+      "viewAllEventsNational": "Tüm etkinlikler"
     },
     "emptyPlaces": "Bu şehir için henüz öne çıkan mekan görünmüyor. Yine de yeni kayıtlar için mekan listesine geçebilirsin.",
     "emptyEvents": "Bu şehir için şimdilik yaklaşan etkinlik görünmüyor. Yeni yayınlanan etkinlikler için etkinlik listesine bakabilirsin."

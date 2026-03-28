@@ -49,7 +49,7 @@ export default async function LandingPage({ params }: LandingPageProps) {
       const profile = await getCurrentUserProfile(session.user.id);
 
       if (profile?.onboardingCity?.slug) {
-        redirect(`/${locale}/cities/${profile.onboardingCity.slug}`);
+        redirect(`/${locale}/cities/map?city=${profile.onboardingCity.slug}`);
       }
     } catch {
       // Fall back to the public landing experience if auth-linked DB reads fail.
@@ -84,7 +84,7 @@ export default async function LandingPage({ params }: LandingPageProps) {
       />
 
       <ValueGrid
-        items={["places", "events", "cities"].map((key) => ({
+        items={["places", "events", "map"].map((key) => ({
           eyebrow: t(`cards.${key}.eyebrow`),
           title: t(`cards.${key}.title`),
           description: t(`cards.${key}.description`),

@@ -41,7 +41,7 @@ export async function signInWithEmail(formData: FormData) {
     });
 
     if (user?.onboardingCompletedAt && user.onboardingCity?.slug) {
-      redirect(`/${locale}/cities/${user.onboardingCity.slug}` as Route);
+      redirect(`/${locale}/cities/map?city=${user.onboardingCity.slug}` as Route);
     }
   }
 

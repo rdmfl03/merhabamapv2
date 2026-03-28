@@ -65,7 +65,7 @@ export function PilotCitiesSection({
 
               <div className="flex flex-wrap gap-3">
                 <Button asChild>
-                  <Link href={`/cities/${city.slug}`}>{ctaLabel}</Link>
+                  <Link href={`/cities/map?city=${city.slug}`}>{ctaLabel}</Link>
                 </Button>
                 <Button variant="outline" size="sm" asChild>
                   <Link href={`/places?city=${city.slug}`}>{placesLabel}</Link>

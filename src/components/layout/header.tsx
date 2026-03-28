@@ -41,7 +41,7 @@ export async function Header() {
           </Link>
 
           <nav className="hidden items-center gap-5 md:flex">
-            <Link href="/cities/berlin" className="text-sm text-muted-foreground transition hover:text-foreground">
+            <Link href="/cities/map" className="text-sm text-muted-foreground transition hover:text-foreground">
               {t("cities")}
             </Link>
             <Link href="/places" className="text-sm text-muted-foreground transition hover:text-foreground">
@@ -79,7 +79,7 @@ export async function Header() {
         </div>
 
         <nav className="mt-3 flex items-center gap-4 overflow-x-auto md:hidden">
-          <Link href="/cities/berlin" className="whitespace-nowrap text-sm text-muted-foreground">
+          <Link href="/cities/map" className="whitespace-nowrap text-sm text-muted-foreground">
             {t("cities")}
           </Link>
           <Link href="/places" className="whitespace-nowrap text-sm text-muted-foreground">
