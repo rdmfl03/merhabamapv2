@@ -16,17 +16,23 @@ export type LegalPageContent = {
 
 export function getImpressumContent(locale: AppLocale): LegalPageContent {
   const company = getLegalCompanyProfile(locale);
+  const contactParagraphs = [`E-Mail: ${company.contactEmail}`];
+
+  if (company.contactPhone) {
+    contactParagraphs.push(`Telefon: ${company.contactPhone}`);
+  }
 
   if (locale === "tr") {
     return {
       title: "Impressum",
       intro:
-        "Bu sayfa Almanya odakli yayin icin gerekli temel saglayici bilgilerini yapilandirir. Koseli parantezli alanlar henuz tamamlanmamis bilgileri gosterir ve canliya cikmadan once gercek verilerle degistirilmelidir.",
+        "Bu sayfa, MerhabaMap platformunu isleten sirket hakkindaki temel saglayici bilgilerini Almanya odakli yayin icin yapilandirilmis bicimde sunar.",
       sections: [
         {
           title: "Saglayici bilgileri",
           paragraphs: [
             `Ad / sirket: ${company.entityName}`,
+            "Platform: MerhabaMap",
             ...company.addressLines,
           ],
         },
@@ -36,15 +42,7 @@ export function getImpressumContent(locale: AppLocale): LegalPageContent {
         },
         {
           title: "Iletisim",
-          paragraphs: [`E-posta: ${company.contactEmail}`],
-        },
-        {
-          title: "Ticaret sicili bilgisi",
-          paragraphs: [`Istege bagli kayit bilgisi: ${company.registerEntry}`],
-        },
-        {
-          title: "Vergi bilgisi",
-          paragraphs: [`USt-IdNr. / vergi bilgisi: ${company.vatId}`],
+          paragraphs: contactParagraphs,
         },
         {
           title: "Icerikten sorumlu kisi",
@@ -52,12 +50,22 @@ export function getImpressumContent(locale: AppLocale): LegalPageContent {
             `Gazetecilik ve editorluk icerikleri icin sorumlu kisi: ${company.contentResponsiblePerson}`,
           ],
         },
-        {
-          title: "Eksik bilgiler notu",
-          paragraphs: [
-            "Koseli parantezli tum alanlar bilerek yer tutucu olarak birakilmistir. Bu sayfa, eksik bilgileri gizlemek yerine hangi kurumsal verilerin henuz tamamlanmasi gerektigini acikca gosterir.",
-          ],
-        },
+        ...(company.registerEntry
+          ? [
+              {
+                title: "Ticaret sicili bilgisi",
+                paragraphs: [`Kayit bilgisi: ${company.registerEntry}`],
+              },
+            ]
+          : []),
+        ...(company.vatId
+          ? [
+              {
+                title: "Vergi bilgisi",
+                paragraphs: [`USt-IdNr.: ${company.vatId}`],
+              },
+            ]
+          : []),
       ],
     };
   }
@@ -65,12 +73,13 @@ export function getImpressumContent(locale: AppLocale): LegalPageContent {
   return {
     title: "Impressum",
     intro:
-      "Diese Seite bildet die grundlegenden Anbieterangaben fuer einen Deutschland-Launch strukturiert ab. Angaben in eckigen Klammern sind bewusst als Platzhalter markiert und muessen vor dem finalen Launch mit echten Daten ersetzt werden.",
+      "Diese Seite enthaelt die grundlegenden Anbieterangaben fuer die in Deutschland angebotene Plattform MerhabaMap.",
     sections: [
       {
         title: "Angaben gemaess § 5 DDG",
         paragraphs: [
           `Name / Firma: ${company.entityName}`,
+          "Plattform: MerhabaMap",
           ...company.addressLines,
         ],
       },
@@ -80,26 +89,28 @@ export function getImpressumContent(locale: AppLocale): LegalPageContent {
       },
       {
         title: "Kontakt",
-        paragraphs: [`E-Mail: ${company.contactEmail}`],
-      },
-      {
-        title: "Registereintrag",
-        paragraphs: [`Optionaler Registerhinweis: ${company.registerEntry}`],
-      },
-      {
-        title: "Umsatzsteuer",
-        paragraphs: [`USt-IdNr. / Steuerangabe: ${company.vatId}`],
+        paragraphs: contactParagraphs,
       },
       {
         title: "Verantwortlich fuer journalistisch-redaktionelle Inhalte",
         paragraphs: [`${company.contentResponsiblePerson}`],
       },
-      {
-        title: "Hinweis zu Platzhaltern",
-        paragraphs: [
-          "MerhabaMap zeigt an dieser Stelle keine erfundenen Unternehmensdaten an. Platzhalter bleiben sichtbar, bis die echten Pflichtangaben vorliegen.",
-        ],
-      },
+      ...(company.registerEntry
+        ? [
+            {
+              title: "Registereintrag",
+              paragraphs: [`${company.registerEntry}`],
+            },
+          ]
+        : []),
+      ...(company.vatId
+        ? [
+            {
+              title: "Umsatzsteuer",
+              paragraphs: [`USt-IdNr.: ${company.vatId}`],
+            },
+          ]
+        : []),
     ],
   };
 }
@@ -134,6 +145,7 @@ export function getPrivacyContent(locale: AppLocale): LegalPageContent {
             "giris ve oturum yonetimi bilgileri",
             "kaydedilen yerler ve etkinlikler",
             "raporlar, bildirimler ve business claim basvurularinda girilen veriler",
+            "e-posta ile iletisime gecildiginde paylasilan iletisim ve mesaj icerigi",
           ],
         },
         {
@@ -142,6 +154,7 @@ export function getPrivacyContent(locale: AppLocale): LegalPageContent {
             "platformu calistirmak ve hesaplari yonetmek",
             "topluluk odakli islevleri sunmak",
             "kaydetme, raporlama ve business claim akislarini isletmek",
+            "iletisim taleplerini islemek",
           ],
         },
         {
@@ -162,13 +175,19 @@ export function getPrivacyContent(locale: AppLocale): LegalPageContent {
         {
           title: "E-posta gonderimi",
           paragraphs: [
-            "Islemsel e-postalar icin Resend kullanilir. Bu iletiler hesapla ilgili zorunlu surecler icindir; reklam veya analiz araci olarak kullanilmaz.",
+            "Hesapla ilgili islemler ve is iletisimi icin Zoho kullanilir. Bu iletiler reklam veya analiz amacli degildir.",
           ],
         },
         {
           title: "Cookie ve oturum mekanizmalari",
           paragraphs: [
             "MerhabaMap su anda istege bagli analiz veya pazarlama takibi kullanmaz. Giris ve oturumun surmesi icin gerekli teknik cookie ve benzeri mekanizmalar kullanilabilir.",
+          ],
+        },
+        {
+          title: "Iletisim kanallari",
+          paragraphs: [
+            "Su anda ayrica bir bulten veya ayri bir iletisim formu sunulmamaktadir. Iletisim agirlikli olarak dogrudan e-posta uzerinden gerceklesir.",
           ],
         },
         {
@@ -224,6 +243,7 @@ export function getPrivacyContent(locale: AppLocale): LegalPageContent {
           "gespeicherte Orte und Events",
           "Angaben aus Reports und Meldungen",
           "Angaben aus Business-Claims",
+          "Angaben, die bei einer direkten Kontaktaufnahme per E-Mail uebermittelt werden",
         ],
       },
       {
@@ -232,6 +252,7 @@ export function getPrivacyContent(locale: AppLocale): LegalPageContent {
           "Betrieb und Absicherung der Plattform",
           "Bereitstellung von Community-Funktionen wie Speichern, Melden und Claims",
           "Kommunikation zu konto- und plattformbezogenen Vorgaengen",
+          "Bearbeitung von Kontaktanfragen",
         ],
       },
       {
@@ -252,13 +273,19 @@ export function getPrivacyContent(locale: AppLocale): LegalPageContent {
       {
         title: "E-Mail-Versand",
         paragraphs: [
-          "Fuer transaktionale E-Mails wie Verifizierung oder Passwort-Reset wird Resend eingesetzt.",
+          "Fuer transaktionale E-Mails und die geschäftliche Kommunikation wird Zoho eingesetzt.",
         ],
       },
       {
         title: "Cookies und Sessions",
         paragraphs: [
           "Nach heutigem Stand verwendet MerhabaMap nur technisch notwendige Session- und Auth-Cookies. Optionale Analytics- oder Marketing-Tracker sind derzeit nicht Teil des Produkts.",
+        ],
+      },
+      {
+        title: "Kontaktkanaele",
+        paragraphs: [
+          "Aktuell gibt es keinen Newsletter und kein eigenstaendiges Kontaktformular. Kontaktaufnahmen erfolgen derzeit in erster Linie per E-Mail.",
         ],
       },
       {
@@ -290,19 +317,21 @@ export function getPrivacyContent(locale: AppLocale): LegalPageContent {
 
 export function getContactContent(locale: AppLocale): LegalPageContent {
   const company = getLegalCompanyProfile(locale);
+  const contactParagraphs = [`E-Mail: ${company.contactEmail}`];
+
+  if (company.contactPhone) {
+    contactParagraphs.push(`Telefon: ${company.contactPhone}`);
+  }
 
   if (locale === "tr") {
     return {
       title: "Iletisim",
       intro:
-        "MerhabaMap ile iletisime gecmek icin su anda en verlaessliche yol e-postadir. Yanit sureleri yogunluga gore degisebilir.",
+        "MerhabaMap ile iletisime gecmek icin e-posta ana kanal olarak kullanilir. Telefonla ulasim da mumkundur; geri donus suresi yogunluga gore degisebilir.",
       sections: [
         {
           title: "Genel iletisim",
-          paragraphs: [
-            `E-posta: ${company.contactEmail}`,
-            "MerhabaMap, topluluk odakli bir platform olarak mesajlari siraya gore yanitlar.",
-          ],
+          paragraphs: [...contactParagraphs, "MerhabaMap, topluluk odakli bir platform olarak mesajlari siraya gore yanitlar."],
         },
         {
           title: "Yanit beklentisi",
@@ -317,14 +346,11 @@ export function getContactContent(locale: AppLocale): LegalPageContent {
   return {
     title: "Kontakt",
     intro:
-      "Fuer Kontaktanfragen ist derzeit die E-Mail der verlaesslichste Weg. Antwortzeiten koennen je nach Auslastung und Thema variieren.",
+      "Fuer Kontaktanfragen ist E-Mail derzeit der wichtigste Weg. Telefonische Kontaktaufnahme ist ebenfalls moeglich; Antwortzeiten koennen je nach Auslastung und Thema variieren.",
     sections: [
       {
         title: "Kontaktmoeglichkeit",
-        paragraphs: [
-          `E-Mail: ${company.contactEmail}`,
-          "MerhabaMap ist eine community-orientierte Plattform und beantwortet Anfragen nach Verfuegbarkeit.",
-        ],
+        paragraphs: [...contactParagraphs, "MerhabaMap ist eine community-orientierte Plattform und beantwortet Anfragen nach Verfuegbarkeit."],
       },
       {
         title: "Hinweis zu Antwortzeiten",
@@ -379,7 +405,7 @@ export function getCookiesContent(locale: AppLocale): LegalPageContent {
       {
         title: "Kein optionales Tracking nach aktuellem Stand",
         paragraphs: [
-          "Fuer den derzeitigen Produktstand werden keine separaten Analytics-, Marketing- oder Werbe-Cookies als Bestandteil dieser Seite beschrieben.",
+          "Fuer den derzeitigen Produktstand werden keine separaten Analytics-, Marketing- oder Werbe-Cookies eingesetzt oder auf dieser Seite beschrieben.",
         ],
       },
       {

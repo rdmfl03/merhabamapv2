@@ -5,8 +5,9 @@ export type LegalCompanyProfile = {
   legalRepresentative: string;
   addressLines: string[];
   contactEmail: string;
-  registerEntry: string;
-  vatId: string;
+  contactPhone?: string;
+  registerEntry?: string;
+  vatId?: string;
   contentResponsiblePerson: string;
   privacyContactEmail: string;
 };
@@ -15,16 +16,12 @@ export function getLegalCompanyProfile(locale: AppLocale): LegalCompanyProfile {
   void locale;
 
   return {
-    entityName: "MerhabaMap Betreiberin / Betreiber [bitte vor Launch ergänzen]",
-    legalRepresentative: "[gesetzliche Vertretung bitte ergänzen]",
-    addressLines: [
-      "[Straße und Hausnummer bitte ergänzen]",
-      "[PLZ Ort, Deutschland bitte ergänzen]",
-    ],
-    contactEmail: "info@merhabamap.com",
-    registerEntry: "[Registergericht und Registernummer, falls vorhanden, bitte ergänzen]",
-    vatId: "[USt-IdNr. / Steuerangabe falls vorhanden bitte ergänzen]",
-    contentResponsiblePerson: "[verantwortliche Person nach § 18 Abs. 2 MStV bitte ergänzen]",
-    privacyContactEmail: "info@merhabamap.com",
+    entityName: "Oflu & Akyazi GbR",
+    legalRepresentative: "Erdem Oflu",
+    addressLines: ["Straußstr. 7", "33129 Delbrück", "Deutschland"],
+    contactEmail: "erdem.oflu@merhabamap.com",
+    contactPhone: "+49 1556 0858164",
+    contentResponsiblePerson: "Erdem Oflu, Straußstr. 7, 33129 Delbrück",
+    privacyContactEmail: "erdem.oflu@merhabamap.com",
   };
 }
