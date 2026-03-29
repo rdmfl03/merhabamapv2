@@ -1,9 +1,28 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useMessages, useTranslations } from "next-intl";
 
 import { Link, usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
+
+/** Used when `messages.*.json` is missing `common.primaryNavAria` (e.g. stale cache / old deploy). */
+const PRIMARY_NAV_ARIA_FALLBACK: Record<string, string> = {
+  de: "Hauptnavigation",
+  tr: "Ana gezinme",
+};
+
+function usePrimaryNavAriaLabel(): string {
+  const locale = useLocale();
+  const messages = useMessages();
+  const common = messages.common;
+  if (common && typeof common === "object" && !Array.isArray(common)) {
+    const value = (common as Record<string, unknown>).primaryNavAria;
+    if (typeof value === "string" && value.trim().length > 0) {
+      return value;
+    }
+  }
+  return PRIMARY_NAV_ARIA_FALLBACK[locale] ?? PRIMARY_NAV_ARIA_FALLBACK.de;
+}
 
 function isMapActive(path: string): boolean {
   return path === "/map" || path.startsWith("/map/") || path === "/cities/map";
@@ -20,9 +39,11 @@ function isEventsActive(path: string): boolean {
 function usePrimaryNavState() {
   const pathname = usePathname() ?? "/";
   const t = useTranslations("common");
+  const primaryNavAria = usePrimaryNavAriaLabel();
 
   return {
     t,
+    primaryNavAria,
     mapOn: isMapActive(pathname),
     placesOn: isPlacesActive(pathname),
     eventsOn: isEventsActive(pathname),
@@ -40,12 +61,12 @@ function navItemClass(active: boolean, mobile?: boolean): string {
 }
 
 export function HeaderPrimaryNavDesktop() {
-  const { t, mapOn, placesOn, eventsOn } = usePrimaryNavState();
+  const { t, primaryNavAria, mapOn, placesOn, eventsOn } = usePrimaryNavState();
 
   return (
     <nav
       className="hidden items-center gap-1 md:flex"
-      aria-label={t("primaryNavAria")}
+      aria-label={primaryNavAria}
     >
       <Link href="/map" className={navItemClass(mapOn)} aria-current={mapOn ? "page" : undefined}>
         {t("cities")}
@@ -69,12 +90,12 @@ export function HeaderPrimaryNavDesktop() {
 }
 
 export function HeaderPrimaryNavMobile() {
-  const { t, mapOn, placesOn, eventsOn } = usePrimaryNavState();
+  const { t, primaryNavAria, mapOn, placesOn, eventsOn } = usePrimaryNavState();
 
   return (
     <nav
       className="mt-3 flex items-center gap-1 overflow-x-auto md:hidden"
-      aria-label={t("primaryNavAria")}
+      aria-label={primaryNavAria}
     >
       <Link href="/map" className={navItemClass(mapOn, true)} aria-current={mapOn ? "page" : undefined}>
         {t("cities")}
