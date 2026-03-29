@@ -141,5 +141,6 @@ export function publicEventRecordForFlight(
               : null,
         }
       : null,
+    isSaved,
   } as PublicEventRecord & { isSaved: boolean };
 }
