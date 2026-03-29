@@ -199,8 +199,8 @@
     "reportsDescription": "Bildirim ve moderasyon durumları için temel modeller var; admin arayüzü şimdilik bilinçli olarak dar tutuldu.",
     "cityTitle": "Şehir bazlı keşif sayfası sonraki adımda eklenecek.",
     "cityDescription": "Şehir routing yapısı ve lokalizasyon hazır. Sonraki adımda şehir tabanlı query'ler ve SEO detay sayfaları gelecek.",
-    "kategoriTitle": "Kategori sayfası sonraki adımda eklenecek.",
-    "kategoriDescription": "Kategoriler seed ve Prisma modelinde mevcut. Filtreleme ve listeleme mantığı ayrı bir adımda gelecek.",
+    "categoryTitle": "Kategori sayfası sonraki adımda eklenecek.",
+    "categoryDescription": "Kategoriler seed ve Prisma modelinde mevcut. Filtreleme ve listeleme mantığı ayrı bir adımda gelecek.",
     "placeDetailTitle": "Mekan detay sayfası sonraki adımda eklenecek.",
     "placeDetailDescription": "Slug routing, veri modeli ve ilerideki claim/rapor bağlantı noktaları şimdiden hazır."
   },
