@@ -15,7 +15,6 @@ import {
   getPublicCityPage,
   getPublicGermanyDiscoveryPage,
 } from "@/server/queries/cities/get-public-city-page";
-import { getAllPlaceCategoriesOrdered } from "@/server/queries/places/get-place-filters";
 
 export const dynamic = "force-dynamic";
 
@@ -83,17 +82,15 @@ export default async function DiscoveryMapPage({ params, searchParams }: MapPage
   }
   const userId = session?.user?.id;
 
-  const [t, placesTexts, eventsTexts, pageData, mapCityOptions, placeCategoryFilterOptions] =
-    await Promise.all([
-      getTranslations("cities"),
-      getTranslations("places"),
-      getTranslations("events"),
-      citySlug
-        ? getPublicCityPage(citySlug, userId)
-        : getPublicGermanyDiscoveryPage(userId),
-      getDiscoveryMapCityOptions(),
-      getAllPlaceCategoriesOrdered(),
-    ]);
+  const [t, placesTexts, eventsTexts, pageData, mapCityOptions] = await Promise.all([
+    getTranslations("cities"),
+    getTranslations("places"),
+    getTranslations("events"),
+    citySlug
+      ? getPublicCityPage(citySlug, userId)
+      : getPublicGermanyDiscoveryPage(userId),
+    getDiscoveryMapCityOptions(),
+  ]);
 
   if (!pageData) {
     notFound();
@@ -152,7 +149,6 @@ export default async function DiscoveryMapPage({ params, searchParams }: MapPage
         mapEvents={pageData.mapEvents}
         isAuthenticated={Boolean(userId)}
         germanyMapClusters={germanyMapClusters}
-        placeCategoryFilterOptions={placeCategoryFilterOptions}
         labels={{
           eyebrow: t("eyebrow"),
           title: t("title", { city: cityName }),

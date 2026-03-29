@@ -112,7 +112,9 @@ export async function generateMetadata({
   let categoryLabel: string | null = null;
 
   try {
-    const filterData = await getPlaceFilters();
+    const filterData = await getPlaceFilters({
+      categoryCitySlug: filters.city,
+    });
     const city = filterData.cities.find((entry) => entry.slug === filters.city);
     const category = filterData.categories.find(
       (entry) => entry.slug === filters.category,
@@ -169,7 +171,9 @@ export default async function PlacesPage({
   let places: Awaited<ReturnType<typeof listPlaces>> = [];
 
   try {
-    filterData = await getPlaceFilters();
+    filterData = await getPlaceFilters({
+      categoryCitySlug: filters.city,
+    });
   } catch {
     filterData = {
       cities: [],

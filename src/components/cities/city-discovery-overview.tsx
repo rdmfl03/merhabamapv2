@@ -48,7 +48,6 @@ type CityDiscoveryOverviewProps = {
   mapEvents: CityEventCardRecord[];
   isAuthenticated: boolean;
   germanyMapClusters?: GermanyMapCluster[] | null;
-  placeCategoryFilterOptions?: Array<{ slug: string; nameDe: string; nameTr: string }>;
   labels: {
     eyebrow: string;
     title: string;
@@ -124,7 +123,6 @@ export function CityDiscoveryOverview({
   mapEvents,
   isAuthenticated,
   germanyMapClusters = null,
-  placeCategoryFilterOptions,
   labels,
 }: CityDiscoveryOverviewProps) {
   const isGermanyNationalMap =
@@ -193,7 +191,6 @@ export function CityDiscoveryOverview({
           locationUnavailableLabel={labels.locationUnavailable}
           myLocationLabel={labels.myLocation}
           categoryLabels={labels.eventCategoryLabels}
-          placeCategoryFilterOptions={placeCategoryFilterOptions}
           places={mapPlaces}
           events={mapEvents}
           germanyMapClusters={germanyMapClusters}
