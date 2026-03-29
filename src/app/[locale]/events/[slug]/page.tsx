@@ -4,6 +4,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 
 import { auth } from "@/auth";
+import { EventHeroMedia } from "@/components/events/event-hero-media";
 import { MediaAttribution } from "@/components/media/media-attribution";
 import { EventMapPreview } from "@/components/events/event-map-preview";
 import { EventReportForm } from "@/components/events/event-report-form";
@@ -20,6 +21,7 @@ import {
   resolveEventImage,
   getSafeExternalUrl,
 } from "@/lib/events";
+import { getEventImageFallbackKey } from "@/lib/category-fallback-visual";
 import { getLocalizedCityDisplayName } from "@/lib/cities/city-display-name";
 import { formatDisplayAddress } from "@/lib/format-display-address";
 import { buildEventDetailMetadata } from "@/lib/metadata/events";
@@ -119,23 +121,13 @@ export default async function EventDetailPage({
       />
       <section className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
         <div className="overflow-hidden rounded-[2rem] border border-border bg-white shadow-soft">
-          <div className="flex h-72 items-center justify-center bg-gradient-to-br from-[#f5f6f8] via-white to-[#eef1f5] sm:h-96">
-            {image ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={image.url}
-                alt={image.altText ?? event.title}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <div className="space-y-3 px-8 text-center">
-                <Badge>{categoryLabel}</Badge>
-                <h1 className="font-display text-4xl text-foreground sm:text-5xl">
-                  {event.title}
-                </h1>
-              </div>
-            )}
-          </div>
+          <EventHeroMedia
+            image={image}
+            title={event.title}
+            categoryLabel={categoryLabel}
+            visualKey={getEventImageFallbackKey(event.category)}
+            locale={locale}
+          />
           {image ? (
             <div className="space-y-2 border-t border-border/70 bg-white/90 px-5 py-3">
               {image.isFallback ? (
