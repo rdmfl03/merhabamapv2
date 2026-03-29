@@ -159,6 +159,8 @@ type CityDiscoveryMapProps = {
   locationUnavailableLabel: string;
   myLocationLabel: string;
   categoryLabels: Record<string, string>;
+  /** Full place category list from DB (ordered); map filter shows all, not only categories present on pins. */
+  placeCategoryFilterOptions?: Array<{ slug: string; nameDe: string; nameTr: string }>;
   places: CityPlacePoint[];
   events: CityEventPoint[];
   /** When set (national map), map shows city clusters until one is opened. */
@@ -477,6 +479,7 @@ export function CityDiscoveryMap({
   locationUnavailableLabel,
   myLocationLabel,
   categoryLabels,
+  placeCategoryFilterOptions,
   places,
   events,
   germanyMapClusters,
@@ -641,15 +644,56 @@ export function CityDiscoveryMap({
   }, [categoryLabels, effectiveEvents, effectivePlaces, locale]);
 
   const categories = useMemo(() => {
+    const labelByKey = new Map<string, string>();
+
+    if (placeCategoryFilterOptions?.length) {
+      for (const cat of placeCategoryFilterOptions) {
+        labelByKey.set(cat.slug, getLocalizedPlaceCategoryLabel(cat, locale));
+      }
+    }
+
+    for (const [key, label] of Object.entries(categoryLabels)) {
+      if (!labelByKey.has(key)) {
+        labelByKey.set(key, label);
+      }
+    }
+
+    for (const point of normalized) {
+      if (!labelByKey.has(point.categoryKey)) {
+        labelByKey.set(point.categoryKey, point.categoryLabel);
+      }
+    }
+
+    const orderedKeys: string[] = [];
+    if (placeCategoryFilterOptions?.length) {
+      for (const cat of placeCategoryFilterOptions) {
+        if (!orderedKeys.includes(cat.slug)) {
+          orderedKeys.push(cat.slug);
+        }
+      }
+    }
+    for (const key of Object.keys(categoryLabels).sort()) {
+      if (!orderedKeys.includes(key)) {
+        orderedKeys.push(key);
+      }
+    }
+    for (const point of normalized) {
+      if (!orderedKeys.includes(point.categoryKey)) {
+        orderedKeys.push(point.categoryKey);
+      }
+    }
+
     return [
       { key: "all", label: allCategoriesLabel },
-      ...Array.from(
-        new Map(
-          normalized.map((point) => [point.categoryKey, point.categoryLabel]),
-        ).entries(),
-      ).map(([key, label]) => ({ key, label })),
+      ...orderedKeys.map((key) => ({ key, label: labelByKey.get(key) ?? key })),
     ];
-  }, [allCategoriesLabel, normalized]);
+  }, [
+    allCategoriesLabel,
+    categoryLabels,
+    locale,
+    normalized,
+    placeCategoryFilterOptions,
+  ]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
