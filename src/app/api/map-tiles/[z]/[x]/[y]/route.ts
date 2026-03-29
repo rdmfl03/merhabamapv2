@@ -2,8 +2,7 @@ import { NextResponse } from "next/server";
 
 import { getMapTilerApiKeyForRequest } from "@/lib/maptiler-server";
 
-const MAPTILER_PASTEL =
-  "https://api.maptiler.com/maps/pastel" as const;
+const MAPTILER_PASTEL = "https://api.maptiler.com/maps/pastel" as const;
 
 function parseTileIndex(raw: string) {
   const cleaned = raw.replace(/\.png$/i, "");
@@ -39,7 +38,7 @@ export async function GET(
 
   const upstream = `${MAPTILER_PASTEL}/${z}/${x}/${y}.png?key=${encodeURIComponent(key)}`;
   const upstreamRes = await fetch(upstream, {
-    next: { revalidate: 86400 },
+    cache: "no-store",
     headers: { Accept: "image/png,image/*" },
   });
 

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 
@@ -35,6 +36,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  await headers();
   const [locale, messages] = await Promise.all([getLocale(), getMessages()]);
   const mapTilerConfigured = isMapTilerConfigured();
 
