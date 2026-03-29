@@ -75,9 +75,13 @@ postgresql://USER:PASSWORD@HOST:25060/defaultdb?sslmode=require
 - `S3_ACCESS_KEY_ID`
 - `S3_SECRET_ACCESS_KEY`
 
-### Maps
+### Maps (optional MapTiler “Pastel”)
 
-- `NEXT_PUBLIC_MAPTILER_API_KEY` (optional): set **only** in Netlify **Site configuration → Environment variables** — never in tracked `.env` files or source. When set at build time, MapTiler raster tiles are used; otherwise OpenStreetMap.
+Same pattern as other secrets (e.g. `RESEND_API_KEY`): set **`MAPTILER_API_KEY`** in Netlify as a **secret** only. Do **not** use `NEXT_PUBLIC_*` for MapTiler — those values are embedded in the browser bundle and would be visible on a public site/repo.
+
+When `MAPTILER_API_KEY` is set, the app serves MapTiler raster tiles through same-origin **`/api/map-tiles/...`**; the browser never receives the key. If unset, maps use OpenStreetMap only.
+
+Remove any **legacy** MapTiler variable whose name starts with `NEXT_PUBLIC_` from Netlify.
 
 ### Netlify runtime helpers
 

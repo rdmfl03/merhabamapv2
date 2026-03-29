@@ -58,7 +58,7 @@ These variables are especially likely to cause startup or request failures when 
 - `S3_ENDPOINT`
 - `S3_ACCESS_KEY_ID`
 - `S3_SECRET_ACCESS_KEY`
-- `NEXT_PUBLIC_MAPTILER_API_KEY` (optional; omit or empty → OpenStreetMap tiles only)
+- `MAPTILER_API_KEY` (optional server secret only; MapTiler Pastel via `/api/map-tiles` when set; else OSM)
 - `NEXT_PUBLIC_ENABLE_DEV_DEMO_UI`
 
 ## 5. Deployment Notes

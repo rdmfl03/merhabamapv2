@@ -53,8 +53,8 @@ const envSchema = z
     S3_ACCESS_KEY_ID: optionalStringSchema,
     S3_SECRET_ACCESS_KEY: optionalStringSchema,
 
-    /** Optional; set only in host env (e.g. Netlify), never commit values. */
-    NEXT_PUBLIC_MAPTILER_API_KEY: optionalStringSchema,
+    /** Server-only; MapTiler via /api/map-tiles proxy — same idea as RESEND_API_KEY (never NEXT_PUBLIC_*). */
+    MAPTILER_API_KEY: optionalStringSchema,
     NEXT_PUBLIC_ENABLE_DEV_DEMO_UI: booleanStringSchema.default("false"),
   })
   .superRefine((value, ctx) => {
@@ -100,6 +100,7 @@ const envSchema = z
         path: ["EMAIL_TRANSPORT"],
       });
     }
+
   });
 
 type ParsedEnv = z.infer<typeof envSchema>;

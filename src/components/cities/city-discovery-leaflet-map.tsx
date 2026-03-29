@@ -18,9 +18,9 @@ import {
 } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
 
+import { useMapBasemap } from "@/components/maps/map-basemap-context";
 import { MerhabaTileLayer } from "@/components/maps/merhaba-tile-layer";
 import { Link } from "@/i18n/navigation";
-import { MAP_CONFIG } from "@/lib/map-config";
 import type { CityMapPoint, MapViewportBounds } from "@/components/cities/city-discovery-map-types";
 
 export type GermanyCityClusterMarker = {
@@ -622,6 +622,7 @@ export function CityDiscoveryLeafletMap({
   resultsCitiesUnitLabel,
   germanyClusterRevealLabel,
 }: CityDiscoveryLeafletMapProps) {
+  const basemap = useMapBasemap();
   /**
    * Erst nach useEffect mounten: vermeidet unter React Strict Mode (Next.js dev) doppelte
    * Leaflet-Initialisierung auf demselben Container („Map container is already initialized“),
@@ -853,7 +854,7 @@ export function CityDiscoveryLeafletMap({
 
       <div className="pointer-events-none absolute left-5 top-5 z-20 flex flex-wrap items-center gap-2">
         <span className="rounded-full border border-border/80 bg-white/94 px-3 py-1.5 text-xs font-semibold text-foreground shadow-sm">
-          {MAP_CONFIG.provider === "maptiler" ? "MapTiler" : "OSM"}
+          {basemap.provider === "maptiler" ? "MapTiler" : "OSM"}
         </span>
         <span className="rounded-full border border-border/80 bg-white/94 px-3 py-1.5 text-xs text-muted-foreground shadow-sm">
           {showGermanyClusters && resultsCitiesUnitLabel

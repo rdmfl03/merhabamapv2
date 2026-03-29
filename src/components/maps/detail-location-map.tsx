@@ -4,10 +4,10 @@ import L from "leaflet";
 import { ExternalLink } from "lucide-react";
 import { MapContainer, Marker, ZoomControl } from "react-leaflet";
 
+import { useMapBasemap } from "@/components/maps/map-basemap-context";
 import { MerhabaTileLayer } from "@/components/maps/merhaba-tile-layer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { MAP_CONFIG } from "@/lib/map-config";
 
 type DetailLocationMapProps = {
   latitude: number | null;
@@ -48,15 +48,14 @@ export function DetailLocationMap({
   address,
   labels,
 }: DetailLocationMapProps) {
+  const basemap = useMapBasemap();
   const hasCoordinates = latitude !== null && longitude !== null;
   const mapUrl = hasCoordinates
     ? `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`
     : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
 
   const mapSourceLabel =
-    MAP_CONFIG.provider === "maptiler"
-      ? "MapTiler / OpenStreetMap"
-      : "OpenStreetMap";
+    basemap.provider === "maptiler" ? "MapTiler / OpenStreetMap" : "OpenStreetMap";
 
   return (
     <Card className="overflow-hidden">
