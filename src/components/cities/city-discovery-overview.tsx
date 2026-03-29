@@ -102,6 +102,9 @@ type CityDiscoveryOverviewProps = {
     germanyClusterRevealLabel?: string;
     germanyLoadingCity?: string;
     resultsCitiesUnit?: string;
+    mapLoadErrorTitle: string;
+    mapLoadErrorBody: string;
+    mapLoadErrorRetry: string;
   };
 };
 
@@ -199,6 +202,9 @@ export function CityDiscoveryOverview({
           germanyClusterRevealLabel={labels.germanyClusterRevealLabel}
           germanyLoadingCity={labels.germanyLoadingCity}
           resultsCitiesUnit={labels.resultsCitiesUnit}
+          mapLoadErrorTitle={labels.mapLoadErrorTitle}
+          mapLoadErrorBody={labels.mapLoadErrorBody}
+          mapLoadErrorRetry={labels.mapLoadErrorRetry}
         />
       </section>
 

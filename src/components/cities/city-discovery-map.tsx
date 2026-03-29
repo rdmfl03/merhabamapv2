@@ -3,8 +3,8 @@
 import dynamic from "next/dynamic";
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
-import type { Dispatch, SetStateAction } from "react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import type { Dispatch, ErrorInfo, ReactNode, SetStateAction } from "react";
+import { Component, useCallback, useEffect, useMemo, useState } from "react";
 import { CalendarDays, Crosshair, LocateFixed, MapPin, Search, Star } from "lucide-react";
 
 import type { CityMapPoint, MapViewportBounds } from "@/components/cities/city-discovery-map-types";
@@ -120,6 +120,56 @@ type CityEventPoint = {
 const EMPTY_EFFECTIVE_PLACES: CityPlacePoint[] = [];
 const EMPTY_EFFECTIVE_EVENTS: CityEventPoint[] = [];
 
+const DISCOVERY_MAP_FRAME_CLASS =
+  "relative isolate z-0 h-[36rem] overflow-hidden rounded-[1.9rem] border border-border/70 bg-[#f5f6f8] lg:h-[42rem]";
+
+type DiscoveryMapLeafletErrorBoundaryProps = {
+  children: ReactNode;
+  title: string;
+  description: string;
+  retryLabel: string;
+};
+
+type DiscoveryMapLeafletErrorBoundaryState = {
+  error: Error | null;
+};
+
+class DiscoveryMapLeafletErrorBoundary extends Component<
+  DiscoveryMapLeafletErrorBoundaryProps,
+  DiscoveryMapLeafletErrorBoundaryState
+> {
+  state: DiscoveryMapLeafletErrorBoundaryState = { error: null };
+
+  static getDerivedStateFromError(error: Error): DiscoveryMapLeafletErrorBoundaryState {
+    return { error };
+  }
+
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    console.error("[CityDiscoveryMap] Leaflet error boundary:", error.message, info.componentStack);
+  }
+
+  render() {
+    if (this.state.error) {
+      return (
+        <div className={DISCOVERY_MAP_FRAME_CLASS}>
+          <div className="flex h-full flex-col items-center justify-center gap-3 px-6 text-center">
+            <p className="text-sm font-semibold text-foreground">{this.props.title}</p>
+            <p className="max-w-md text-sm text-muted-foreground">{this.props.description}</p>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => this.setState({ error: null })}
+            >
+              {this.props.retryLabel}
+            </Button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 type CityDiscoveryMapProps = {
   locale: "de" | "tr";
   cityName: string;
@@ -168,6 +218,9 @@ type CityDiscoveryMapProps = {
   germanyClusterRevealLabel?: string;
   germanyLoadingCity?: string;
   resultsCitiesUnit?: string;
+  mapLoadErrorTitle: string;
+  mapLoadErrorBody: string;
+  mapLoadErrorRetry: string;
 };
 
 type NormalizedPoint =
@@ -485,6 +538,9 @@ export function CityDiscoveryMap({
   germanyClusterRevealLabel = "",
   germanyLoadingCity = "",
   resultsCitiesUnit = "",
+  mapLoadErrorTitle,
+  mapLoadErrorBody,
+  mapLoadErrorRetry,
 }: CityDiscoveryMapProps) {
   const router = useRouter();
   const [cityPickerValue, setCityPickerValue] = useState(selectedCitySlug);
@@ -951,34 +1007,40 @@ export function CityDiscoveryMap({
           </div>
         ) : null}
 
-        <CityDiscoveryInteractiveMap
-          points={mapPoints}
-          cityCenter={cityCenter}
-          selectedId={selectedId}
-          onHoverChange={setHoveredId}
-          onSelectChange={setSelectedId}
-          userLocation={userLocation}
-          emptyLabel={empty}
-          noResultsLabel={noResults}
-          filtered={Boolean(query || categoryFilter !== "all" || typeFilter !== "all")}
-          legendPlaces={legendPlaces}
-          legendEvents={legendEvents}
-          resultsSummaryUnitLabel={resultsSummaryUnitLabel}
-          viewPlaceLabel={viewPlaceLabel}
-          placePopupRatingCaption={placePopupRatingCaption}
-          viewEventLabel={viewEventLabel}
-          myLocationLabel={myLocationLabel}
-          onViewportBoundsChange={handleViewportBounds}
-          germanyCityClusters={germanyClusterMarkers}
-          onGermanyCityClusterClick={
-            isGermanyClusterMode ? handleGermanyClusterClick : undefined
-          }
-          mapLayoutEpoch={0}
-          clusterLoadingSlug={clusterLoadingSlug}
-          clusterLoadingLabel={germanyLoadingCity}
-          resultsCitiesUnitLabel={resultsCitiesUnit}
-          germanyClusterRevealLabel={germanyClusterRevealLabel}
-        />
+        <DiscoveryMapLeafletErrorBoundary
+          title={mapLoadErrorTitle}
+          description={mapLoadErrorBody}
+          retryLabel={mapLoadErrorRetry}
+        >
+          <CityDiscoveryInteractiveMap
+            points={mapPoints}
+            cityCenter={cityCenter}
+            selectedId={selectedId}
+            onHoverChange={setHoveredId}
+            onSelectChange={setSelectedId}
+            userLocation={userLocation}
+            emptyLabel={empty}
+            noResultsLabel={noResults}
+            filtered={Boolean(query || categoryFilter !== "all" || typeFilter !== "all")}
+            legendPlaces={legendPlaces}
+            legendEvents={legendEvents}
+            resultsSummaryUnitLabel={resultsSummaryUnitLabel}
+            viewPlaceLabel={viewPlaceLabel}
+            placePopupRatingCaption={placePopupRatingCaption}
+            viewEventLabel={viewEventLabel}
+            myLocationLabel={myLocationLabel}
+            onViewportBoundsChange={handleViewportBounds}
+            germanyCityClusters={germanyClusterMarkers}
+            onGermanyCityClusterClick={
+              isGermanyClusterMode ? handleGermanyClusterClick : undefined
+            }
+            mapLayoutEpoch={0}
+            clusterLoadingSlug={clusterLoadingSlug}
+            clusterLoadingLabel={germanyLoadingCity}
+            resultsCitiesUnitLabel={resultsCitiesUnit}
+            germanyClusterRevealLabel={germanyClusterRevealLabel}
+          />
+        </DiscoveryMapLeafletErrorBoundary>
 
         <div className="mt-5">
           {!isGermanyClusterMode ? (

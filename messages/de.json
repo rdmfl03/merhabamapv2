@@ -1242,7 +1242,10 @@
       "germanyBackToOverview": "Zurück zur Deutschlandübersicht",
       "germanyClusterReveal": "Orte und Events laden",
       "germanyLoadingCity": "Stadt wird geladen …",
-      "resultsCitiesUnit": "Städte auf der Karte"
+      "resultsCitiesUnit": "Städte auf der Karte",
+      "loadErrorTitle": "Karte konnte nicht geladen werden",
+      "loadErrorBody": "Die interaktive Karte ist in deinem Browser fehlgeschlagen. Du kannst es erneut versuchen oder die Listen Orte/Events nutzen.",
+      "loadErrorRetry": "Karte erneut laden"
     },
     "stats": {
       "places": "Veröffentlichte Orte",

@@ -35,7 +35,7 @@ const nextConfig: NextConfig = {
           // HSTS is applied by Netlify/CDN; a second header from Next caused duplicate warnings.
           {
             key: "Permissions-Policy",
-            value: "camera=(), microphone=(), geolocation=()",
+            value: "camera=(), microphone=(), geolocation=(self)",
           },
         ],
       },

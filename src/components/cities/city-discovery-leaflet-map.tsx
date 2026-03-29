@@ -734,7 +734,10 @@ export function CityDiscoveryLeafletMap({
               <Marker
                 key={point.id}
                 position={[point.latitude, point.longitude]}
-                icon={markerIcons.get(point.id)}
+                icon={
+                  markerIcons.get(point.id) ??
+                  createMarkerIcon(point.kind, selectedId === point.id)
+                }
                 eventHandlers={{
                   /* Kein mouseover/out im Cluster: weniger Re-Renders beim Weg zum Spider-Pin. */
                   click: (e) => {
@@ -757,7 +760,10 @@ export function CityDiscoveryLeafletMap({
               <Marker
                 key={point.id}
                 position={[point.latitude, point.longitude]}
-                icon={markerIcons.get(point.id)}
+                icon={
+                  markerIcons.get(point.id) ??
+                  createMarkerIcon(point.kind, selectedId === point.id)
+                }
                 eventHandlers={{
                   mouseover: () => onHoverChange(point.id),
                   click: (e) => {
@@ -792,7 +798,10 @@ export function CityDiscoveryLeafletMap({
               <Marker
                 key={point.id}
                 position={[point.latitude, point.longitude]}
-                icon={markerIcons.get(point.id)}
+                icon={
+                  markerIcons.get(point.id) ??
+                  createMarkerIcon(point.kind, selectedId === point.id)
+                }
                 eventHandlers={{
                   click: (e) => {
                     stopPinClickFromClosingSpiderfy(e);
@@ -810,7 +819,10 @@ export function CityDiscoveryLeafletMap({
               <Marker
                 key={point.id}
                 position={[point.latitude, point.longitude]}
-                icon={markerIcons.get(point.id)}
+                icon={
+                  markerIcons.get(point.id) ??
+                  createMarkerIcon(point.kind, selectedId === point.id)
+                }
                 eventHandlers={{
                   mouseover: () => onHoverChange(point.id),
                   click: (e) => {

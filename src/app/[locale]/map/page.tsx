@@ -204,6 +204,9 @@ export default async function DiscoveryMapPage({ params, searchParams }: MapPage
           germanyClusterRevealLabel: t("map.germanyClusterReveal"),
           germanyLoadingCity: t("map.germanyLoadingCity"),
           resultsCitiesUnit: t("map.resultsCitiesUnit"),
+          mapLoadErrorTitle: t("map.loadErrorTitle"),
+          mapLoadErrorBody: t("map.loadErrorBody"),
+          mapLoadErrorRetry: t("map.loadErrorRetry"),
         }}
       />
     </>

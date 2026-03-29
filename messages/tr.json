@@ -1251,7 +1251,10 @@
       "germanyBackToOverview": "Almanya geneline dön",
       "germanyClusterReveal": "Mekan ve etkinlikleri yükle",
       "germanyLoadingCity": "Şehir yükleniyor…",
-      "resultsCitiesUnit": "Haritadaki şehirler"
+      "resultsCitiesUnit": "Haritadaki şehirler",
+      "loadErrorTitle": "Harita yüklenemedi",
+      "loadErrorBody": "Etkileşimli harita tarayıcında hata verdi. Tekrar deneyebilir veya mekan/etkinlik listelerini kullanabilirsin.",
+      "loadErrorRetry": "Haritayı yeniden yükle"
     },
     "stats": {
       "places": "Yayınlanan mekanlar",

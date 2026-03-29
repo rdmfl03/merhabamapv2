@@ -147,49 +147,64 @@ export function getBerlinDateFilter(date: Date, filter: "today" | "this-week" | 
   );
 }
 
+function toValidDate(value: Date | string): Date | null {
+  const d = value instanceof Date ? value : new Date(value);
+  return Number.isFinite(d.getTime()) ? d : null;
+}
+
 export function formatEventDateRange(
   locale: "de" | "tr",
-  startsAt: Date,
-  endsAt?: Date | null,
+  startsAt: Date | string,
+  endsAt?: Date | string | null,
 ) {
+  const start = toValidDate(startsAt);
+  if (!start) {
+    return "—";
+  }
+
   const dateFormatter = new Intl.DateTimeFormat(locale, {
     dateStyle: "medium",
     timeStyle: "short",
     timeZone: "Europe/Berlin",
   });
 
-  if (!endsAt) {
-    return dateFormatter.format(startsAt);
+  const end = endsAt != null ? toValidDate(endsAt) : null;
+  if (!end) {
+    return dateFormatter.format(start);
   }
 
-  const sameDay = getBerlinDateKey(startsAt) === getBerlinDateKey(endsAt);
+  const sameDay = getBerlinDateKey(start) === getBerlinDateKey(end);
 
   if (sameDay) {
     const startDate = new Intl.DateTimeFormat(locale, {
       dateStyle: "medium",
       timeZone: "Europe/Berlin",
-    }).format(startsAt);
+    }).format(start);
     const startTime = new Intl.DateTimeFormat(locale, {
       timeStyle: "short",
       timeZone: "Europe/Berlin",
-    }).format(startsAt);
+    }).format(start);
     const endTime = new Intl.DateTimeFormat(locale, {
       timeStyle: "short",
       timeZone: "Europe/Berlin",
-    }).format(endsAt);
+    }).format(end);
 
     return `${startDate}, ${startTime} - ${endTime}`;
   }
 
-  return `${dateFormatter.format(startsAt)} - ${dateFormatter.format(endsAt)}`;
+  return `${dateFormatter.format(start)} - ${dateFormatter.format(end)}`;
 }
 
-export function formatEventDayBadge(locale: "de" | "tr", startsAt: Date) {
+export function formatEventDayBadge(locale: "de" | "tr", startsAt: Date | string) {
+  const start = toValidDate(startsAt);
+  if (!start) {
+    return "—";
+  }
   return new Intl.DateTimeFormat(locale, {
     day: "2-digit",
     month: "short",
     timeZone: "Europe/Berlin",
-  }).format(startsAt);
+  }).format(start);
 }
 
 export function getEventCategoryLabelKey(category: EventCategory) {
