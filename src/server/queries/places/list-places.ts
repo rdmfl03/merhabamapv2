@@ -74,7 +74,8 @@ export async function listPlaces(args: {
   const hasNarrowingFilter = Boolean(
     args.filters.city || args.filters.category || args.filters.q,
   );
-  const dbTake = hasNarrowingFilter ? 800 : 48;
+  /** Cap in-memory ranking; raise if you add cursor pagination. */
+  const dbTake = hasNarrowingFilter ? 1200 : 800;
 
   const places = await prisma.place.findMany({
     where: buildPublicPlaceWhere(where),
@@ -88,8 +89,8 @@ export async function listPlaces(args: {
 
   const rankedPlaces =
     sort === "newest"
-      ? [...places].sort((left, right) => right.createdAt.getTime() - left.createdAt.getTime()).slice(0, 24)
-      : rankPlaces(places).slice(0, 24);
+      ? [...places].sort((left, right) => right.createdAt.getTime() - left.createdAt.getTime())
+      : rankPlaces(places);
 
   if (!args.userId || rankedPlaces.length === 0) {
     return rankedPlaces.map((place) => publicPlaceRecordForFlight(place, false));
