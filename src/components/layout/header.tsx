@@ -2,6 +2,10 @@ import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 
 import { auth } from "@/auth";
+import {
+  HeaderPrimaryNavDesktop,
+  HeaderPrimaryNavMobile,
+} from "@/components/layout/header-primary-nav";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { Button } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
@@ -40,17 +44,7 @@ export async function Header() {
             </div>
           </Link>
 
-          <nav className="hidden items-center gap-5 md:flex">
-            <Link href="/map" className="text-sm text-muted-foreground transition hover:text-foreground">
-              {t("cities")}
-            </Link>
-            <Link href="/places" className="text-sm text-muted-foreground transition hover:text-foreground">
-              {t("places")}
-            </Link>
-            <Link href="/events" className="text-sm text-muted-foreground transition hover:text-foreground">
-              {t("events")}
-            </Link>
-          </nav>
+          <HeaderPrimaryNavDesktop />
 
           <div className="flex items-center gap-2.5">
             <LanguageSwitcher />
@@ -77,18 +71,7 @@ export async function Header() {
             )}
           </div>
         </div>
-
-        <nav className="mt-3 flex items-center gap-4 overflow-x-auto md:hidden">
-          <Link href="/map" className="whitespace-nowrap text-sm text-muted-foreground">
-            {t("cities")}
-          </Link>
-          <Link href="/places" className="whitespace-nowrap text-sm text-muted-foreground">
-            {t("places")}
-          </Link>
-          <Link href="/events" className="whitespace-nowrap text-sm text-muted-foreground">
-            {t("events")}
-          </Link>
-        </nav>
+        <HeaderPrimaryNavMobile />
       </div>
     </header>
   );
