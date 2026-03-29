@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { TileLayer } from "react-leaflet";
 
 import { useMapBasemap } from "@/components/maps/map-basemap-context";
@@ -26,6 +26,11 @@ export function MerhabaTileLayer() {
     didFallback.current = true;
     setUseOsmFallback(true);
   }, [basemap.pastelEnabled]);
+
+  useEffect(() => {
+    setUseOsmFallback(false);
+    didFallback.current = false;
+  }, [basemap.tileUrl]);
 
   return (
     <TileLayer attribution={attribution} eventHandlers={{ tileerror: handleTileError }} url={url} />

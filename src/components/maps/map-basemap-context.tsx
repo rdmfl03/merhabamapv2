@@ -1,6 +1,13 @@
 "use client";
 
-import { createContext, useContext, useMemo, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 
 import {
   MAPTILER_ATTRIBUTION,
@@ -27,13 +34,24 @@ const defaultBasemap: MapBasemapValue = {
 
 const MapBasemapContext = createContext<MapBasemapValue>(defaultBasemap);
 
-export function MapBasemapProvider({
-  pastelEnabled,
-  children,
-}: {
-  pastelEnabled: boolean;
-  children: ReactNode;
-}) {
+export function MapBasemapProvider({ children }: { children: ReactNode }) {
+  const [pastelEnabled, setPastelEnabled] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/map/basemap", { cache: "no-store" })
+      .then((res) => (res.ok ? res.json() : { pastelEnabled: false }))
+      .then((data: { pastelEnabled?: boolean }) => {
+        if (!cancelled && data.pastelEnabled) {
+          setPastelEnabled(true);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const value = useMemo((): MapBasemapValue => {
     if (!pastelEnabled) {
       return defaultBasemap;

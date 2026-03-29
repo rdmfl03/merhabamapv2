@@ -154,6 +154,66 @@ export const publicPlaceSelectWithAi = Prisma.validator<Prisma.PlaceSelect>()({
   createdAt: true,
 });
 
+/**
+ * Discovery-Karte / JSON-Pins: gleiche öffentlichen Felder wie `publicPlaceSelect`, aber **ohne**
+ * `placeRatingSources`. Bei Hunderten Markern explodiert sonst RSC/JSON (Netlify ~6MB, Timeouts).
+ */
+export const publicPlaceSelectDiscoveryMap = Prisma.validator<Prisma.PlaceSelect>()({
+  id: true,
+  slug: true,
+  isPublished: true,
+  moderationStatus: true,
+  name: true,
+  descriptionDe: true,
+  descriptionTr: true,
+  addressLine1: true,
+  postalCode: true,
+  latitude: true,
+  longitude: true,
+  phone: true,
+  websiteUrl: true,
+  openingHoursJson: true,
+  images: true,
+  primaryImageAssetId: true,
+  fallbackImageAssetId: true,
+  imageSetStatus: true,
+  displayRatingValue: true,
+  displayRatingCount: true,
+  ratingSourceCount: true,
+  ratingSummaryUpdatedAt: true,
+  primaryImageAsset: {
+    select: publicMediaAssetSelect,
+  },
+  fallbackImageAsset: {
+    select: publicMediaAssetSelect,
+  },
+  verificationStatus: true,
+  city: {
+    select: {
+      id: true,
+      slug: true,
+      nameDe: true,
+      nameTr: true,
+    },
+  },
+  category: {
+    select: {
+      id: true,
+      slug: true,
+      nameDe: true,
+      nameTr: true,
+      icon: true,
+    },
+  },
+});
+
+export const publicPlaceSelectWithAiDiscoveryMap = Prisma.validator<Prisma.PlaceSelect>()({
+  ...publicPlaceSelectDiscoveryMap,
+  aiReviewStatus: true,
+  aiConfidenceScore: true,
+  createdAt: true,
+});
+
 export type PublicPlaceRecord = Prisma.PlaceGetPayload<{
   select: typeof publicPlaceSelect;
 }>;
@@ -166,9 +226,13 @@ export type PublicPlaceRecordWithAi = Prisma.PlaceGetPayload<{
   select: typeof publicPlaceSelectWithAi;
 }>;
 
+export type PublicPlaceRecordWithAiDiscoveryMap = Prisma.PlaceGetPayload<{
+  select: typeof publicPlaceSelectWithAiDiscoveryMap;
+}>;
+
 /** Strippt AI-Felder und macht `displayRatingValue` Flight-/JSON-tauglich (kein Prisma.Decimal). */
 export function publicPlaceRecordForFlight(
-  place: PublicPlaceRecordWithAi,
+  place: PublicPlaceRecordWithAi | PublicPlaceRecordWithAiDiscoveryMap,
   isSaved: boolean,
 ): PublicPlaceRecord & { isSaved: boolean } {
   const {
@@ -177,11 +241,13 @@ export function publicPlaceRecordForFlight(
     createdAt: _createdAt,
     ...rest
   } = place;
+  const rawSources =
+    "placeRatingSources" in place ? place.placeRatingSources : undefined;
   return {
     ...rest,
     displayRatingValue:
       rest.displayRatingValue != null ? Number(rest.displayRatingValue) : null,
-    placeRatingSources: normalizePlaceRatingSourcesForClient(rest.placeRatingSources),
+    placeRatingSources: normalizePlaceRatingSourcesForClient(rawSources),
     isSaved,
   } as unknown as PublicPlaceRecord & { isSaved: boolean };
 }

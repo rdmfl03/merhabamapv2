@@ -13,7 +13,9 @@ import {
   buildPublicPlaceWhere,
   publicPlaceRecordForFlight,
   publicPlaceSelectWithAi,
+  publicPlaceSelectWithAiDiscoveryMap,
   type PublicPlaceRecordWithAi,
+  type PublicPlaceRecordWithAiDiscoveryMap,
 } from "@/server/queries/places/shared";
 
 const pilotCityCenters: Record<string, { latitude: number; longitude: number }> = {
@@ -38,6 +40,21 @@ const CITY_MAP_EVENT_MARKER_LIMIT = 60;
 /** Sample size for national homepage featured cards (not map pins). */
 const GERMANY_FEATURED_SAMPLE = 96;
 
+async function loadFeaturedPlacesFull(
+  rankedLiteTop: PublicPlaceRecordWithAiDiscoveryMap[],
+): Promise<PublicPlaceRecordWithAi[]> {
+  const ids = rankedLiteTop.map((p) => p.id);
+  if (ids.length === 0) {
+    return [];
+  }
+  const rows = await prisma.place.findMany({
+    where: { id: { in: ids } },
+    select: publicPlaceSelectWithAi,
+  });
+  const byId = new Map(rows.map((p) => [p.id, p]));
+  return rankedLiteTop.map((p) => byId.get(p.id) ?? (p as unknown as PublicPlaceRecordWithAi));
+}
+
 function rankCityEvents(events: PublicEventRecordWithAi[]) {
   return [...events].sort((left, right) =>
     compareByAiRanking<PublicEventRecordWithAi>(left, right, (eventLeft, eventRight) => {
@@ -52,9 +69,11 @@ function rankCityEvents(events: PublicEventRecordWithAi[]) {
   );
 }
 
-function rankCityPlaces(places: PublicPlaceRecordWithAi[]) {
+function rankCityPlaces(
+  places: readonly PublicPlaceRecordWithAi[] | readonly PublicPlaceRecordWithAiDiscoveryMap[],
+) {
   return [...places].sort((left, right) =>
-    compareByAiRanking<PublicPlaceRecordWithAi>(left, right, (placeLeft, placeRight) => {
+    compareByAiRanking<PublicPlaceRecordWithAi>(left as PublicPlaceRecordWithAi, right as PublicPlaceRecordWithAi, (placeLeft, placeRight) => {
       const scoreDiff =
         computeCategoryAdjustedScore(placeRight) - computeCategoryAdjustedScore(placeLeft);
       if (scoreDiff !== 0) {
@@ -98,14 +117,14 @@ export async function getPublicCityPage(citySlug: string, userId?: string) {
 
   const cityCenter = pilotCityCenters[city.slug] ?? null;
 
-  const [mapPlaces, mapEvents, placeCount, eventCount] = await prisma.$transaction([
+  const [mapPlacesLite, mapEvents, placeCount, eventCount] = await prisma.$transaction([
     prisma.place.findMany({
       where: buildPublicPlaceWhere({
         cityId: city.id,
       }),
       orderBy: [{ verificationStatus: "desc" }, { createdAt: "desc" }],
       take: CITY_MAP_PLACE_FETCH_LIMIT,
-      select: publicPlaceSelectWithAi,
+      select: publicPlaceSelectWithAiDiscoveryMap,
     }),
     prisma.event.findMany({
       where: buildPublicEventWhere({
@@ -131,12 +150,14 @@ export async function getPublicCityPage(citySlug: string, userId?: string) {
     }),
   ]);
 
-  const rankedPlacesAll = rankCityPlaces(mapPlaces);
+  const rankedPlacesAll = rankCityPlaces(mapPlacesLite);
   const rankedEventsAll = rankCityEvents(mapEvents);
   const rankedPlaces = rankedPlacesAll.slice(0, CITY_MAP_PLACE_MARKER_LIMIT);
   const rankedEvents = rankedEventsAll.slice(0, CITY_MAP_EVENT_MARKER_LIMIT);
-  const featuredPlaces = rankedPlacesAll.slice(0, 3);
+  const featuredLiteTop = rankedPlacesAll.slice(0, 3) as PublicPlaceRecordWithAiDiscoveryMap[];
   const upcomingEvents = rankedEventsAll.slice(0, 3);
+
+  const featuredPlacesFull = await loadFeaturedPlacesFull(featuredLiteTop);
 
   if (!userId) {
     return {
@@ -144,7 +165,7 @@ export async function getPublicCityPage(citySlug: string, userId?: string) {
       cityCenter,
       placeCount,
       eventCount,
-      featuredPlaces: featuredPlaces.map((place) => publicPlaceRecordForFlight(place, false)),
+      featuredPlaces: featuredPlacesFull.map((place) => publicPlaceRecordForFlight(place, false)),
       mapPlaces: rankedPlaces.map((place) => publicPlaceRecordForFlight(place, false)),
       upcomingEvents: upcomingEvents.map((event) => publicEventRecordForFlight(event, false)),
       mapEvents: rankedEvents.map((event) => publicEventRecordForFlight(event, false)),
@@ -155,7 +176,7 @@ export async function getPublicCityPage(citySlug: string, userId?: string) {
     prisma.savedPlace.findMany({
       where: {
         userId,
-        placeId: { in: mapPlaces.map((place) => place.id) },
+        placeId: { in: mapPlacesLite.map((place) => place.id) },
       },
       select: { placeId: true },
     }),
@@ -176,7 +197,7 @@ export async function getPublicCityPage(citySlug: string, userId?: string) {
     cityCenter,
     placeCount,
     eventCount,
-    featuredPlaces: featuredPlaces.map((place) =>
+    featuredPlaces: featuredPlacesFull.map((place) =>
       publicPlaceRecordForFlight(place, savedPlaceIds.has(place.id)),
     ),
     mapPlaces: rankedPlaces.map((place) =>
@@ -207,7 +228,7 @@ export async function getDiscoveryMapPinsForCitySlug(citySlug: string, userId?: 
         cityId: city.id,
       }),
       orderBy: [{ verificationStatus: "desc" }, { createdAt: "desc" }],
-      select: publicPlaceSelectWithAi,
+      select: publicPlaceSelectWithAiDiscoveryMap,
     }),
     prisma.event.findMany({
       where: buildPublicEventWhere({
@@ -283,7 +304,7 @@ export async function getPublicGermanyDiscoveryPage(userId?: string) {
       where: wherePlace,
       orderBy: [{ verificationStatus: "desc" }, { createdAt: "desc" }],
       take: GERMANY_FEATURED_SAMPLE,
-      select: publicPlaceSelectWithAi,
+      select: publicPlaceSelectWithAiDiscoveryMap,
     }),
     prisma.event.findMany({
       where: whereEvent,
@@ -303,8 +324,10 @@ export async function getPublicGermanyDiscoveryPage(userId?: string) {
 
   const rankedFeaturedPlaces = rankCityPlaces(rawFeaturedPlaces);
   const rankedFeaturedEvents = rankCityEvents(rawFeaturedEvents);
-  const featuredPlacesRanked = rankedFeaturedPlaces.slice(0, 3);
+  const featuredPlacesRankedLite = rankedFeaturedPlaces.slice(0, 3) as PublicPlaceRecordWithAiDiscoveryMap[];
   const upcomingEventsRanked = rankedFeaturedEvents.slice(0, 3);
+
+  const featuredPlacesFull = await loadFeaturedPlacesFull(featuredPlacesRankedLite);
 
   const city = { ...GERMANY_MAP_VIRTUAL_CITY };
 
@@ -315,7 +338,7 @@ export async function getPublicGermanyDiscoveryPage(userId?: string) {
       placeCount,
       eventCount,
       germanyMapClusters,
-      featuredPlaces: featuredPlacesRanked.map((place) =>
+      featuredPlaces: featuredPlacesFull.map((place) =>
         publicPlaceRecordForFlight(place, false),
       ),
       mapPlaces: [],
@@ -330,7 +353,7 @@ export async function getPublicGermanyDiscoveryPage(userId?: string) {
     prisma.savedPlace.findMany({
       where: {
         userId,
-        placeId: { in: featuredPlacesRanked.map((place) => place.id) },
+        placeId: { in: featuredPlacesFull.map((place) => place.id) },
       },
       select: { placeId: true },
     }),
@@ -352,7 +375,7 @@ export async function getPublicGermanyDiscoveryPage(userId?: string) {
     placeCount,
     eventCount,
     germanyMapClusters,
-    featuredPlaces: featuredPlacesRanked.map((place) =>
+    featuredPlaces: featuredPlacesFull.map((place) =>
       publicPlaceRecordForFlight(place, savedPlaceIds.has(place.id)),
     ),
     mapPlaces: [],
