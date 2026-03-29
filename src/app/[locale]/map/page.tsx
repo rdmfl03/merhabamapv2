@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { connection } from "next/server";
 import { notFound } from "next/navigation";
 
 import { auth } from "@/auth";
@@ -38,7 +37,6 @@ type MapPageProps = {
 };
 
 export async function generateMetadata({ params, searchParams }: MapPageProps): Promise<Metadata> {
-  await connection();
   const { locale } = await params;
   const citySlug = normalizeCityQuery((await searchParams).city);
 
@@ -68,7 +66,6 @@ export async function generateMetadata({ params, searchParams }: MapPageProps): 
 }
 
 export default async function DiscoveryMapPage({ params, searchParams }: MapPageProps) {
-  await connection();
   const { locale } = await params;
   setRequestLocale(locale);
 

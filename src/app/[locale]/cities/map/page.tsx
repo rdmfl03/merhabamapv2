@@ -1,5 +1,4 @@
 import type { Route } from "next";
-import { connection } from "next/server";
 import { redirect } from "next/navigation";
 
 type RedirectProps = {
@@ -22,7 +21,6 @@ function firstCityParam(raw: string | string[] | undefined): string | undefined 
 }
 
 export default async function LegacyCitiesMapRedirect({ params, searchParams }: RedirectProps) {
-  await connection();
   const { locale } = await params;
   const city = firstCityParam((await searchParams).city);
   const suffix = city ? `?city=${encodeURIComponent(city)}` : "";
