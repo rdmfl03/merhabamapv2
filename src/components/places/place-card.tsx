@@ -6,6 +6,7 @@ import { PlaceTrustBadge } from "@/components/places/place-trust-badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "@/i18n/navigation";
+import { getPlaceImageFallbackKey } from "@/lib/category-fallback-visual";
 import {
   formatPlaceRatingSourceCaption,
   getPlaceDisplayRatingSummary,
@@ -59,21 +60,16 @@ export function PlaceCard({
     <Card className="overflow-hidden bg-white/90">
       <div className="relative">
         <div className="relative flex h-44 items-center justify-center overflow-hidden bg-[#f5f6f8]">
-          {image ? (
-            <PlaceCoverImage
-              src={image.url}
-              alt={image.altText ?? place.name}
-              fallbackText={place.name}
-              showFallbackBadge={image.isFallback}
-              fallbackBadgeLabel={
-                locale === "tr" ? "Yedek görsel" : "Fallback-Bild"
-              }
-            />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#f5f6f8] via-white to-[#eef1f5] text-sm font-medium text-brand">
-              {place.name}
-            </div>
-          )}
+          <PlaceCoverImage
+            src={image?.url ?? ""}
+            alt={image?.altText ?? place.name}
+            fallbackText={place.name}
+            fallbackVisualKey={getPlaceImageFallbackKey(place)}
+            showFallbackBadge={Boolean(image?.isFallback)}
+            fallbackBadgeLabel={
+              locale === "tr" ? "Yedek görsel" : "Fallback-Bild"
+            }
+          />
         </div>
         {image && placeImageAttributionHasContent(image) ? (
           <PlaceImageAttribution

@@ -25,6 +25,7 @@ import {
   parseOpeningHours,
   resolvePlaceImage,
 } from "@/lib/places";
+import { getPlaceImageFallbackKey } from "@/lib/category-fallback-visual";
 import { buildPlaceSchema } from "@/lib/seo/structured-data";
 import { getPlaceBySlug } from "@/server/queries/places/get-place-by-slug";
 
@@ -133,6 +134,7 @@ export default async function PlaceDetailPage({
           image={image}
           placeName={place.name}
           categoryLabel={categoryLabel}
+          fallbackVisualKey={getPlaceImageFallbackKey(place)}
           locale={locale}
           attributionLabels={{
             license: t("imageAttribution.license"),

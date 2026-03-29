@@ -1,10 +1,12 @@
 import { CalendarDays, ExternalLink, MapPin, Star } from "lucide-react";
 
+import { EventCoverImage } from "@/components/events/event-cover-image";
 import { EventSaveButton } from "@/components/events/event-save-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "@/i18n/navigation";
+import { getEventImageFallbackKey } from "@/lib/category-fallback-visual";
 import {
   formatEventDateRange,
   formatEventDayBadge,
@@ -49,29 +51,21 @@ export function EventCard({
   return (
     <Card className="overflow-hidden bg-white/90">
       <div className="relative">
-        <div className="flex h-44 items-center justify-center bg-gradient-to-br from-[#f5f6f8] via-white to-[#eef1f5]">
-          {image ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={image.url}
-              alt={image.altText ?? event.title}
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <div className="space-y-2 text-center">
-              <Badge>{formatEventDayBadge(locale, event.startsAt)}</Badge>
-              <p className="px-6 text-sm font-medium text-brand">{event.title}</p>
-            </div>
-          )}
+        <div className="relative flex h-44 items-center justify-center overflow-hidden bg-[#f5f6f8]">
+          <EventCoverImage
+            src={image?.url ?? ""}
+            alt={image?.altText ?? event.title}
+            title={event.title}
+            visualKey={getEventImageFallbackKey(event.category)}
+            showDbFallbackBadge={Boolean(image?.isFallback)}
+            fallbackBadgeLabel={
+              locale === "tr" ? "Fallback gorsel" : "Fallback-Bild"
+            }
+          />
         </div>
         <div className="absolute left-4 top-4">
           <Badge>{formatEventDayBadge(locale, event.startsAt)}</Badge>
         </div>
-        {image?.isFallback ? (
-          <div className="absolute bottom-4 right-4 rounded-full bg-white/90 px-3 py-1 text-[11px] font-medium text-foreground shadow-sm">
-            {locale === "tr" ? "Fallback gorsel" : "Fallback-Bild"}
-          </div>
-        ) : null}
       </div>
 
       <CardContent className="space-y-4 p-5">

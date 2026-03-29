@@ -5,37 +5,37 @@ import { useState } from "react";
 import { CategoryFallbackCover } from "@/components/media/category-fallback-cover";
 import type { CategoryFallbackVisualKey } from "@/lib/category-fallback-visual";
 
-type PlaceCoverImageProps = {
+type EventCoverImageProps = {
   src: string;
   alt: string;
-  fallbackText: string;
-  fallbackVisualKey: CategoryFallbackVisualKey;
-  fallbackEyebrow?: string;
-  showFallbackBadge: boolean;
+  title: string;
+  eyebrow?: string;
+  visualKey: CategoryFallbackVisualKey;
+  showDbFallbackBadge: boolean;
   fallbackBadgeLabel: string;
 };
 
-export function PlaceCoverImage({
+export function EventCoverImage({
   src,
   alt,
-  fallbackText,
-  fallbackVisualKey,
-  fallbackEyebrow,
-  showFallbackBadge,
+  title,
+  eyebrow,
+  visualKey,
+  showDbFallbackBadge,
   fallbackBadgeLabel,
-}: PlaceCoverImageProps) {
+}: EventCoverImageProps) {
   const [broken, setBroken] = useState(false);
 
   if (!src || broken) {
     return (
       <>
         <CategoryFallbackCover
-          visualKey={fallbackVisualKey}
+          visualKey={visualKey}
           variant="card"
-          eyebrow={fallbackEyebrow}
-          title={fallbackText}
+          eyebrow={eyebrow}
+          title={title}
         />
-        {showFallbackBadge ? (
+        {showDbFallbackBadge ? (
           <div className="absolute bottom-4 right-4 rounded-full bg-white/90 px-3 py-1 text-[11px] font-medium text-foreground shadow-sm">
             {fallbackBadgeLabel}
           </div>
@@ -53,7 +53,7 @@ export function PlaceCoverImage({
         className="h-full w-full object-cover"
         onError={() => setBroken(true)}
       />
-      {showFallbackBadge ? (
+      {showDbFallbackBadge ? (
         <div className="absolute bottom-4 right-4 rounded-full bg-white/90 px-3 py-1 text-[11px] font-medium text-foreground shadow-sm">
           {fallbackBadgeLabel}
         </div>

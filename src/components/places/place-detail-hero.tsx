@@ -2,16 +2,19 @@
 
 import { useState } from "react";
 
+import { CategoryFallbackCover } from "@/components/media/category-fallback-cover";
 import {
   PlaceImageAttribution,
   type PlaceImageAttributionLabels,
 } from "@/components/places/place-image-attribution";
+import type { CategoryFallbackVisualKey } from "@/lib/category-fallback-visual";
 import type { ResolvedEntityImage } from "@/lib/media";
 
 type PlaceDetailHeroProps = {
   image: ResolvedEntityImage | null;
   placeName: string;
   categoryLabel: string;
+  fallbackVisualKey: CategoryFallbackVisualKey;
   locale: "de" | "tr";
   attributionLabels: PlaceImageAttributionLabels;
 };
@@ -20,6 +23,7 @@ export function PlaceDetailHero({
   image,
   placeName,
   categoryLabel,
+  fallbackVisualKey,
   locale,
   attributionLabels,
 }: PlaceDetailHeroProps) {
@@ -28,7 +32,7 @@ export function PlaceDetailHero({
 
   return (
     <div className="overflow-hidden rounded-[2rem] border border-border bg-white shadow-soft">
-      <div className="relative flex h-72 items-center justify-center overflow-hidden bg-gradient-to-br from-[#f5f6f8] via-white to-[#eef1f5] sm:h-96">
+      <div className="relative flex h-72 items-center justify-center overflow-hidden sm:h-96">
         {showAsImage && image ? (
           <>
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -45,14 +49,12 @@ export function PlaceDetailHero({
             ) : null}
           </>
         ) : (
-          <div className="text-center">
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-brand">
-              {categoryLabel}
-            </p>
-            <h1 className="mt-3 font-display text-4xl text-foreground sm:text-5xl">
-              {placeName}
-            </h1>
-          </div>
+          <CategoryFallbackCover
+            visualKey={fallbackVisualKey}
+            variant="hero"
+            eyebrow={categoryLabel}
+            title={placeName}
+          />
         )}
       </div>
       {showAsImage && image ? (
