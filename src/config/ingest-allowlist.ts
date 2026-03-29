@@ -1,6 +1,7 @@
+import { isKnownPlaceCategorySlug } from "@/lib/place-category-catalog";
+
 export const INGEST_ALLOWLIST = {
   allowedCities: ["berlin", "koeln"] as const,
-  allowedPlaceCategories: ["restaurants", "cafes", "bakeries", "markets"] as const,
   allowedEventCategories: ["CONCERT", "CULTURE", "COMMUNITY", "FAMILY"] as const,
   allowedSourceTypes: [
     "official_website",
@@ -666,12 +667,7 @@ export function evaluateIngestAllowlist(
       };
     }
 
-    if (
-      normalizedEntityType === "place" &&
-      !INGEST_ALLOWLIST.allowedPlaceCategories.includes(
-        normalizedCategory as (typeof INGEST_ALLOWLIST.allowedPlaceCategories)[number],
-      )
-    ) {
+    if (normalizedEntityType === "place" && !isKnownPlaceCategorySlug(normalizedCategory)) {
       return {
         allowed: false,
         blockCode: "BLOCKED_BY_ALLOWLIST",

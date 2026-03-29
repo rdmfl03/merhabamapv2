@@ -1,6 +1,10 @@
 import type { Locale } from "@prisma/client";
 
 import { getGalleryMediaAssets, resolveEntityImage, type ResolvedEntityImage } from "@/lib/media";
+import {
+  PLACE_CATEGORY_SEED_ROWS,
+  type PlaceCategorySlug,
+} from "@/lib/place-category-catalog";
 
 type LocalizedText = {
   de?: string | null;
@@ -119,16 +123,9 @@ const CATEGORY_FACTORS = {
   default: 1,
 } as const;
 
-const localizedPlaceCategoryLabels = {
-  restaurants: { de: "Restaurants", tr: "Restoranlar" },
-  cafes: { de: "Cafes", tr: "Kafeler" },
-  bakeries: { de: "Bäckereien", tr: "Fırınlar" },
-  markets: { de: "Supermärkte", tr: "Marketler" },
-  mosques: { de: "Moscheen", tr: "Camiler" },
-  barbers: { de: "Barbiere", tr: "Berberler" },
-  "travel-agencies": { de: "Reisebüros", tr: "Seyahat acenteleri" },
-  services: { de: "Dienstleistungen", tr: "Hizmetler" },
-} satisfies Record<string, { de: string; tr: string }>;
+const localizedPlaceCategoryLabels = Object.fromEntries(
+  PLACE_CATEGORY_SEED_ROWS.map((row) => [row.slug, { de: row.nameDe, tr: row.nameTr }]),
+) as Record<PlaceCategorySlug, { de: string; tr: string }>;
 
 const openingHoursDayLabels = {
   "Mon-Sun": { de: "Mo-So", tr: "Pzt-Paz" },
@@ -450,11 +447,11 @@ export function getCategoryKey(place: PlaceCategoryScoreLike) {
     return "restaurant";
   }
 
-  if (slug === "cafes" || slug === "cafe") {
+  if (slug === "cafes" || slug === "cafe" || slug === "cafes-teahouses") {
     return "cafe";
   }
 
-  if (slug === "mosques" || slug === "mosque") {
+  if (slug === "mosques" || slug === "mosque" || slug === "religious-sites") {
     return "mosque";
   }
 
@@ -464,9 +461,14 @@ export function getCategoryKey(place: PlaceCategoryScoreLike) {
     slug === "shop" ||
     slug === "shops" ||
     slug === "store" ||
-    slug === "stores"
+    slug === "stores" ||
+    slug === "retail"
   ) {
     return "shop";
+  }
+
+  if (slug === "gastronomy" || slug === "catering") {
+    return "restaurant";
   }
 
   return "default";

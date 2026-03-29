@@ -8,6 +8,7 @@ import {
 
 import { hashPassword } from "../src/lib/auth/password";
 import { demoAccounts } from "../src/lib/dev/demo-accounts";
+import { upsertAllPlaceCategories } from "../src/lib/place-category-catalog";
 
 const prisma = new PrismaClient();
 
@@ -86,21 +87,7 @@ async function seedCities() {
 }
 
 async function seedCategories() {
-  const categories: Prisma.PlaceCategoryCreateManyInput[] = [
-    { slug: "restaurants", nameDe: "Restaurants", nameTr: "Restoranlar", icon: "utensils", sortOrder: 10 },
-    { slug: "cafes", nameDe: "Cafes", nameTr: "Kafeler", icon: "coffee", sortOrder: 20 },
-    { slug: "bakeries", nameDe: "Baeckereien", nameTr: "Firinlar", icon: "bread", sortOrder: 30 },
-    { slug: "markets", nameDe: "Supermaerkte", nameTr: "Marketler", icon: "shopping-basket", sortOrder: 40 },
-    { slug: "mosques", nameDe: "Moscheen", nameTr: "Camiler", icon: "landmark", sortOrder: 50 },
-    { slug: "barbers", nameDe: "Barbiere", nameTr: "Berberler", icon: "scissors", sortOrder: 60 },
-    { slug: "travel-agencies", nameDe: "Reiseburos", nameTr: "Seyahat Acenteleri", icon: "plane", sortOrder: 70 },
-    { slug: "services", nameDe: "Dienstleister", nameTr: "Hizmetler", icon: "briefcase", sortOrder: 80 },
-  ] as const;
-
-  await prisma.placeCategory.createMany({ data: categories });
-
-  const stored = await prisma.placeCategory.findMany();
-  return Object.fromEntries(stored.map((category) => [category.slug, category]));
+  return upsertAllPlaceCategories(prisma);
 }
 
 async function seedUsers(cityIds: { berlin: string; koeln: string }) {

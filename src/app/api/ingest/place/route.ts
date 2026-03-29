@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { env } from "@/lib/env";
+import { isKnownPlaceCategorySlug } from "@/lib/place-category-catalog";
 import { handleServerError } from "@/lib/errors/handle-server-error";
 import { prisma } from "@/lib/prisma";
 import { buildSlugBase, buildUniqueSlug, getSafeHttpUrl } from "@/lib/submissions";
@@ -35,6 +36,47 @@ const INGEST_PLACE_CATEGORY_MAP: Record<string, string> = {
   "travel-agencies": "travel-agencies",
   service: "services",
   services: "services",
+  gastronomy: "gastronomy",
+  "cafes-teahouses": "cafes-teahouses",
+  teahouse: "cafes-teahouses",
+  "tea-house": "cafes-teahouses",
+  tearoom: "cafes-teahouses",
+  retail: "retail",
+  store: "retail",
+  shops: "retail",
+  "religious-sites": "religious-sites",
+  "religious_site": "religious-sites",
+  faith: "religious-sites",
+  "cultural-centers": "cultural-centers",
+  "cultural_center": "cultural-centers",
+  culture: "cultural-centers",
+  associations: "associations",
+  association: "associations",
+  verein: "associations",
+  club: "associations",
+  "sports-leisure": "sports-leisure",
+  sports: "sports-leisure",
+  leisure: "sports-leisure",
+  gym: "sports-leisure",
+  "event-venues": "event-venues",
+  venue: "event-venues",
+  nightlife: "nightlife",
+  nightclub: "nightlife",
+  bar: "nightlife",
+  "education-language": "education-language",
+  language: "education-language",
+  school: "education-language",
+  kurs: "education-language",
+  health: "health",
+  clinic: "health",
+  pharmacy: "health",
+  advisory: "advisory",
+  consulting: "advisory",
+  lawyer: "advisory",
+  catering: "catering",
+  childcare: "childcare",
+  kindergarten: "childcare",
+  kita: "childcare",
 };
 
 function getIngestToken(request: NextRequest) {
@@ -62,6 +104,10 @@ function mapSourceCategoryToPlaceCategorySlug(input: {
 
     if (mapped) {
       return mapped;
+    }
+
+    if (isKnownPlaceCategorySlug(normalized)) {
+      return normalized;
     }
   }
 
