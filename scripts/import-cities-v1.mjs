@@ -88,8 +88,6 @@ async function upsertCity(row) {
   `;
 
   if (result.length > 0) {
-    const existing = result[0];
-
     await prisma.$executeRaw`
       UPDATE cities
       SET

@@ -1,4 +1,5 @@
 import { Link } from "@/i18n/navigation";
+import { getLocalizedCityDisplayName } from "@/lib/cities/city-display-name";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PlaceTrustBadge } from "@/components/places/place-trust-badge";
@@ -11,6 +12,7 @@ type BusinessOwnedPlaceCardProps = {
     name: string;
     verificationStatus: "UNVERIFIED" | "CLAIMED" | "VERIFIED";
     city: {
+      slug: string;
       nameDe: string;
       nameTr: string;
     };
@@ -32,7 +34,7 @@ export function BusinessOwnedPlaceCard({
   place,
   labels,
 }: BusinessOwnedPlaceCardProps) {
-  const cityLabel = locale === "tr" ? place.city.nameTr : place.city.nameDe;
+  const cityLabel = getLocalizedCityDisplayName(locale, place.city);
 
   return (
     <Card className="bg-white/90">

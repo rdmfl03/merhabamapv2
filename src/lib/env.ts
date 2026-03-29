@@ -53,8 +53,7 @@ const envSchema = z
     S3_ACCESS_KEY_ID: optionalStringSchema,
     S3_SECRET_ACCESS_KEY: optionalStringSchema,
 
-    NEXT_PUBLIC_MAP_PROVIDER: z.enum(["osm", "mapbox"]).default("osm"),
-    NEXT_PUBLIC_MAPBOX_TOKEN: optionalStringSchema,
+    NEXT_PUBLIC_MAPTILER_API_KEY: optionalStringSchema,
     NEXT_PUBLIC_ENABLE_DEV_DEMO_UI: booleanStringSchema.default("false"),
   })
   .superRefine((value, ctx) => {

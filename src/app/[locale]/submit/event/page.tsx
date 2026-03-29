@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { auth } from "@/auth";
 import { EventSubmissionForm } from "@/components/submissions/event-submission-form";
 import { getEventCategoryLabelKey } from "@/lib/events";
+import { getLocalizedCityDisplayName } from "@/lib/cities/city-display-name";
 import { getBerlinDateInputValue } from "@/lib/submissions";
 import { getSubmissionFormOptions } from "@/server/queries/submissions/get-submission-form-options";
 
@@ -52,7 +53,7 @@ export default async function SubmitEventPage({ params }: SubmitEventPageProps) 
         cities={options.cities.map((city) => ({
           id: city.id,
           slug: city.slug,
-          label: locale === "tr" ? city.nameTr : city.nameDe,
+          label: getLocalizedCityDisplayName(locale, city),
         }))}
         categories={options.eventCategories.map((category) => ({
           value: category,

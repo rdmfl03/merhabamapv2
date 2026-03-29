@@ -256,6 +256,13 @@
       "signIn": "Giriş yap",
       "fallbackDescription": "Bu mekan için yakında daha fazla bilgi eklenecek."
     },
+    "imageAttribution": {
+      "license": "Lisans",
+      "sourceLink": "Kaynak",
+      "rightsLink": "Ek bilgi",
+      "provider": "Sağlayıcı",
+      "requiredNotice": "Bu görsel için atıf veya ek bilgi gerekebilir; veriler hazır olduğunda burada görünecektir."
+    },
     "empty": {
       "title": "Bu seçim için mekan bulunamadı.",
       "description": "Daha fazla sonuç görmek için farklı bir şehir veya kategori seç ya da arama kelimesini kaldır.",
@@ -283,7 +290,9 @@
       "mapTitle": "Konum",
       "mapDescription": "Konum doğrudan harita üzerinde gösterilir. Gerekirse ayrıca Google Maps içinde açabilirsin.",
       "mapUnavailable": "Bu mekan için henüz koordinat yok. Yine de adres Google Maps üzerinde açılabilir.",
-      "openMap": "Haritada aç"
+      "openMap": "Haritada aç",
+      "noticeTitle": "Bilgilere ilişkin not",
+      "noticeDescription": "Gösterilen bilgiler yayımlanmış veya kullanıcı bildirimlerine dayanır; eksik veya güncelliğini yitirmiş olabilir. Düzeltmeler veya hukuka aykırı ya da hatalı içerikler için bildirim işlevini kullanabilirsin."
     },
     "claim": {
       "title": "Bu işletmeyi sahiplen",
@@ -412,8 +421,8 @@
       "mapDescription": "Konum doğrudan harita üzerinde gösterilir. Gerekirse ayrıca Google Maps içinde açabilirsin.",
       "mapUnavailable": "Bu etkinlik için henüz koordinat yok. Yine de adres Google Maps üzerinde açılabilir.",
       "openMap": "Haritada aç",
-      "noticeTitle": "Harici link notu",
-      "noticeDescription": "Harici link varsa, etkinlik düzenleyicisinin üçüncü taraf sayfasına gider. MerhabaMap bilet satmaz."
+      "noticeTitle": "Bilgilere ve harici bağlantılara ilişkin not",
+      "noticeDescription": "Harici bağlantılar üçüncü taraf tekliflerine gider; MerhabaMap bilet satmaz. Etkinlik bilgileri yayımlanan kaynaklara ve topluluk bildirimlerine dayanır; eksik veya güncelliğini yitirmiş olabilir. Düzeltme ve uyarıları “Etkinliği bildir” üzerinden iletebilirsin."
     },
     "report": {
       "title": "Etkinliği bildir",
@@ -1151,15 +1160,13 @@
     }
   },
   "footer": {
+    "navAriaLabel": "Ana menü",
     "tagline": "Almanya'daki Türk mekanları ve etkinlikleri için keşif platformu.",
-    "berlin": "Berlin'i keşfet",
-    "koeln": "Köln'ü keşfet",
-    "essentialNotice": "MerhabaMap yalnızca gerekli oturum mekanizmalarını kullanır; isteğe bağlı reklam veya pazarlama izleyicileri yer almaz.",
+    "essentialNotice": "MerhabaMap teknik olarak gerekli oturum ve giriş çerezlerini, dil seçiminde bir yerel ayar çerezini ve kayıtlı mekânlar için yerel depolamayı kullanır; isteğe bağlı pazarlama veya reklam izleyicileri ön yüzde yer almaz.",
     "copyright": "© MerhabaMap. Tüm hakları saklıdır."
   },
   "legal": {
     "eyebrow": "Hukuki bilgiler",
-    "draftNotice": "Not: Bu sayfa bireysel hukuki danışmanlığın yerine geçmez. Hukuki değerlendirmede Almanca sürüm esas alınır; bağlayıcı canlı yayına geçmeden önce metinlerin ayrıca hukuki olarak gözden geçirilmesi önerilir.",
     "navigation": {
       "impressum": "Impressum",
       "privacy": "Gizlilik",
@@ -1170,7 +1177,7 @@
     },
     "essentialServices": {
       "title": "Çerez ve benzeri teknolojiler notu",
-      "description": "MerhabaMap yalnızca giriş ve hesap kullanımı için gerekli oturum mekanizmalarını kullanır. Ayrı bir \"hepsini kabul et\" akışı gerektiren isteğe bağlı reklam veya pazarlama izleyicileri kullanılmaz.",
+      "description": "MerhabaMap giriş için Auth.js/NextAuth oturum çerezlerini, gerektiğinde dil için `NEXT_LOCALE` çerezini ve kayıtlı mekânlar için tarayıcı yerel depolamasını kullanır. İsteğe bağlı pazarlama veya reklam izleyicileri koda bağlı değildir.",
       "linkLabel": "Gizlilik sayfasına git"
     },
     "impressum": {
@@ -1218,11 +1225,13 @@
       "resultsSummary": "{count} görünür sonuç",
       "resultsSummaryUnit": "görünür sonuç",
       "viewPlace": "Mekanı aç",
+      "popupPlaceRating": "Puan",
       "viewEvent": "Etkinliği aç",
       "locateMe": "Konumumu göster",
       "locating": "Konum belirleniyor",
       "locationUnavailable": "Konumun alınamadı. Tarayıcı izinlerini kontrol et.",
       "myLocation": "Konumum",
+      "listRatingReviewsSuffix": "değerlendirme",
       "legendPlaces": "Mekanlar",
       "legendEvents": "Etkinlikler",
       "empty": "Koordinatlı mekanlar veya etkinlikler geldikçe burada şehir haritası görünür.",
@@ -1230,7 +1239,12 @@
       "noResultsInViewport": "Bu harita görünümünde mevcut filtrelerle sonuç yok. Yakınlaştır, kaydır veya aramayı değiştir.",
       "awaitingMapViewport": "Sonuç listesi görünür harita alanına göre güncellenir; harita yüklenince görünür.",
       "cityPickerLabel": "Şehir",
-      "cityPickerAll": "Tüm Almanya"
+      "cityPickerAll": "Tüm Almanya",
+      "germanyClusterHint": "Almanya haritasında her şehir için yalnızca mekan ve etkinlik sayıları gösterilir. Tüm iğneleri yüklemek ve haritayı yakınlaştırmak için bir şehir işaretine dokunun.",
+      "germanyBackToOverview": "Almanya geneline dön",
+      "germanyClusterReveal": "Mekan ve etkinlikleri yükle",
+      "germanyLoadingCity": "Şehir yükleniyor…",
+      "resultsCitiesUnit": "Haritadaki şehirler"
     },
     "stats": {
       "places": "Yayınlanan mekanlar",

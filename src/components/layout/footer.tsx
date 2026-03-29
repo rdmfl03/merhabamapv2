@@ -30,13 +30,18 @@ export async function Footer() {
             </div>
           </div>
         </div>
-        <div className="flex flex-wrap gap-4 text-sm">
+        <nav
+          className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm"
+          aria-label={t("navAriaLabel")}
+        >
+          <Link href="/map">{common("cities")}</Link>
+          <span className="text-border" aria-hidden>
+            ·
+          </span>
           <Link href="/places">{common("places")}</Link>
           <Link href="/events">{common("events")}</Link>
-          <Link href="/map?city=berlin">{t("berlin")}</Link>
-          <Link href="/map?city=koeln">{t("koeln")}</Link>
           <Link href="/auth/signup">{common("signUp")}</Link>
-        </div>
+        </nav>
         <div className="flex flex-wrap gap-4 text-sm">
           <Link href="/impressum">{legal("navigation.impressum")}</Link>
           <Link href="/privacy">{legal("navigation.privacy")}</Link>

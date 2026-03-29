@@ -43,12 +43,7 @@ export default async function CookiesPage({ params }: CookiesPageProps) {
   const content = getCookiesContent(locale);
 
   return (
-    <LegalPageShell
-      eyebrow={t("eyebrow")}
-      title={content.title}
-      intro={content.intro}
-      notice={t("draftNotice")}
-    >
+    <LegalPageShell eyebrow={t("eyebrow")} title={content.title} intro={content.intro}>
       {content.sections.map((section) => (
         <LegalSection key={section.title} section={section} />
       ))}

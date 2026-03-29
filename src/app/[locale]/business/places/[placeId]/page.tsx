@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { BusinessPlaceForm } from "@/components/business/business-place-form";
 import { PlaceTrustBadge, PlaceTrustHelper } from "@/components/places/place-trust-badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { getLocalizedCityDisplayName } from "@/lib/cities/city-display-name";
 import { requireBusinessUser, requireOwnedPlaceAccess } from "@/server/actions/business/shared";
 import { getOwnedPlaceById } from "@/server/queries/business/get-owned-place-by-id";
 
@@ -29,7 +30,7 @@ export default async function BusinessPlacePage({
     notFound();
   }
 
-  const cityLabel = locale === "tr" ? place.city.nameTr : place.city.nameDe;
+  const cityLabel = getLocalizedCityDisplayName(locale, place.city);
 
   return (
     <div className="mx-auto max-w-5xl space-y-8 px-4 py-10 sm:py-12">

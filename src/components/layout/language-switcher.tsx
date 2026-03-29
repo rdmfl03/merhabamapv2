@@ -2,7 +2,7 @@
 
 import type { Route } from "next";
 import { useLocale } from "next-intl";
-import { useParams, usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 
 import { buildLocalizedPath, LOCALE_COOKIE_NAME } from "@/i18n/locale";
 import { type AppLocale } from "@/i18n/routing";
@@ -18,14 +18,17 @@ export function LanguageSwitcher() {
   const params = useParams<{ locale?: string }>();
   const pathname = usePathname();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const activeLocale = params?.locale === "tr" || params?.locale === "de" ? params.locale : locale;
 
   function switchLocale(nextLocale: AppLocale) {
     document.cookie = `${LOCALE_COOKIE_NAME}=${nextLocale}; Path=/; Max-Age=31536000; SameSite=Lax`;
 
     const targetPath = buildLocalizedPath(nextLocale, pathname);
-    const query = searchParams.toString();
+    // Kein useSearchParams: vermeidet Next.js CSR-Bailout / fehlende Suspense-Grenze (mehrfache Dev-Issues).
+    const query =
+      typeof window !== "undefined"
+        ? new URLSearchParams(window.location.search).toString()
+        : "";
     const href = (query ? `${targetPath}?${query}` : targetPath) as Route;
     router.replace(href);
   }

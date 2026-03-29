@@ -5,14 +5,12 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { PublicCtaSection } from "@/components/marketing/public-cta-section";
 import { HowItWorksSection } from "@/components/marketing/how-it-works-section";
-import { PilotCitiesSection } from "@/components/marketing/pilot-cities-section";
 import { PublicHero } from "@/components/marketing/public-hero";
 import { TrustSection } from "@/components/marketing/trust-section";
 import { ValueGrid } from "@/components/marketing/value-grid";
 import { JsonLd } from "@/components/seo/json-ld";
 import { buildLandingMetadata } from "@/lib/metadata/public";
 import { buildOrganizationSchema } from "@/lib/seo/structured-data";
-import { getPilotCities } from "@/server/queries/cities/get-pilot-cities";
 import { getCurrentUserProfile } from "@/server/queries/user/get-current-user-profile";
 
 type LandingPageProps = {
@@ -57,13 +55,6 @@ export default async function LandingPage({ params }: LandingPageProps) {
   }
 
   const t = await getTranslations("landing");
-  let pilotCities: Awaited<ReturnType<typeof getPilotCities>> = [];
-
-  try {
-    pilotCities = await getPilotCities();
-  } catch {
-    pilotCities = [];
-  }
 
   return (
     <div className="pb-10 sm:pb-12">
@@ -88,21 +79,6 @@ export default async function LandingPage({ params }: LandingPageProps) {
           eyebrow: t(`cards.${key}.eyebrow`),
           title: t(`cards.${key}.title`),
           description: t(`cards.${key}.description`),
-        }))}
-      />
-
-      <PilotCitiesSection
-        eyebrow={t("pilotSection.eyebrow")}
-        title={t("pilotSection.title")}
-        description={t("pilotSection.description")}
-        ctaLabel={t("pilotSection.cta")}
-        placesLabel={t("pilotSection.placesLabel")}
-        eventsLabel={t("pilotSection.eventsLabel")}
-        cities={pilotCities.map((city) => ({
-          slug: city.slug,
-          name: locale === "tr" ? city.nameTr : city.nameDe,
-          placesCount: city.placesCount,
-          eventsCount: city.eventsCount,
         }))}
       />
 

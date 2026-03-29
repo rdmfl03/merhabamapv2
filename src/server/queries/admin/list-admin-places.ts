@@ -22,6 +22,7 @@ export async function listAdminPlaces() {
       },
       city: {
         select: {
+          slug: true,
           nameDe: true,
           nameTr: true,
         },

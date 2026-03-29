@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Link } from "@/i18n/navigation";
-import { getBerlinDateInputValue, normalizeSubmissionText } from "@/lib/submissions";
+import { normalizeSubmissionText } from "@/lib/submissions";
 import {
   idleSubmissionActionState,
   type SubmissionActionState,

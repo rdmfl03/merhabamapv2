@@ -94,7 +94,7 @@ export function EntityModerationForm({
     idleAdminActionState,
   );
   const [confirmReject, setConfirmReject] = useState(false);
-  const [isRefreshing, startRefreshTransition] = useTransition();
+  const [, startRefreshTransition] = useTransition();
   const refreshTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {

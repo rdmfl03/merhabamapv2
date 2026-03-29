@@ -7,14 +7,12 @@ import { compareByAiRanking } from "@/server/queries/ai-shared";
 
 import {
   buildPublicPlaceWhere,
+  publicPlaceRecordForFlight,
   publicPlaceSelectWithAi,
-  type PublicPlaceRecord,
   type PublicPlaceRecordWithAi,
 } from "./shared";
 
-export type ListedPlace = PublicPlaceRecord & {
-  isSaved: boolean;
-};
+export type ListedPlace = ReturnType<typeof publicPlaceRecordForFlight>;
 
 function rankPlaces(places: PublicPlaceRecordWithAi[]) {
   return [...places].sort((left, right) =>
@@ -42,17 +40,6 @@ function rankPlaces(places: PublicPlaceRecordWithAi[]) {
       return placeRight.createdAt.getTime() - placeLeft.createdAt.getTime();
     }),
   );
-}
-
-function stripPlaceAiFields(place: PublicPlaceRecordWithAi): PublicPlaceRecord {
-  const {
-    aiReviewStatus: _aiReviewStatus,
-    aiConfidenceScore: _aiConfidenceScore,
-    createdAt: _createdAt,
-    ...publicPlace
-  } = place;
-
-  return publicPlace;
 }
 
 export async function listPlaces(args: {
@@ -84,13 +71,18 @@ export async function listPlaces(args: {
 
   const sort = args.filters.sort ?? "recommended";
 
+  const hasNarrowingFilter = Boolean(
+    args.filters.city || args.filters.category || args.filters.q,
+  );
+  const dbTake = hasNarrowingFilter ? 800 : 48;
+
   const places = await prisma.place.findMany({
     where: buildPublicPlaceWhere(where),
     orderBy:
       sort === "newest"
         ? [{ createdAt: "desc" }]
         : [{ verificationStatus: "desc" }, { createdAt: "desc" }],
-    take: 48,
+    take: dbTake,
     select: publicPlaceSelectWithAi,
   });
 
@@ -100,7 +92,7 @@ export async function listPlaces(args: {
       : rankPlaces(places).slice(0, 24);
 
   if (!args.userId || rankedPlaces.length === 0) {
-    return rankedPlaces.map((place) => ({ ...stripPlaceAiFields(place), isSaved: false }));
+    return rankedPlaces.map((place) => publicPlaceRecordForFlight(place, false));
   }
 
   const savedPlaces = await prisma.savedPlace.findMany({
@@ -117,8 +109,7 @@ export async function listPlaces(args: {
 
   const savedIds = new Set(savedPlaces.map((entry) => entry.placeId));
 
-  return rankedPlaces.map((place) => ({
-    ...stripPlaceAiFields(place),
-    isSaved: savedIds.has(place.id),
-  }));
+  return rankedPlaces.map((place) =>
+    publicPlaceRecordForFlight(place, savedIds.has(place.id)),
+  );
 }

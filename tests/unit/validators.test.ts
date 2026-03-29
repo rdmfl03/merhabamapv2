@@ -1,6 +1,15 @@
 import { resetPasswordSchema, registrationSchema } from "@/lib/validators/auth";
-import { eventReportSchema, eventsFilterSchema } from "@/lib/validators/events";
-import { placeClaimSchema, placeReportSchema } from "@/lib/validators/places";
+import {
+  eventReportSchema,
+  eventsFilterSchema,
+  parseEventsFiltersFromSearchParams,
+} from "@/lib/validators/events";
+import {
+  parsePlacesFiltersFromSearchParams,
+  placeClaimSchema,
+  placeReportSchema,
+  placesFilterSchema,
+} from "@/lib/validators/places";
 import { onboardingSchema, profileUpdateSchema } from "@/lib/validators/user";
 
 const cityId = "cjld2cjxh0000qzrmn831i7rn";
@@ -95,5 +104,48 @@ describe("validators", () => {
   it("allows only supported event filter values", () => {
     expect(eventsFilterSchema.safeParse({ date: "this-week" }).success).toBe(true);
     expect(eventsFilterSchema.safeParse({ date: "tomorrow" }).success).toBe(false);
+  });
+
+  it("parses event filters leniently so one bad param does not drop the rest", () => {
+    const parsed = parseEventsFiltersFromSearchParams({
+      city: "berlin",
+      category: "not-a-real-category",
+      date: "this-month",
+    });
+    expect(parsed.city).toBe("berlin");
+    expect(parsed.category).toBeUndefined();
+    expect(parsed.date).toBe("this-month");
+  });
+
+  it("normalizes array search params from Next.js", () => {
+    const parsed = parseEventsFiltersFromSearchParams({
+      city: ["koeln", "berlin"],
+    });
+    expect(parsed.city).toBe("koeln");
+  });
+
+  it("parses place filters leniently so one bad param does not drop the rest", () => {
+    const parsed = parsePlacesFiltersFromSearchParams({
+      city: "koeln",
+      sort: "invalid-sort",
+      category: "cafe",
+    });
+    expect(parsed.city).toBe("koeln");
+    expect(parsed.category).toBe("cafe");
+    expect(parsed.sort).toBeUndefined();
+  });
+
+  it("normalizes place filter array search params from Next.js", () => {
+    const parsed = parsePlacesFiltersFromSearchParams({
+      city: ["koeln", "berlin"],
+      q: ["baklava", "test"],
+    });
+    expect(parsed.city).toBe("koeln");
+    expect(parsed.q).toBe("baklava");
+  });
+
+  it("rejects unsupported place sort in strict schema but lenient parser ignores it", () => {
+    expect(placesFilterSchema.safeParse({ sort: "bogus" }).success).toBe(false);
+    expect(parsePlacesFiltersFromSearchParams({ sort: "bogus" }).sort).toBeUndefined();
   });
 });

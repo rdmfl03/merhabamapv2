@@ -46,11 +46,19 @@ type PlaceRatingSourceLike = {
   ratingCount: number;
   scaleMax: DecimalValue;
   isIncludedInDisplay: boolean;
-  observedAt?: Date | null;
+  observedAt?: Date | string | null;
   attributionText?: string | null;
   attributionUrl?: string | null;
   reviewTextRightsStatus: string;
 };
+
+function normalizeSourceObservedAt(value: Date | string | null | undefined): Date | null {
+  if (value == null) {
+    return null;
+  }
+  const d = value instanceof Date ? value : new Date(value);
+  return Number.isFinite(d.getTime()) ? d : null;
+}
 
 type PlaceImageStateLike = {
   images?: string[] | null;
@@ -243,6 +251,19 @@ function getIncludedRatingSources(place: PlaceRatingSummaryLike) {
   );
 }
 
+/**
+ * Quellenzeile in UI: nutzt alle DB-Zeilen mit `status === ACTIVE` und `ratingCount > 0`.
+ * Sobald du `PlaceRatingSource` anlegst/aktivierst, erscheint `provider` oder `attributionText`
+ * (siehe `formatPlaceRatingSourcesAttribution`).
+ */
+function getActiveRatingSourcesForAttribution(place: PlaceRatingSummaryLike) {
+  return (
+    place.placeRatingSources?.filter(
+      (source) => source.status === "ACTIVE" && source.ratingCount > 0,
+    ) ?? []
+  );
+}
+
 export function resolvePlaceImage(place: PlaceImageStateLike): ResolvedEntityImage | null {
   return resolveEntityImage({
     primaryImageAsset: place.primaryImageAsset,
@@ -267,6 +288,7 @@ export function getPlaceDisplayRatingSummary(
   const displayCount = place.displayRatingCount ?? null;
   const sourceCount = place.ratingSourceCount ?? null;
   const includedSources = getIncludedRatingSources(place);
+  const attributionSources = getActiveRatingSourcesForAttribution(place);
 
   if (
     displayValue !== null &&
@@ -280,14 +302,14 @@ export function getPlaceDisplayRatingSummary(
       count: displayCount,
       sourceCount,
       updatedAt: place.ratingSummaryUpdatedAt ?? null,
-      sources: includedSources.map((source) => ({
+      sources: attributionSources.map((source) => ({
         provider: source.provider,
         ratingValue: toNumber(source.ratingValue) ?? 0,
         ratingCount: source.ratingCount,
         scaleMax: toNumber(source.scaleMax) ?? 5,
         attributionText: source.attributionText ?? null,
         attributionUrl: source.attributionUrl ?? null,
-        observedAt: source.observedAt ?? null,
+        observedAt: normalizeSourceObservedAt(source.observedAt),
       })),
     };
   }
@@ -311,14 +333,13 @@ export function getPlaceDisplayRatingSummary(
   }, 0);
 
   const updatedAt = includedSources.reduce<Date | null>((latest, source) => {
-    if (!source.observedAt) {
+    const d = normalizeSourceObservedAt(source.observedAt);
+    if (!d) {
       return latest;
     }
-
-    if (!latest || source.observedAt > latest) {
-      return source.observedAt;
+    if (!latest || d > latest) {
+      return d;
     }
-
     return latest;
   }, null);
 
@@ -334,7 +355,7 @@ export function getPlaceDisplayRatingSummary(
       scaleMax: toNumber(source.scaleMax) ?? 5,
       attributionText: source.attributionText ?? null,
       attributionUrl: source.attributionUrl ?? null,
-      observedAt: source.observedAt ?? null,
+      observedAt: normalizeSourceObservedAt(source.observedAt),
     })),
   };
 }
@@ -343,6 +364,64 @@ export function hasPlaceDisplayRatingSummary(
   summary: ResolvedPlaceRatingSummary | null,
 ) {
   return Boolean(summary && summary.count > 0 && summary.sourceCount > 0);
+}
+
+const RATING_SOURCE_PROVIDER_LABELS: Record<string, { de: string; tr: string }> = {
+  GOOGLE: { de: "Google", tr: "Google" },
+  YELP: { de: "Yelp", tr: "Yelp" },
+  TRIPADVISOR: { de: "Tripadvisor", tr: "Tripadvisor" },
+  MERHABAMAP: { de: "MerhabaMap", tr: "MerhabaMap" },
+  OTHER: { de: "Weitere Quelle", tr: "Diğer kaynak" },
+};
+
+/** Eine Zeile für Nutzer:innen: aus welchen Quellen die aggregierte Bewertung stammt. */
+export function formatPlaceRatingSourcesAttribution(
+  locale: "de" | "tr",
+  summary: ResolvedPlaceRatingSummary | null,
+): string | null {
+  if (!summary?.sources?.length) {
+    return null;
+  }
+  const lang = locale === "tr" ? "tr" : "de";
+  const parts = summary.sources.map((source) => {
+    const text = source.attributionText?.trim();
+    if (text) {
+      return text;
+    }
+    return RATING_SOURCE_PROVIDER_LABELS[source.provider]?.[lang] ?? source.provider;
+  });
+  const unique = [...new Set(parts)].filter(Boolean);
+  if (unique.length === 0) {
+    return null;
+  }
+  const list = unique.join(", ");
+  return locale === "tr"
+    ? `Değerlendirme kaynakları: ${list}`
+    : `Bewertungen aus: ${list}`;
+}
+
+/**
+ * Für Karten/Listen: benannte Quellen, sonst Fallback mit Quellenanzahl oder generischem Hinweis.
+ */
+export function formatPlaceRatingSourceCaption(
+  locale: "de" | "tr",
+  summary: ResolvedPlaceRatingSummary | null,
+): string | null {
+  if (!summary || summary.count <= 0) {
+    return null;
+  }
+  const named = formatPlaceRatingSourcesAttribution(locale, summary);
+  if (named) {
+    return named;
+  }
+  if (summary.sourceCount > 0) {
+    return locale === "tr"
+      ? `Özet: ${summary.sourceCount} kaynaktan birleştirilmiş puan`
+      : `Zusammengeführte Bewertung aus ${summary.sourceCount} Quelle(n)`;
+  }
+  return locale === "tr"
+    ? "Kaynak: harici değerlendirme özeti"
+    : "Quelle: extern zusammengeführte Bewertung";
 }
 
 export function computePlaceScore(place: PlaceRatingSummaryLike) {

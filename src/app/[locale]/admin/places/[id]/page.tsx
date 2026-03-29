@@ -7,6 +7,7 @@ import { PlaceTrustStatusForm } from "@/components/admin/place-trust-status-form
 import { StatusBadge } from "@/components/admin/status-badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "@/i18n/navigation";
+import { getLocalizedCityDisplayName } from "@/lib/cities/city-display-name";
 import { getAdminPlaceById } from "@/server/queries/admin/get-admin-place-by-id";
 
 type AdminPlaceDetailPageProps = {
@@ -59,7 +60,7 @@ export default async function AdminPlaceDetailPage({
               <div className="space-y-2">
                 <h2 className="font-display text-3xl text-foreground">{place.name}</h2>
                 <p className="text-sm text-muted-foreground">
-                  {locale === "tr" ? place.city.nameTr : place.city.nameDe}
+                  {getLocalizedCityDisplayName(locale, place.city)}
                 </p>
               </div>
               <div className="flex flex-wrap gap-2">

@@ -6,6 +6,8 @@ import { notFound } from "next/navigation";
 import { auth } from "@/auth";
 import { CityDiscoveryOverview } from "@/components/cities/city-discovery-overview";
 import { JsonLd } from "@/components/seo/json-ld";
+import { getLocalizedCityDisplayName } from "@/lib/cities/city-display-name";
+import type { GermanyMapCluster } from "@/lib/cities/germany-map-cluster";
 import { buildCityMetadata } from "@/lib/metadata/public";
 import { buildCityCollectionSchema } from "@/lib/seo/structured-data";
 import { getDiscoveryMapCityOptions } from "@/server/queries/cities/get-discovery-map-cities";
@@ -47,7 +49,7 @@ export async function generateMetadata({ params, searchParams }: MapPageProps): 
     if (!cityPage) {
       return {};
     }
-    const cityName = locale === "tr" ? cityPage.city.nameTr : cityPage.city.nameDe;
+    const cityName = getLocalizedCityDisplayName(locale, cityPage.city);
     return buildCityMetadata({
       locale,
       path: `/map?city=${citySlug}`,
@@ -94,7 +96,7 @@ export default async function DiscoveryMapPage({ params, searchParams }: MapPage
     notFound();
   }
 
-  const cityName = locale === "tr" ? pageData.city.nameTr : pageData.city.nameDe;
+  const cityName = getLocalizedCityDisplayName(locale, pageData.city);
   const description = t("metaDescription", { city: cityName });
   const isNational = !citySlug;
 
@@ -105,6 +107,10 @@ export default async function DiscoveryMapPage({ params, searchParams }: MapPage
     : `/${locale}/map?city=${pageData.city.slug}`;
 
   const collectionPath = isNational ? "/map" : `/map?city=${pageData.city.slug}`;
+
+  const germanyMapClusters: GermanyMapCluster[] | null = isNational
+    ? (pageData as unknown as { germanyMapClusters: GermanyMapCluster[] }).germanyMapClusters
+    : null;
 
   return (
     <>
@@ -142,6 +148,7 @@ export default async function DiscoveryMapPage({ params, searchParams }: MapPage
         upcomingEvents={pageData.upcomingEvents}
         mapEvents={pageData.mapEvents}
         isAuthenticated={Boolean(userId)}
+        germanyMapClusters={germanyMapClusters}
         labels={{
           eyebrow: t("eyebrow"),
           title: t("title", { city: cityName }),
@@ -163,8 +170,10 @@ export default async function DiscoveryMapPage({ params, searchParams }: MapPage
           allCategories: t("map.allCategories"),
           resetFilters: t("map.resetFilters"),
           resultsTitle: t("map.resultsTitle"),
+          listRatingReviewsSuffix: t("map.listRatingReviewsSuffix"),
           resultsSummaryUnit: t("map.resultsSummaryUnit"),
           viewPlace: t("map.viewPlace"),
+          popupPlaceRating: t("map.popupPlaceRating"),
           viewEvent: t("map.viewEvent"),
           locateMe: t("map.locateMe"),
           locating: t("map.locating"),
@@ -193,6 +202,11 @@ export default async function DiscoveryMapPage({ params, searchParams }: MapPage
               (key) => [key, eventsTexts(`categories.${key}`)],
             ),
           ),
+          germanyClusterHint: t("map.germanyClusterHint"),
+          germanyBackToOverview: t("map.germanyBackToOverview"),
+          germanyClusterRevealLabel: t("map.germanyClusterReveal"),
+          germanyLoadingCity: t("map.germanyLoadingCity"),
+          resultsCitiesUnit: t("map.resultsCitiesUnit"),
         }}
       />
     </>

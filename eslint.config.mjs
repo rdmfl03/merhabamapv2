@@ -15,6 +15,20 @@ const config = [
   {
     ignores: [".next/**", "node_modules/**", "next-env.d.ts"],
   },
+  {
+    files: ["**/*.{js,mjs,ts,tsx}"],
+    rules: {
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        {
+          args: "after-used",
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^_",
+        },
+      ],
+    },
+  },
 ];
 
 export default config;

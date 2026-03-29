@@ -8,6 +8,7 @@ import { PlacesSavedFilterShell } from "@/components/places/places-saved-filter-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "@/i18n/navigation";
+import { getLocalizedCityDisplayName } from "@/lib/cities/city-display-name";
 import { buildPlacesListingMetadata } from "@/lib/metadata/places";
 import {
   buildPlacesPath,
@@ -21,7 +22,7 @@ import {
   getLocalizedPlaceCategoryLabel,
   getLocalizedText,
 } from "@/lib/places";
-import { placesFilterSchema } from "@/lib/validators/places";
+import { parsePlacesFiltersFromSearchParams } from "@/lib/validators/places";
 import { getPlaceFilters } from "@/server/queries/places/get-place-filters";
 import { listPlaces } from "@/server/queries/places/list-places";
 
@@ -106,16 +107,7 @@ export async function generateMetadata({
   const { locale } = await params;
   const rawSearchParams = await searchParams;
   const t = await getTranslations({ locale, namespace: "places" });
-  const filters = placesFilterSchema.parse({
-    city:
-      typeof rawSearchParams.city === "string" ? rawSearchParams.city : undefined,
-    category:
-      typeof rawSearchParams.category === "string"
-        ? rawSearchParams.category
-        : undefined,
-    q: typeof rawSearchParams.q === "string" ? rawSearchParams.q : undefined,
-    sort: typeof rawSearchParams.sort === "string" ? rawSearchParams.sort : undefined,
-  });
+  const filters = parsePlacesFiltersFromSearchParams(rawSearchParams);
   let cityLabel: string | null = null;
   let categoryLabel: string | null = null;
 
@@ -126,7 +118,7 @@ export async function generateMetadata({
       (entry) => entry.slug === filters.category,
     );
 
-    cityLabel = city ? (locale === "tr" ? city.nameTr : city.nameDe) : null;
+    cityLabel = city ? (getLocalizedCityDisplayName(locale, city)) : null;
     categoryLabel = category
       ? getLocalizedPlaceCategoryLabel(category, locale)
       : null;
@@ -159,16 +151,7 @@ export default async function PlacesPage({
   setRequestLocale(locale);
 
   const rawSearchParams = await searchParams;
-  const filters = placesFilterSchema.parse({
-    city:
-      typeof rawSearchParams.city === "string" ? rawSearchParams.city : undefined,
-    category:
-      typeof rawSearchParams.category === "string"
-        ? rawSearchParams.category
-        : undefined,
-    q: typeof rawSearchParams.q === "string" ? rawSearchParams.q : undefined,
-    sort: typeof rawSearchParams.sort === "string" ? rawSearchParams.sort : undefined,
-  });
+  const filters = parsePlacesFiltersFromSearchParams(rawSearchParams);
 
   let session = null;
 
@@ -203,13 +186,21 @@ export default async function PlacesPage({
     places = [];
   }
 
+  const imageAttributionLabels = {
+    license: t("imageAttribution.license"),
+    sourceLink: t("imageAttribution.sourceLink"),
+    rightsLink: t("imageAttribution.rightsLink"),
+    provider: t("imageAttribution.provider"),
+    requiredNotice: t("imageAttribution.requiredNotice"),
+  };
+
   const currentPath = buildPlacesPath(locale, filters);
   const city = filterData.cities.find((entry) => entry.slug === filters.city);
   const category = filterData.categories.find(
     (entry) => entry.slug === filters.category,
   );
   const activeFilterItems = [
-    city ? { key: "city", label: `${t("filters.city")}: ${locale === "tr" ? city.nameTr : city.nameDe}` } : null,
+    city ? { key: "city", label: `${t("filters.city")}: ${getLocalizedCityDisplayName(locale, city)}` } : null,
     category
       ? {
           key: "category",
@@ -237,7 +228,7 @@ export default async function PlacesPage({
     ? {
         href: `/places?city=${city.slug}`,
         label: t("empty.browseCity", {
-          city: locale === "tr" ? city.nameTr : city.nameDe,
+          city: getLocalizedCityDisplayName(locale, city),
         }),
       }
     : {
@@ -248,7 +239,7 @@ export default async function PlacesPage({
     ? {
         href: `/places?city=${city.slug}`,
         label: t("narrowResultsAction", {
-          city: locale === "tr" ? city.nameTr : city.nameDe,
+          city: getLocalizedCityDisplayName(locale, city),
         }),
       }
     : null;
@@ -304,21 +295,21 @@ export default async function PlacesPage({
           {city ? (
             <p className="text-sm font-medium text-brand/80">
               {t("cityContext", {
-                city: locale === "tr" ? city.nameTr : city.nameDe,
+                city: getLocalizedCityDisplayName(locale, city),
               })}
             </p>
           ) : null}
           <h1 className="font-display text-3xl text-foreground sm:text-4xl">
             {city
               ? t("titleCity", {
-                  city: locale === "tr" ? city.nameTr : city.nameDe,
+                  city: getLocalizedCityDisplayName(locale, city),
                 })
               : t("title")}
           </h1>
           <p className="max-w-3xl text-base leading-6 text-muted-foreground">
             {city
               ? t("descriptionCity", {
-                  city: locale === "tr" ? city.nameTr : city.nameDe,
+                  city: getLocalizedCityDisplayName(locale, city),
                 })
               : t("description")}
           </p>
@@ -335,7 +326,7 @@ export default async function PlacesPage({
         values={filters}
         cities={filterData.cities.map((city) => ({
           slug: city.slug,
-          label: locale === "tr" ? city.nameTr : city.nameDe,
+          label: getLocalizedCityDisplayName(locale, city),
         }))}
         categories={filterData.categories.map((category) => ({
           slug: category.slug,
@@ -359,6 +350,7 @@ export default async function PlacesPage({
         locale={locale}
         places={places}
         currentPath={currentPath}
+        imageAttributionLabels={imageAttributionLabels}
         labels={{
           toggle: locale === "tr" ? "Kaydedilenler" : "Gespeichert",
           activeHint:
@@ -430,7 +422,7 @@ export default async function PlacesPage({
                       t("card.fallbackDescription"),
                     )}
                     categoryLabel={getLocalizedPlaceCategoryLabel(place.category, locale)}
-                    cityLabel={locale === "tr" ? place.city.nameTr : place.city.nameDe}
+                    cityLabel={getLocalizedCityDisplayName(locale, place.city)}
                     returnPath={currentPath}
                     isAuthenticated={Boolean(session?.user?.id)}
                     labels={{
@@ -441,6 +433,7 @@ export default async function PlacesPage({
                       signIn: t("card.signIn"),
                       verified: t("badges.verified"),
                     }}
+                    imageAttributionLabels={imageAttributionLabels}
                   />
                 ))}
               </div>
@@ -467,7 +460,7 @@ export default async function PlacesPage({
                       t("card.fallbackDescription"),
                     )}
                     categoryLabel={getLocalizedPlaceCategoryLabel(place.category, locale)}
-                    cityLabel={locale === "tr" ? place.city.nameTr : place.city.nameDe}
+                    cityLabel={getLocalizedCityDisplayName(locale, place.city)}
                     returnPath={currentPath}
                     isAuthenticated={Boolean(session?.user?.id)}
                     labels={{
@@ -478,6 +471,7 @@ export default async function PlacesPage({
                       signIn: t("card.signIn"),
                       verified: t("badges.verified"),
                     }}
+                    imageAttributionLabels={imageAttributionLabels}
                   />
                 ))}
               </div>
@@ -501,7 +495,7 @@ export default async function PlacesPage({
                       t("card.fallbackDescription"),
                     )}
                     categoryLabel={getLocalizedPlaceCategoryLabel(place.category, locale)}
-                    cityLabel={locale === "tr" ? place.city.nameTr : place.city.nameDe}
+                    cityLabel={getLocalizedCityDisplayName(locale, place.city)}
                     returnPath={currentPath}
                     isAuthenticated={Boolean(session?.user?.id)}
                     labels={{
@@ -512,6 +506,7 @@ export default async function PlacesPage({
                       signIn: t("card.signIn"),
                       verified: t("badges.verified"),
                     }}
+                    imageAttributionLabels={imageAttributionLabels}
                   />
                 ))}
               </div>
@@ -556,7 +551,7 @@ export default async function PlacesPage({
                   {city
                     ? t("resultsCountCity", {
                         count: places.length,
-                        city: locale === "tr" ? city.nameTr : city.nameDe,
+                        city: getLocalizedCityDisplayName(locale, city),
                       })
                     : t("resultsCount", { count: places.length })}
                   {activeSortLabel ? (
@@ -591,7 +586,7 @@ export default async function PlacesPage({
                     categoryLabel={
                       getLocalizedPlaceCategoryLabel(place.category, locale)
                     }
-                    cityLabel={locale === "tr" ? place.city.nameTr : place.city.nameDe}
+                    cityLabel={getLocalizedCityDisplayName(locale, place.city)}
                     returnPath={currentPath}
                     isAuthenticated={Boolean(session?.user?.id)}
                     labels={{
@@ -602,6 +597,7 @@ export default async function PlacesPage({
                       signIn: t("card.signIn"),
                       verified: t("badges.verified"),
                     }}
+                    imageAttributionLabels={imageAttributionLabels}
                   />
                 ))}
               </div>

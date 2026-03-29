@@ -12,8 +12,9 @@ import {
   getEventCategoryLabelKey,
   getLocalizedEventText,
 } from "@/lib/events";
+import { getLocalizedCityDisplayName } from "@/lib/cities/city-display-name";
 import { buildEventsListingMetadata } from "@/lib/metadata/events";
-import { eventsFilterSchema } from "@/lib/validators/events";
+import { parseEventsFiltersFromSearchParams } from "@/lib/validators/events";
 import { getEventFilters } from "@/server/queries/events/get-event-filters";
 import { listEvents } from "@/server/queries/events/list-events";
 
@@ -31,23 +32,13 @@ export async function generateMetadata({
   const { locale } = await params;
   const rawSearchParams = await searchParams;
   const t = await getTranslations({ locale, namespace: "events" });
-  const parsedFilters = eventsFilterSchema.safeParse({
-    city: typeof rawSearchParams.city === "string" ? rawSearchParams.city : undefined,
-    category:
-      typeof rawSearchParams.category === "string"
-        ? rawSearchParams.category
-        : undefined,
-    date: typeof rawSearchParams.date === "string" ? rawSearchParams.date : undefined,
-    q: typeof rawSearchParams.q === "string" ? rawSearchParams.q : undefined,
-    sort: typeof rawSearchParams.sort === "string" ? rawSearchParams.sort : undefined,
-  });
-  const filters = parsedFilters.success ? parsedFilters.data : {};
+  const filters = parseEventsFiltersFromSearchParams(rawSearchParams);
   let cityLabel: string | null = null;
 
   try {
     const filterData = await getEventFilters();
     const city = filterData.cities.find((entry) => entry.slug === filters.city);
-    cityLabel = city ? (locale === "tr" ? city.nameTr : city.nameDe) : null;
+    cityLabel = city ? (getLocalizedCityDisplayName(locale, city)) : null;
   } catch {
     cityLabel = null;
   }
@@ -79,17 +70,7 @@ export default async function EventsPage({
   setRequestLocale(locale);
 
   const rawSearchParams = await searchParams;
-  const parsedFilters = eventsFilterSchema.safeParse({
-    city: typeof rawSearchParams.city === "string" ? rawSearchParams.city : undefined,
-    category:
-      typeof rawSearchParams.category === "string"
-        ? rawSearchParams.category
-        : undefined,
-    date: typeof rawSearchParams.date === "string" ? rawSearchParams.date : undefined,
-    q: typeof rawSearchParams.q === "string" ? rawSearchParams.q : undefined,
-    sort: typeof rawSearchParams.sort === "string" ? rawSearchParams.sort : undefined,
-  });
-  const filters = parsedFilters.success ? parsedFilters.data : {};
+  const filters = parseEventsFiltersFromSearchParams(rawSearchParams);
 
   let session = null;
 
@@ -137,7 +118,7 @@ export default async function EventsPage({
             ? t("dateFilters.upcoming")
             : null;
   const activeFilterItems = [
-    city ? { key: "city", label: `${t("filters.city")}: ${locale === "tr" ? city.nameTr : city.nameDe}` } : null,
+    city ? { key: "city", label: `${t("filters.city")}: ${getLocalizedCityDisplayName(locale, city)}` } : null,
     filters.category
       ? {
           key: "category",
@@ -171,7 +152,7 @@ export default async function EventsPage({
     ? {
         href: `/events?city=${city.slug}`,
         label: t("empty.browseCity", {
-          city: locale === "tr" ? city.nameTr : city.nameDe,
+          city: getLocalizedCityDisplayName(locale, city),
         }),
       }
     : {
@@ -182,7 +163,7 @@ export default async function EventsPage({
     ? {
         href: `/events?city=${city.slug}`,
         label: t("narrowResultsAction", {
-          city: locale === "tr" ? city.nameTr : city.nameDe,
+          city: getLocalizedCityDisplayName(locale, city),
         }),
       }
     : null;
@@ -197,21 +178,21 @@ export default async function EventsPage({
           {city ? (
             <p className="text-sm font-medium text-brand/80">
               {t("cityContext", {
-                city: locale === "tr" ? city.nameTr : city.nameDe,
+                city: getLocalizedCityDisplayName(locale, city),
               })}
             </p>
           ) : null}
           <h1 className="font-display text-3xl text-foreground sm:text-4xl">
             {city
               ? t("titleCity", {
-                  city: locale === "tr" ? city.nameTr : city.nameDe,
+                  city: getLocalizedCityDisplayName(locale, city),
                 })
               : t("title")}
           </h1>
           <p className="max-w-3xl text-base leading-6 text-muted-foreground">
             {city
               ? t("descriptionCity", {
-                  city: locale === "tr" ? city.nameTr : city.nameDe,
+                  city: getLocalizedCityDisplayName(locale, city),
                 })
               : t("description")}
           </p>
@@ -228,7 +209,7 @@ export default async function EventsPage({
         values={filters}
         cities={filterData.cities.map((city) => ({
           value: city.slug,
-          label: locale === "tr" ? city.nameTr : city.nameDe,
+          label: getLocalizedCityDisplayName(locale, city),
         }))}
         categories={filterData.categories.map((category) => ({
           value: category,
@@ -310,7 +291,7 @@ export default async function EventsPage({
             {city
               ? t("resultsCountCity", {
                   count: events.length,
-                  city: locale === "tr" ? city.nameTr : city.nameDe,
+                  city: getLocalizedCityDisplayName(locale, city),
                 })
               : t("resultsCount", { count: events.length })}
             {activeSortLabel ? (
@@ -342,7 +323,7 @@ export default async function EventsPage({
                   t("card.fallbackDescription"),
                 )}
                 categoryLabel={t(`categories.${getEventCategoryLabelKey(event.category)}`)}
-                cityLabel={locale === "tr" ? event.city.nameTr : event.city.nameDe}
+                cityLabel={getLocalizedCityDisplayName(locale, event.city)}
                 returnPath={currentPath}
                 isAuthenticated={Boolean(session?.user?.id)}
                 labels={{

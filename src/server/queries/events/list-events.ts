@@ -69,13 +69,17 @@ export async function listEvents(args: {
 
   const sort = args.filters.sort ?? "soonest";
 
+  // Date filters run in memory after fetch; a small `take` drops matching rows that sort
+  // after the first N by startsAt/createdAt (e.g. "this-month" events late in the month).
+  const takeLimit = args.filters.date ? 2000 : 72;
+
   let events = await prisma.event.findMany({
     where: buildPublicEventWhere(where),
     orderBy:
       sort === "newest"
         ? [{ createdAt: "desc" }]
         : [{ startsAt: "asc" }, { createdAt: "desc" }],
-    take: 72,
+    take: takeLimit,
     select: publicEventSelectWithAi,
   });
 

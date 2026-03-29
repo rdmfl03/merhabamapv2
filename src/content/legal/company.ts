@@ -2,7 +2,8 @@ import type { AppLocale } from "@/i18n/routing";
 
 export type LegalCompanyProfile = {
   entityName: string;
-  legalRepresentative: string;
+  /** Gesellschafterlich vertretungsberechtigt (GbR); Reihenfolge nur zur Darstellung. */
+  legalRepresentatives: string[];
   addressLines: string[];
   infoEmail: string;
   contactEmail: string;
@@ -20,7 +21,7 @@ export function getLegalCompanyProfile(locale: AppLocale): LegalCompanyProfile {
 
   return {
     entityName: "Oflu & Akyazi GbR",
-    legalRepresentative: "Erdem Oflu",
+    legalRepresentatives: ["Erdem Oflu", "Samet Akyazi"],
     addressLines: ["Straußstr. 7", "33129 Delbrück", "Deutschland"],
     infoEmail: "info@merhabamap.com",
     contactEmail: "kontakt@merhabamap.com",

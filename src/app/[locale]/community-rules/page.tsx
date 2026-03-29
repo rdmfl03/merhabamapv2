@@ -45,12 +45,7 @@ export default async function CommunityRulesPage({
   const content = getCommunityRulesContent(locale);
 
   return (
-    <LegalPageShell
-      eyebrow={t("eyebrow")}
-      title={content.title}
-      intro={content.intro}
-      notice={t("draftNotice")}
-    >
+    <LegalPageShell eyebrow={t("eyebrow")} title={content.title} intro={content.intro}>
       {content.sections.map((section) => (
         <LegalSection key={section.title} section={section} />
       ))}

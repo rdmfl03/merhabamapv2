@@ -28,7 +28,6 @@ Object.assign(process.env, {
   AUTH_ALLOW_CREDENTIALS_MOCK: "false",
   LOG_LEVEL: "debug",
   READINESS_ENABLE_DB_CHECK: "false",
-  NEXT_PUBLIC_MAP_PROVIDER: "mapbox",
   NEXT_PUBLIC_ENABLE_DEV_DEMO_UI: "false",
   INGEST_SECRET: "merhabamap_ingest_secret_dev_2026",
 });

@@ -1,16 +1,23 @@
 import { MapPin, Star } from "lucide-react";
 
+import { PlaceCoverImage } from "@/components/places/place-cover-image";
 import { PlaceSaveButton } from "@/components/places/place-save-button";
 import { PlaceTrustBadge } from "@/components/places/place-trust-badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "@/i18n/navigation";
 import {
-  computeRatingConfidence,
+  formatPlaceRatingSourceCaption,
   getPlaceDisplayRatingSummary,
   resolvePlaceImage,
 } from "@/lib/places";
 import type { ListedPlace } from "@/server/queries/places/list-places";
+import {
+  attributionLabelsForLocale,
+  PlaceImageAttribution,
+  placeImageAttributionHasContent,
+  type PlaceImageAttributionLabels,
+} from "@/components/places/place-image-attribution";
 
 type PlaceCardProps = {
   place: ListedPlace;
@@ -28,6 +35,8 @@ type PlaceCardProps = {
     signIn: string;
     verified: string;
   };
+  /** Optional; defaults by locale when omitted (saved / discovery map cards). */
+  imageAttributionLabels?: PlaceImageAttributionLabels;
 };
 
 export function PlaceCard({
@@ -39,33 +48,26 @@ export function PlaceCard({
   returnPath,
   isAuthenticated,
   labels,
+  imageAttributionLabels,
 }: PlaceCardProps) {
   const image = resolvePlaceImage(place);
+  const attributionLabels = imageAttributionLabels ?? attributionLabelsForLocale(locale);
   const ratingSummary = getPlaceDisplayRatingSummary(place);
-  const ratingConfidence = computeRatingConfidence(place);
-  const ratingConfidenceLabel =
-    ratingConfidence.level === "high"
-      ? locale === "tr"
-        ? "Cok sayida degerlendirme"
-        : "Sehr viele Bewertungen"
-      : ratingConfidence.level === "medium"
-        ? locale === "tr"
-          ? "Populer"
-          : "Beliebt"
-        : locale === "tr"
-          ? "Az degerlendirme"
-          : "Wenige Bewertungen";
+  const ratingSourcesLine = formatPlaceRatingSourceCaption(locale, ratingSummary);
 
   return (
     <Card className="overflow-hidden bg-white/90">
       <div className="relative">
-        <div className="flex h-44 items-center justify-center bg-[#f5f6f8]">
+        <div className="relative flex h-44 items-center justify-center overflow-hidden bg-[#f5f6f8]">
           {image ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <PlaceCoverImage
               src={image.url}
               alt={image.altText ?? place.name}
-              className="h-full w-full object-cover"
+              fallbackText={place.name}
+              showFallbackBadge={image.isFallback}
+              fallbackBadgeLabel={
+                locale === "tr" ? "Yedek görsel" : "Fallback-Bild"
+              }
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#f5f6f8] via-white to-[#eef1f5] text-sm font-medium text-brand">
@@ -73,6 +75,13 @@ export function PlaceCard({
             </div>
           )}
         </div>
+        {image && placeImageAttributionHasContent(image) ? (
+          <PlaceImageAttribution
+            model={image}
+            variant="compact"
+            labels={attributionLabels}
+          />
+        ) : null}
         {place.verificationStatus === "VERIFIED" ? (
           <div className="absolute left-4 top-4">
             <PlaceTrustBadge
@@ -81,11 +90,6 @@ export function PlaceCard({
                 verified: labels.verified,
               }}
             />
-          </div>
-        ) : null}
-        {image?.isFallback ? (
-          <div className="absolute bottom-4 right-4 rounded-full bg-white/90 px-3 py-1 text-[11px] font-medium text-foreground shadow-sm">
-            {locale === "tr" ? "Fallback gorsel" : "Fallback-Bild"}
           </div>
         ) : null}
       </div>
@@ -117,7 +121,9 @@ export function PlaceCard({
                 </span>
                 <span>({ratingSummary.count})</span>
               </div>
-              <p className="text-xs text-muted-foreground">{ratingConfidenceLabel}</p>
+              {ratingSourcesLine ? (
+                <p className="text-xs text-muted-foreground">{ratingSourcesLine}</p>
+              ) : null}
             </div>
           ) : null}
 

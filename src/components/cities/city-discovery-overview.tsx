@@ -1,9 +1,13 @@
+"use client";
+
 import { CityDiscoveryMap } from "@/components/cities/city-discovery-map";
 import { EventCard } from "@/components/events/event-card";
 import { PlaceCard } from "@/components/places/place-card";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "@/i18n/navigation";
+import { getLocalizedCityDisplayName } from "@/lib/cities/city-display-name";
+import type { GermanyMapCluster } from "@/lib/cities/germany-map-cluster";
 import { getEventCategoryLabelKey, getLocalizedEventText } from "@/lib/events";
 import { getLocalizedPlaceCategoryLabel, getLocalizedText } from "@/lib/places";
 import type { PublicEventRecord } from "@/server/queries/events/shared";
@@ -43,6 +47,7 @@ type CityDiscoveryOverviewProps = {
   upcomingEvents: CityEventCardRecord[];
   mapEvents: CityEventCardRecord[];
   isAuthenticated: boolean;
+  germanyMapClusters?: GermanyMapCluster[] | null;
   labels: {
     eyebrow: string;
     title: string;
@@ -64,8 +69,10 @@ type CityDiscoveryOverviewProps = {
     allCategories: string;
     resetFilters: string;
     resultsTitle: string;
+    listRatingReviewsSuffix: string;
     resultsSummaryUnit: string;
     viewPlace: string;
+    popupPlaceRating: string;
     viewEvent: string;
     locateMe: string;
     locating: string;
@@ -90,6 +97,11 @@ type CityDiscoveryOverviewProps = {
     placeFallback: string;
     eventFallback: string;
     eventCategoryLabels: Record<string, string>;
+    germanyClusterHint?: string;
+    germanyBackToOverview?: string;
+    germanyClusterRevealLabel?: string;
+    germanyLoadingCity?: string;
+    resultsCitiesUnit?: string;
   };
 };
 
@@ -110,8 +122,14 @@ export function CityDiscoveryOverview({
   upcomingEvents,
   mapEvents,
   isAuthenticated,
+  germanyMapClusters = null,
   labels,
 }: CityDiscoveryOverviewProps) {
+  const isGermanyNationalMap =
+    Boolean(germanyMapClusters?.length) && !selectedMapCitySlug;
+  /** Unter der Karte: auf der reinen Deutschland-Karte keine Featured-Grids; mit ?city=… wie gewohnt. */
+  const showFeaturedBelowMap = !isGermanyNationalMap;
+
   return (
     <div className="mx-auto max-w-6xl space-y-10 px-4 py-10 sm:py-12">
       <section className="space-y-6">
@@ -163,8 +181,10 @@ export function CityDiscoveryOverview({
           allCategoriesLabel={labels.allCategories}
           resetFiltersLabel={labels.resetFilters}
           resultsTitle={labels.resultsTitle}
+          listRatingReviewsSuffix={labels.listRatingReviewsSuffix}
           resultsSummaryUnitLabel={labels.resultsSummaryUnit}
           viewPlaceLabel={labels.viewPlace}
+          placePopupRatingCaption={labels.popupPlaceRating}
           viewEventLabel={labels.viewEvent}
           locateMeLabel={labels.locateMe}
           locatingLabel={labels.locating}
@@ -173,9 +193,17 @@ export function CityDiscoveryOverview({
           categoryLabels={labels.eventCategoryLabels}
           places={mapPlaces}
           events={mapEvents}
+          germanyMapClusters={germanyMapClusters}
+          germanyClusterHint={labels.germanyClusterHint}
+          germanyBackToOverview={labels.germanyBackToOverview}
+          germanyClusterRevealLabel={labels.germanyClusterRevealLabel}
+          germanyLoadingCity={labels.germanyLoadingCity}
+          resultsCitiesUnit={labels.resultsCitiesUnit}
         />
       </section>
 
+      {showFeaturedBelowMap ? (
+        <>
       <section className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="font-display text-2xl text-foreground">{labels.featuredPlaces}</h2>
@@ -202,7 +230,7 @@ export function CityDiscoveryOverview({
                   labels.placeFallback,
                 )}
                 categoryLabel={getLocalizedPlaceCategoryLabel(place.category, locale)}
-                cityLabel={locale === "tr" ? place.city.nameTr : place.city.nameDe}
+                cityLabel={getLocalizedCityDisplayName(locale, place.city)}
                 returnPath={cardReturnPath}
                 isAuthenticated={isAuthenticated}
                 labels={{
@@ -247,7 +275,7 @@ export function CityDiscoveryOverview({
                 categoryLabel={
                   labels.eventCategoryLabels[getEventCategoryLabelKey(event.category)]
                 }
-                cityLabel={locale === "tr" ? event.city.nameTr : event.city.nameDe}
+                cityLabel={getLocalizedCityDisplayName(locale, event.city)}
                 returnPath={cardReturnPath}
                 isAuthenticated={isAuthenticated}
                 labels={{
@@ -263,6 +291,8 @@ export function CityDiscoveryOverview({
           </div>
         )}
       </section>
+        </>
+      ) : null}
     </div>
   );
 }

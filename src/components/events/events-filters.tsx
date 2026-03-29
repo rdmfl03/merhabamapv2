@@ -43,6 +43,7 @@ export function EventsFilters({
 }: EventsFiltersProps) {
   return (
     <form
+      method="get"
       action={`/${locale}/events`}
       className="grid gap-2.5 rounded-[1.4rem] border border-border bg-white/95 p-3 shadow-soft sm:grid-cols-2 xl:grid-cols-[1.2fr_0.75fr_0.75fr_0.75fr_0.75fr_auto_auto]"
     >

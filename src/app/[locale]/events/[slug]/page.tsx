@@ -20,6 +20,8 @@ import {
   resolveEventImage,
   getSafeExternalUrl,
 } from "@/lib/events";
+import { getLocalizedCityDisplayName } from "@/lib/cities/city-display-name";
+import { formatDisplayAddress } from "@/lib/format-display-address";
 import { buildEventDetailMetadata } from "@/lib/metadata/events";
 import { buildEventSchema } from "@/lib/seo/structured-data";
 import { getEventBySlug } from "@/server/queries/events/get-event-by-slug";
@@ -75,15 +77,17 @@ export default async function EventDetailPage({
     locale,
     t("detail.fallbackDescription"),
   );
-  const cityLabel = locale === "tr" ? event.city.nameTr : event.city.nameDe;
+  const cityLabel = getLocalizedCityDisplayName(locale, event.city);
   const categoryLabel = t(`categories.${getEventCategoryLabelKey(event.category)}`);
   const returnPath = `/${locale}/events/${event.slug}`;
   const externalUrl = getSafeExternalUrl(event.externalUrl);
   const image = resolveEventImage(event);
   const venueRating = getEventVenueRatingSummary(event);
-  const address = [event.addressLine1, event.postalCode, cityLabel]
-    .filter(Boolean)
-    .join(", ");
+  const address = formatDisplayAddress({
+    streetLine: event.addressLine1,
+    postalCode: event.postalCode,
+    cityLabel,
+  });
   const showCurationHint =
     event.moderationStatus === "APPROVED" && event.isPublished;
   const venueRatingUpdatedLabel =
@@ -184,15 +188,15 @@ export default async function EventDetailPage({
                 </div>
                 <p className="mt-1 text-sm text-muted-foreground">
                   {locale === "tr"
-                    ? `${new Intl.NumberFormat(locale).format(venueRating.count)} degerlendirme`
-                    : `${new Intl.NumberFormat(locale).format(venueRating.count)} Bewertungen`}
+                    ? `${new Intl.NumberFormat("tr-TR").format(venueRating.count)} değerlendirme`
+                    : `${new Intl.NumberFormat("de-DE").format(venueRating.count)} Bewertungen`}
                   {" · "}
                   {locale === "tr"
-                    ? `${new Intl.NumberFormat(locale).format(venueRating.sourceCount)} kaynak`
-                    : `${new Intl.NumberFormat(locale).format(venueRating.sourceCount)} Quellen`}
+                    ? `${new Intl.NumberFormat("tr-TR").format(venueRating.sourceCount)} kaynak`
+                    : `${new Intl.NumberFormat("de-DE").format(venueRating.sourceCount)} Quellen`}
                   {venueRatingUpdatedLabel
                     ? locale === "tr"
-                      ? ` · Guncelleme ${venueRatingUpdatedLabel}`
+                      ? ` · Güncelleme ${venueRatingUpdatedLabel}`
                       : ` · Stand ${venueRatingUpdatedLabel}`
                     : ""}
                 </p>

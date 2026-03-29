@@ -6,6 +6,7 @@ import { EntityModerationForm } from "@/components/admin/entity-moderation-form"
 import { StatusBadge } from "@/components/admin/status-badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "@/i18n/navigation";
+import { getLocalizedCityDisplayName } from "@/lib/cities/city-display-name";
 import { getAdminEventById } from "@/server/queries/admin/get-admin-event-by-id";
 
 type AdminEventDetailPageProps = {
@@ -75,7 +76,7 @@ export default async function AdminEventDetailPage({
               <div className="space-y-2">
                 <h2 className="font-display text-3xl text-foreground">{event.title}</h2>
                 <p className="text-sm text-muted-foreground">
-                  {locale === "tr" ? event.city.nameTr : event.city.nameDe}
+                  {getLocalizedCityDisplayName(locale, event.city)}
                 </p>
               </div>
               <div className="flex flex-wrap gap-2">

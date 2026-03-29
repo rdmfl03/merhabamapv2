@@ -29,6 +29,44 @@ export const eventsFilterSchema = z.object({
   sort: z.enum(["soonest", "newest"]).optional(),
 });
 
+const eventDateFilterSchema = z.enum(["today", "this-week", "this-month", "upcoming"]);
+const eventSortSchema = z.enum(["soonest", "newest"]);
+const eventCategoryEnumSchema = z.enum(eventCategories);
+
+function firstSearchParam(value: string | string[] | undefined | null): string | undefined {
+  if (value == null) {
+    return undefined;
+  }
+  if (Array.isArray(value)) {
+    const first = value[0];
+    return typeof first === "string" ? first : undefined;
+  }
+  return typeof value === "string" ? value : undefined;
+}
+
+/**
+ * Lenient parsing: invalid enum values do not discard the whole filter set (unlike
+ * `eventsFilterSchema.safeParse` on the full object).
+ */
+export function parseEventsFiltersFromSearchParams(
+  raw: Record<string, string | string[] | undefined>,
+): EventsFilterInput {
+  const cityResult = eventsFilterSchema.shape.city.safeParse(firstSearchParam(raw.city));
+  const qResult = eventsFilterSchema.shape.q.safeParse(firstSearchParam(raw.q));
+
+  const categoryResult = eventCategoryEnumSchema.safeParse(firstSearchParam(raw.category));
+  const dateResult = eventDateFilterSchema.safeParse(firstSearchParam(raw.date));
+  const sortResult = eventSortSchema.safeParse(firstSearchParam(raw.sort));
+
+  return {
+    city: cityResult.success ? cityResult.data : undefined,
+    q: qResult.success ? qResult.data : undefined,
+    category: categoryResult.success ? categoryResult.data : undefined,
+    date: dateResult.success ? dateResult.data : undefined,
+    sort: sortResult.success ? sortResult.data : undefined,
+  };
+}
+
 export const saveEventSchema = z.object({
   locale: z.enum(routing.locales),
   eventId: z.string().cuid(),

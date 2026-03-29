@@ -77,8 +77,7 @@ postgresql://USER:PASSWORD@HOST:25060/defaultdb?sslmode=require
 
 ### Maps
 
-- `NEXT_PUBLIC_MAP_PROVIDER=osm`
-- `NEXT_PUBLIC_MAPBOX_TOKEN` only if using Mapbox later
+- `NEXT_PUBLIC_MAPTILER_API_KEY` (optional; MapTiler raster tiles when set; otherwise OpenStreetMap)
 
 ### Netlify runtime helpers
 

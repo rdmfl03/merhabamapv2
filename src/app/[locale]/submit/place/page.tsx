@@ -2,6 +2,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { auth } from "@/auth";
 import { PlaceSubmissionForm } from "@/components/submissions/place-submission-form";
+import { getLocalizedCityDisplayName } from "@/lib/cities/city-display-name";
 import { getLocalizedPlaceCategoryLabel } from "@/lib/places";
 import { getSubmissionFormOptions } from "@/server/queries/submissions/get-submission-form-options";
 
@@ -51,7 +52,7 @@ export default async function SubmitPlacePage({ params }: SubmitPlacePageProps) 
         cities={options.cities.map((city) => ({
           id: city.id,
           slug: city.slug,
-          label: locale === "tr" ? city.nameTr : city.nameDe,
+          label: getLocalizedCityDisplayName(locale, city),
         }))}
         categories={options.placeCategories.map((category) => ({
           id: category.id,

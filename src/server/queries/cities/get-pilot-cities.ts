@@ -49,6 +49,7 @@ export async function getPilotCities() {
       by: ["cityId"],
       where: {
         cityId: { in: cityIds },
+        startsAt: { gte: new Date() },
         ...publicEventVisibilityWhere,
       },
       _count: {

@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { EventCard } from "@/components/events/event-card";
 import { SavedEmptyState } from "@/components/saved/saved-empty-state";
 import { getEventCategoryLabelKey, getLocalizedEventText } from "@/lib/events";
+import { getLocalizedCityDisplayName } from "@/lib/cities/city-display-name";
 import { requireAuthenticatedUser } from "@/server/actions/user/shared";
 import { getSavedEvents } from "@/server/queries/user/get-saved-events";
 
@@ -51,7 +52,7 @@ export default async function SavedEventsPage({ params }: SavedEventsPageProps) 
                 t("events.fallbackDescription"),
               )}
               categoryLabel={eventTexts(`categories.${getEventCategoryLabelKey(event.category)}`)}
-              cityLabel={locale === "tr" ? event.city.nameTr : event.city.nameDe}
+              cityLabel={getLocalizedCityDisplayName(locale, event.city)}
               returnPath={`/${locale}/saved/events`}
               isAuthenticated
               labels={{

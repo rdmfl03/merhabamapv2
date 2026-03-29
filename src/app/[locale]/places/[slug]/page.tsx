@@ -4,18 +4,20 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 
 import { auth } from "@/auth";
-import { MediaAttribution } from "@/components/media/media-attribution";
 import { PlaceClaimForm } from "@/components/places/place-claim-form";
+import { PlaceDetailHero } from "@/components/places/place-detail-hero";
 import { PlaceMapPreview } from "@/components/places/place-map-preview";
 import { PlaceReportForm } from "@/components/places/place-report-form";
 import { PlaceSaveButton } from "@/components/places/place-save-button";
 import { PlaceTrustBadge, PlaceTrustHelper } from "@/components/places/place-trust-badge";
 import { JsonLd } from "@/components/seo/json-ld";
 import { Card, CardContent } from "@/components/ui/card";
+import { getLocalizedCityDisplayName } from "@/lib/cities/city-display-name";
 import { buildPlaceDetailMetadata } from "@/lib/metadata/places";
+import { formatDisplayAddress } from "@/lib/format-display-address";
 import {
-  computeRatingConfidence,
   formatOpeningHoursDay,
+  formatPlaceRatingSourceCaption,
   getPlaceDisplayRatingSummary,
   getLocalizedText,
   getLocalizedPlaceCategoryLabel,
@@ -87,8 +89,7 @@ export default async function PlaceDetailPage({
   const safeRatingSummary = hasPlaceDisplayRatingSummary(ratingSummary)
     ? ratingSummary
     : null;
-  const ratingConfidence = computeRatingConfidence(place);
-  const cityLabel = locale === "tr" ? place.city.nameTr : place.city.nameDe;
+  const cityLabel = getLocalizedCityDisplayName(locale, place.city);
   const categoryLabel = getLocalizedPlaceCategoryLabel(place.category, locale);
   const returnPath = `/${locale}/places/${place.slug}`;
   const showCurationHint =
@@ -100,18 +101,10 @@ export default async function PlaceDetailPage({
           timeZone: "Europe/Berlin",
         }).format(safeRatingSummary.updatedAt)
       : null;
-  const ratingConfidenceLabel =
-    ratingConfidence.level === "high"
-      ? locale === "tr"
-        ? "Cok sayida degerlendirme"
-        : "Sehr viele Bewertungen"
-      : ratingConfidence.level === "medium"
-        ? locale === "tr"
-          ? "Populer"
-          : "Beliebt"
-        : locale === "tr"
-          ? "Az degerlendirme"
-          : "Wenige Bewertungen";
+  const ratingSourcesAttribution = formatPlaceRatingSourceCaption(
+    locale,
+    safeRatingSummary,
+  );
 
   return (
     <div className="mx-auto max-w-6xl space-y-8 px-4 py-10 sm:py-12">
@@ -136,42 +129,19 @@ export default async function PlaceDetailPage({
         })}
       />
       <section className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-        <div className="overflow-hidden rounded-[2rem] border border-border bg-white shadow-soft">
-          <div className="flex h-72 items-center justify-center bg-gradient-to-br from-[#f5f6f8] via-white to-[#eef1f5] sm:h-96">
-            {image ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={image.url}
-                alt={image.altText ?? place.name}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <div className="text-center">
-                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-brand">
-                  {categoryLabel}
-                </p>
-                <h1 className="mt-3 font-display text-4xl text-foreground sm:text-5xl">
-                  {place.name}
-                </h1>
-              </div>
-            )}
-          </div>
-          {image ? (
-            <div className="space-y-2 border-t border-border/70 bg-white/90 px-5 py-3">
-              {image.isFallback ? (
-                <p className="text-xs font-medium text-muted-foreground">
-                  {locale === "tr"
-                    ? "Bu gorsel acikca fallback olarak isaretlenmistir ve mekanin gercek fotografi olmayabilir."
-                    : "Dieses Bild ist klar als Fallback markiert und zeigt moeglicherweise nicht den realen Ort."}
-                </p>
-              ) : null}
-              <MediaAttribution
-                attributionText={image.attributionText}
-                attributionUrl={image.attributionUrl}
-              />
-            </div>
-          ) : null}
-        </div>
+        <PlaceDetailHero
+          image={image}
+          placeName={place.name}
+          categoryLabel={categoryLabel}
+          locale={locale}
+          attributionLabels={{
+            license: t("imageAttribution.license"),
+            sourceLink: t("imageAttribution.sourceLink"),
+            rightsLink: t("imageAttribution.rightsLink"),
+            provider: t("imageAttribution.provider"),
+            requiredNotice: t("imageAttribution.requiredNotice"),
+          }}
+        />
 
         <Card className="bg-white/90">
           <CardContent className="space-y-5 p-6">
@@ -209,19 +179,21 @@ export default async function PlaceDetailPage({
                 </div>
                 <p className="mt-1 text-sm text-muted-foreground">
                   {locale === "tr"
-                    ? `${new Intl.NumberFormat(locale).format(safeRatingSummary.count)} degerlendirme`
-                    : `${new Intl.NumberFormat(locale).format(safeRatingSummary.count)} Bewertungen`}
+                    ? `${new Intl.NumberFormat("tr-TR").format(safeRatingSummary.count)} değerlendirme`
+                    : `${new Intl.NumberFormat("de-DE").format(safeRatingSummary.count)} Bewertungen`}
                   {" · "}
                   {locale === "tr"
-                    ? `${new Intl.NumberFormat(locale).format(safeRatingSummary.sourceCount)} kaynak`
-                    : `${new Intl.NumberFormat(locale).format(safeRatingSummary.sourceCount)} Quellen`}
+                    ? `${new Intl.NumberFormat("tr-TR").format(safeRatingSummary.sourceCount)} kaynak`
+                    : `${new Intl.NumberFormat("de-DE").format(safeRatingSummary.sourceCount)} Quellen`}
                   {ratingUpdatedLabel
                     ? locale === "tr"
-                      ? ` · Guncelleme ${ratingUpdatedLabel}`
+                      ? ` · Güncelleme ${ratingUpdatedLabel}`
                       : ` · Stand ${ratingUpdatedLabel}`
                     : ""}
                 </p>
-                <p className="mt-1 text-xs text-muted-foreground">{ratingConfidenceLabel}</p>
+                {ratingSourcesAttribution ? (
+                  <p className="mt-1 text-xs text-muted-foreground">{ratingSourcesAttribution}</p>
+                ) : null}
               </div>
             ) : null}
 
@@ -280,10 +252,14 @@ export default async function PlaceDetailPage({
                 <div className="space-y-1">
                   <p className="font-medium text-foreground">{t("detail.address")}</p>
                   <p>
-                    {place.addressLine1 ?? t("detail.missingAddress")}
-                    {place.postalCode
-                      ? `, ${place.postalCode} ${cityLabel}`
-                      : ""}
+                    {(() => {
+                      const line = formatDisplayAddress({
+                        streetLine: place.addressLine1,
+                        postalCode: place.postalCode,
+                        cityLabel,
+                      });
+                      return line || t("detail.missingAddress");
+                    })()}
                   </p>
                 </div>
 
@@ -349,13 +325,11 @@ export default async function PlaceDetailPage({
           <PlaceMapPreview
             latitude={place.latitude}
             longitude={place.longitude}
-            address={[
-              place.addressLine1,
-              place.postalCode,
+            address={formatDisplayAddress({
+              streetLine: place.addressLine1,
+              postalCode: place.postalCode,
               cityLabel,
-            ]
-              .filter(Boolean)
-              .join(", ")}
+            })}
             labels={{
               title: t("detail.mapTitle"),
               description: t("detail.mapDescription"),
@@ -391,6 +365,15 @@ export default async function PlaceDetailPage({
               cooldown: t("claim.cooldown"),
             }}
           />
+
+          <Card className="bg-white/90">
+            <CardContent className="space-y-4 p-6">
+              <h3 className="font-semibold text-foreground">{t("detail.noticeTitle")}</h3>
+              <p className="text-sm leading-6 text-muted-foreground">
+                {t("detail.noticeDescription")}
+              </p>
+            </CardContent>
+          </Card>
 
           <PlaceReportForm
             placeId={place.id}

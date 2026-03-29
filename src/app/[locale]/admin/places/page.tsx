@@ -4,6 +4,7 @@ import { AdminShell } from "@/components/admin/admin-shell";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "@/i18n/navigation";
+import { getLocalizedCityDisplayName } from "@/lib/cities/city-display-name";
 import { listAdminPlaces } from "@/server/queries/admin/list-admin-places";
 
 type AdminPlacesPageProps = {
@@ -51,7 +52,7 @@ export default async function AdminPlacesPage({ params }: AdminPlacesPageProps) 
                     {place.name}
                   </Link>
                   <p className="text-sm text-muted-foreground">
-                    {locale === "tr" ? place.city.nameTr : place.city.nameDe}
+                    {getLocalizedCityDisplayName(locale, place.city)}
                   </p>
                   <p className="text-xs text-muted-foreground">
                     {place.owner?.name ?? place.owner?.email ?? t("places.noOwner")}

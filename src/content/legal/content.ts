@@ -37,8 +37,8 @@ export function getImpressumContent(locale: AppLocale): LegalPageContent {
           ],
         },
         {
-          title: "Temsil yetkisi",
-          paragraphs: [`Temsil yetkili kişi: ${company.legalRepresentative}`],
+          title: "Temsile yetkili ortaklar",
+          paragraphs: company.legalRepresentatives,
         },
         {
           title: "İletişim",
@@ -84,8 +84,8 @@ export function getImpressumContent(locale: AppLocale): LegalPageContent {
         ],
       },
       {
-        title: "Vertretungsberechtigte Person",
-        paragraphs: [`${company.legalRepresentative}`],
+        title: "Vertretungsberechtigte Gesellschafter",
+        paragraphs: company.legalRepresentatives,
       },
       {
         title: "Kontakt",
@@ -114,6 +114,8 @@ export function getImpressumContent(locale: AppLocale): LegalPageContent {
     ],
   };
 }
+
+// TODO(legal): Confirm in production whether S3-compatible object storage (e.g. Cloudflare R2 per .env examples) is enabled and whether any CDN or reverse proxy is used in addition to Netlify's own delivery network.
 
 export function getPrivacyContent(locale: AppLocale): LegalPageContent {
   const company = getLegalCompanyProfile(locale);
@@ -159,12 +161,12 @@ export function getPrivacyContent(locale: AppLocale): LegalPageContent {
           ],
         },
         {
-          title: "Hosting ve teknik hizmet sağlayıcıları",
+          title: "Barındırma ve teknik hizmet sağlayıcıları",
           bullets: [
-            "Netlify (uygulama yayınlama ve çalışma zamanı)",
-            "DigitalOcean (veritabanı barındırma)",
-            "Cloudflare (CDN ve istek yönlendirme katmanı)",
-            "harita görünümlerinde, teknik kurguya bağlı olarak OpenStreetMap veya Mapbox",
+            "Netlify: Next.js uygulamasının oluşturulması, barındırılması ve Netlify ağı üzerinden dağıtımı (bkz. depodaki Netlify dağıtım dokümantasyonu).",
+            "DigitalOcean: PostgreSQL veritabanı (yönetilen hizmet; bağlantı, dağıtım ortamındaki veritabanı URL’si üzerinden).",
+            "Harita karoları: İstemci tarafında, dağıtımda `NEXT_PUBLIC_MAPTILER_API_KEY` tanımlıysa MapTiler (Pastel raster) karoları yüklenir; anahtar yoksa OpenStreetMap proje sunucularından (`tile.openstreetmap.org`) standart karolar kullanılır. MapTiler yüklemesinde hata olursa uygulama OpenStreetMap’e geçebilir.",
+            "İsteğe bağlı: Ortam değişkenleri üzerinden yapılandırıldığında medya veya dosyalar için S3 uyumlu nesne depolama (örnek uç noktalar depo `.env` örneklerinde Cloudflare R2 ile belgelenmiştir).",
           ],
         },
         {
@@ -176,19 +178,31 @@ export function getPrivacyContent(locale: AppLocale): LegalPageContent {
         {
           title: "Alıcılar ve olası üçüncü ülke aktarımı",
           paragraphs: [
-            "Kişisel veriler, platformun işletilmesi için gerekli olduğu ölçüde teknik hizmet sağlayıcılarına aktarılabilir. Tekil hizmet sağlayıcılar verileri Avrupa Birliği veya Avrupa Ekonomik Alanı dışındaki ülkelerde de işleyebilir; bu durumda ilgili sağlayıcının sunduğu geçerli aktarım mekanizmaları esas alınır.",
+            "Kişisel veriler, platformun işletilmesi için gerekli olduğu ölçüde yukarıda belirtilen teknik hizmet sağlayıcılarına aktarılır. Bazı sağlayıcılar verileri AB veya AEA dışında da işleyebilir; bu durumda geçerli hukuki aktarım araçlarına (ör. standart sözleşme maddeleri) uyulur, uygun olduğu ölçüde.",
           ],
         },
         {
           title: "Çerezler ve benzeri teknolojiler",
           paragraphs: [
-            "MerhabaMap şu anda yalnızca oturum, kimlik doğrulama ve yerel kayıt işlevleri için gerekli teknik çerezleri veya benzeri depolama mekanizmalarını kullanır. İsteğe bağlı analiz veya pazarlama takibi mevcut değildir.",
+            "Oturum ve giriş için Auth.js/NextAuth tarafından ayarlanan oturum çerezi (üretimde adı `__Secure-authjs.session-token`, geliştirmede `authjs.session-token`).",
+            "Dil tercihi için `NEXT_LOCALE` çerezi, dil seçicisi kullanıldığında.",
+            "“Kayıtlı” mekânlar için tarayıcıda yerel depolama (`localStorage`).",
+            "İsteğe bağlı analiz, pazarlama veya reklam çerezleri kod tabanında kullanılmamaktadır.",
           ],
         },
         {
           title: "İletişim kanalları",
           paragraphs: [
             "Şu anda ayrıca bir bülten veya ayrı bir iletişim formu sunulmamaktadır. İletişim ağırlıklı olarak doğrudan e-posta üzerinden gerçekleşir.",
+          ],
+        },
+        {
+          title: "Sorunlu içerikleri bildirme",
+          bullets: [
+            "Yayındaki mekân ve etkinlikler için arayüzde bildirim (rapor) gönderilebilir; uygun olduğunda talep (claim) ve benzeri süreçler de kullanılabilir.",
+            "Yardımcı bilgiler: ilgili sayfanın bağlantısı veya adı, sorunun kısa ve nesnel açıklaması, varsa kanıt veya kaynak.",
+            "MerhabaMap bildirimleri inceler; gerekirse içerikleri sınırlayabilir, düzeltebilir veya kaldırabilir. Sabit işlem süreleri taahhüt edilmez.",
+            `Veri koruma konuları: ${company.privacyContactEmail}. Diğer içerik veya hukukla ilgili başvurular, iletişim sayfasında ve bu metinde belirtilen e-posta adresleri üzerinden yapılabilir.`,
           ],
         },
         {
@@ -259,10 +273,10 @@ export function getPrivacyContent(locale: AppLocale): LegalPageContent {
       {
         title: "Hosting und technische Dienstleister",
         bullets: [
-          "Netlify für Deployment und Auslieferung der Anwendung",
-          "DigitalOcean für die Datenbank",
-          "Cloudflare für CDN- und Edge-Auslieferung",
-          "für Kartenansichten je nach technischer Konfiguration OpenStreetMap oder Mapbox",
+          "Netlify für Build, Hosting und Auslieferung der Next.js-Anwendung über das Netlify-Netzwerk (siehe Projekt-Dokumentation zu Netlify).",
+          "DigitalOcean für PostgreSQL als verwaltete Datenbank; Anbindung über die in der jeweiligen Bereitstellungsumgebung gesetzte Datenbank-URL.",
+          "Kartenkacheln im Browser: Ist in der ausgelieferten Konfiguration `NEXT_PUBLIC_MAPTILER_API_KEY` gesetzt, werden Kacheln von MapTiler (Rasterkarte „Pastel“) geladen; ohne Schlüssel werden die Standard-Kacheln der OpenStreetMap-Projektserver unter `tile.openstreetmap.org` genutzt. Bei wiederholten Kachelfehlern mit MapTiler kann die Anwendung auf OpenStreetMap wechseln.",
+          "Optional: S3-kompatible Objektspeicher für Medien oder Dateien, sofern in der jeweiligen Umgebung konfiguriert (in den `.env`-Beispielen des Repositories u. a. mit Cloudflare-R2-Endpunkt dokumentiert).",
         ],
       },
       {
@@ -274,19 +288,31 @@ export function getPrivacyContent(locale: AppLocale): LegalPageContent {
       {
         title: "Empfänger und mögliche Drittlandübermittlung",
         paragraphs: [
-          "Personenbezogene Daten können an technische Dienstleister übermittelt werden, soweit dies für Betrieb, Kommunikation oder sichere Auslieferung der Plattform erforderlich ist. Einzelne Dienstleister können Daten außerhalb der Europäischen Union oder des Europäischen Wirtschaftsraums verarbeiten; in diesen Fällen richtet sich die Verarbeitung nach den jeweils vorgesehenen zulässigen Übermittlungsmechanismen.",
+          "Personenbezogene Daten werden an die oben genannten technischen Dienstleister übermittelt, soweit der Betrieb der Plattform dies erfordert. Einige Anbieter verarbeiten Daten auch außerhalb der Europäischen Union oder des Europäischen Wirtschaftsraums; in diesen Fällen werden die jeweils anwendbaren zulässigen Übermittlungsmechanismen (z. B. Standardvertragsklauseln der EU-Kommission) eingehalten, soweit einschlägig.",
         ],
       },
       {
         title: "Cookies und ähnliche Technologien",
         paragraphs: [
-          "MerhabaMap verwendet nach aktuellem Stand nur technisch erforderliche Session- und Auth-Cookies sowie lokalen Browser-Speicher, soweit dies für Anmeldung, Kontonutzung oder lokal gespeicherte Orte nötig ist. Optionale Analytics-, Marketing- oder Werbe-Tracker werden derzeit nicht eingesetzt.",
+          "Für Sitzung und Anmeldung setzt Auth.js/NextAuth ein Session-Cookie (in der Produktionsumgebung mit dem Namen `__Secure-authjs.session-token`, in der Entwicklungsumgebung `authjs.session-token`).",
+          "Für die Sprachauswahl kann beim Wechsel über den Sprachschalter ein Cookie `NEXT_LOCALE` gesetzt werden.",
+          "Für die Funktion „Gespeichert“ werden Orte im lokalen Browser-Speicher (`localStorage`) abgelegt.",
+          "Im Frontend-Code sind keine optionalen Analytics-, Marketing- oder Werbe-Tracker eingebunden.",
         ],
       },
       {
         title: "Kontaktkanäle",
         paragraphs: [
           "Aktuell gibt es keinen Newsletter und kein eigenständiges Kontaktformular. Kontaktaufnahmen erfolgen derzeit in erster Linie per E-Mail.",
+        ],
+      },
+      {
+        title: "Melden problematischer Inhalte",
+        bullets: [
+          "Für veröffentlichte Orte und Events stehen in der Oberfläche Meldefunktionen zur Verfügung; wo vorgesehen, können zudem Claims oder vergleichbare Abläufe genutzt werden.",
+          "Hilfreich sind die betroffene Seite (Link bzw. Name des Orts oder Events), eine kurze sachliche Darstellung des Problems sowie – soweit vorhanden – Belege oder Quellenangaben.",
+          "MerhabaMap prüft eingegangene Hinweise und kann Inhalte bei Bedarf einschränken, berichtigen oder entfernen. Es werden keine festen Bearbeitungsfristen zugesagt.",
+          `Datenschutzanliegen richten Sie bitte an ${company.privacyContactEmail}. Weitere inhaltliche oder rechtliche Hinweise können Sie über die auf der Kontaktseite und in diesem Text genannten E-Mail-Adressen vortragen.`,
         ],
       },
       {
@@ -393,13 +419,15 @@ export function getCookiesContent(locale: AppLocale): LegalPageContent {
         {
           title: "Teknik olarak gerekli çerezler ve depolama",
           paragraphs: [
-            "MerhabaMap, oturumun sürmesi ve giriş işlemlerinin çalışması için gerekli çerezleri kullanabilir. Yerel olarak kaydedilen yerler için tarayıcı depolaması da kullanılabilir.",
+            "Oturum ve giriş: Auth.js/NextAuth oturum çerezi (üretimde `__Secure-authjs.session-token`, geliştirmede `authjs.session-token`).",
+            "Dil tercihi: dil seçicisi kullanıldığında `NEXT_LOCALE` çerezi.",
+            "Kayıtlı mekânlar: tarayıcıda `localStorage`.",
           ],
         },
         {
           title: "İsteğe bağlı takip bulunmaması",
           paragraphs: [
-            "Mevcut ürün durumunda isteğe bağlı analiz, pazarlama veya reklam çerezleri kullanılmamaktadır.",
+            "Kod tabanında isteğe bağlı analiz, pazarlama veya reklam çerezleri veya karşılaştırılabilir üçüncü taraf izleme pikselleri kullanılmamaktadır.",
           ],
         },
         {
@@ -420,13 +448,15 @@ export function getCookiesContent(locale: AppLocale): LegalPageContent {
       {
         title: "Technisch erforderliche Cookies und Speichermechanismen",
         paragraphs: [
-          "MerhabaMap verwendet technisch erforderliche Session- und Auth-Cookies, damit Anmeldung, Sitzung und sicherheitsrelevante Funktionen funktionieren. Für lokal gespeicherte Orte kann zusätzlich lokaler Browser-Speicher eingesetzt werden.",
+          "Sitzung und Anmeldung: Session-Cookie von Auth.js/NextAuth (Produktion: `__Secure-authjs.session-token`, Entwicklung: `authjs.session-token`).",
+          "Spracheinstellung: Cookie `NEXT_LOCALE`, wenn über den Sprachschalter gewechselt wird.",
+          "„Gespeichert“-Orte: `localStorage` im Browser.",
         ],
       },
       {
         title: "Kein optionales Tracking nach aktuellem Stand",
         paragraphs: [
-          "Für den derzeitigen Produktstand werden keine separaten Analytics-, Marketing- oder Werbe-Cookies eingesetzt.",
+          "Im Frontend sind keine separaten Analytics-, Marketing- oder Werbe-Cookies und keine vergleichbaren Tracking-Pixel Dritter eingebunden.",
         ],
       },
       {
@@ -586,6 +616,12 @@ export function getCommunityRulesContent(locale: AppLocale): LegalPageContent {
           title: "Destek ve uyuşmazlık iletişimi",
           paragraphs: [`Genel destek ve uyuşmazlık iletişimi: ${company.supportEmail}`],
         },
+        {
+          title: "Sorunlu içerikler",
+          paragraphs: [
+            "Arayüzdeki bildirim işlevlerine ek olarak, ciddi veya hukuki açıdan önemli başvurular iletişim sayfasındaki e-posta adreslerine de gönderilebilir. Gizlilik politikasında “Sorunlu içerikleri bildirme” bölümünde ek bilgi bulunur.",
+          ],
+        },
       ],
     };
   }
@@ -626,6 +662,12 @@ export function getCommunityRulesContent(locale: AppLocale): LegalPageContent {
       {
         title: "Support und Konfliktkontakt",
         paragraphs: [`Allgemeiner Support- und Konfliktkontakt: ${company.supportEmail}`],
+      },
+      {
+        title: "Problematische Inhalte",
+        paragraphs: [
+          "Ergänzend zu den Meldefunktionen in der Oberfläche können schwerwiegende oder rechtsrelevante Hinweise auch an die auf der Kontaktseite genannten E-Mail-Adressen gerichtet werden. Die Datenschutzerklärung enthält unter „Melden problematischer Inhalte“ weitere Orientierung.",
+        ],
       },
     ],
   };

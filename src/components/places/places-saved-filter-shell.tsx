@@ -5,6 +5,7 @@ import { type ReactNode, useEffect, useMemo, useState } from "react";
 import { PlaceCard } from "@/components/places/place-card";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { getLocalizedCityDisplayName } from "@/lib/cities/city-display-name";
 import {
   getSavedPlaceCount,
   getSavedPlaceIds,
@@ -15,12 +16,14 @@ import {
   getLocalizedText,
 } from "@/lib/places";
 import type { ListedPlace } from "@/server/queries/places/list-places";
+import type { PlaceImageAttributionLabels } from "@/components/places/place-image-attribution";
 
 type PlacesSavedFilterShellProps = {
   locale: "de" | "tr";
   places: ListedPlace[];
   currentPath: string;
   children: ReactNode;
+  imageAttributionLabels?: PlaceImageAttributionLabels;
   labels: {
     toggle: string;
     activeHint: string;
@@ -42,6 +45,7 @@ export function PlacesSavedFilterShell({
   places,
   currentPath,
   children,
+  imageAttributionLabels,
   labels,
 }: PlacesSavedFilterShellProps) {
   const [savedOnly, setSavedOnly] = useState(false);
@@ -122,7 +126,7 @@ export function PlacesSavedFilterShell({
                     labels.fallbackDescription,
                   )}
                   categoryLabel={getLocalizedPlaceCategoryLabel(place.category, locale)}
-                  cityLabel={locale === "tr" ? place.city.nameTr : place.city.nameDe}
+                  cityLabel={getLocalizedCityDisplayName(locale, place.city)}
                   returnPath={currentPath}
                   isAuthenticated={false}
                   labels={{
@@ -133,6 +137,7 @@ export function PlacesSavedFilterShell({
                     signIn: labels.save,
                     verified: labels.verified,
                   }}
+                  imageAttributionLabels={imageAttributionLabels}
                 />
               ))}
             </div>
@@ -157,7 +162,7 @@ export function PlacesSavedFilterShell({
                       labels.fallbackDescription,
                     )}
                     categoryLabel={getLocalizedPlaceCategoryLabel(place.category, locale)}
-                    cityLabel={locale === "tr" ? place.city.nameTr : place.city.nameDe}
+                    cityLabel={getLocalizedCityDisplayName(locale, place.city)}
                     returnPath={currentPath}
                     isAuthenticated={false}
                     labels={{
@@ -168,6 +173,7 @@ export function PlacesSavedFilterShell({
                       signIn: labels.save,
                       verified: labels.verified,
                     }}
+                    imageAttributionLabels={imageAttributionLabels}
                   />
                 ))}
               </div>

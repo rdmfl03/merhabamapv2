@@ -256,6 +256,13 @@
       "signIn": "Anmelden",
       "fallbackDescription": "Weitere Informationen folgen."
     },
+    "imageAttribution": {
+      "license": "Lizenz",
+      "sourceLink": "Quelle",
+      "rightsLink": "Weitere Angaben",
+      "provider": "Anbieter",
+      "requiredNotice": "Für dieses Bild können Namensnennung oder weitere Angaben erforderlich sein — sobald Daten vorliegen, erscheinen sie hier."
+    },
     "empty": {
       "title": "Keine Orte für diese Auswahl gefunden.",
       "description": "Versuche eine andere Stadt, eine andere Kategorie oder entferne den Suchbegriff, um mehr Ergebnisse zu sehen.",
@@ -283,7 +290,9 @@
       "mapTitle": "Standort",
       "mapDescription": "Der Standort wird direkt auf der Karte angezeigt. Bei Bedarf kannst du ihn zusätzlich in Google Maps öffnen.",
       "mapUnavailable": "Für diesen Ort sind noch keine Koordinaten hinterlegt. Die Adresse kann trotzdem in Google Maps geöffnet werden.",
-      "openMap": "In Karte öffnen"
+      "openMap": "In Karte öffnen",
+      "noticeTitle": "Hinweis zu den Angaben",
+      "noticeDescription": "Die dargestellten Informationen beruhen auf veröffentlichten oder von Nutzerinnen und Nutzern gemeldeten Quellen und können unvollständig oder zwischenzeitlich überholt sein. Für Korrekturen oder Hinweise auf rechtswidrige oder falsche Inhalte kannst du die Meldefunktion nutzen."
     },
     "claim": {
       "title": "Dieses Business beanspruchen",
@@ -412,8 +421,8 @@
       "mapDescription": "Der Standort wird direkt auf der Karte angezeigt. Bei Bedarf kannst du ihn zusätzlich in Google Maps öffnen.",
       "mapUnavailable": "Für dieses Event sind noch keine Koordinaten hinterlegt. Die Adresse kann trotzdem in Google Maps geöffnet werden.",
       "openMap": "In Karte öffnen",
-      "noticeTitle": "Hinweis zu externen Links",
-      "noticeDescription": "Wenn ein externer Link vorhanden ist, führt er zu einer Drittseite des Veranstalters. MerhabaMap verkauft keine Tickets."
+      "noticeTitle": "Hinweis zu den Angaben und Links",
+      "noticeDescription": "Externe Links führen zu Angeboten Dritter; MerhabaMap verkauft keine Tickets. Eventangaben beruhen auf veröffentlichten Informationen und Community-Meldungen und können unvollständig oder zwischenzeitlich überholt sein. Korrekturen und Hinweise kannst du über „Event melden“ einreichen."
     },
     "report": {
       "title": "Event melden",
@@ -1142,15 +1151,13 @@
     }
   },
   "footer": {
+    "navAriaLabel": "Hauptnavigation",
     "tagline": "Discovery-Plattform für türkische Orte und Events in Deutschland.",
-    "berlin": "Berlin entdecken",
-    "koeln": "Köln entdecken",
-    "essentialNotice": "MerhabaMap verwendet nur notwendige Sitzungsmechanismen und keine optionalen Marketing- oder Werbetracker.",
+    "essentialNotice": "MerhabaMap setzt technisch notwendige Session- und Anmelde-Cookies, bei Sprachwahl ein Cookie für die Locale sowie lokalen Speicher für gespeicherte Orte ein; es sind keine optionalen Marketing- oder Werbetracker im Frontend eingebunden.",
     "copyright": "© MerhabaMap. Alle Rechte vorbehalten."
   },
   "legal": {
     "eyebrow": "Rechtliches",
-    "draftNotice": "Hinweis: Diese Seite ersetzt keine individuelle Rechtsberatung. Vor dem verbindlichen Livegang sollte der Text rechtlich geprüft werden.",
     "navigation": {
       "impressum": "Impressum",
       "privacy": "Datenschutz",
@@ -1161,7 +1168,7 @@
     },
     "essentialServices": {
       "title": "Hinweis zu Cookies und ähnlichen Technologien",
-      "description": "MerhabaMap nutzt technisch notwendige Sitzungsmechanismen für Anmeldung und Kontonutzung. Es gibt keine optionalen Marketing- oder Werbetracker, für die ein separates \"Alles akzeptieren\" erforderlich wäre.",
+      "description": "MerhabaMap nutzt technisch notwendige Session-Cookies für die Anmeldung (Auth.js/NextAuth), bei Bedarf ein Cookie für die Sprache (`NEXT_LOCALE`) sowie lokalen Browser-Speicher für die Merkliste. Optionale Marketing- oder Werbe-Tracker sind im Code nicht eingebunden.",
       "linkLabel": "Zur Datenschutzerklärung"
     },
     "impressum": {
@@ -1209,11 +1216,13 @@
       "resultsSummary": "{count} sichtbare Treffer",
       "resultsSummaryUnit": "sichtbare Treffer",
       "viewPlace": "Ort öffnen",
+      "popupPlaceRating": "Bewertung",
       "viewEvent": "Event öffnen",
       "locateMe": "Meinen Standort anzeigen",
       "locating": "Standort wird ermittelt",
       "locationUnavailable": "Dein Standort konnte nicht ermittelt werden. Prüfe die Browser-Freigabe.",
       "myLocation": "Mein Standort",
+      "listRatingReviewsSuffix": "Bewertungen",
       "legendPlaces": "Orte",
       "legendEvents": "Events",
       "empty": "Sobald Orte oder Events mit Koordinaten vorliegen, erscheint hier deine Stadtkarte.",
@@ -1221,7 +1230,12 @@
       "noResultsInViewport": "In diesem Kartenausschnitt liegen keine Treffer mit den aktuellen Filtern. Zoome oder verschiebe die Karte, oder passe die Suche an.",
       "awaitingMapViewport": "Die Trefferliste richtet sich nach dem sichtbaren Kartenausschnitt und erscheint, sobald die Karte geladen ist.",
       "cityPickerLabel": "Stadt",
-      "cityPickerAll": "Ganz Deutschland"
+      "cityPickerAll": "Ganz Deutschland",
+      "germanyClusterHint": "Auf der Deutschlandkarte siehst du pro Stadt nur die Anzahl der Orte und Events. Tippe auf einen Stadt-Marker, um die Karte einzuzoomen und alle Pins dieser Stadt zu laden.",
+      "germanyBackToOverview": "Zurück zur Deutschlandübersicht",
+      "germanyClusterReveal": "Orte und Events laden",
+      "germanyLoadingCity": "Stadt wird geladen …",
+      "resultsCitiesUnit": "Städte auf der Karte"
     },
     "stats": {
       "places": "Veröffentlichte Orte",

@@ -1,20 +1,43 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import type { Route } from "next";
+import { useRouter } from "next/navigation";
+import type { Dispatch, SetStateAction } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { CalendarDays, Crosshair, LocateFixed, MapPin, Search } from "lucide-react";
+import { CalendarDays, Crosshair, LocateFixed, MapPin, Search, Star } from "lucide-react";
 
 import type { CityMapPoint, MapViewportBounds } from "@/components/cities/city-discovery-map-types";
-import { Link, useRouter } from "@/i18n/navigation";
+import { Link } from "@/i18n/navigation";
 import { formatEventDateRange, getEventCategoryLabelKey } from "@/lib/events";
 import {
   computeMapScore,
   getLocalizedPlaceCategoryLabel,
+  getPlaceDisplayRatingSummary,
   getLocalizedText,
 } from "@/lib/places";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { getLocalizedCityDisplayName } from "@/lib/cities/city-display-name";
+import type { GermanyMapCluster } from "@/lib/cities/germany-map-cluster";
 import type { DiscoveryMapCityOption } from "@/server/queries/cities/get-discovery-map-cities";
+
+const VIEWPORT_BOUNDS_EPS = 1e-6;
+
+function viewportBoundsAlmostEqual(
+  previous: MapViewportBounds | null,
+  next: MapViewportBounds,
+): boolean {
+  if (!previous) {
+    return false;
+  }
+  return (
+    Math.abs(previous.south - next.south) < VIEWPORT_BOUNDS_EPS &&
+    Math.abs(previous.north - next.north) < VIEWPORT_BOUNDS_EPS &&
+    Math.abs(previous.west - next.west) < VIEWPORT_BOUNDS_EPS &&
+    Math.abs(previous.east - next.east) < VIEWPORT_BOUNDS_EPS
+  );
+}
 
 type CityPlacePoint = {
   id: string;
@@ -34,11 +57,47 @@ type CityPlacePoint = {
   };
   descriptionDe: string | null;
   descriptionTr: string | null;
+  addressLine1?: string | null;
+  postalCode?: string | null;
   displayRatingValue?: number | string | { toString(): string } | null;
   displayRatingCount?: number | null;
   ratingSourceCount?: number | null;
   verificationStatus: string;
 };
+
+/** Eine Zeile für Karte/Liste: Straße + PLZ Ort, ohne doppelte PLZ wenn schon in der Straßenzeile. */
+function formatMapPlaceAddressLine(
+  locale: "de" | "tr",
+  place: CityPlacePoint,
+): string | null {
+  const street = place.addressLine1?.trim() ?? "";
+  const pc = place.postalCode?.trim() ?? "";
+  const city = getLocalizedCityDisplayName(locale, place.city);
+  const cityPart = [pc, city].filter(Boolean).join(" ");
+
+  if (!street && !cityPart) {
+    return null;
+  }
+
+  if (!street) {
+    return cityPart;
+  }
+
+  const lower = street.toLowerCase();
+  const pcInStreet = pc.length > 0 && lower.includes(pc.toLowerCase());
+  const cityInStreet = city.length > 0 && lower.includes(city.toLowerCase());
+
+  if (pcInStreet && cityInStreet) {
+    return street;
+  }
+  if (pcInStreet && !cityInStreet && city) {
+    return `${street}, ${city}`;
+  }
+  if (cityPart) {
+    return `${street}, ${cityPart}`;
+  }
+  return street;
+}
 
 type CityEventPoint = {
   id: string;
@@ -54,9 +113,12 @@ type CityEventPoint = {
   };
   descriptionDe: string | null;
   descriptionTr: string | null;
-  startsAt: Date;
-  endsAt: Date | null;
+  startsAt: Date | string;
+  endsAt: Date | string | null;
 };
+
+const EMPTY_EFFECTIVE_PLACES: CityPlacePoint[] = [];
+const EMPTY_EFFECTIVE_EVENTS: CityEventPoint[] = [];
 
 type CityDiscoveryMapProps = {
   locale: "de" | "tr";
@@ -86,8 +148,11 @@ type CityDiscoveryMapProps = {
   allCategoriesLabel: string;
   resetFiltersLabel: string;
   resultsTitle: string;
+  /** z. B. „Bewertungen“ / „değerlendirme“ für die Trefferliste. */
+  listRatingReviewsSuffix: string;
   resultsSummaryUnitLabel: string;
   viewPlaceLabel: string;
+  placePopupRatingCaption: string;
   viewEventLabel: string;
   locateMeLabel: string;
   locatingLabel: string;
@@ -96,6 +161,13 @@ type CityDiscoveryMapProps = {
   categoryLabels: Record<string, string>;
   places: CityPlacePoint[];
   events: CityEventPoint[];
+  /** When set (national map), map shows city clusters until one is opened. */
+  germanyMapClusters?: GermanyMapCluster[] | null;
+  germanyClusterHint?: string;
+  germanyBackToOverview?: string;
+  germanyClusterRevealLabel?: string;
+  germanyLoadingCity?: string;
+  resultsCitiesUnit?: string;
 };
 
 type NormalizedPoint =
@@ -110,6 +182,10 @@ type NormalizedPoint =
       categoryKey: string;
       categoryLabel: string;
       meta: string;
+      mapAddressLine: string | null;
+      mapRatingValue: number | null;
+      mapRatingLabel: string | null;
+      mapRatingReviewCount: number | null;
       tone: "brand";
     }
   | {
@@ -130,16 +206,234 @@ function pointInBounds(lat: number, lng: number, bounds: MapViewportBounds): boo
   return lat >= bounds.south && lat <= bounds.north && lng >= bounds.west && lng <= bounds.east;
 }
 
+type DiscoveryMapPointCardProps = {
+  point: NormalizedPoint;
+  locale: "de" | "tr";
+  listRatingReviewsSuffix: string;
+  activePointId: string | null;
+  viewPlaceLabel: string;
+  viewEventLabel: string;
+  setHoveredId: Dispatch<SetStateAction<string | null>>;
+  onLeavePoint: (id: string) => void;
+};
+
+function DiscoveryMapPointCard({
+  point,
+  locale,
+  listRatingReviewsSuffix,
+  activePointId,
+  viewPlaceLabel,
+  viewEventLabel,
+  setHoveredId,
+  onLeavePoint,
+}: DiscoveryMapPointCardProps) {
+  const isActive = activePointId === point.id;
+  const countLocale = locale === "tr" ? "tr-TR" : "de-DE";
+  return (
+    <Link
+      href={point.href as Route}
+      className={`block rounded-[1.5rem] border p-4 transition ${
+        isActive
+          ? "border-brand/40 bg-brand-soft/60 shadow-sm"
+          : "border-border/70 bg-white/92 hover:border-brand/30 hover:bg-white"
+      }`}
+      onMouseEnter={() => setHoveredId(point.id)}
+      onFocus={() => setHoveredId(point.id)}
+      onMouseLeave={() => onLeavePoint(point.id)}
+    >
+      <div className="flex items-start justify-between gap-4">
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            {point.kind === "place" ? (
+              <MapPin className="h-4 w-4 text-brand" />
+            ) : (
+              <CalendarDays className="h-4 w-4 text-foreground" />
+            )}
+            <span className="text-xs font-semibold uppercase tracking-[0.16em] text-brand">
+              {point.categoryLabel}
+            </span>
+          </div>
+          <h4 className="font-semibold text-foreground">{point.label}</h4>
+          {point.kind === "place" && point.mapRatingLabel ? (
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-sm text-muted-foreground">
+              <Star className="h-4 w-4 shrink-0 fill-current text-amber-500" aria-hidden />
+              <span className="font-medium text-foreground/90">{point.mapRatingLabel}</span>
+              {point.mapRatingReviewCount != null ? (
+                <span>
+                  (
+                  {new Intl.NumberFormat(countLocale).format(point.mapRatingReviewCount)}{" "}
+                  {listRatingReviewsSuffix})
+                </span>
+              ) : null}
+            </div>
+          ) : null}
+          <p className="text-sm leading-6 text-muted-foreground" suppressHydrationWarning>
+            {point.description ||
+              (point.kind === "place" ? point.mapAddressLine : null) ||
+              point.meta}
+          </p>
+        </div>
+        <span className="shrink-0 text-xs font-semibold text-foreground">
+          {point.kind === "place" ? viewPlaceLabel : viewEventLabel}
+        </span>
+      </div>
+    </Link>
+  );
+}
+
+type DiscoveryMapListPanelsProps = {
+  locale: "de" | "tr";
+  listRatingReviewsSuffix: string;
+  viewportBounds: MapViewportBounds | null;
+  normalized: NormalizedPoint[];
+  filtered: NormalizedPoint[];
+  listCount: number;
+  hasActiveFilters: boolean;
+  listHintWhenNoPins: string | null;
+  awaitingMapViewport: string;
+  empty: string;
+  noResults: string;
+  noResultsInViewport: string;
+  legendPlaces: string;
+  legendEvents: string;
+  filteredPlaces: NormalizedPoint[];
+  filteredEvents: NormalizedPoint[];
+  totalFilteredPlaces: number;
+  totalFilteredEvents: number;
+  activePointId: string | null;
+  viewPlaceLabel: string;
+  viewEventLabel: string;
+  setHoveredId: Dispatch<SetStateAction<string | null>>;
+  onLeavePoint: (id: string) => void;
+};
+
+function DiscoveryMapListPanels({
+  locale,
+  listRatingReviewsSuffix,
+  viewportBounds,
+  normalized,
+  filtered,
+  listCount,
+  hasActiveFilters,
+  listHintWhenNoPins,
+  awaitingMapViewport,
+  empty,
+  noResults,
+  noResultsInViewport,
+  legendPlaces,
+  legendEvents,
+  filteredPlaces,
+  filteredEvents,
+  totalFilteredPlaces,
+  totalFilteredEvents,
+  activePointId,
+  viewPlaceLabel,
+  viewEventLabel,
+  setHoveredId,
+  onLeavePoint,
+}: DiscoveryMapListPanelsProps) {
+  if (!viewportBounds) {
+    return (
+      <div className="rounded-2xl border border-border bg-white/90 px-4 py-5 text-sm text-muted-foreground lg:col-span-2">
+        {listHintWhenNoPins ?? awaitingMapViewport}
+      </div>
+    );
+  }
+
+  if (normalized.length === 0) {
+    return (
+      <div className="rounded-2xl border border-border bg-white/90 px-4 py-5 text-sm text-muted-foreground lg:col-span-2">
+        {listHintWhenNoPins ?? empty}
+      </div>
+    );
+  }
+
+  if (filtered.length === 0) {
+    return (
+      <div className="rounded-2xl border border-border bg-white/90 px-4 py-5 text-sm text-muted-foreground lg:col-span-2">
+        {hasActiveFilters ? noResults : empty}
+      </div>
+    );
+  }
+
+  if (listCount === 0) {
+    return (
+      <div className="rounded-2xl border border-border bg-white/90 px-4 py-5 text-sm text-muted-foreground lg:col-span-2">
+        {noResultsInViewport}
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <div className="space-y-3">
+        <div className="flex items-center justify-between rounded-2xl border border-border/70 bg-white/92 px-4 py-3">
+          <div className="flex items-center gap-2">
+            <MapPin className="h-4 w-4 text-brand" />
+            <span className="font-semibold text-foreground">{legendPlaces}</span>
+          </div>
+          <span className="text-sm text-muted-foreground">
+            {filteredPlaces.length} von {totalFilteredPlaces}
+          </span>
+        </div>
+        {filteredPlaces.length > 0 ? (
+          filteredPlaces.map((point) => (
+            <DiscoveryMapPointCard
+              key={point.id}
+              point={point}
+              locale={locale}
+              listRatingReviewsSuffix={listRatingReviewsSuffix}
+              activePointId={activePointId}
+              viewPlaceLabel={viewPlaceLabel}
+              viewEventLabel={viewEventLabel}
+              setHoveredId={setHoveredId}
+              onLeavePoint={onLeavePoint}
+            />
+          ))
+        ) : (
+          <div className="rounded-2xl border border-dashed border-border bg-white/75 px-4 py-5 text-sm text-muted-foreground">
+            {legendPlaces}: 0
+          </div>
+        )}
+      </div>
+
+      <div className="space-y-3">
+        <div className="flex items-center justify-between rounded-2xl border border-border/70 bg-white/92 px-4 py-3">
+          <div className="flex items-center gap-2">
+            <CalendarDays className="h-4 w-4 text-foreground" />
+            <span className="font-semibold text-foreground">{legendEvents}</span>
+          </div>
+          <span className="text-sm text-muted-foreground">
+            {filteredEvents.length} von {totalFilteredEvents}
+          </span>
+        </div>
+        {filteredEvents.length > 0 ? (
+          filteredEvents.map((point) => (
+            <DiscoveryMapPointCard
+              key={point.id}
+              point={point}
+              locale={locale}
+              listRatingReviewsSuffix={listRatingReviewsSuffix}
+              activePointId={activePointId}
+              viewPlaceLabel={viewPlaceLabel}
+              viewEventLabel={viewEventLabel}
+              setHoveredId={setHoveredId}
+              onLeavePoint={onLeavePoint}
+            />
+          ))
+        ) : (
+          <div className="rounded-2xl border border-dashed border-border bg-white/75 px-4 py-5 text-sm text-muted-foreground">
+            {legendEvents}: 0
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
+
 const CityDiscoveryInteractiveMap = dynamic(
   () =>
-    process.env.NEXT_PUBLIC_MAP_PROVIDER === "mapbox" &&
-    process.env.NEXT_PUBLIC_MAPBOX_TOKEN
-      ? import("./city-discovery-mapbox-map").then(
-          (module) => module.CityDiscoveryMapboxMap,
-        )
-      : import("./city-discovery-leaflet-map").then(
-          (module) => module.CityDiscoveryLeafletMap,
-        ),
+    import("./city-discovery-leaflet-map").then((module) => module.CityDiscoveryLeafletMap),
   {
     ssr: false,
     loading: () => (
@@ -173,8 +467,10 @@ export function CityDiscoveryMap({
   allCategoriesLabel,
   resetFiltersLabel,
   resultsTitle,
+  listRatingReviewsSuffix,
   resultsSummaryUnitLabel,
   viewPlaceLabel,
+  placePopupRatingCaption,
   viewEventLabel,
   locateMeLabel,
   locatingLabel,
@@ -183,8 +479,15 @@ export function CityDiscoveryMap({
   categoryLabels,
   places,
   events,
+  germanyMapClusters,
+  germanyClusterHint = "",
+  germanyBackToOverview = "",
+  germanyClusterRevealLabel = "",
+  germanyLoadingCity = "",
+  resultsCitiesUnit = "",
 }: CityDiscoveryMapProps) {
   const router = useRouter();
+  const [cityPickerValue, setCityPickerValue] = useState(selectedCitySlug);
   const [typeFilter, setTypeFilter] = useState<"all" | "place" | "event">("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [query, setQuery] = useState("");
@@ -198,43 +501,114 @@ export function CityDiscoveryMap({
     "idle" | "loading" | "unavailable"
   >("idle");
   const [viewportBounds, setViewportBounds] = useState<MapViewportBounds | null>(null);
+  const [clusterLoadingSlug, setClusterLoadingSlug] = useState<string | null>(null);
+
+  const isGermanyClusterMode =
+    germanyMapClusters != null && selectedCitySlug === "";
+  /** Deutschland-Übersicht: nur Cluster, keine Einzelpins (Server liefert hier leere map-Arrays). */
+  const effectivePlaces = useMemo(
+    () => (isGermanyClusterMode ? EMPTY_EFFECTIVE_PLACES : places),
+    [isGermanyClusterMode, places],
+  );
+  const effectiveEvents = useMemo(
+    () => (isGermanyClusterMode ? EMPTY_EFFECTIVE_EVENTS : events),
+    [isGermanyClusterMode, events],
+  );
 
   const handleViewportBounds = useCallback((bounds: MapViewportBounds) => {
-    setViewportBounds(bounds);
+    setViewportBounds((prev) =>
+      viewportBoundsAlmostEqual(prev, bounds) ? prev : bounds,
+    );
   }, []);
 
   useEffect(() => {
-    setViewportBounds(null);
+    setCityPickerValue(selectedCitySlug);
   }, [selectedCitySlug]);
 
+  useEffect(() => {
+    setViewportBounds(null);
+    setSelectedId(null);
+    setHoveredId(null);
+  }, [selectedCitySlug]);
+
+  useEffect(() => {
+    if (selectedCitySlug) {
+      setClusterLoadingSlug(null);
+    }
+  }, [selectedCitySlug]);
+
+  const germanyClusterMarkers = useMemo(() => {
+    if (!isGermanyClusterMode || !germanyMapClusters?.length) {
+      return undefined;
+    }
+    return germanyMapClusters.map((cluster) => ({
+      slug: cluster.slug,
+      label: getLocalizedCityDisplayName(locale, cluster),
+      latitude: cluster.latitude,
+      longitude: cluster.longitude,
+      placeCount: cluster.placeCount,
+      eventCount: cluster.eventCount,
+    }));
+  }, [germanyMapClusters, isGermanyClusterMode, locale]);
+
+  const handleGermanyClusterClick = useCallback(
+    async (slug: string) => {
+      setClusterLoadingSlug(slug);
+      try {
+        await router.push(
+          `/${locale}/map?city=${encodeURIComponent(slug)}` as Route,
+        );
+      } finally {
+        setClusterLoadingSlug(null);
+      }
+    },
+    [locale, router],
+  );
+
   const normalized = useMemo<NormalizedPoint[]>(() => {
-    const normalizedPlaces = places
+    const normalizedPlaces = effectivePlaces
       .filter(
         (place) =>
           typeof place.latitude === "number" && typeof place.longitude === "number",
       )
-      .map((place) => ({
-        id: `place-${place.id}`,
-        kind: "place" as const,
-        label: place.name,
-        href: `/places/${place.slug}`,
-        description: getLocalizedText(
-          { de: place.descriptionDe, tr: place.descriptionTr },
-          locale,
-          "",
-        ),
-        latitude: place.latitude as number,
-        longitude: place.longitude as number,
-        categoryKey: place.category.slug,
-        categoryLabel: getLocalizedPlaceCategoryLabel(place.category, locale),
-        meta:
-          locale === "tr"
-            ? place.city.nameTr
-            : place.city.nameDe,
-        tone: "brand" as const,
-      }));
+      .map((place) => {
+        const rating = getPlaceDisplayRatingSummary(
+          place as unknown as Parameters<typeof getPlaceDisplayRatingSummary>[0],
+        );
+        const ratingLocale = locale === "tr" ? "tr-TR" : "de-DE";
+        const v = rating?.value;
+        const mapRatingLabel =
+          v != null && Number.isFinite(v)
+            ? `${v.toLocaleString(ratingLocale, {
+                minimumFractionDigits: 1,
+                maximumFractionDigits: 1,
+              })} / 5`
+            : null;
+        return {
+          id: `place-${place.id}`,
+          kind: "place" as const,
+          label: place.name,
+          href: `/places/${place.slug}`,
+          description: getLocalizedText(
+            { de: place.descriptionDe, tr: place.descriptionTr },
+            locale,
+            "",
+          ),
+          latitude: place.latitude as number,
+          longitude: place.longitude as number,
+          categoryKey: place.category.slug,
+          categoryLabel: getLocalizedPlaceCategoryLabel(place.category, locale),
+          meta: getLocalizedCityDisplayName(locale, place.city),
+          mapAddressLine: formatMapPlaceAddressLine(locale, place),
+          mapRatingValue: rating?.value ?? null,
+          mapRatingLabel,
+          mapRatingReviewCount:
+            rating != null && rating.count > 0 ? rating.count : null,
+          tone: "brand" as const,
+        };
+      });
 
-    const normalizedEvents = events
+    const normalizedEvents = effectiveEvents
       .filter(
         (event) =>
           typeof event.latitude === "number" && typeof event.longitude === "number",
@@ -255,12 +629,16 @@ export function CityDiscoveryMap({
         categoryLabel:
           categoryLabels[getEventCategoryLabelKey(event.category as never)] ??
           event.category,
-        meta: formatEventDateRange(locale, new Date(event.startsAt), event.endsAt),
+        meta: formatEventDateRange(
+          locale,
+          new Date(event.startsAt),
+          event.endsAt != null ? new Date(event.endsAt) : null,
+        ),
         tone: "dark" as const,
       }));
 
     return [...normalizedPlaces, ...normalizedEvents];
-  }, [categoryLabels, events, locale, places]);
+  }, [categoryLabels, effectiveEvents, effectivePlaces, locale]);
 
   const categories = useMemo(() => {
     return [
@@ -289,7 +667,10 @@ export function CityDiscoveryMap({
         return true;
       }
 
-      const haystack = `${point.label} ${point.description} ${point.categoryLabel} ${point.meta}`.toLowerCase();
+      const locationHaystack =
+        point.kind === "place" && point.mapAddressLine ? ` ${point.mapAddressLine}` : "";
+      const haystack =
+        `${point.label} ${point.description} ${point.categoryLabel} ${point.meta}${locationHaystack}`.toLowerCase();
       return haystack.includes(q);
     });
   }, [categoryFilter, normalized, query, typeFilter]);
@@ -303,13 +684,10 @@ export function CityDiscoveryMap({
     );
   }, [filtered, viewportBounds]);
 
-  const markersForMap = useMemo(() => {
-    return viewportBounds ? inViewFiltered : filtered;
-  }, [filtered, inViewFiltered, viewportBounds]);
-
-  const mapPoints = useMemo<CityMapPoint[]>(
-    () =>
-      markersForMap.map((point) => ({
+  const mapPoints = useMemo<CityMapPoint[]>(() => {
+    const ratingLocale = locale === "tr" ? "tr-TR" : "de-DE";
+    return filtered.map((point) => {
+      const base: CityMapPoint = {
         id: point.id,
         kind: point.kind,
         label: point.label,
@@ -319,14 +697,33 @@ export function CityDiscoveryMap({
         longitude: point.longitude,
         categoryLabel: point.categoryLabel,
         meta: point.meta,
-      })),
-    [markersForMap],
-  );
+      };
+      if (point.kind !== "place") {
+        return base;
+      }
+      const v = point.mapRatingValue;
+      const mapRatingLabel =
+        v != null && Number.isFinite(v)
+          ? `${v.toLocaleString(ratingLocale, {
+              minimumFractionDigits: 1,
+              maximumFractionDigits: 1,
+            })} / 5`
+          : null;
+      return {
+        ...base,
+        mapAddressLine: point.mapAddressLine,
+        mapRatingLabel,
+      };
+    });
+  }, [filtered, locale]);
 
   const hasActiveFilters = Boolean(
     query || categoryFilter !== "all" || typeFilter !== "all",
   );
   const activePointId = selectedId ?? hoveredId;
+  const onLeaveHoveredPoint = useCallback((id: string) => {
+    setHoveredId((current) => (current === id ? null : current));
+  }, []);
   const listSource = viewportBounds ? inViewFiltered : null;
 
   const filteredPlaces = useMemo(
@@ -335,12 +732,18 @@ export function CityDiscoveryMap({
         ? [...listSource]
             .filter((point) => point.kind === "place")
             .sort((a, b) => {
-              const placeA = places.find((place) => `place-${place.id}` === a.id);
-              const placeB = places.find((place) => `place-${place.id}` === b.id);
+              const placeA = effectivePlaces.find((place) => `place-${place.id}` === a.id);
+              const placeB = effectivePlaces.find((place) => `place-${place.id}` === b.id);
 
               const scoreDiff =
-                computeMapScore(placeB ?? {}, userLocation) -
-                computeMapScore(placeA ?? {}, userLocation);
+                computeMapScore(
+                  (placeB ?? {}) as Parameters<typeof computeMapScore>[0],
+                  userLocation,
+                ) -
+                computeMapScore(
+                  (placeA ?? {}) as Parameters<typeof computeMapScore>[0],
+                  userLocation,
+                );
               if (scoreDiff !== 0) {
                 return scoreDiff;
               }
@@ -349,8 +752,15 @@ export function CityDiscoveryMap({
             })
             .slice(0, 10)
         : [],
-    [listSource, places, selectedId, userLocation],
+    [effectivePlaces, listSource, selectedId, userLocation],
   );
+
+  const listHintWhenNoPins =
+    isGermanyClusterMode &&
+    germanyClusterHint &&
+    (germanyMapClusters?.length ?? 0) > 0
+      ? germanyClusterHint
+      : null;
   const filteredEvents = useMemo(
     () =>
       listSource
@@ -407,52 +817,11 @@ export function CityDiscoveryMap({
   }
 
   function handleCityPickerChange(slug: string) {
-    if (!slug) {
-      router.push("/map");
-      return;
-    }
-    router.push(`/map?city=${slug}`);
-  }
-
-  function renderPointCard(point: NormalizedPoint) {
-    return (
-      <Link
-        key={point.id}
-        href={point.href}
-        className={`block rounded-[1.5rem] border p-4 transition ${
-          activePointId === point.id
-            ? "border-brand/40 bg-brand-soft/60 shadow-sm"
-            : "border-border/70 bg-white/92 hover:border-brand/30 hover:bg-white"
-        }`}
-        onMouseEnter={() => setHoveredId(point.id)}
-        onFocus={() => setHoveredId(point.id)}
-        onMouseLeave={() =>
-          setHoveredId((current) => (current === point.id ? null : current))
-        }
-      >
-        <div className="flex items-start justify-between gap-4">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              {point.kind === "place" ? (
-                <MapPin className="h-4 w-4 text-brand" />
-              ) : (
-                <CalendarDays className="h-4 w-4 text-foreground" />
-              )}
-              <span className="text-xs font-semibold uppercase tracking-[0.16em] text-brand">
-                {point.categoryLabel}
-              </span>
-            </div>
-            <h4 className="font-semibold text-foreground">{point.label}</h4>
-            <p className="text-sm leading-6 text-muted-foreground">
-              {point.description || point.meta}
-            </p>
-          </div>
-          <span className="shrink-0 text-xs font-semibold text-foreground">
-            {point.kind === "place" ? viewPlaceLabel : viewEventLabel}
-          </span>
-        </div>
-      </Link>
-    );
+    setCityPickerValue(slug);
+    const path = slug
+      ? `/${locale}/map?city=${encodeURIComponent(slug)}`
+      : `/${locale}/map`;
+    router.push(path as Route);
   }
 
   return (
@@ -481,24 +850,21 @@ export function CityDiscoveryMap({
           </div>
         </div>
 
-        <div className="mb-4 grid gap-3 lg:grid-cols-[minmax(10rem,0.95fr)_minmax(0,1.25fr)_minmax(0,0.7fr)_auto]">
-          <label className="flex min-w-0 flex-col gap-1.5 text-xs font-medium text-muted-foreground">
-            <span className="sr-only sm:not-sr-only">{cityPickerLabel}</span>
-            <select
-              value={selectedCitySlug}
-              onChange={(event) => handleCityPickerChange(event.target.value)}
-              className="h-11 w-full min-w-0 rounded-2xl border border-border bg-white px-3 text-sm text-foreground shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              aria-label={cityPickerLabel}
-            >
-              <option value="">{cityPickerAllLabel}</option>
-              {mapCityOptions.map((city) => (
-                <option key={city.slug} value={city.slug}>
-                  {locale === "tr" ? city.nameTr : city.nameDe}
-                </option>
-              ))}
-            </select>
-          </label>
-          <div className="relative">
+        <div className="mb-4 flex flex-wrap items-center gap-3">
+          <select
+            value={cityPickerValue}
+            onChange={(event) => handleCityPickerChange(event.target.value)}
+            className="h-11 min-w-[10rem] flex-1 basis-[min(100%,14rem)] rounded-2xl border border-border bg-white px-3 text-sm text-foreground shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            aria-label={cityPickerLabel}
+          >
+            <option value="">{cityPickerAllLabel}</option>
+            {mapCityOptions.map((city) => (
+              <option key={city.slug} value={city.slug}>
+                {getLocalizedCityDisplayName(locale, city)}
+              </option>
+            ))}
+          </select>
+          <div className="relative min-w-0 flex-1 basis-[min(100%,22rem)]">
             <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={query}
@@ -511,7 +877,8 @@ export function CityDiscoveryMap({
           <select
             value={categoryFilter}
             onChange={(event) => setCategoryFilter(event.target.value)}
-            className="h-11 rounded-2xl border border-border bg-white px-4 text-sm text-foreground shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="h-11 min-w-[10rem] flex-1 basis-[min(100%,12rem)] rounded-2xl border border-border bg-white px-4 text-sm text-foreground shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            aria-label={allCategoriesLabel}
           >
             {categories.map((category) => (
               <option key={category.key} value={category.key}>
@@ -523,7 +890,7 @@ export function CityDiscoveryMap({
           <Button
             type="button"
             variant="outline"
-            className="h-11 px-4"
+            className="h-11 shrink-0 px-4"
             onClick={resetFilters}
             disabled={!hasActiveFilters}
           >
@@ -571,10 +938,22 @@ export function CityDiscoveryMap({
           </p>
         ) : null}
 
+        {selectedCitySlug && germanyBackToOverview ? (
+          <div className="mb-4">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => router.push(`/${locale}/map` as Route)}
+            >
+              {germanyBackToOverview}
+            </Button>
+          </div>
+        ) : null}
+
         <CityDiscoveryInteractiveMap
           points={mapPoints}
           cityCenter={cityCenter}
-          activeId={selectedId ?? hoveredId}
           selectedId={selectedId}
           onHoverChange={setHoveredId}
           onSelectChange={setSelectedId}
@@ -586,83 +965,63 @@ export function CityDiscoveryMap({
           legendEvents={legendEvents}
           resultsSummaryUnitLabel={resultsSummaryUnitLabel}
           viewPlaceLabel={viewPlaceLabel}
+          placePopupRatingCaption={placePopupRatingCaption}
           viewEventLabel={viewEventLabel}
           myLocationLabel={myLocationLabel}
           onViewportBoundsChange={handleViewportBounds}
+          germanyCityClusters={germanyClusterMarkers}
+          onGermanyCityClusterClick={
+            isGermanyClusterMode ? handleGermanyClusterClick : undefined
+          }
+          mapLayoutEpoch={0}
+          clusterLoadingSlug={clusterLoadingSlug}
+          clusterLoadingLabel={germanyLoadingCity}
+          resultsCitiesUnitLabel={resultsCitiesUnit}
+          germanyClusterRevealLabel={germanyClusterRevealLabel}
         />
 
         <div className="mt-5">
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="font-display text-xl text-foreground">{resultsTitle}</h3>
-            <p className="text-sm text-muted-foreground">
-              {viewportBounds ? (
-                <>
-                  {listCount} {resultsSummaryUnitLabel}
-                </>
-              ) : (
-                <span className="text-muted-foreground/80">—</span>
-              )}
-            </p>
-          </div>
+          {!isGermanyClusterMode ? (
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="font-display text-xl text-foreground">{resultsTitle}</h3>
+              <p className="text-sm text-muted-foreground">
+                {viewportBounds ? (
+                  <>
+                    {listCount} {resultsSummaryUnitLabel}
+                  </>
+                ) : (
+                  <span className="text-muted-foreground/80">—</span>
+                )}
+              </p>
+            </div>
+          ) : null}
 
           <div className="grid gap-4 lg:grid-cols-2">
-            {!viewportBounds ? (
-              <div className="rounded-2xl border border-border bg-white/90 px-4 py-5 text-sm text-muted-foreground lg:col-span-2">
-                {awaitingMapViewport}
-              </div>
-            ) : normalized.length === 0 ? (
-              <div className="rounded-2xl border border-border bg-white/90 px-4 py-5 text-sm text-muted-foreground lg:col-span-2">
-                {empty}
-              </div>
-            ) : filtered.length === 0 ? (
-              <div className="rounded-2xl border border-border bg-white/90 px-4 py-5 text-sm text-muted-foreground lg:col-span-2">
-                {hasActiveFilters ? noResults : empty}
-              </div>
-            ) : listCount === 0 ? (
-              <div className="rounded-2xl border border-border bg-white/90 px-4 py-5 text-sm text-muted-foreground lg:col-span-2">
-                {noResultsInViewport}
-              </div>
-            ) : (
-              <>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between rounded-2xl border border-border/70 bg-white/92 px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4 text-brand" />
-                      <span className="font-semibold text-foreground">{legendPlaces}</span>
-                    </div>
-                    <span className="text-sm text-muted-foreground">
-                      {filteredPlaces.length} von {totalFilteredPlaces}
-                    </span>
-                  </div>
-                  {filteredPlaces.length > 0 ? (
-                    filteredPlaces.map((point) => renderPointCard(point))
-                  ) : (
-                    <div className="rounded-2xl border border-dashed border-border bg-white/75 px-4 py-5 text-sm text-muted-foreground">
-                      {legendPlaces}: 0
-                    </div>
-                  )}
-                </div>
-
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between rounded-2xl border border-border/70 bg-white/92 px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      <CalendarDays className="h-4 w-4 text-foreground" />
-                      <span className="font-semibold text-foreground">{legendEvents}</span>
-                    </div>
-                    <span className="text-sm text-muted-foreground">
-                      {filteredEvents.length} von {totalFilteredEvents}
-                    </span>
-                  </div>
-                  {filteredEvents.length > 0 ? (
-                    filteredEvents.map((point) => renderPointCard(point))
-                  ) : (
-                    <div className="rounded-2xl border border-dashed border-border bg-white/75 px-4 py-5 text-sm text-muted-foreground">
-                      {legendEvents}: 0
-                    </div>
-                  )}
-                </div>
-              </>
-            )}
+            <DiscoveryMapListPanels
+              locale={locale}
+              listRatingReviewsSuffix={listRatingReviewsSuffix}
+              viewportBounds={viewportBounds}
+              normalized={normalized}
+              filtered={filtered}
+              listCount={listCount}
+              hasActiveFilters={hasActiveFilters}
+              listHintWhenNoPins={listHintWhenNoPins}
+              awaitingMapViewport={awaitingMapViewport}
+              empty={empty}
+              noResults={noResults}
+              noResultsInViewport={noResultsInViewport}
+              legendPlaces={legendPlaces}
+              legendEvents={legendEvents}
+              filteredPlaces={filteredPlaces}
+              filteredEvents={filteredEvents}
+              totalFilteredPlaces={totalFilteredPlaces}
+              totalFilteredEvents={totalFilteredEvents}
+              activePointId={activePointId}
+              viewPlaceLabel={viewPlaceLabel}
+              viewEventLabel={viewEventLabel}
+              setHoveredId={setHoveredId}
+              onLeavePoint={onLeaveHoveredPoint}
+            />
           </div>
         </div>
       </div>

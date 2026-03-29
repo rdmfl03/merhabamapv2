@@ -117,3 +117,29 @@ export type PublicEventDetailRecord = Prisma.EventGetPayload<{
 export type PublicEventRecordWithAi = Prisma.EventGetPayload<{
   select: typeof publicEventSelectWithAi;
 }>;
+
+/** Strippt AI-Felder; `venuePlace.displayRatingValue` als Zahl (kein Prisma.Decimal) für RSC/JSON. */
+export function publicEventRecordForFlight(
+  event: PublicEventRecordWithAi,
+  isSaved: boolean,
+): PublicEventRecord & { isSaved: boolean } {
+  const {
+    aiReviewStatus: _aiReviewStatus,
+    aiConfidenceScore: _aiConfidenceScore,
+    createdAt: _createdAt,
+    ...rest
+  } = event;
+  const venuePlace = rest.venuePlace;
+  return {
+    ...rest,
+    venuePlace: venuePlace
+      ? {
+          ...venuePlace,
+          displayRatingValue:
+            venuePlace.displayRatingValue != null
+              ? Number(venuePlace.displayRatingValue)
+              : null,
+        }
+      : null,
+  } as PublicEventRecord & { isSaved: boolean };
+}

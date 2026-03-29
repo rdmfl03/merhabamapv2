@@ -1,6 +1,10 @@
 import { prisma } from "@/lib/prisma";
 
-import { buildPublicPlaceWhere, publicPlaceDetailSelect } from "./shared";
+import {
+  buildPublicPlaceWhere,
+  normalizePlaceRatingSourcesForClient,
+  publicPlaceDetailSelect,
+} from "./shared";
 
 export async function getPlaceBySlug(args: {
   slug: string;
@@ -17,8 +21,15 @@ export async function getPlaceBySlug(args: {
     return null;
   }
 
+  const placeForApp = {
+    ...place,
+    displayRatingValue:
+      place.displayRatingValue != null ? Number(place.displayRatingValue) : null,
+    placeRatingSources: normalizePlaceRatingSourcesForClient(place.placeRatingSources),
+  };
+
   if (!args.userId) {
-    return { ...place, isSaved: false };
+    return { ...placeForApp, isSaved: false };
   }
 
   const saved = await prisma.savedPlace.findUnique({
@@ -34,7 +45,7 @@ export async function getPlaceBySlug(args: {
   });
 
   return {
-    ...place,
+    ...placeForApp,
     isSaved: Boolean(saved),
   };
 }

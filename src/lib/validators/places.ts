@@ -16,6 +16,43 @@ export const placesFilterSchema = z.object({
   sort: z.enum(["recommended", "newest"]).optional(),
 });
 
+export type PlacesFilterInput = z.infer<typeof placesFilterSchema>;
+
+const placeSortSchema = z.enum(["recommended", "newest"]);
+
+function firstSearchParam(value: string | string[] | undefined | null): string | undefined {
+  if (value == null) {
+    return undefined;
+  }
+  if (Array.isArray(value)) {
+    const first = value[0];
+    return typeof first === "string" ? first : undefined;
+  }
+  return typeof value === "string" ? value : undefined;
+}
+
+/**
+ * Lenient parsing: invalid enum values do not discard the whole filter set, and
+ * Next.js may pass `string[]` for repeated query keys — we use the first value.
+ */
+export function parsePlacesFiltersFromSearchParams(
+  raw: Record<string, string | string[] | undefined>,
+): PlacesFilterInput {
+  const cityResult = placesFilterSchema.shape.city.safeParse(firstSearchParam(raw.city));
+  const categoryResult = placesFilterSchema.shape.category.safeParse(
+    firstSearchParam(raw.category),
+  );
+  const qResult = placesFilterSchema.shape.q.safeParse(firstSearchParam(raw.q));
+  const sortResult = placeSortSchema.safeParse(firstSearchParam(raw.sort));
+
+  return {
+    city: cityResult.success ? cityResult.data : undefined,
+    category: categoryResult.success ? categoryResult.data : undefined,
+    q: qResult.success ? qResult.data : undefined,
+    sort: sortResult.success ? sortResult.data : undefined,
+  };
+}
+
 export const savePlaceSchema = z.object({
   locale: z.enum(routing.locales),
   placeId: z.string().cuid(),
@@ -48,7 +85,6 @@ export const placeClaimSchema = z.object({
   evidenceNotes: trimmedOptionalString.pipe(z.string().max(1000).optional()),
 });
 
-export type PlacesFilterInput = z.infer<typeof placesFilterSchema>;
 export type SavePlaceInput = z.infer<typeof savePlaceSchema>;
 export type PlaceReportInput = z.infer<typeof placeReportSchema>;
 export type PlaceClaimInput = z.infer<typeof placeClaimSchema>;

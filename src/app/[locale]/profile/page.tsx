@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ProfileForm } from "@/components/profile/profile-form";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "@/i18n/navigation";
+import { getLocalizedCityDisplayName } from "@/lib/cities/city-display-name";
 import { interestValues, parseUserInterests } from "@/lib/user-preferences";
 import { requireAuthenticatedUser } from "@/server/actions/user/shared";
 import { getActiveCities } from "@/server/queries/user/get-active-cities";
@@ -62,9 +63,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
               <p>
                 <span className="font-medium text-foreground">{t("summary.city")}:</span>{" "}
                 {profile.onboardingCity
-                  ? locale === "tr"
-                    ? profile.onboardingCity.nameTr
-                    : profile.onboardingCity.nameDe
+                  ? getLocalizedCityDisplayName(locale, profile.onboardingCity)
                   : t("summary.noCity")}
               </p>
             </div>
@@ -106,7 +105,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
           }}
           cities={cities.map((city) => ({
             id: city.id,
-            label: locale === "tr" ? city.nameTr : city.nameDe,
+            label: getLocalizedCityDisplayName(locale, city),
           }))}
           interests={interestValues.map((interest) => ({
             value: interest,

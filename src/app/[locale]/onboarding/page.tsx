@@ -4,6 +4,7 @@ import { OnboardingForm } from "@/components/onboarding/onboarding-form";
 import { requireAuthenticatedUser } from "@/server/actions/user/shared";
 import { getActiveCities } from "@/server/queries/user/get-active-cities";
 import { getCurrentUserProfile } from "@/server/queries/user/get-current-user-profile";
+import { getLocalizedCityDisplayName } from "@/lib/cities/city-display-name";
 import { interestValues, parseUserInterests } from "@/lib/user-preferences";
 
 type OnboardingPageProps = {
@@ -43,7 +44,7 @@ export default async function OnboardingPage({ params }: OnboardingPageProps) {
         cities={cities.map((city) => ({
           id: city.id,
           slug: city.slug,
-          label: locale === "tr" ? city.nameTr : city.nameDe,
+          label: getLocalizedCityDisplayName(locale, city),
         }))}
         interests={interestValues.map((interest) => ({
           value: interest,

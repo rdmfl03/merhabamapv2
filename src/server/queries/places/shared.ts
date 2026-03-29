@@ -55,6 +55,24 @@ export const publicPlaceRatingSourceSelect =
     reviewTextRightsStatus: true,
   });
 
+export type PublicPlaceRatingSourceRow = Prisma.PlaceRatingSourceGetPayload<{
+  select: typeof publicPlaceRatingSourceSelect;
+}>;
+
+/** JSON/Client-sichere Zahlen; gleiche Form wie nach `publicPlaceRecordForFlight`. */
+export function normalizePlaceRatingSourcesForClient(
+  sources: PublicPlaceRatingSourceRow[] | undefined,
+): PublicPlaceRatingSourceRow[] | undefined {
+  if (!sources?.length) {
+    return sources;
+  }
+  return sources.map((source) => ({
+    ...source,
+    ratingValue: source.ratingValue != null ? Number(source.ratingValue) : source.ratingValue,
+    scaleMax: source.scaleMax != null ? Number(source.scaleMax) : source.scaleMax,
+  })) as unknown as PublicPlaceRatingSourceRow[];
+}
+
 export const publicPlaceSelect = Prisma.validator<Prisma.PlaceSelect>()({
   id: true,
   slug: true,
@@ -78,6 +96,15 @@ export const publicPlaceSelect = Prisma.validator<Prisma.PlaceSelect>()({
   displayRatingCount: true,
   ratingSourceCount: true,
   ratingSummaryUpdatedAt: true,
+  /**
+   * ACTIVE-Zeilen mit ratingCount > 0: `provider` bzw. `attributionText` erscheinen in der
+   * Quellenzeile (Karten, Listen, Ort-Detail), sobald die Zeilen in der DB existieren.
+   */
+  placeRatingSources: {
+    where: { status: "ACTIVE" },
+    orderBy: [{ observedAt: "desc" }, { createdAt: "desc" }],
+    select: publicPlaceRatingSourceSelect,
+  },
   primaryImageAsset: {
     select: publicMediaAssetSelect,
   },
@@ -114,10 +141,7 @@ export const publicPlaceDetailSelect = Prisma.validator<Prisma.PlaceSelect>()({
     select: publicMediaAssetSelect,
   },
   placeRatingSources: {
-    where: {
-      status: "ACTIVE",
-      isIncludedInDisplay: true,
-    },
+    where: { status: "ACTIVE" },
     orderBy: [{ observedAt: "desc" }, { createdAt: "desc" }],
     select: publicPlaceRatingSourceSelect,
   },
@@ -141,3 +165,23 @@ export type PublicPlaceDetailRecord = Prisma.PlaceGetPayload<{
 export type PublicPlaceRecordWithAi = Prisma.PlaceGetPayload<{
   select: typeof publicPlaceSelectWithAi;
 }>;
+
+/** Strippt AI-Felder und macht `displayRatingValue` Flight-/JSON-tauglich (kein Prisma.Decimal). */
+export function publicPlaceRecordForFlight(
+  place: PublicPlaceRecordWithAi,
+  isSaved: boolean,
+): PublicPlaceRecord & { isSaved: boolean } {
+  const {
+    aiReviewStatus: _aiReviewStatus,
+    aiConfidenceScore: _aiConfidenceScore,
+    createdAt: _createdAt,
+    ...rest
+  } = place;
+  return {
+    ...rest,
+    displayRatingValue:
+      rest.displayRatingValue != null ? Number(rest.displayRatingValue) : null,
+    placeRatingSources: normalizePlaceRatingSourcesForClient(rest.placeRatingSources),
+    isSaved,
+  } as unknown as PublicPlaceRecord & { isSaved: boolean };
+}
