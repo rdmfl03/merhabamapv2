@@ -11,6 +11,7 @@ import { Link } from "@/i18n/navigation";
 import { getLocalizedCityDisplayName } from "@/lib/cities/city-display-name";
 import { buildPlacesListingMetadata } from "@/lib/metadata/places";
 import {
+  buildPlacesNavPath,
   buildPlacesPath,
   computeCategoryAdjustedScore,
   computePlaceScore,
@@ -24,14 +25,19 @@ import {
 } from "@/lib/places";
 import { parsePlacesFiltersFromSearchParams } from "@/lib/validators/places";
 import { getPlaceFilters } from "@/server/queries/places/get-place-filters";
-import { listPlaces } from "@/server/queries/places/list-places";
+import {
+  listPlaces,
+  PLACES_LIST_PAGE_SIZE,
+  type ListedPlace,
+  type ListPlacesResult,
+} from "@/server/queries/places/list-places";
 
 type PlacesPageProps = {
   params: Promise<{ locale: "de" | "tr" }>;
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-type PlacePageItem = Awaited<ReturnType<typeof listPlaces>>[number];
+type PlacePageItem = ListedPlace;
 type PlacePageTrendingItem = PlacePageItem & {
   createdAt?: Date | null;
 };
@@ -168,7 +174,14 @@ export default async function PlacesPage({
     cities: [],
     categories: [],
   };
-  let places: Awaited<ReturnType<typeof listPlaces>> = [];
+  const emptyListResult: ListPlacesResult = {
+    items: [],
+    totalCount: 0,
+    page: 1,
+    pageSize: PLACES_LIST_PAGE_SIZE,
+    pageCount: 1,
+  };
+  let listResult: ListPlacesResult = emptyListResult;
 
   try {
     filterData = await getPlaceFilters({
@@ -182,13 +195,17 @@ export default async function PlacesPage({
   }
 
   try {
-    places = await listPlaces({
+    listResult = await listPlaces({
       filters,
       userId: session?.user?.id,
     });
   } catch {
-    places = [];
+    listResult = emptyListResult;
   }
+
+  const places = listResult.items;
+  const showCategoryDiscovery = Boolean(filters.category);
+  const discoveryPool = showCategoryDiscovery ? (listResult.discoveryPlaces ?? places) : [];
 
   const imageAttributionLabels = {
     license: t("imageAttribution.license"),
@@ -225,7 +242,8 @@ export default async function PlacesPage({
       : null,
   ].filter((item): item is { key: string; label: string } => Boolean(item));
   const hasActiveFilters = activeFilterItems.length > 0;
-  const hasNarrowResults = hasActiveFilters && places.length > 0 && places.length <= 3;
+  const hasNarrowResults =
+    hasActiveFilters && listResult.totalCount > 0 && listResult.totalCount <= 3;
   const activeSortLabel =
     filters.sort && filters.sort !== "recommended" ? t("filters.newest") : null;
   const emptyBrowseShortcut = city
@@ -247,47 +265,58 @@ export default async function PlacesPage({
         }),
       }
     : null;
-  const topPlaces = getTopPlaces(places);
+  const topPlaces = showCategoryDiscovery ? getTopPlaces(discoveryPool) : [];
   const usedPlaceIds = new Set(topPlaces.map((place) => place.id));
-  const trendingPlaces = getTrendingPlacesLocal(places as PlacePageTrendingItem[], {
-    limit: 3,
-  }).filter((place) => {
-    if (usedPlaceIds.has(place.id)) {
-      return false;
-    }
-
-    usedPlaceIds.add(place.id);
-    return true;
-  });
-  const categorySections = [
-    {
-      key: "restaurants",
-      title: "Top Restaurants",
-      places: getTopPlacesByCategoryLocal(places, "restaurant", 3),
-    },
-    {
-      key: "mosques",
-      title: "Top Moscheen",
-      places: getTopPlacesByCategoryLocal(places, "mosque", 3),
-    },
-    {
-      key: "cafes",
-      title: "Top Cafés",
-      places: getTopPlacesByCategoryLocal(places, "cafe", 3),
-    },
-  ]
-    .map((section) => ({
-      ...section,
-      places: section.places.filter((place) => {
+  const trendingPlaces = showCategoryDiscovery
+    ? getTrendingPlacesLocal(discoveryPool as PlacePageTrendingItem[], {
+        limit: 3,
+      }).filter((place) => {
         if (usedPlaceIds.has(place.id)) {
           return false;
         }
 
         usedPlaceIds.add(place.id);
         return true;
-      }),
-    }))
-    .filter((section) => section.places.length > 0);
+      })
+    : [];
+  const categorySections = showCategoryDiscovery
+    ? [
+        {
+          key: "restaurants",
+          title: "Top Restaurants",
+          places: getTopPlacesByCategoryLocal(discoveryPool, "restaurant", 3),
+        },
+        {
+          key: "mosques",
+          title: "Top Moscheen",
+          places: getTopPlacesByCategoryLocal(discoveryPool, "mosque", 3),
+        },
+        {
+          key: "cafes",
+          title: "Top Cafés",
+          places: getTopPlacesByCategoryLocal(discoveryPool, "cafe", 3),
+        },
+      ]
+        .map((section) => ({
+          ...section,
+          places: section.places.filter((place) => {
+            if (usedPlaceIds.has(place.id)) {
+              return false;
+            }
+
+            usedPlaceIds.add(place.id);
+            return true;
+          }),
+        }))
+        .filter((section) => section.places.length > 0)
+    : [];
+
+  const rangeFrom =
+    listResult.totalCount === 0 ? 0 : (listResult.page - 1) * listResult.pageSize + 1;
+  const rangeTo = Math.min(
+    listResult.page * listResult.pageSize,
+    listResult.totalCount,
+  );
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 px-4 py-7 sm:py-8">
@@ -406,7 +435,7 @@ export default async function PlacesPage({
             </section>
           ) : null}
 
-          {topPlaces.length > 0 ? (
+          {showCategoryDiscovery && topPlaces.length > 0 ? (
             <section className="space-y-4 py-1">
               <div className="space-y-1">
                 <h2 className="font-display text-3xl text-foreground">Top Orte</h2>
@@ -444,7 +473,7 @@ export default async function PlacesPage({
             </section>
           ) : null}
 
-          {trendingPlaces.length > 0 ? (
+          {showCategoryDiscovery && trendingPlaces.length > 0 ? (
             <section className="space-y-3 pt-1">
               <div className="space-y-1">
                 <h2 className="font-display text-2xl text-foreground">Neu & im Kommen</h2>
@@ -482,42 +511,44 @@ export default async function PlacesPage({
             </section>
           ) : null}
 
-          {categorySections.map((section) => (
-            <section key={section.key} className="space-y-2 pt-1">
-              <div className="flex items-center justify-between">
-                <h2 className="font-display text-xl text-foreground/90">{section.title}</h2>
-              </div>
-              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                {section.places.map((place) => (
-                  <PlaceCard
-                    key={`${section.key}-${place.id}`}
-                    place={place}
-                    locale={locale}
-                    description={getLocalizedText(
-                      { de: place.descriptionDe, tr: place.descriptionTr },
-                      locale,
-                      t("card.fallbackDescription"),
-                    )}
-                    categoryLabel={getLocalizedPlaceCategoryLabel(place.category, locale)}
-                    cityLabel={getLocalizedCityDisplayName(locale, place.city)}
-                    returnPath={currentPath}
-                    isAuthenticated={Boolean(session?.user?.id)}
-                    labels={{
-                      details: t("card.details"),
-                      save: t("card.save"),
-                      saved: t("card.saved"),
-                      saving: t("card.saving"),
-                      signIn: t("card.signIn"),
-                      verified: t("badges.verified"),
-                    }}
-                    imageAttributionLabels={imageAttributionLabels}
-                  />
-                ))}
-              </div>
-            </section>
-          ))}
+          {showCategoryDiscovery
+            ? categorySections.map((section) => (
+                <section key={section.key} className="space-y-2 pt-1">
+                  <div className="flex items-center justify-between">
+                    <h2 className="font-display text-xl text-foreground/90">{section.title}</h2>
+                  </div>
+                  <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                    {section.places.map((place) => (
+                      <PlaceCard
+                        key={`${section.key}-${place.id}`}
+                        place={place}
+                        locale={locale}
+                        description={getLocalizedText(
+                          { de: place.descriptionDe, tr: place.descriptionTr },
+                          locale,
+                          t("card.fallbackDescription"),
+                        )}
+                        categoryLabel={getLocalizedPlaceCategoryLabel(place.category, locale)}
+                        cityLabel={getLocalizedCityDisplayName(locale, place.city)}
+                        returnPath={currentPath}
+                        isAuthenticated={Boolean(session?.user?.id)}
+                        labels={{
+                          details: t("card.details"),
+                          save: t("card.save"),
+                          saved: t("card.saved"),
+                          saving: t("card.saving"),
+                          signIn: t("card.signIn"),
+                          verified: t("badges.verified"),
+                        }}
+                        imageAttributionLabels={imageAttributionLabels}
+                      />
+                    ))}
+                  </div>
+                </section>
+              ))
+            : null}
 
-          {places.length === 0 ? (
+          {listResult.totalCount === 0 ? (
             <Card className="bg-white/90">
               <CardContent className="space-y-4 p-8 text-center">
                 <div className="space-y-2">
@@ -553,11 +584,26 @@ export default async function PlacesPage({
               <div className="flex items-center justify-between">
                 <p className="text-sm text-muted-foreground">
                   {city
-                    ? t("resultsCountCity", {
-                        count: places.length,
+                    ? t("pagination.showingRangeCity", {
+                        from: rangeFrom,
+                        to: rangeTo,
+                        total: listResult.totalCount,
                         city: getLocalizedCityDisplayName(locale, city),
                       })
-                    : t("resultsCount", { count: places.length })}
+                    : t("pagination.showingRange", {
+                        from: rangeFrom,
+                        to: rangeTo,
+                        total: listResult.totalCount,
+                      })}
+                  {listResult.pageCount > 1 ? (
+                    <span className="ml-1">
+                      {" · "}
+                      {t("pagination.pageStatus", {
+                        page: listResult.page,
+                        pageCount: listResult.pageCount,
+                      })}
+                    </span>
+                  ) : null}
                   {activeSortLabel ? (
                     <span>{` · ${t("resultsSort", { sort: activeSortLabel })}`}</span>
                   ) : null}
@@ -565,7 +611,7 @@ export default async function PlacesPage({
               </div>
               {hasNarrowResults ? (
                 <div className="flex flex-col gap-2 rounded-2xl border border-border/80 bg-white/90 px-4 py-3 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-                  <p>{t("narrowResults", { count: places.length })}</p>
+                  <p>{t("narrowResults", { count: listResult.totalCount })}</p>
                   {nearEmptyShortcut ? (
                     <Link
                       href={nearEmptyShortcut.href}
@@ -605,6 +651,59 @@ export default async function PlacesPage({
                   />
                 ))}
               </div>
+              {listResult.pageCount > 1 ? (
+                <nav
+                  className="flex flex-col items-stretch gap-3 border-t border-border/60 pt-4 sm:flex-row sm:items-center sm:justify-between"
+                  aria-label={locale === "tr" ? "Sayfalama" : "Paginierung"}
+                >
+                  <div className="flex flex-wrap gap-2">
+                    {listResult.page > 1 ? (
+                      <Button variant="outline" size="sm" asChild>
+                        <Link
+                          href={buildPlacesNavPath(locale, {
+                            ...filters,
+                            page: listResult.page - 1,
+                          })}
+                        >
+                          {t("pagination.previous")}
+                        </Link>
+                      </Button>
+                    ) : null}
+                    {listResult.page < listResult.pageCount ? (
+                      <Button variant="outline" size="sm" asChild>
+                        <Link
+                          href={buildPlacesNavPath(locale, {
+                            ...filters,
+                            page: listResult.page + 1,
+                          })}
+                        >
+                          {t("pagination.next")}
+                        </Link>
+                      </Button>
+                    ) : null}
+                  </div>
+                  <div className="flex flex-wrap gap-1 text-sm text-muted-foreground">
+                    {Array.from({ length: listResult.pageCount }, (_, i) => i + 1).map((p) => (
+                      <Button
+                        key={p}
+                        variant={p === listResult.page ? "default" : "outline"}
+                        size="sm"
+                        className="min-w-9 px-2"
+                        asChild
+                      >
+                        <Link
+                          href={buildPlacesNavPath(locale, {
+                            ...filters,
+                            page: p > 1 ? p : undefined,
+                          })}
+                        >
+                          {p}
+                        </Link>
+                      </Button>
+                    ))}
+                  </div>
+                </nav>
+              ) : null}
             </section>
           )}
         </>

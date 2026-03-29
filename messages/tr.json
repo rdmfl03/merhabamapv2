@@ -220,6 +220,13 @@
     "resultsCount": "{count, number} sonuç",
     "resultsCountCity": "{city} içinde {count, number} mekan",
     "resultsSort": "{sort} sıralaması",
+    "pagination": {
+      "showingRange": "{total} mekandan {from}–{to} arası gösteriliyor",
+      "showingRangeCity": "{city} içinde {total} mekandan {from}–{to} arası gösteriliyor",
+      "pageStatus": "Sayfa {page} / {pageCount}",
+      "previous": "Önceki",
+      "next": "Sonraki"
+    },
     "filters": {
       "searchPlaceholder": "İsim, sokak veya mekan ara",
       "city": "Şehir",

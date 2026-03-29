@@ -1,4 +1,5 @@
 import {
+  buildPlacesNavPath,
   buildPlacesPath,
   computeCategoryAdjustedScore,
   computeDistanceKm,
@@ -39,6 +40,17 @@ describe("places helpers", () => {
     expect(buildPlacesPath("de")).toBe("/de/places");
     expect(buildPlacesPath("tr", { city: "berlin", q: "cafe" })).toBe(
       "/tr/places?city=berlin&q=cafe",
+    );
+    expect(buildPlacesPath("de", { city: "berlin", page: 1 })).toBe("/de/places?city=berlin");
+    expect(buildPlacesPath("de", { city: "berlin", page: 2 })).toBe(
+      "/de/places?city=berlin&page=2",
+    );
+  });
+
+  it("builds locale-free paths for next-intl Link", () => {
+    expect(buildPlacesNavPath("de")).toBe("/places");
+    expect(buildPlacesNavPath("tr", { city: "berlin", page: 2 })).toBe(
+      "/places?city=berlin&page=2",
     );
   });
 

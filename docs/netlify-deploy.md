@@ -77,7 +77,7 @@ postgresql://USER:PASSWORD@HOST:25060/defaultdb?sslmode=require
 
 ### Maps
 
-- `NEXT_PUBLIC_MAPTILER_API_KEY` (optional; MapTiler raster tiles when set; otherwise OpenStreetMap)
+- `NEXT_PUBLIC_MAPTILER_API_KEY` (optional): set **only** in Netlify **Site configuration → Environment variables** — never in tracked `.env` files or source. When set at build time, MapTiler raster tiles are used; otherwise OpenStreetMap.
 
 ### Netlify runtime helpers
 
