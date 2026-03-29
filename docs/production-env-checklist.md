@@ -21,6 +21,8 @@ Use this checklist before connecting Netlify or another production runtime to th
   - Long random secret for session/auth integrity.
 - `AUTH_ENABLE_PASSWORD_LOGIN`
   - Explicitly set to `true` or `false`.
+- `AUTH_ALLOW_SIGNUP`
+  - For a **closed** public production (no new user self-registration): set to `false` or **omit** entirely — the app treats signup as disabled in production when this variable is unset. Set to `true` only when you deliberately open registration.
 - `AUTH_DEMO_CREDENTIALS_ENABLED`
   - Must stay `false` in production.
 - `AUTH_ALLOW_CREDENTIALS_MOCK`
