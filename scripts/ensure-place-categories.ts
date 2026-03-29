@@ -1,5 +1,8 @@
+import { PrismaClient } from "@prisma/client";
+
 import { upsertAllPlaceCategories } from "@/lib/place-category-catalog";
-import { prisma } from "@/lib/prisma";
+
+const prisma = new PrismaClient();
 
 async function main() {
   await upsertAllPlaceCategories(prisma);
