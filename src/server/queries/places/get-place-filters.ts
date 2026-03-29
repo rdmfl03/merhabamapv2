@@ -1,7 +1,17 @@
 import { prisma } from "@/lib/prisma";
-import { publicPlaceVisibilityWhere } from "./shared";
+import { buildPublicPlaceWhere, publicPlaceVisibilityWhere } from "./shared";
 
-export async function getPlaceFilters() {
+export type GetPlaceFiltersOptions = {
+  /** If set, category dropdown only lists categories with ≥1 public place in that city. */
+  categoryCitySlug?: string;
+};
+
+export async function getPlaceFilters(options?: GetPlaceFiltersOptions) {
+  const citySlug = options?.categoryCitySlug?.trim();
+  const categoryPlaceWhere = buildPublicPlaceWhere(
+    citySlug ? { city: { slug: citySlug } } : {},
+  );
+
   const [cities, categories] = await Promise.all([
     prisma.city.findMany({
       where: {
@@ -21,9 +31,7 @@ export async function getPlaceFilters() {
     prisma.placeCategory.findMany({
       where: {
         places: {
-          some: {
-            ...publicPlaceVisibilityWhere,
-          },
+          some: categoryPlaceWhere,
         },
       },
       orderBy: [{ sortOrder: "asc" }, { nameDe: "asc" }],

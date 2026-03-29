@@ -11,8 +11,8 @@ import {
 } from "@/lib/map-config";
 
 /**
- * Leaflet basemap: MapTiler when NEXT_PUBLIC_MAPTILER_API_KEY is set, else OSM.
- * On tile load errors with MapTiler, switches once to OSM without crashing.
+ * Leaflet basemap: MapTiler when the hosting env provides a key, else OSM.
+ * On tile errors with MapTiler, switches once to OSM without crashing.
  */
 export function MerhabaTileLayer() {
   const [useOsmFallback, setUseOsmFallback] = useState(false);

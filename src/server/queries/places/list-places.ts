@@ -14,6 +14,11 @@ import {
 
 export type ListedPlace = ReturnType<typeof publicPlaceRecordForFlight>;
 
+export const PLACES_LIST_PAGE_SIZE = 50;
+
+/** Upper bound for in-memory ranking; increase if you need full-catalog pagination without DB changes. */
+const MAX_PLACES_RANK_BATCH = 5000;
+
 function rankPlaces(places: PublicPlaceRecordWithAi[]) {
   return [...places].sort((left, right) =>
     compareByAiRanking<PublicPlaceRecordWithAi>(left, right, (placeLeft, placeRight) => {
@@ -42,10 +47,45 @@ function rankPlaces(places: PublicPlaceRecordWithAi[]) {
   );
 }
 
+export type ListPlacesResult = {
+  items: ListedPlace[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  pageCount: number;
+  /** Full filtered list for Top-* strips when a category filter is active */
+  discoveryPlaces?: ListedPlace[];
+};
+
+async function mapPlacesWithSaved(
+  rows: PublicPlaceRecordWithAi[],
+  userId: string | undefined,
+): Promise<ListedPlace[]> {
+  if (rows.length === 0) {
+    return [];
+  }
+
+  if (!userId) {
+    return rows.map((place) => publicPlaceRecordForFlight(place, false));
+  }
+
+  const savedPlaces = await prisma.savedPlace.findMany({
+    where: {
+      userId,
+      placeId: { in: rows.map((place) => place.id) },
+    },
+    select: { placeId: true },
+  });
+
+  const savedIds = new Set(savedPlaces.map((entry) => entry.placeId));
+
+  return rows.map((place) => publicPlaceRecordForFlight(place, savedIds.has(place.id)));
+}
+
 export async function listPlaces(args: {
   filters: PlacesFilterInput;
   userId?: string;
-}) {
+}): Promise<ListPlacesResult> {
   const where: Prisma.PlaceWhereInput = {};
 
   if (args.filters.city) {
@@ -71,45 +111,42 @@ export async function listPlaces(args: {
 
   const sort = args.filters.sort ?? "recommended";
 
-  const hasNarrowingFilter = Boolean(
-    args.filters.city || args.filters.category || args.filters.q,
-  );
-  const dbTake = hasNarrowingFilter ? 800 : 48;
-
   const places = await prisma.place.findMany({
     where: buildPublicPlaceWhere(where),
     orderBy:
       sort === "newest"
         ? [{ createdAt: "desc" }]
         : [{ verificationStatus: "desc" }, { createdAt: "desc" }],
-    take: dbTake,
+    take: MAX_PLACES_RANK_BATCH,
     select: publicPlaceSelectWithAi,
   });
 
   const rankedPlaces =
     sort === "newest"
-      ? [...places].sort((left, right) => right.createdAt.getTime() - left.createdAt.getTime()).slice(0, 24)
-      : rankPlaces(places).slice(0, 24);
+      ? [...places].sort((left, right) => right.createdAt.getTime() - left.createdAt.getTime())
+      : rankPlaces(places);
 
-  if (!args.userId || rankedPlaces.length === 0) {
-    return rankedPlaces.map((place) => publicPlaceRecordForFlight(place, false));
-  }
+  const totalCount = rankedPlaces.length;
+  const pageSize = PLACES_LIST_PAGE_SIZE;
+  const pageCount = Math.max(1, Math.ceil(totalCount / pageSize));
+  const requestedPage = args.filters.page ?? 1;
+  const page = Math.min(Math.max(1, requestedPage), pageCount);
+  const start = (page - 1) * pageSize;
+  const pageSlice = rankedPlaces.slice(start, start + pageSize);
 
-  const savedPlaces = await prisma.savedPlace.findMany({
-    where: {
-      userId: args.userId,
-      placeId: {
-        in: rankedPlaces.map((place) => place.id),
-      },
-    },
-    select: {
-      placeId: true,
-    },
-  });
+  const needDiscovery = Boolean(args.filters.category);
+  const discoveryRows = needDiscovery ? rankedPlaces : [];
+  const [items, discoveryPlaces] = await Promise.all([
+    mapPlacesWithSaved(pageSlice, args.userId),
+    needDiscovery ? mapPlacesWithSaved(discoveryRows, args.userId) : Promise.resolve(undefined),
+  ]);
 
-  const savedIds = new Set(savedPlaces.map((entry) => entry.placeId));
-
-  return rankedPlaces.map((place) =>
-    publicPlaceRecordForFlight(place, savedIds.has(place.id)),
-  );
+  return {
+    items,
+    totalCount,
+    page,
+    pageSize,
+    pageCount,
+    discoveryPlaces,
+  };
 }

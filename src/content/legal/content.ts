@@ -186,7 +186,7 @@ export function getPrivacyContent(locale: AppLocale): LegalPageContent {
           title: "Barındırma ve teknik hizmet sağlayıcıları",
           paragraphs: [
             "Uygulama, Netlify üzerinde oluşturulur ve barındırılır; içerik dağıtımı Netlify ağı üzerinden yapılır (ayrıntılar depo dokümantasyonunda). Veritabanı olarak yönetilen PostgreSQL hizmeti DigitalOcean tarafından sağlanır; bağlantı, dağıtım ortamındaki DATABASE_URL yapılandırması ile kurulur.",
-            "Harita görünümleri istemci tarafında yüklenir. Üretim ortamında NEXT_PUBLIC_MAPTILER_API_KEY tanımlıysa MapTiler (Pastel raster) karoları kullanılır; anahtar yoksa OpenStreetMap proje sunucularından (tile.openstreetmap.org) standart karolar yüklenir. MapTiler yüklemesinde tekrarlayan hatalar oluşursa uygulama OpenStreetMap’e geçebilir; bu sırada istekler ilgili karo sunucusuna gider.",
+            "Harita görünümleri istemci tarafında yüklenir. Barındırma ortamında (ör. Netlify) yapılandırılmış bir MapTiler API anahtarı varsa Pastel raster karoları kullanılır; aksi halde OpenStreetMap proje sunucularından (tile.openstreetmap.org) standart karolar yüklenir. MapTiler yüklemesinde tekrarlayan hatalar oluşursa uygulama OpenStreetMap’e geçebilir; bu sırada istekler ilgili karo sunucusuna gider.",
             "Ortam değişkenleri üzerinden yapılandırıldığında, medya veya dosyalar için S3 uyumlu nesne depolama (örnek yapılandırma depoda Cloudflare R2 ile belgelenmiştir) kullanılabilir. Hangi sağlayıcıların fiilen etkin olduğu, ilgili dağıtımın çevre değişkenlerine bağlıdır.",
           ],
         },
@@ -285,7 +285,7 @@ export function getPrivacyContent(locale: AppLocale): LegalPageContent {
         title: "Hosting und technische Dienstleister",
         paragraphs: [
           "Die Next.js-Anwendung wird über Netlify gebaut, gehostet und über das Netlify-Netzwerk ausgeliefert (Einzelheiten siehe Projektdokumentation). Als verwaltete Datenbank wird PostgreSQL bei DigitalOcean eingesetzt; die Anbindung erfolgt über die in der jeweiligen Umgebung konfigurierte Datenbank-URL.",
-          "Kartenkacheln werden im Browser geladen. Ist in der ausgelieferten Konfiguration NEXT_PUBLIC_MAPTILER_API_KEY gesetzt, werden Rasterkacheln von MapTiler („Pastel“) bezogen; ohne Schlüssel nutzen wir die Standardkacheln der OpenStreetMap-Projektserver unter tile.openstreetmap.org. Bei wiederholten Ladefehlern mit MapTiler kann die Anwendung automatisch auf OpenStreetMap wechseln; dabei werden Anfragen an den jeweiligen Kachelserver gerichtet.",
+          "Kartenkacheln werden im Browser geladen. Ist in der Hosting-Umgebung (z. B. Netlify) ein MapTiler-API-Schlüssel hinterlegt, werden Rasterkacheln von MapTiler („Pastel“) bezogen; ohne Schlüssel nutzen wir die Standardkacheln der OpenStreetMap-Projektserver unter tile.openstreetmap.org. Bei wiederholten Ladefehlern mit MapTiler kann die Anwendung automatisch auf OpenStreetMap wechseln; dabei werden Anfragen an den jeweiligen Kachelserver gerichtet.",
           "Optional können über Umgebungsvariablen S3-kompatible Objektspeicher für Medien oder Dateien angebunden sein (in den .env-Beispielen des Repositories u. a. mit Cloudflare R2 skizziert). Welche Speicherdienste tatsächlich aktiv sind, hängt von der konkreten Deploy-Konfiguration ab.",
         ],
       },

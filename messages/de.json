@@ -220,6 +220,13 @@
     "resultsCount": "{count, number} Ergebnisse",
     "resultsCountCity": "{count, number} Orte in {city}",
     "resultsSort": "sortiert nach {sort}",
+    "pagination": {
+      "showingRange": "Zeige {from}–{to} von {total} Orten",
+      "showingRangeCity": "Zeige {from}–{to} von {total} Orten in {city}",
+      "pageStatus": "Seite {page} von {pageCount}",
+      "previous": "Zurück",
+      "next": "Weiter"
+    },
     "filters": {
       "searchPlaceholder": "Nach Name, Straße oder Ort suchen",
       "city": "Stadt",

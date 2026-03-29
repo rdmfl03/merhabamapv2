@@ -9,11 +9,14 @@ const trimmedOptionalString = z
     return nextValue.length > 0 ? nextValue : undefined;
   });
 
+const pageParamSchema = z.coerce.number().int().min(1).max(500);
+
 export const placesFilterSchema = z.object({
   city: trimmedOptionalString.pipe(z.string().max(64).optional()),
   category: trimmedOptionalString.pipe(z.string().max(64).optional()),
   q: trimmedOptionalString.pipe(z.string().max(100).optional()),
   sort: z.enum(["recommended", "newest"]).optional(),
+  page: pageParamSchema.optional(),
 });
 
 export type PlacesFilterInput = z.infer<typeof placesFilterSchema>;
@@ -44,12 +47,14 @@ export function parsePlacesFiltersFromSearchParams(
   );
   const qResult = placesFilterSchema.shape.q.safeParse(firstSearchParam(raw.q));
   const sortResult = placeSortSchema.safeParse(firstSearchParam(raw.sort));
+  const pageResult = pageParamSchema.safeParse(firstSearchParam(raw.page));
 
   return {
     city: cityResult.success ? cityResult.data : undefined,
     category: categoryResult.success ? categoryResult.data : undefined,
     q: qResult.success ? qResult.data : undefined,
     sort: sortResult.success ? sortResult.data : undefined,
+    page: pageResult.success ? pageResult.data : undefined,
   };
 }
 

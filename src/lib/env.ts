@@ -53,6 +53,7 @@ const envSchema = z
     S3_ACCESS_KEY_ID: optionalStringSchema,
     S3_SECRET_ACCESS_KEY: optionalStringSchema,
 
+    /** Optional; set only in host env (e.g. Netlify), never commit values. */
     NEXT_PUBLIC_MAPTILER_API_KEY: optionalStringSchema,
     NEXT_PUBLIC_ENABLE_DEV_DEMO_UI: booleanStringSchema.default("false"),
   })
