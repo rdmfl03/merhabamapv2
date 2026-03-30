@@ -1,7 +1,9 @@
 import { Search } from "lucide-react";
 
+import { ListingCategoryMultiSelect } from "@/components/filters/listing-category-multi-select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { LISTING_ALL_CITIES_SLUG } from "@/lib/listing-city-filter";
 
 type FilterOption = {
   slug: string;
@@ -12,7 +14,7 @@ type PlacesFiltersProps = {
   locale: "de" | "tr";
   values: {
     city?: string;
-    category?: string;
+    categories?: string[];
     q?: string;
     sort?: string;
   };
@@ -23,8 +25,13 @@ type PlacesFiltersProps = {
     city: string;
     category: string;
     sort: string;
+    pickCityFirst: string;
     allCities: string;
     allCategories: string;
+    categoriesFilterLabel: string;
+    categoriesFilterHint: string;
+    categoriesDropdownAll: string;
+    categoriesDropdownMultiple: string;
     recommended: string;
     newest: string;
     apply: string;
@@ -62,7 +69,8 @@ export function PlacesFilters({
           defaultValue={values.city ?? ""}
           className="flex h-11 w-full rounded-2xl border border-border bg-white px-4 py-2 text-sm text-foreground shadow-sm outline-none transition focus-visible:ring-2 focus-visible:ring-ring"
         >
-          <option value="">{labels.allCities}</option>
+          <option value="">{labels.pickCityFirst}</option>
+          <option value={LISTING_ALL_CITIES_SLUG}>{labels.allCities}</option>
           {cities.map((city) => (
             <option key={city.slug} value={city.slug}>
               {city.label}
@@ -71,20 +79,22 @@ export function PlacesFilters({
         </select>
       </label>
 
-      <label className="block">
+      <label className="block min-w-0">
         <span className="sr-only">{labels.category}</span>
-        <select
-          name="category"
-          defaultValue={values.category ?? ""}
-          className="flex h-11 w-full rounded-2xl border border-border bg-white px-4 py-2 text-sm text-foreground shadow-sm outline-none transition focus-visible:ring-2 focus-visible:ring-ring"
-        >
-          <option value="">{labels.allCategories}</option>
-          {categories.map((category) => (
-            <option key={category.slug} value={category.slug}>
-              {category.label}
-            </option>
-          ))}
-        </select>
+        <ListingCategoryMultiSelect
+          key={[...(values.categories ?? [])].sort().join("\0")}
+          options={categories.map((category) => ({
+            value: category.slug,
+            label: category.label,
+          }))}
+          defaultSelected={values.categories ?? []}
+          labels={{
+            filterLabel: labels.categoriesFilterLabel,
+            hint: labels.categoriesFilterHint,
+            dropdownAll: labels.categoriesDropdownAll,
+            dropdownMultiple: labels.categoriesDropdownMultiple,
+          }}
+        />
       </label>
 
       <label className="block">

@@ -113,7 +113,7 @@ describe("validators", () => {
       date: "this-month",
     });
     expect(parsed.city).toBe("berlin");
-    expect(parsed.category).toBeUndefined();
+    expect(parsed.categories).toBeUndefined();
     expect(parsed.date).toBe("this-month");
   });
 
@@ -131,7 +131,7 @@ describe("validators", () => {
       category: "cafe",
     });
     expect(parsed.city).toBe("koeln");
-    expect(parsed.category).toBe("cafe");
+    expect(parsed.categories).toEqual(["cafe"]);
     expect(parsed.sort).toBeUndefined();
   });
 
@@ -142,6 +142,24 @@ describe("validators", () => {
     });
     expect(parsed.city).toBe("koeln");
     expect(parsed.q).toBe("baklava");
+  });
+
+  it("accepts reserved city=all for nationwide listing", () => {
+    expect(parsePlacesFiltersFromSearchParams({ city: "all" }).city).toBe("all");
+    expect(parseEventsFiltersFromSearchParams({ city: "all" }).city).toBe("all");
+  });
+
+  it("collects repeated category params for places and events", () => {
+    expect(
+      parsePlacesFiltersFromSearchParams({
+        category: ["cafes", "restaurants"],
+      }).categories,
+    ).toEqual(["cafes", "restaurants"]);
+    expect(
+      parseEventsFiltersFromSearchParams({
+        category: ["CONCERT", "CULTURE"],
+      }).categories,
+    ).toEqual(["CONCERT", "CULTURE"]);
   });
 
   it("rejects unsupported place sort in strict schema but lenient parser ignores it", () => {

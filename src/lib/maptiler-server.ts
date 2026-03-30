@@ -27,3 +27,52 @@ export function getMapTilerApiKeyForRequest(): string {
 export function isMapTilerConfigured(): boolean {
   return Boolean(getMapTilerApiKeyForRequest());
 }
+
+function firstValidPublicAppBaseUrl(): string | null {
+  const candidates = [
+    process.env.APP_URL,
+    process.env.AUTH_URL,
+    process.env.URL,
+    process.env.DEPLOY_PRIME_URL,
+    process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined,
+  ];
+  for (const raw of candidates) {
+    const t = raw?.trim();
+    if (!t) {
+      continue;
+    }
+    try {
+      const u = new URL(t);
+      if (u.protocol === "http:" || u.protocol === "https:") {
+        return t.replace(/\/+$/, "");
+      }
+    } catch {
+      /* ignore */
+    }
+  }
+  if (process.env.NODE_ENV === "development") {
+    return "http://localhost:3000";
+  }
+  return null;
+}
+
+/**
+ * MapTiler URL-restricted keys expect Referer/Origin. Server-side fetch has none by default,
+ * which yields 403 and breaks Leaflet when the proxy forwards non-image error bodies.
+ */
+export function getMapTilerUpstreamFetchHeaders(): HeadersInit {
+  const base = firstValidPublicAppBaseUrl();
+  const headers: Record<string, string> = {
+    Accept: "image/png,image/*",
+    "User-Agent": "MerhabaMap/1.0 (tile-proxy)",
+  };
+  if (base) {
+    try {
+      headers.Referer = `${base}/`;
+      headers.Origin = new URL(base).origin;
+    } catch {
+      /* ignore */
+    }
+  }
+  return headers;
+}

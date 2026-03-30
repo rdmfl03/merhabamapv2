@@ -66,7 +66,10 @@ type CityDiscoveryOverviewProps = {
     allResults: string;
     placesOnly: string;
     eventsOnly: string;
-    allCategories: string;
+    categoriesFilterLabel: string;
+    categoriesFilterHint: string;
+    categoriesDropdownAll: string;
+    categoriesDropdownMultiple: string;
     resetFilters: string;
     resultsTitle: string;
     listRatingReviewsSuffix: string;
@@ -181,7 +184,10 @@ export function CityDiscoveryOverview({
           allLabel={labels.allResults}
           placesOnlyLabel={labels.placesOnly}
           eventsOnlyLabel={labels.eventsOnly}
-          allCategoriesLabel={labels.allCategories}
+          categoriesFilterLabel={labels.categoriesFilterLabel}
+          categoriesFilterHint={labels.categoriesFilterHint}
+          categoriesDropdownAll={labels.categoriesDropdownAll}
+          categoriesDropdownMultiple={labels.categoriesDropdownMultiple}
           resetFiltersLabel={labels.resetFilters}
           resultsTitle={labels.resultsTitle}
           listRatingReviewsSuffix={labels.listRatingReviewsSuffix}

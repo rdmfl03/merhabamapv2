@@ -11,9 +11,11 @@ const trimmedOptionalString = z
 
 const pageParamSchema = z.coerce.number().int().min(1).max(500);
 
+const categorySlugParam = z.string().trim().min(1).max(64);
+
 export const placesFilterSchema = z.object({
   city: trimmedOptionalString.pipe(z.string().max(64).optional()),
-  category: trimmedOptionalString.pipe(z.string().max(64).optional()),
+  categories: z.array(categorySlugParam).max(24).optional(),
   q: trimmedOptionalString.pipe(z.string().max(100).optional()),
   sort: z.enum(["recommended", "newest"]).optional(),
   page: pageParamSchema.optional(),
@@ -34,6 +36,24 @@ function firstSearchParam(value: string | string[] | undefined | null): string |
   return typeof value === "string" ? value : undefined;
 }
 
+function categorySearchParamValues(raw: string | string[] | undefined | null): string[] {
+  if (raw == null) {
+    return [];
+  }
+  const list = Array.isArray(raw) ? raw : [raw];
+  const out: string[] = [];
+  for (const item of list) {
+    if (typeof item !== "string") {
+      continue;
+    }
+    const parsed = categorySlugParam.safeParse(item);
+    if (parsed.success) {
+      out.push(parsed.data);
+    }
+  }
+  return [...new Set(out)];
+}
+
 /**
  * Lenient parsing: invalid enum values do not discard the whole filter set, and
  * Next.js may pass `string[]` for repeated query keys — we use the first value.
@@ -42,8 +62,9 @@ export function parsePlacesFiltersFromSearchParams(
   raw: Record<string, string | string[] | undefined>,
 ): PlacesFilterInput {
   const cityResult = placesFilterSchema.shape.city.safeParse(firstSearchParam(raw.city));
-  const categoryResult = placesFilterSchema.shape.category.safeParse(
-    firstSearchParam(raw.category),
+  const categoriesRaw = categorySearchParamValues(raw.category);
+  const categoriesResult = placesFilterSchema.shape.categories.safeParse(
+    categoriesRaw.length > 0 ? categoriesRaw : undefined,
   );
   const qResult = placesFilterSchema.shape.q.safeParse(firstSearchParam(raw.q));
   const sortResult = placeSortSchema.safeParse(firstSearchParam(raw.sort));
@@ -51,7 +72,7 @@ export function parsePlacesFiltersFromSearchParams(
 
   return {
     city: cityResult.success ? cityResult.data : undefined,
-    category: categoryResult.success ? categoryResult.data : undefined,
+    categories: categoriesResult.success ? categoriesResult.data : undefined,
     q: qResult.success ? qResult.data : undefined,
     sort: sortResult.success ? sortResult.data : undefined,
     page: pageResult.success ? pageResult.data : undefined,

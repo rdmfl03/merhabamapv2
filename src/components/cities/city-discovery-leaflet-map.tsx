@@ -866,7 +866,7 @@ export function CityDiscoveryLeafletMap({
 
       <div className="pointer-events-none absolute left-5 top-5 z-20 flex flex-wrap items-center gap-2">
         <span className="rounded-full border border-slate-200/90 bg-white/88 px-3 py-1.5 text-xs font-semibold text-foreground shadow-md backdrop-blur-md">
-          {basemap.provider === "maptiler" ? "MapTiler · Pastel" : "OSM"}
+          {basemap.provider === "maptiler" ? "MapTiler" : "OSM"}
         </span>
         <span className="rounded-full border border-slate-200/90 bg-white/88 px-3 py-1.5 text-xs text-muted-foreground shadow-md backdrop-blur-md">
           {showGermanyClusters && resultsCitiesUnitLabel

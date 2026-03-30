@@ -60,12 +60,22 @@ export function getLocalizedEventText(
 
 export function buildEventsPath(
   locale: "de" | "tr",
-  filters?: { city?: string; category?: string; date?: string; q?: string; sort?: string },
+  filters?: {
+    city?: string;
+    categories?: string[];
+    date?: string;
+    q?: string;
+    sort?: string;
+  },
 ) {
   const search = new URLSearchParams();
 
   if (filters?.city) search.set("city", filters.city);
-  if (filters?.category) search.set("category", filters.category);
+  if (filters?.categories?.length) {
+    for (const c of filters.categories) {
+      search.append("category", c);
+    }
+  }
   if (filters?.date) search.set("date", filters.date);
   if (filters?.q) search.set("q", filters.q);
   if (filters?.sort) search.set("sort", filters.sort);

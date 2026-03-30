@@ -1,6 +1,7 @@
 import type { Prisma } from "@prisma/client";
 
 import { getBerlinDateFilter } from "@/lib/events";
+import { isSpecificListingCity } from "@/lib/listing-city-filter";
 import { prisma } from "@/lib/prisma";
 import type { EventsFilterInput } from "@/lib/validators/events";
 import { compareByAiRanking } from "@/server/queries/ai-shared";
@@ -47,14 +48,14 @@ export async function listEvents(args: {
     },
   };
 
-  if (args.filters.city) {
+  if (isSpecificListingCity(args.filters.city)) {
     where.city = {
       slug: args.filters.city,
     };
   }
 
-  if (args.filters.category) {
-    where.category = args.filters.category as Prisma.EventWhereInput["category"];
+  if (args.filters.categories?.length) {
+    where.category = { in: args.filters.categories };
   }
 
   if (args.filters.q) {

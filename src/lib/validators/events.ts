@@ -21,7 +21,7 @@ const trimmedOptionalString = z
 
 export const eventsFilterSchema = z.object({
   city: trimmedOptionalString.pipe(z.string().max(64).optional()),
-  category: z.enum(eventCategories).optional(),
+  categories: z.array(z.enum(eventCategories)).max(8).optional(),
   date: z
     .enum(["today", "this-week", "this-month", "upcoming"])
     .optional(),
@@ -48,20 +48,43 @@ function firstSearchParam(value: string | string[] | undefined | null): string |
  * Lenient parsing: invalid enum values do not discard the whole filter set (unlike
  * `eventsFilterSchema.safeParse` on the full object).
  */
+function eventCategorySearchParamValues(
+  raw: string | string[] | undefined | null,
+): (typeof eventCategories)[number][] {
+  if (raw == null) {
+    return [];
+  }
+  const list = Array.isArray(raw) ? raw : [raw];
+  const out: (typeof eventCategories)[number][] = [];
+  for (const item of list) {
+    if (typeof item !== "string") {
+      continue;
+    }
+    const parsed = eventCategoryEnumSchema.safeParse(item.trim());
+    if (parsed.success) {
+      out.push(parsed.data);
+    }
+  }
+  return [...new Set(out)];
+}
+
 export function parseEventsFiltersFromSearchParams(
   raw: Record<string, string | string[] | undefined>,
 ): EventsFilterInput {
   const cityResult = eventsFilterSchema.shape.city.safeParse(firstSearchParam(raw.city));
   const qResult = eventsFilterSchema.shape.q.safeParse(firstSearchParam(raw.q));
 
-  const categoryResult = eventCategoryEnumSchema.safeParse(firstSearchParam(raw.category));
+  const categoriesRaw = eventCategorySearchParamValues(raw.category);
+  const categoriesResult = eventsFilterSchema.shape.categories.safeParse(
+    categoriesRaw.length > 0 ? categoriesRaw : undefined,
+  );
   const dateResult = eventDateFilterSchema.safeParse(firstSearchParam(raw.date));
   const sortResult = eventSortSchema.safeParse(firstSearchParam(raw.sort));
 
   return {
     city: cityResult.success ? cityResult.data : undefined,
     q: qResult.success ? qResult.data : undefined,
-    category: categoryResult.success ? categoryResult.data : undefined,
+    categories: categoriesResult.success ? categoriesResult.data : undefined,
     date: dateResult.success ? dateResult.data : undefined,
     sort: sortResult.success ? sortResult.data : undefined,
   };

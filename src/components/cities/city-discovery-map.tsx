@@ -4,8 +4,16 @@ import dynamic from "next/dynamic";
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
 import type { Dispatch, ErrorInfo, ReactNode, SetStateAction } from "react";
-import { Component, useCallback, useEffect, useMemo, useState } from "react";
-import { CalendarDays, Crosshair, LocateFixed, MapPin, Search, Star } from "lucide-react";
+import { Component, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  CalendarDays,
+  ChevronDown,
+  Crosshair,
+  LocateFixed,
+  MapPin,
+  Search,
+  Star,
+} from "lucide-react";
 
 import type { CityMapPoint, MapViewportBounds } from "@/components/cities/city-discovery-map-types";
 import { Link } from "@/i18n/navigation";
@@ -21,6 +29,7 @@ import { Input } from "@/components/ui/input";
 import { getLocalizedCityDisplayName } from "@/lib/cities/city-display-name";
 import type { GermanyMapCluster } from "@/lib/cities/germany-map-cluster";
 import type { DiscoveryMapCityOption } from "@/server/queries/cities/get-discovery-map-cities";
+import { cn } from "@/lib/utils";
 
 const VIEWPORT_BOUNDS_EPS = 1e-6;
 
@@ -195,7 +204,10 @@ type CityDiscoveryMapProps = {
   allLabel: string;
   placesOnlyLabel: string;
   eventsOnlyLabel: string;
-  allCategoriesLabel: string;
+  categoriesFilterLabel: string;
+  categoriesFilterHint: string;
+  categoriesDropdownAll: string;
+  categoriesDropdownMultiple: string;
   resetFiltersLabel: string;
   resultsTitle: string;
   /** z. B. „Bewertungen“ / „değerlendirme“ für die Trefferliste. */
@@ -517,7 +529,10 @@ export function CityDiscoveryMap({
   allLabel,
   placesOnlyLabel,
   eventsOnlyLabel,
-  allCategoriesLabel,
+  categoriesFilterLabel,
+  categoriesFilterHint,
+  categoriesDropdownAll,
+  categoriesDropdownMultiple,
   resetFiltersLabel,
   resultsTitle,
   listRatingReviewsSuffix,
@@ -545,7 +560,7 @@ export function CityDiscoveryMap({
   const router = useRouter();
   const [cityPickerValue, setCityPickerValue] = useState(selectedCitySlug);
   const [typeFilter, setTypeFilter] = useState<"all" | "place" | "event">("all");
-  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [selectedCategoryKeys, setSelectedCategoryKeys] = useState<string[]>([]);
   const [query, setQuery] = useState("");
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -558,6 +573,8 @@ export function CityDiscoveryMap({
   >("idle");
   const [viewportBounds, setViewportBounds] = useState<MapViewportBounds | null>(null);
   const [clusterLoadingSlug, setClusterLoadingSlug] = useState<string | null>(null);
+  const [categoryMenuOpen, setCategoryMenuOpen] = useState(false);
+  const categoryDropdownRef = useRef<HTMLDivElement>(null);
 
   const isGermanyClusterMode =
     germanyMapClusters != null && selectedCitySlug === "";
@@ -585,7 +602,31 @@ export function CityDiscoveryMap({
     setViewportBounds(null);
     setSelectedId(null);
     setHoveredId(null);
+    setCategoryMenuOpen(false);
   }, [selectedCitySlug]);
+
+  useEffect(() => {
+    if (!categoryMenuOpen) {
+      return;
+    }
+    function handlePointerDown(event: PointerEvent) {
+      const el = categoryDropdownRef.current;
+      if (el && !el.contains(event.target as Node)) {
+        setCategoryMenuOpen(false);
+      }
+    }
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setCategoryMenuOpen(false);
+      }
+    }
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [categoryMenuOpen]);
 
   useEffect(() => {
     if (selectedCitySlug) {
@@ -696,16 +737,55 @@ export function CityDiscoveryMap({
     return [...normalizedPlaces, ...normalizedEvents];
   }, [categoryLabels, effectiveEvents, effectivePlaces, locale]);
 
-  const categories = useMemo(() => {
-    return [
-      { key: "all", label: allCategoriesLabel },
-      ...Array.from(
-        new Map(
-          normalized.map((point) => [point.categoryKey, point.categoryLabel]),
-        ).entries(),
-      ).map(([key, label]) => ({ key, label })),
-    ];
-  }, [allCategoriesLabel, normalized]);
+  const categoryOptions = useMemo(() => {
+    return Array.from(
+      new Map(
+        normalized.map((point) => [point.categoryKey, point.categoryLabel]),
+      ).entries(),
+    ).map(([key, label]) => ({ key, label }));
+  }, [normalized]);
+
+  const validCategoryKeysSignature = useMemo(
+    () => [...new Set(normalized.map((point) => point.categoryKey))].sort().join(","),
+    [normalized],
+  );
+
+  useEffect(() => {
+    const valid = new Set(
+      validCategoryKeysSignature.length > 0 ? validCategoryKeysSignature.split(",") : [],
+    );
+    setSelectedCategoryKeys((prev) => {
+      const next = prev.filter((key) => valid.has(key));
+      return next.length === prev.length && next.every((key, index) => key === prev[index])
+        ? prev
+        : next;
+    });
+  }, [validCategoryKeysSignature]);
+
+  const toggleCategoryKey = useCallback((key: string) => {
+    setSelectedCategoryKeys((prev) =>
+      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key],
+    );
+  }, []);
+
+  const categoryTriggerLabel = useMemo(() => {
+    if (selectedCategoryKeys.length === 0) {
+      return categoriesDropdownAll;
+    }
+    if (selectedCategoryKeys.length === 1) {
+      const only = categoryOptions.find((c) => c.key === selectedCategoryKeys[0]);
+      return only?.label ?? categoriesDropdownAll;
+    }
+    return categoriesDropdownMultiple.replace(
+      /\{count\}/g,
+      String(selectedCategoryKeys.length),
+    );
+  }, [
+    categoriesDropdownAll,
+    categoriesDropdownMultiple,
+    categoryOptions,
+    selectedCategoryKeys,
+  ]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -715,7 +795,10 @@ export function CityDiscoveryMap({
         return false;
       }
 
-      if (categoryFilter !== "all" && point.categoryKey !== categoryFilter) {
+      if (
+        selectedCategoryKeys.length > 0 &&
+        !selectedCategoryKeys.includes(point.categoryKey)
+      ) {
         return false;
       }
 
@@ -729,7 +812,7 @@ export function CityDiscoveryMap({
         `${point.label} ${point.description} ${point.categoryLabel} ${point.meta}${locationHaystack}`.toLowerCase();
       return haystack.includes(q);
     });
-  }, [categoryFilter, normalized, query, typeFilter]);
+  }, [normalized, query, selectedCategoryKeys, typeFilter]);
 
   const inViewFiltered = useMemo(() => {
     if (!viewportBounds) {
@@ -774,7 +857,7 @@ export function CityDiscoveryMap({
   }, [filtered, locale]);
 
   const hasActiveFilters = Boolean(
-    query || categoryFilter !== "all" || typeFilter !== "all",
+    query || selectedCategoryKeys.length > 0 || typeFilter !== "all",
   );
   const activePointId = selectedId ?? hoveredId;
   const onLeaveHoveredPoint = useCallback((id: string) => {
@@ -866,7 +949,8 @@ export function CityDiscoveryMap({
 
   function resetFilters() {
     setQuery("");
-    setCategoryFilter("all");
+    setSelectedCategoryKeys([]);
+    setCategoryMenuOpen(false);
     setTypeFilter("all");
     setHoveredId(null);
     setSelectedId(null);
@@ -930,18 +1014,60 @@ export function CityDiscoveryMap({
             />
           </div>
 
-          <select
-            value={categoryFilter}
-            onChange={(event) => setCategoryFilter(event.target.value)}
-            className="h-11 min-w-[10rem] flex-1 basis-[min(100%,12rem)] rounded-2xl border border-border bg-white px-4 text-sm text-foreground shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            aria-label={allCategoriesLabel}
-          >
-            {categories.map((category) => (
-              <option key={category.key} value={category.key}>
-                {category.label}
-              </option>
-            ))}
-          </select>
+          {categoryOptions.length > 0 ? (
+            <div
+              ref={categoryDropdownRef}
+              className="relative min-w-[10rem] flex-1 basis-[min(100%,14rem)]"
+            >
+              <button
+                type="button"
+                id="discovery-category-dropdown-trigger"
+                aria-expanded={categoryMenuOpen}
+                aria-haspopup="listbox"
+                aria-label={categoriesFilterLabel}
+                onClick={() => setCategoryMenuOpen((open) => !open)}
+                className="flex h-11 w-full items-center justify-between gap-2 rounded-2xl border border-border bg-white px-4 text-left text-sm text-foreground shadow-sm outline-none transition hover:bg-white/95 focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <span className="min-w-0 truncate">{categoryTriggerLabel}</span>
+                <ChevronDown
+                  className={cn(
+                    "h-4 w-4 shrink-0 text-muted-foreground transition-transform",
+                    categoryMenuOpen && "rotate-180",
+                  )}
+                  aria-hidden
+                />
+              </button>
+              {categoryMenuOpen ? (
+                <div
+                  className="absolute left-0 right-0 z-50 mt-1 max-h-64 overflow-y-auto rounded-2xl border border-border bg-white p-3 shadow-lg"
+                  role="listbox"
+                  aria-labelledby="discovery-category-dropdown-trigger"
+                  aria-multiselectable="true"
+                >
+                  <p className="mb-2 text-xs text-muted-foreground">{categoriesFilterHint}</p>
+                  <div className="flex flex-col gap-1">
+                    {categoryOptions.map((category) => {
+                      const checked = selectedCategoryKeys.includes(category.key);
+                      return (
+                        <label
+                          key={category.key}
+                          className="flex cursor-pointer items-center gap-2 rounded-xl px-2 py-2 text-sm text-foreground hover:bg-muted/60 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={() => toggleCategoryKey(category.key)}
+                            className="h-4 w-4 shrink-0 rounded border-border text-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                          />
+                          <span>{category.label}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          ) : null}
 
           <Button
             type="button"
@@ -1021,7 +1147,9 @@ export function CityDiscoveryMap({
             userLocation={userLocation}
             emptyLabel={empty}
             noResultsLabel={noResults}
-            filtered={Boolean(query || categoryFilter !== "all" || typeFilter !== "all")}
+            filtered={Boolean(
+              query || selectedCategoryKeys.length > 0 || typeFilter !== "all",
+            )}
             legendPlaces={legendPlaces}
             legendEvents={legendEvents}
             resultsSummaryUnitLabel={resultsSummaryUnitLabel}

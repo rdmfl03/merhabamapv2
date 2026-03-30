@@ -9,17 +9,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "@/i18n/navigation";
 import { getLocalizedCityDisplayName } from "@/lib/cities/city-display-name";
+import {
+  isListingAllCities,
+  isListingCitySelected,
+  isSpecificListingCity,
+  LISTING_ALL_CITIES_SLUG,
+} from "@/lib/listing-city-filter";
 import { buildPlacesListingMetadata } from "@/lib/metadata/places";
 import {
   buildPlacesNavPath,
   buildPlacesPath,
-  computeCategoryAdjustedScore,
-  computePlaceScore,
-  computeRatingConfidence,
-  getCategoryKey,
-  getPlaceDisplayRatingSummary,
-  getPlaceScoreRatingCount,
-  getTopPlaces,
   getLocalizedPlaceCategoryLabel,
   getLocalizedText,
 } from "@/lib/places";
@@ -37,74 +36,7 @@ type PlacesPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-type PlacePageItem = ListedPlace;
-type PlacePageTrendingItem = PlacePageItem & {
-  createdAt?: Date | null;
-};
-
 export const dynamic = "force-dynamic";
-
-function getTopPlacesByCategoryLocal(
-  places: readonly PlacePageItem[],
-  category: string,
-  limit = 5,
-) {
-  return [...places]
-    .filter((place) => getCategoryKey(place) === category)
-    .filter((place) => {
-      const summary = getPlaceDisplayRatingSummary(place);
-      if (!summary || summary.count < 5) {
-        return false;
-      }
-
-      return computeRatingConfidence(place).level !== "low";
-    })
-    .sort(
-      (left, right) =>
-        computeCategoryAdjustedScore(right) - computeCategoryAdjustedScore(left),
-    )
-    .slice(0, limit);
-}
-
-function getTrendingPlacesLocal(
-  places: readonly PlacePageTrendingItem[],
-  options?: { limit?: number; maxAgeDays?: number; minRatingCount?: number; now?: Date },
-) {
-  const limit = options?.limit ?? 5;
-  const maxAgeDays = options?.maxAgeDays ?? 90;
-  const minRatingCount = options?.minRatingCount ?? 3;
-  const now = options?.now ?? new Date();
-
-  return [...places]
-    .filter((place) => {
-      if (!(place.createdAt instanceof Date) || Number.isNaN(place.createdAt.getTime())) {
-        return false;
-      }
-
-      const ageDays = (now.getTime() - place.createdAt.getTime()) / (1000 * 60 * 60 * 24);
-      if (ageDays < 0 || ageDays > maxAgeDays) {
-        return false;
-      }
-
-      return getPlaceScoreRatingCount(place) >= minRatingCount;
-    })
-    .sort((left, right) => {
-      const leftAgeDays = (now.getTime() - left.createdAt!.getTime()) / (1000 * 60 * 60 * 24);
-      const rightAgeDays = (now.getTime() - right.createdAt!.getTime()) / (1000 * 60 * 60 * 24);
-      const leftFreshnessBoost = Math.max(0, 1 - leftAgeDays / maxAgeDays);
-      const rightFreshnessBoost = Math.max(0, 1 - rightAgeDays / maxAgeDays);
-      const leftTrendingScore = computePlaceScore(left) * 0.7 + leftFreshnessBoost * 0.3;
-      const rightTrendingScore =
-        computePlaceScore(right) * 0.7 + rightFreshnessBoost * 0.3;
-
-      if (rightTrendingScore !== leftTrendingScore) {
-        return rightTrendingScore - leftTrendingScore;
-      }
-
-      return leftAgeDays - rightAgeDays;
-    })
-    .slice(0, limit);
-}
 
 export async function generateMetadata({
   params,
@@ -119,12 +51,14 @@ export async function generateMetadata({
 
   try {
     const filterData = await getPlaceFilters({
-      categoryCitySlug: filters.city,
+      categoryCitySlug: isSpecificListingCity(filters.city) ? filters.city : undefined,
     });
     const city = filterData.cities.find((entry) => entry.slug === filters.city);
-    const category = filterData.categories.find(
-      (entry) => entry.slug === filters.category,
-    );
+    const catSlugs = filters.categories ?? [];
+    const category =
+      catSlugs.length === 1
+        ? filterData.categories.find((entry) => entry.slug === catSlugs[0])
+        : undefined;
 
     cityLabel = city ? (getLocalizedCityDisplayName(locale, city)) : null;
     categoryLabel = category
@@ -136,12 +70,16 @@ export async function generateMetadata({
   }
   const title = cityLabel
     ? t("metaTitleCity", { city: cityLabel })
-    : categoryLabel
-      ? t("metaTitleCategory", { category: categoryLabel })
-      : t("metaTitle");
+    : isListingAllCities(filters.city)
+      ? t("metaTitleAllCities")
+      : categoryLabel
+        ? t("metaTitleCategory", { category: categoryLabel })
+        : t("metaTitle");
   const description = cityLabel
     ? t("metaDescriptionCity", { city: cityLabel })
-    : t("metaDescription");
+    : isListingAllCities(filters.city)
+      ? t("metaDescriptionAllCities")
+      : t("metaDescription");
 
   return buildPlacesListingMetadata({
     locale,
@@ -185,7 +123,7 @@ export default async function PlacesPage({
 
   try {
     filterData = await getPlaceFilters({
-      categoryCitySlug: filters.city,
+      categoryCitySlug: isSpecificListingCity(filters.city) ? filters.city : undefined,
     });
   } catch {
     filterData = {
@@ -195,17 +133,17 @@ export default async function PlacesPage({
   }
 
   try {
-    listResult = await listPlaces({
-      filters,
-      userId: session?.user?.id,
-    });
+    if (isListingCitySelected(filters.city)) {
+      listResult = await listPlaces({
+        filters,
+        userId: session?.user?.id,
+      });
+    }
   } catch {
     listResult = emptyListResult;
   }
 
   const places = listResult.items;
-  const showCategoryDiscovery = Boolean(filters.category);
-  const discoveryPool = showCategoryDiscovery ? (listResult.discoveryPlaces ?? places) : [];
 
   const imageAttributionLabels = {
     license: t("imageAttribution.license"),
@@ -217,15 +155,24 @@ export default async function PlacesPage({
 
   const currentPath = buildPlacesPath(locale, filters);
   const city = filterData.cities.find((entry) => entry.slug === filters.city);
-  const category = filterData.categories.find(
-    (entry) => entry.slug === filters.category,
-  );
+  const listingCityReady = isListingCitySelected(filters.city);
+  const scopeAllCities = isListingAllCities(filters.city);
+  type PlaceFilterCategory = (typeof filterData.categories)[number];
+  const selectedCategories = (filters.categories ?? [])
+    .map((slug) => filterData.categories.find((entry) => entry.slug === slug))
+    .filter((entry): entry is PlaceFilterCategory => entry != null);
   const activeFilterItems = [
-    city ? { key: "city", label: `${t("filters.city")}: ${getLocalizedCityDisplayName(locale, city)}` } : null,
-    category
+    scopeAllCities
+      ? { key: "city", label: `${t("filters.city")}: ${t("filters.allCities")}` }
+      : city
+        ? { key: "city", label: `${t("filters.city")}: ${getLocalizedCityDisplayName(locale, city)}` }
+        : null,
+    selectedCategories.length > 0
       ? {
           key: "category",
-          label: `${t("filters.category")}: ${getLocalizedPlaceCategoryLabel(category, locale)}`,
+          label: `${t("filters.category")}: ${selectedCategories
+            .map((c) => getLocalizedPlaceCategoryLabel(c, locale))
+            .join(", ")}`,
         }
       : null,
     filters.sort && filters.sort !== "recommended"
@@ -254,7 +201,7 @@ export default async function PlacesPage({
         }),
       }
     : {
-        href: "/places",
+        href: `/places?city=${LISTING_ALL_CITIES_SLUG}`,
         label: t("empty.browseAll"),
       };
   const nearEmptyShortcut = city
@@ -265,52 +212,6 @@ export default async function PlacesPage({
         }),
       }
     : null;
-  const topPlaces = showCategoryDiscovery ? getTopPlaces(discoveryPool) : [];
-  const usedPlaceIds = new Set(topPlaces.map((place) => place.id));
-  const trendingPlaces = showCategoryDiscovery
-    ? getTrendingPlacesLocal(discoveryPool as PlacePageTrendingItem[], {
-        limit: 3,
-      }).filter((place) => {
-        if (usedPlaceIds.has(place.id)) {
-          return false;
-        }
-
-        usedPlaceIds.add(place.id);
-        return true;
-      })
-    : [];
-  const categorySections = showCategoryDiscovery
-    ? [
-        {
-          key: "restaurants",
-          title: "Top Restaurants",
-          places: getTopPlacesByCategoryLocal(discoveryPool, "restaurant", 3),
-        },
-        {
-          key: "mosques",
-          title: "Top Moscheen",
-          places: getTopPlacesByCategoryLocal(discoveryPool, "mosque", 3),
-        },
-        {
-          key: "cafes",
-          title: "Top Cafés",
-          places: getTopPlacesByCategoryLocal(discoveryPool, "cafe", 3),
-        },
-      ]
-        .map((section) => ({
-          ...section,
-          places: section.places.filter((place) => {
-            if (usedPlaceIds.has(place.id)) {
-              return false;
-            }
-
-            usedPlaceIds.add(place.id);
-            return true;
-          }),
-        }))
-        .filter((section) => section.places.length > 0)
-    : [];
-
   const rangeFrom =
     listResult.totalCount === 0 ? 0 : (listResult.page - 1) * listResult.pageSize + 1;
   const rangeTo = Math.min(
@@ -337,14 +238,18 @@ export default async function PlacesPage({
               ? t("titleCity", {
                   city: getLocalizedCityDisplayName(locale, city),
                 })
-              : t("title")}
+              : scopeAllCities
+                ? t("titleAllCities")
+                : t("title")}
           </h1>
           <p className="max-w-3xl text-base leading-6 text-muted-foreground">
             {city
               ? t("descriptionCity", {
                   city: getLocalizedCityDisplayName(locale, city),
                 })
-              : t("description")}
+              : scopeAllCities
+                ? t("descriptionAllCities")
+                : t("description")}
           </p>
           <div className="pt-2">
             <Button asChild variant="outline">
@@ -370,8 +275,13 @@ export default async function PlacesPage({
           city: t("filters.city"),
           category: t("filters.category"),
           sort: t("filters.sort"),
+          pickCityFirst: t("filters.pickCityFirst"),
           allCities: t("filters.allCities"),
           allCategories: t("filters.allCategories"),
+          categoriesFilterLabel: t("filters.categoriesFilterLabel"),
+          categoriesFilterHint: t("filters.categoriesFilterHint"),
+          categoriesDropdownAll: t("filters.categoriesDropdownAll"),
+          categoriesDropdownMultiple: t("filters.categoriesDropdownMultiple"),
           recommended: t("filters.recommended"),
           newest: t("filters.newest"),
           apply: t("filters.apply"),
@@ -435,120 +345,21 @@ export default async function PlacesPage({
             </section>
           ) : null}
 
-          {showCategoryDiscovery && topPlaces.length > 0 ? (
-            <section className="space-y-4 py-1">
-              <div className="space-y-1">
-                <h2 className="font-display text-3xl text-foreground">Top Orte</h2>
-                <p className="text-sm text-muted-foreground">
-                  Die besten Orte auf einen Blick
-                </p>
-              </div>
-              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                {topPlaces.map((place) => (
-                  <PlaceCard
-                    key={`top-${place.id}`}
-                    place={place}
-                    locale={locale}
-                    description={getLocalizedText(
-                      { de: place.descriptionDe, tr: place.descriptionTr },
-                      locale,
-                      t("card.fallbackDescription"),
-                    )}
-                    categoryLabel={getLocalizedPlaceCategoryLabel(place.category, locale)}
-                    cityLabel={getLocalizedCityDisplayName(locale, place.city)}
-                    returnPath={currentPath}
-                    isAuthenticated={Boolean(session?.user?.id)}
-                    labels={{
-                      details: t("card.details"),
-                      save: t("card.save"),
-                      saved: t("card.saved"),
-                      saving: t("card.saving"),
-                      signIn: t("card.signIn"),
-                      verified: t("badges.verified"),
-                    }}
-                    imageAttributionLabels={imageAttributionLabels}
-                  />
-                ))}
-              </div>
-            </section>
-          ) : null}
-
-          {showCategoryDiscovery && trendingPlaces.length > 0 ? (
-            <section className="space-y-3 pt-1">
-              <div className="space-y-1">
-                <h2 className="font-display text-2xl text-foreground">Neu & im Kommen</h2>
-                <p className="text-sm text-muted-foreground">
-                  Neue Orte mit viel Potenzial
-                </p>
-              </div>
-              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                {trendingPlaces.map((place) => (
-                  <PlaceCard
-                    key={`trending-${place.id}`}
-                    place={place}
-                    locale={locale}
-                    description={getLocalizedText(
-                      { de: place.descriptionDe, tr: place.descriptionTr },
-                      locale,
-                      t("card.fallbackDescription"),
-                    )}
-                    categoryLabel={getLocalizedPlaceCategoryLabel(place.category, locale)}
-                    cityLabel={getLocalizedCityDisplayName(locale, place.city)}
-                    returnPath={currentPath}
-                    isAuthenticated={Boolean(session?.user?.id)}
-                    labels={{
-                      details: t("card.details"),
-                      save: t("card.save"),
-                      saved: t("card.saved"),
-                      saving: t("card.saving"),
-                      signIn: t("card.signIn"),
-                      verified: t("badges.verified"),
-                    }}
-                    imageAttributionLabels={imageAttributionLabels}
-                  />
-                ))}
-              </div>
-            </section>
-          ) : null}
-
-          {showCategoryDiscovery
-            ? categorySections.map((section) => (
-                <section key={section.key} className="space-y-2 pt-1">
-                  <div className="flex items-center justify-between">
-                    <h2 className="font-display text-xl text-foreground/90">{section.title}</h2>
-                  </div>
-                  <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                    {section.places.map((place) => (
-                      <PlaceCard
-                        key={`${section.key}-${place.id}`}
-                        place={place}
-                        locale={locale}
-                        description={getLocalizedText(
-                          { de: place.descriptionDe, tr: place.descriptionTr },
-                          locale,
-                          t("card.fallbackDescription"),
-                        )}
-                        categoryLabel={getLocalizedPlaceCategoryLabel(place.category, locale)}
-                        cityLabel={getLocalizedCityDisplayName(locale, place.city)}
-                        returnPath={currentPath}
-                        isAuthenticated={Boolean(session?.user?.id)}
-                        labels={{
-                          details: t("card.details"),
-                          save: t("card.save"),
-                          saved: t("card.saved"),
-                          saving: t("card.saving"),
-                          signIn: t("card.signIn"),
-                          verified: t("badges.verified"),
-                        }}
-                        imageAttributionLabels={imageAttributionLabels}
-                      />
-                    ))}
-                  </div>
-                </section>
-              ))
-            : null}
-
-          {listResult.totalCount === 0 ? (
+          {!listingCityReady ? (
+            <Card className="bg-white/90">
+              <CardContent className="space-y-4 p-8 text-center">
+                <div className="space-y-2">
+                  <h2 className="font-display text-2xl text-foreground">{t("pickCity.title")}</h2>
+                  <p className="mx-auto max-w-2xl text-sm leading-6 text-muted-foreground">
+                    {t("pickCity.description")}
+                  </p>
+                </div>
+                <Button asChild>
+                  <Link href={`/places?city=${LISTING_ALL_CITIES_SLUG}`}>{t("pickCity.showAllCities")}</Link>
+                </Button>
+              </CardContent>
+            </Card>
+          ) : listResult.totalCount === 0 ? (
             <Card className="bg-white/90">
               <CardContent className="space-y-4 p-8 text-center">
                 <div className="space-y-2">

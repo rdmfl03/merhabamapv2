@@ -13,6 +13,11 @@ import {
   getLocalizedEventText,
 } from "@/lib/events";
 import { getLocalizedCityDisplayName } from "@/lib/cities/city-display-name";
+import {
+  isListingAllCities,
+  isListingCitySelected,
+  LISTING_ALL_CITIES_SLUG,
+} from "@/lib/listing-city-filter";
 import { buildEventsListingMetadata } from "@/lib/metadata/events";
 import { parseEventsFiltersFromSearchParams } from "@/lib/validators/events";
 import { getEventFilters } from "@/server/queries/events/get-event-filters";
@@ -42,17 +47,21 @@ export async function generateMetadata({
   } catch {
     cityLabel = null;
   }
-  const categoryLabel = filters.category
-    ? t(`categories.${getEventCategoryLabelKey(filters.category)}`)
-    : null;
+  const catKeys = filters.categories ?? [];
+  const categoryLabel =
+    catKeys.length === 1 ? t(`categories.${getEventCategoryLabelKey(catKeys[0])}`) : null;
   const title = cityLabel
     ? t("metaTitleCity", { city: cityLabel })
-    : categoryLabel
-      ? t("metaTitleCategory", { category: categoryLabel })
-      : t("metaTitle");
+    : isListingAllCities(filters.city)
+      ? t("metaTitleAllCities")
+      : categoryLabel
+        ? t("metaTitleCategory", { category: categoryLabel })
+        : t("metaTitle");
   const description = cityLabel
     ? t("metaDescriptionCity", { city: cityLabel })
-    : t("metaDescription");
+    : isListingAllCities(filters.city)
+      ? t("metaDescriptionAllCities")
+      : t("metaDescription");
 
   return buildEventsListingMetadata({
     locale,
@@ -97,16 +106,20 @@ export default async function EventsPage({
   }
 
   try {
-    events = await listEvents({
-      filters,
-      userId: session?.user?.id,
-    });
+    if (isListingCitySelected(filters.city)) {
+      events = await listEvents({
+        filters,
+        userId: session?.user?.id,
+      });
+    }
   } catch {
     events = [];
   }
 
   const currentPath = buildEventsPath(locale, filters);
   const city = filterData.cities.find((entry) => entry.slug === filters.city);
+  const listingCityReady = isListingCitySelected(filters.city);
+  const scopeAllCities = isListingAllCities(filters.city);
   const dateLabel =
     filters.date === "today"
       ? t("dateFilters.today")
@@ -118,11 +131,17 @@ export default async function EventsPage({
             ? t("dateFilters.upcoming")
             : null;
   const activeFilterItems = [
-    city ? { key: "city", label: `${t("filters.city")}: ${getLocalizedCityDisplayName(locale, city)}` } : null,
-    filters.category
+    scopeAllCities
+      ? { key: "city", label: `${t("filters.city")}: ${t("filters.allCities")}` }
+      : city
+        ? { key: "city", label: `${t("filters.city")}: ${getLocalizedCityDisplayName(locale, city)}` }
+        : null,
+    (filters.categories?.length ?? 0) > 0
       ? {
           key: "category",
-          label: `${t("filters.category")}: ${t(`categories.${getEventCategoryLabelKey(filters.category)}`)}`,
+          label: `${t("filters.category")}: ${(filters.categories ?? [])
+            .map((c) => t(`categories.${getEventCategoryLabelKey(c)}`))
+            .join(", ")}`,
         }
       : null,
     filters.sort && filters.sort !== "soonest"
@@ -156,7 +175,7 @@ export default async function EventsPage({
         }),
       }
     : {
-        href: "/events",
+        href: `/events?city=${LISTING_ALL_CITIES_SLUG}`,
         label: t("empty.browseAll"),
       };
   const nearEmptyShortcut = city
@@ -187,14 +206,18 @@ export default async function EventsPage({
               ? t("titleCity", {
                   city: getLocalizedCityDisplayName(locale, city),
                 })
-              : t("title")}
+              : scopeAllCities
+                ? t("titleAllCities")
+                : t("title")}
           </h1>
           <p className="max-w-3xl text-base leading-6 text-muted-foreground">
             {city
               ? t("descriptionCity", {
                   city: getLocalizedCityDisplayName(locale, city),
                 })
-              : t("description")}
+              : scopeAllCities
+                ? t("descriptionAllCities")
+                : t("description")}
           </p>
           <div className="pt-2">
             <Button asChild variant="outline">
@@ -223,8 +246,14 @@ export default async function EventsPage({
         ]}
         labels={{
           searchPlaceholder: t("filters.searchPlaceholder"),
+          city: t("filters.city"),
+          pickCityFirst: t("filters.pickCityFirst"),
           allCities: t("filters.allCities"),
           allCategories: t("filters.allCategories"),
+          categoriesFilterLabel: t("filters.categoriesFilterLabel"),
+          categoriesFilterHint: t("filters.categoriesFilterHint"),
+          categoriesDropdownAll: t("filters.categoriesDropdownAll"),
+          categoriesDropdownMultiple: t("filters.categoriesDropdownMultiple"),
           allDates: t("filters.allDates"),
           sort: t("filters.sort"),
           soonest: t("filters.soonest"),
@@ -254,7 +283,21 @@ export default async function EventsPage({
         </section>
       ) : null}
 
-      {events.length === 0 ? (
+      {!listingCityReady ? (
+        <Card className="bg-white/90">
+          <CardContent className="space-y-4 p-8 text-center">
+            <div className="space-y-2">
+              <h2 className="font-display text-2xl text-foreground">{t("pickCity.title")}</h2>
+              <p className="mx-auto max-w-2xl text-sm leading-6 text-muted-foreground">
+                {t("pickCity.description")}
+              </p>
+            </div>
+            <Button asChild>
+              <Link href={`/events?city=${LISTING_ALL_CITIES_SLUG}`}>{t("pickCity.showAllCities")}</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      ) : events.length === 0 ? (
         <Card className="bg-white/90">
           <CardContent className="space-y-4 p-8 text-center">
             <div className="space-y-2">

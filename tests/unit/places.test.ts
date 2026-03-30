@@ -38,6 +38,9 @@ describe("places helpers", () => {
 
   it("builds filtered places paths", () => {
     expect(buildPlacesPath("de")).toBe("/de/places");
+    expect(
+      buildPlacesPath("tr", { city: "berlin", categories: ["cafes", "restaurants"], q: "cafe" }),
+    ).toBe("/tr/places?city=berlin&category=cafes&category=restaurants&q=cafe");
     expect(buildPlacesPath("tr", { city: "berlin", q: "cafe" })).toBe(
       "/tr/places?city=berlin&q=cafe",
     );

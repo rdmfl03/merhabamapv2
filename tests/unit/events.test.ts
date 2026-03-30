@@ -9,7 +9,11 @@ describe("event helpers", () => {
   it("builds filtered event paths", () => {
     expect(buildEventsPath("de")).toBe("/de/events");
     expect(
-      buildEventsPath("tr", { city: "koeln", category: "BUSINESS", date: "this-week" }),
+      buildEventsPath("tr", {
+        city: "koeln",
+        categories: ["BUSINESS"],
+        date: "this-week",
+      }),
     ).toBe("/tr/events?city=koeln&category=BUSINESS&date=this-week");
   });
 

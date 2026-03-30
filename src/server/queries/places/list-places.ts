@@ -1,6 +1,7 @@
 import type { Prisma } from "@prisma/client";
 
 import { computeCategoryAdjustedScore, getPlaceScoreRatingCount } from "@/lib/places";
+import { isSpecificListingCity } from "@/lib/listing-city-filter";
 import type { PlacesFilterInput } from "@/lib/validators/places";
 import { prisma } from "@/lib/prisma";
 import { compareByAiRanking } from "@/server/queries/ai-shared";
@@ -53,8 +54,6 @@ export type ListPlacesResult = {
   page: number;
   pageSize: number;
   pageCount: number;
-  /** Full filtered list for Top-* strips when a category filter is active */
-  discoveryPlaces?: ListedPlace[];
 };
 
 async function mapPlacesWithSaved(
@@ -88,15 +87,15 @@ export async function listPlaces(args: {
 }): Promise<ListPlacesResult> {
   const where: Prisma.PlaceWhereInput = {};
 
-  if (args.filters.city) {
+  if (isSpecificListingCity(args.filters.city)) {
     where.city = {
       slug: args.filters.city,
     };
   }
 
-  if (args.filters.category) {
+  if (args.filters.categories?.length) {
     where.category = {
-      slug: args.filters.category,
+      slug: { in: args.filters.categories },
     };
   }
 
@@ -134,12 +133,7 @@ export async function listPlaces(args: {
   const start = (page - 1) * pageSize;
   const pageSlice = rankedPlaces.slice(start, start + pageSize);
 
-  const needDiscovery = Boolean(args.filters.category);
-  const discoveryRows = needDiscovery ? rankedPlaces : [];
-  const [items, discoveryPlaces] = await Promise.all([
-    mapPlacesWithSaved(pageSlice, args.userId),
-    needDiscovery ? mapPlacesWithSaved(discoveryRows, args.userId) : Promise.resolve(undefined),
-  ]);
+  const items = await mapPlacesWithSaved(pageSlice, args.userId);
 
   return {
     items,
@@ -147,6 +141,5 @@ export async function listPlaces(args: {
     page,
     pageSize,
     pageCount,
-    discoveryPlaces,
   };
 }

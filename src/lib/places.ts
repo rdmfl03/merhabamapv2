@@ -573,15 +573,23 @@ export function computeMapScore(
 
 export function buildPlacesPath(
   locale: "de" | "tr",
-  filters?: { city?: string; category?: string; q?: string; sort?: string; page?: number },
+  filters?: {
+    city?: string;
+    categories?: string[];
+    q?: string;
+    sort?: string;
+    page?: number;
+  },
 ) {
   const search = new URLSearchParams();
 
   if (filters?.city) {
     search.set("city", filters.city);
   }
-  if (filters?.category) {
-    search.set("category", filters.category);
+  if (filters?.categories?.length) {
+    for (const slug of filters.categories) {
+      search.append("category", slug);
+    }
   }
   if (filters?.q) {
     search.set("q", filters.q);
@@ -601,7 +609,13 @@ export function buildPlacesPath(
 /** Path for `Link` from `@/i18n/navigation` (locale prefix is added by next-intl). */
 export function buildPlacesNavPath(
   locale: "de" | "tr",
-  filters?: { city?: string; category?: string; q?: string; sort?: string; page?: number },
+  filters?: {
+    city?: string;
+    categories?: string[];
+    q?: string;
+    sort?: string;
+    page?: number;
+  },
 ) {
   return buildPlacesPath(locale, filters).replace(new RegExp(`^/${locale}`), "");
 }

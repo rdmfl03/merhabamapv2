@@ -1,7 +1,9 @@
 import { Search } from "lucide-react";
 
+import { ListingCategoryMultiSelect } from "@/components/filters/listing-category-multi-select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { LISTING_ALL_CITIES_SLUG } from "@/lib/listing-city-filter";
 
 type FilterOption = {
   value: string;
@@ -12,7 +14,7 @@ type EventsFiltersProps = {
   locale: "de" | "tr";
   values: {
     city?: string;
-    category?: string;
+    categories?: string[];
     date?: string;
     q?: string;
     sort?: string;
@@ -22,8 +24,14 @@ type EventsFiltersProps = {
   dateOptions: FilterOption[];
   labels: {
     searchPlaceholder: string;
+    city: string;
+    pickCityFirst: string;
     allCities: string;
     allCategories: string;
+    categoriesFilterLabel: string;
+    categoriesFilterHint: string;
+    categoriesDropdownAll: string;
+    categoriesDropdownMultiple: string;
     allDates: string;
     sort: string;
     soonest: string;
@@ -57,31 +65,39 @@ export function EventsFilters({
         />
       </label>
 
-      <select
-        name="city"
-        defaultValue={values.city ?? ""}
-        className="flex h-11 w-full rounded-2xl border border-border bg-white px-4 py-2 text-sm text-foreground shadow-sm outline-none transition focus-visible:ring-2 focus-visible:ring-ring"
-      >
-        <option value="">{labels.allCities}</option>
-        {cities.map((city) => (
-          <option key={city.value} value={city.value}>
-            {city.label}
-          </option>
-        ))}
-      </select>
+      <label className="block min-w-0">
+        <span className="sr-only">{labels.city}</span>
+        <select
+          name="city"
+          defaultValue={values.city ?? ""}
+          className="flex h-11 w-full rounded-2xl border border-border bg-white px-4 py-2 text-sm text-foreground shadow-sm outline-none transition focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <option value="">{labels.pickCityFirst}</option>
+          <option value={LISTING_ALL_CITIES_SLUG}>{labels.allCities}</option>
+          {cities.map((city) => (
+            <option key={city.value} value={city.value}>
+              {city.label}
+            </option>
+          ))}
+        </select>
+      </label>
 
-      <select
-        name="category"
-        defaultValue={values.category ?? ""}
-        className="flex h-11 w-full rounded-2xl border border-border bg-white px-4 py-2 text-sm text-foreground shadow-sm outline-none transition focus-visible:ring-2 focus-visible:ring-ring"
-      >
-        <option value="">{labels.allCategories}</option>
-        {categories.map((category) => (
-          <option key={category.value} value={category.value}>
-            {category.label}
-          </option>
-        ))}
-      </select>
+      <div className="min-w-0">
+        <ListingCategoryMultiSelect
+          key={[...(values.categories ?? [])].sort().join("\0")}
+          options={categories.map((category) => ({
+            value: category.value,
+            label: category.label,
+          }))}
+          defaultSelected={values.categories ?? []}
+          labels={{
+            filterLabel: labels.categoriesFilterLabel,
+            hint: labels.categoriesFilterHint,
+            dropdownAll: labels.categoriesDropdownAll,
+            dropdownMultiple: labels.categoriesDropdownMultiple,
+          }}
+        />
+      </div>
 
       <select
         name="date"
