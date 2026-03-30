@@ -52,6 +52,7 @@ export default async function AdminReportDetailPage({
         ingest: t("nav.ingest"),
         places: t("nav.places"),
         logs: t("nav.logs"),
+        productInsights: t("nav.productInsights"),
       }}
     >
       <div className="grid gap-6 lg:grid-cols-[1fr_0.9fr]">

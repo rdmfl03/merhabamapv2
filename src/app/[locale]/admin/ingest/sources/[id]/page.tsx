@@ -114,6 +114,7 @@ export default async function AdminSourceDetailPage({
         ingest: t("nav.ingest"),
         places: t("nav.places"),
         logs: t("nav.logs"),
+        productInsights: t("nav.productInsights"),
       }}
     >
       <div className="space-y-6">

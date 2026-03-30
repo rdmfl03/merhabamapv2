@@ -10,9 +10,10 @@ import { notFound } from "next/navigation";
 
 type SignUpPageProps = {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-export default async function SignUpPage({ params }: SignUpPageProps) {
+export default async function SignUpPage({ params, searchParams }: SignUpPageProps) {
   const { locale } = await params;
 
   if (!isAppLocale(locale)) {
@@ -20,6 +21,16 @@ export default async function SignUpPage({ params }: SignUpPageProps) {
   }
 
   setRequestLocale(locale);
+
+  const rawSearchParams = await searchParams;
+  const nextParam =
+    typeof rawSearchParams.next === "string" ? rawSearchParams.next : undefined;
+  const safeNext =
+    nextParam && nextParam.startsWith(`/${locale}/`) ? nextParam : undefined;
+  const signInHref =
+    safeNext != null
+      ? `/auth/signin?next=${encodeURIComponent(safeNext)}`
+      : "/auth/signin";
 
   const [t, legal] = await Promise.all([
     getTranslations({ locale, namespace: "auth" }),
@@ -79,7 +90,7 @@ export default async function SignUpPage({ params }: SignUpPageProps) {
             />
 
             <div className="flex justify-start">
-              <Link href="/auth/signin" className="text-sm text-brand">
+              <Link href={signInHref} className="text-sm text-brand">
                 {t("goToSignin")}
               </Link>
             </div>

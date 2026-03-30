@@ -10,8 +10,6 @@ import { TrustSection } from "@/components/marketing/trust-section";
 import { JsonLd } from "@/components/seo/json-ld";
 import { buildLandingMetadata } from "@/lib/metadata/public";
 import { buildOrganizationSchema } from "@/lib/seo/structured-data";
-import { getCurrentUserProfile } from "@/server/queries/user/get-current-user-profile";
-
 type LandingPageProps = {
   params: Promise<{ locale: "de" | "tr" }>;
 };
@@ -42,15 +40,7 @@ export default async function LandingPage({ params }: LandingPageProps) {
   }
 
   if (session?.user?.id && session.user.onboardingCompletedAt) {
-    try {
-      const profile = await getCurrentUserProfile(session.user.id);
-
-      if (profile?.onboardingCity?.slug) {
-        redirect(`/${locale}/map?city=${profile.onboardingCity.slug}`);
-      }
-    } catch {
-      // Fall back to the public landing experience if auth-linked DB reads fail.
-    }
+    redirect(`/${locale}/home`);
   }
 
   const t = await getTranslations("landing");

@@ -115,7 +115,19 @@ if (!command) {
   process.exit(1);
 }
 
-const child = spawn(command, args, {
+/** Prefer `npx` so `prisma` / `tsx` resolve from `node_modules` when `.bin` is not on PATH. */
+let spawnCommand = command;
+let spawnArgs = args;
+
+if (command === "prisma") {
+  spawnCommand = "npx";
+  spawnArgs = ["prisma", ...args];
+} else if (command === "tsx") {
+  spawnCommand = "npx";
+  spawnArgs = ["tsx", ...args];
+}
+
+const child = spawn(spawnCommand, spawnArgs, {
   cwd,
   env: process.env,
   stdio: "inherit",

@@ -6,9 +6,16 @@ import { auth } from "@/auth";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { getFollowedCityIdsForUser } from "@/server/queries/cities/list-followed-cities-for-user";
+import { FeedDiscoveryBlocks } from "@/components/feed/feed-discovery-blocks";
+import { FeedReturnHints } from "@/components/feed/feed-return-hints";
+import { getFeedDiscoveryBundle } from "@/server/queries/discovery/get-feed-discovery";
 import { getFeedActivities, type FeedMode } from "@/server/queries/social/get-feed-activities";
+import { getUnreadNotificationCount } from "@/server/queries/notifications/get-unread-notification-count";
 
 import type { Metadata } from "next";
+
+import { robotsNoIndex } from "@/lib/seo/robots-meta";
+import { trackProductInsight } from "@/server/product-insights/track-product-insight";
 
 export const dynamic = "force-dynamic";
 
@@ -28,6 +35,7 @@ export async function generateMetadata({ params }: FeedPageProps): Promise<Metad
   return {
     title: t("metaTitle"),
     description: t("metaDescription"),
+    robots: robotsNoIndex,
   };
 }
 
@@ -40,13 +48,24 @@ export default async function FeedPage({ params, searchParams }: FeedPageProps) 
   const session = await auth();
   const viewerId = session?.user?.id ?? null;
 
-  const [t, followedCityIds, items] = await Promise.all([
+  const [t, followedCityIds, items, discovery, unreadNotifications] = await Promise.all([
     getTranslations("feed"),
-    viewerId && mode === "local" ? getFollowedCityIdsForUser(viewerId) : Promise.resolve([]),
+    viewerId ? getFollowedCityIdsForUser(viewerId) : Promise.resolve([]),
     getFeedActivities(viewerId, { locale, mode }),
+    getFeedDiscoveryBundle({ locale, mode, viewerUserId: viewerId }),
+    viewerId ? getUnreadNotificationCount(viewerId) : Promise.resolve(0),
   ]);
 
   const hasFollowedCitiesForLocal = followedCityIds.length > 0;
+
+  await trackProductInsight({
+    name: "feed_view",
+    payload: {
+      locale,
+      authenticated: Boolean(viewerId),
+      feedMode: mode,
+    },
+  });
 
   const subtitle =
     mode === "local"
@@ -163,6 +182,14 @@ export default async function FeedPage({ params, searchParams }: FeedPageProps) 
             {t("tabMyCities")}
           </Link>
         </div>
+
+        {viewerId ? (
+          <FeedReturnHints
+            mode={mode}
+            hasFollowedCities={followedCityIds.length > 0}
+            unreadNotifications={unreadNotifications}
+          />
+        ) : null}
       </div>
 
       {items.length === 0 ? (
@@ -174,6 +201,8 @@ export default async function FeedPage({ params, searchParams }: FeedPageProps) 
           ))}
         </ul>
       )}
+
+      <FeedDiscoveryBlocks locale={locale} discovery={discovery} />
     </div>
   );
 }

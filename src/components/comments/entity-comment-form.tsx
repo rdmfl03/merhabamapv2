@@ -1,15 +1,18 @@
 "use client";
 
 import { useActionState, useEffect, useRef } from "react";
+import { useTranslations } from "next-intl";
 
 import { createEntityComment } from "@/server/actions/comments/create-entity-comment";
+import { resolveSocialGuardMessage } from "@/lib/social/social-guard-ui";
 import {
   idleEntityCommentActionState,
   type EntityCommentActionState,
 } from "@/server/actions/comments/entity-comment-state";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Link } from "@/i18n/navigation";
+import { GuestCtaInsightLink } from "@/components/product-insights/guest-cta-insight-link";
+import { guestAuthSignUpHrefFromSignIn } from "@/lib/auth/guest-auth-links";
 
 const MAX_LEN = 500;
 
@@ -40,6 +43,8 @@ export function EntityCommentForm({
   signInHref,
   labels,
 }: EntityCommentFormProps) {
+  const tGuard = useTranslations("socialSafety");
+  const tGuest = useTranslations("guestConversion");
   const [state, formAction, pending] = useActionState(
     createEntityComment,
     idleEntityCommentActionState as EntityCommentActionState,
@@ -53,10 +58,20 @@ export function EntityCommentForm({
   }, [state.status]);
 
   if (!isAuthenticated) {
+    const signUpHref = guestAuthSignUpHrefFromSignIn(signInHref);
     return (
-      <Button variant="outline" asChild>
-        <Link href={signInHref}>{labels.signIn}</Link>
-      </Button>
+      <div className="flex flex-wrap items-center gap-2">
+        <Button variant="outline" size="sm" asChild>
+          <GuestCtaInsightLink href={signInHref} locale={locale} surface="comment_form" ctaType="signin">
+            {labels.signIn}
+          </GuestCtaInsightLink>
+        </Button>
+        <Button variant="ghost" size="sm" className="text-xs text-muted-foreground" asChild>
+          <GuestCtaInsightLink href={signUpHref} locale={locale} surface="comment_form" ctaType="signup">
+            {tGuest("signUp")}
+          </GuestCtaInsightLink>
+        </Button>
+      </div>
     );
   }
 
@@ -87,7 +102,9 @@ export function EntityCommentForm({
       ) : null}
       {state.status === "error" ? (
         <p className="text-xs text-destructive" role="alert">
-          {state.message === "validation_error" ? labels.errorValidation : labels.errorGeneric}
+          {state.message === "validation_error"
+            ? labels.errorValidation
+            : resolveSocialGuardMessage(state.message, (k) => tGuard(k)) ?? labels.errorGeneric}
         </p>
       ) : null}
     </form>

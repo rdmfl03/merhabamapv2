@@ -4,9 +4,12 @@ import { redirect } from "next/navigation";
 
 import { NotificationInboxItem } from "@/components/notifications/notification-inbox-item";
 import { Button } from "@/components/ui/button";
+import { Link } from "@/i18n/navigation";
 import { auth } from "@/auth";
+import { robotsNoIndex } from "@/lib/seo/robots-meta";
 import { markAllNotificationsRead } from "@/server/actions/notifications/notification-read-actions";
 import { listNotificationsForUser } from "@/server/queries/notifications/list-notifications-for-user";
+import { trackProductInsight } from "@/server/product-insights/track-product-insight";
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +23,7 @@ export async function generateMetadata({ params }: NotificationsPageProps): Prom
   return {
     title: t("metaTitle"),
     description: t("metaDescription"),
+    robots: robotsNoIndex,
   };
 }
 
@@ -39,6 +43,11 @@ export default async function NotificationsPage({ params }: NotificationsPagePro
     listNotificationsForUser(session.user.id),
   ]);
 
+  await trackProductInsight({
+    name: "notifications_view",
+    payload: { locale, authenticated: true },
+  });
+
   const hasUnread = rows.some((r) => r.readAt === null);
 
   return (
@@ -47,6 +56,11 @@ export default async function NotificationsPage({ params }: NotificationsPagePro
         <div className="space-y-1">
           <h1 className="font-display text-3xl text-foreground md:text-4xl">{t("title")}</h1>
           <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
+          <p className="pt-1 text-xs text-muted-foreground">
+            <Link href="/home" className="text-brand underline-offset-2 hover:underline">
+              {t("backToHome")}
+            </Link>
+          </p>
         </div>
         {hasUnread ? (
           <form action={markAllNotificationsRead}>
@@ -62,6 +76,14 @@ export default async function NotificationsPage({ params }: NotificationsPagePro
         <div className="rounded-2xl border border-dashed border-border/80 bg-muted/30 px-6 py-12 text-center">
           <p className="text-sm text-foreground">{t("empty")}</p>
           <p className="mt-2 text-xs text-muted-foreground">{t("emptyHint")}</p>
+          <p className="mt-4">
+            <Link
+              href="/home"
+              className="text-sm font-medium text-brand underline-offset-2 hover:underline"
+            >
+              {t("backToHome")}
+            </Link>
+          </p>
         </div>
       ) : (
         <ul className="space-y-3">

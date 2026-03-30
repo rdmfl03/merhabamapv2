@@ -28,6 +28,25 @@ export function buildLocalizedUrl(locale: AppLocale, path = "") {
   return `${siteUrl}/${locale}${normalizedPath === "/" ? "" : normalizedPath}`;
 }
 
+/** Ensures Open Graph / Twitter image URLs are absolute when `APP_URL` is set. */
+export function resolveOgImageUrl(image: string | null | undefined): string | undefined {
+  const raw = image?.trim();
+  if (!raw) {
+    return undefined;
+  }
+  if (raw.startsWith("https://") || raw.startsWith("http://")) {
+    return raw;
+  }
+  const siteUrl = getSiteUrl();
+  if (!siteUrl) {
+    return raw;
+  }
+  if (raw.startsWith("/")) {
+    return `${siteUrl}${raw}`;
+  }
+  return `${siteUrl}/${raw}`;
+}
+
 export function buildAlternateLocales(
   locale: AppLocale,
   path = "",
@@ -58,6 +77,7 @@ export function buildOpenGraphMetadata(args: {
   image?: string | null;
 }): Pick<Metadata, "alternates" | "openGraph" | "twitter"> {
   const url = buildLocalizedUrl(args.locale, args.path);
+  const ogImage = resolveOgImageUrl(args.image);
 
   return {
     alternates: buildAlternateLocales(args.locale, args.path),
@@ -68,13 +88,13 @@ export function buildOpenGraphMetadata(args: {
       siteName: appConfig.name,
       locale: args.locale,
       type: args.type ?? "website",
-      images: args.image ? [{ url: args.image }] : undefined,
+      images: ogImage ? [{ url: ogImage }] : undefined,
     },
     twitter: {
-      card: args.image ? "summary_large_image" : "summary",
+      card: ogImage ? "summary_large_image" : "summary",
       title: args.title,
       description: args.description,
-      images: args.image ? [args.image] : undefined,
+      images: ogImage ? [ogImage] : undefined,
     },
   };
 }

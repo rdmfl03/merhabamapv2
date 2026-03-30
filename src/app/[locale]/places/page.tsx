@@ -23,6 +23,7 @@ import {
   getLocalizedText,
 } from "@/lib/places";
 import { parsePlacesFiltersFromSearchParams } from "@/lib/validators/places";
+import { getCategoryIdsEligibleForBrowse } from "@/server/queries/categories/category-browse-eligibility";
 import { getPlaceFilters } from "@/server/queries/places/get-place-filters";
 import {
   listPlaces,
@@ -143,6 +144,11 @@ export default async function PlacesPage({
   }
 
   const places = listResult.items;
+
+  const browseEligibleCategoryIds =
+    places.length > 0
+      ? await getCategoryIdsEligibleForBrowse([...new Set(places.map((p) => p.category.id))])
+      : new Set<string>();
 
   const imageAttributionLabels = {
     license: t("imageAttribution.license"),
@@ -445,6 +451,11 @@ export default async function PlacesPage({
                     )}
                     categoryLabel={
                       getLocalizedPlaceCategoryLabel(place.category, locale)
+                    }
+                    categoryHref={
+                      browseEligibleCategoryIds.has(place.category.id)
+                        ? `/categories/${encodeURIComponent(place.category.slug)}`
+                        : undefined
                     }
                     cityLabel={getLocalizedCityDisplayName(locale, place.city)}
                     returnPath={currentPath}

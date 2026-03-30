@@ -4,6 +4,10 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
+import {
+  getPlaceCollectionCreateGuard,
+  getPlaceCollectionItemAddGuard,
+} from "@/lib/rate-limit/social-action-guard";
 import { prisma } from "@/lib/prisma";
 import {
   createPlaceCollectionSchema,
@@ -74,6 +78,15 @@ export async function createPlaceCollection(
   }
 
   const userId = session.user.id;
+
+  const createGuard = await getPlaceCollectionCreateGuard({
+    userId,
+    title: parsed.data.title,
+  });
+  if (createGuard) {
+    return { status: "error", message: createGuard };
+  }
+
   const collection = await prisma.placeCollection.create({
     data: {
       userId,
@@ -231,6 +244,11 @@ export async function addPlaceToCollection(
   });
   if (already) {
     return { status: "success" };
+  }
+
+  const itemGuard = await getPlaceCollectionItemAddGuard(userId);
+  if (itemGuard) {
+    return { status: "error", message: itemGuard };
   }
 
   const item = await prisma.placeCollectionItem.create({

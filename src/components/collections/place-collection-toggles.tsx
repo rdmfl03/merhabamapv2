@@ -1,9 +1,11 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 import { Link } from "@/i18n/navigation";
+import { resolveSocialGuardMessage } from "@/lib/social/social-guard-ui";
 
 import {
   addPlaceToCollection,
@@ -33,7 +35,10 @@ export function PlaceCollectionToggles({
   labels,
 }: PlaceCollectionTogglesProps) {
   const router = useRouter();
+  const tGuard = useTranslations("socialSafety");
+  const tCols = useTranslations("collections");
   const [pending, startTransition] = useTransition();
+  const [itemError, setItemError] = useState<string | null>(null);
 
   return (
     <div className="rounded-2xl border border-border/80 bg-muted/15 px-4 py-4">
@@ -53,15 +58,20 @@ export function PlaceCollectionToggles({
                 onChange={(e) => {
                   const checked = e.target.checked;
                   startTransition(async () => {
+                    setItemError(null);
                     const fd = new FormData();
                     fd.set("locale", locale);
                     fd.set("returnPath", returnPath);
                     fd.set("collectionId", row.id);
                     fd.set("placeId", placeId);
-                    if (checked) {
-                      await addPlaceToCollection(idlePlaceCollectionActionState, fd);
-                    } else {
-                      await removePlaceFromCollection(idlePlaceCollectionActionState, fd);
+                    const res = checked
+                      ? await addPlaceToCollection(idlePlaceCollectionActionState, fd)
+                      : await removePlaceFromCollection(idlePlaceCollectionActionState, fd);
+                    if (res.status === "error") {
+                      const msg =
+                        resolveSocialGuardMessage(res.message, (k) => tGuard(k)) ??
+                        tCols("actionErrorFallback");
+                      setItemError(msg);
                     }
                     router.refresh();
                   });
@@ -82,6 +92,11 @@ export function PlaceCollectionToggles({
           {labels.manageLink}
         </Link>
       </p>
+      {itemError ? (
+        <p className="mt-2 text-xs text-destructive" role="alert">
+          {itemError}
+        </p>
+      ) : null}
     </div>
   );
 }

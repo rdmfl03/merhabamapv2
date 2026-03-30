@@ -24,6 +24,7 @@ type OnboardingFormProps = {
     cityTitle: string;
     interestsTitle: string;
     submit: string;
+    afterSubmitHint: string;
     success: string;
     error: string;
   };
@@ -112,6 +113,8 @@ export function OnboardingForm({
               ))}
             </div>
           </div>
+
+          <p className="text-sm leading-6 text-muted-foreground">{labels.afterSubmitHint}</p>
 
           {state.status === "success" ? (
             <p className="text-sm text-green-700">{labels.success}</p>

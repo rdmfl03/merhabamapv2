@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { robotsIndexFollow } from "@/lib/seo/robots-meta";
 import { buildOpenGraphMetadata } from "@/lib/seo/site";
 import type { AppLocale } from "@/i18n/routing";
 
@@ -13,6 +14,7 @@ export function buildLandingMetadata(args: {
       absolute: args.title,
     },
     description: args.description,
+    robots: robotsIndexFollow,
     ...buildOpenGraphMetadata({
       locale: args.locale,
       path: "",
@@ -31,6 +33,7 @@ export function buildCityMetadata(args: {
   return {
     title: args.title,
     description: args.description,
+    robots: robotsIndexFollow,
     ...buildOpenGraphMetadata({
       locale: args.locale,
       path: args.path,
@@ -38,4 +41,14 @@ export function buildCityMetadata(args: {
       description: args.description,
     }),
   };
+}
+
+/** Public taxonomy browse (place categories); same shape as city browse metadata. */
+export function buildCategoryBrowseMetadata(args: {
+  locale: AppLocale;
+  title: string;
+  description: string;
+  path: string;
+}): Metadata {
+  return buildCityMetadata(args);
 }

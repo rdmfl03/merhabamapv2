@@ -5,6 +5,7 @@ import { z } from "zod";
 import { NotificationType } from "@prisma/client";
 
 import { auth } from "@/auth";
+import { getUserFollowCreateGuard } from "@/lib/rate-limit/social-action-guard";
 import { prisma } from "@/lib/prisma";
 import { revalidateNotificationSurfaces } from "@/server/queries/notifications/revalidate-notification-paths";
 
@@ -71,6 +72,13 @@ export async function POST(request: Request) {
     },
     select: { id: true },
   });
+
+  if (!alreadyFollowing) {
+    const followGuard = await getUserFollowCreateGuard(session.user.id);
+    if (followGuard) {
+      return NextResponse.json({ error: "rate_limited" }, { status: 429 });
+    }
+  }
 
   await prisma.follow.upsert({
     where: {

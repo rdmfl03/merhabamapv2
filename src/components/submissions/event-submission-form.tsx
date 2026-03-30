@@ -148,7 +148,9 @@ function EventSubmissionFormInner({
           </div>
           <div className="flex flex-wrap gap-3">
             <Button asChild>
-              <Link href={`/map?city=${state.submitted.citySlug}`}>{labels.success.backToCity}</Link>
+              <Link href={`/cities/${encodeURIComponent(state.submitted.citySlug)}`}>
+                {labels.success.backToCity}
+              </Link>
             </Button>
             <Button type="button" variant="outline" onClick={onReset}>
               {labels.success.submitAnother}

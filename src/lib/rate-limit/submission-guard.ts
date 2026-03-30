@@ -76,6 +76,7 @@ export async function getClaimSubmissionGuard(args: {
   return null;
 }
 
+/** Duplicate target (6h) + daily total cap; applies to PLACE, EVENT, ENTITY_COMMENT, PLACE_COLLECTION. */
 export async function getReportSubmissionGuard(args: {
   userId: string;
   targetType: ReportTargetType;

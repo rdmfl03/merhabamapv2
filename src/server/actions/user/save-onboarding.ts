@@ -32,7 +32,7 @@ export async function saveOnboarding(
   const user = await requireAuthenticatedUser(parsed.data.locale);
   const city = await prisma.city.findUnique({
     where: { id: parsed.data.cityId },
-    select: { slug: true },
+    select: { id: true },
   });
 
   if (!city) {
@@ -51,6 +51,7 @@ export async function saveOnboarding(
 
   revalidatePath(`/${parsed.data.locale}`);
   revalidatePath(`/${parsed.data.locale}/profile`);
+  revalidatePath(`/${parsed.data.preferredLocale}/home`);
 
-  redirect(`/${parsed.data.preferredLocale}/map?city=${city.slug}`);
+  redirect(`/${parsed.data.preferredLocale}/home`);
 }

@@ -15,6 +15,7 @@ import { JsonLd } from "@/components/seo/json-ld";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Link } from "@/i18n/navigation";
 import {
   formatEventDateRange,
   getEventVenueRatingSummary,
@@ -27,10 +28,17 @@ import { getEventImageFallbackKey } from "@/lib/category-fallback-visual";
 import { getLocalizedCityDisplayName } from "@/lib/cities/city-display-name";
 import { formatDisplayAddress } from "@/lib/format-display-address";
 import { buildEventDetailMetadata } from "@/lib/metadata/events";
+import { clampMetaDescription } from "@/lib/seo/meta-text";
+import { buildLocalizedUrl } from "@/lib/seo/site";
 import { buildEventSchema } from "@/lib/seo/structured-data";
+import { GuestConversionHint } from "@/components/account/guest-conversion-hint";
+import { DetailCommunityContext } from "@/components/detail/detail-community-context";
+import { PublicShareButton } from "@/components/sharing/public-share-button";
 import { hasCreatorEntityContributionForEvent } from "@/server/queries/contributions/has-creator-entity-contribution";
 import { getEventBySlug } from "@/server/queries/events/get-event-by-slug";
+import { getEventDetailSocialContext } from "@/server/queries/events/get-event-detail-social-context";
 import { getEventParticipationSummary } from "@/server/queries/events/get-event-participation-summary";
+import { trackProductInsight } from "@/server/product-insights/track-product-insight";
 
 type EventDetailPageProps = {
   params: Promise<{ locale: "de" | "tr"; slug: string }>;
@@ -47,16 +55,24 @@ export async function generateMetadata({
   }
 
   const image = resolveEventImage(event);
-
-  return buildEventDetailMetadata({
-    locale,
-    slug,
-    title: event.title,
-    description: getLocalizedEventText(
+  const cityLabel = getLocalizedCityDisplayName(locale, event.city);
+  const dateLabel = new Intl.DateTimeFormat(locale === "tr" ? "tr-TR" : "de-DE", {
+    dateStyle: "medium",
+    timeZone: "Europe/Berlin",
+  }).format(event.startsAt);
+  const description = clampMetaDescription(
+    getLocalizedEventText(
       { de: event.descriptionDe, tr: event.descriptionTr },
       locale,
       event.title,
     ),
+  );
+
+  return buildEventDetailMetadata({
+    locale,
+    slug,
+    title: `${event.title} · ${cityLabel} · ${dateLabel}`,
+    description,
     image: image?.url,
   });
 }
@@ -78,10 +94,20 @@ export default async function EventDetailPage({
     notFound();
   }
 
-  const [participation, showUserSubmittedAttribution] = await Promise.all([
-    getEventParticipationSummary(event.id, signedInUser?.id ?? null),
-    hasCreatorEntityContributionForEvent(event.id),
-  ]);
+  await trackProductInsight({
+    name: "public_event_view",
+    payload: {
+      locale,
+      authenticated: Boolean(signedInUser?.id),
+    },
+  });
+
+  const [participation, showUserSubmittedAttribution, eventSocialContext] =
+    await Promise.all([
+      getEventParticipationSummary(event.id, signedInUser?.id ?? null),
+      hasCreatorEntityContributionForEvent(event.id),
+      getEventDetailSocialContext(event.id),
+    ]);
 
   const description = getLocalizedEventText(
     { de: event.descriptionDe, tr: event.descriptionTr },
@@ -126,6 +152,8 @@ export default async function EventDetailPage({
           externalUrl,
           image: image?.url,
           organizerName: event.organizerName,
+          latitude: event.latitude,
+          longitude: event.longitude,
         })}
       />
       <section className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
@@ -170,7 +198,12 @@ export default async function EventDetailPage({
                   <MapPin className="h-4 w-4" />
                   <span>
                     {event.venueName ? `${event.venueName}, ` : ""}
-                    {cityLabel}
+                    <Link
+                      href={`/cities/${encodeURIComponent(event.city.slug)}`}
+                      className="underline-offset-2 hover:underline"
+                    >
+                      {cityLabel}
+                    </Link>
                   </span>
                 </p>
               </div>
@@ -219,6 +252,15 @@ export default async function EventDetailPage({
               </div>
             ) : null}
 
+            <DetailCommunityContext
+              variant="event"
+              commentCount={eventSocialContext.commentCount}
+              saveCount={eventSocialContext.saveCount}
+              interestedCount={participation.interestedCount}
+              goingCount={participation.goingCount}
+              latestCommentAt={eventSocialContext.latestCommentAt}
+            />
+
             <div className="flex flex-wrap gap-3">
               <EventSaveButton
                 eventId={event.id}
@@ -234,6 +276,14 @@ export default async function EventDetailPage({
                   signIn: t("card.signIn"),
                 }}
               />
+              <PublicShareButton
+                locale={locale}
+                insightSurface="event_detail"
+                absoluteUrl={buildLocalizedUrl(locale, `/events/${event.slug}`)}
+                canonicalPath={`/${locale}/events/${event.slug}`}
+                title={`${event.title} · ${cityLabel}`}
+                text={description}
+              />
               {externalUrl ? (
                 <Button variant="outline" asChild>
                   <a href={externalUrl} target="_blank" rel="noreferrer">
@@ -244,12 +294,14 @@ export default async function EventDetailPage({
               ) : null}
             </div>
 
+            {!signedInUser ? (
+              <GuestConversionHint locale={locale} returnPath={returnPath} />
+            ) : null}
+
             <EventParticipationPanel
               eventId={event.id}
               locale={locale}
               returnPath={returnPath}
-              interestedCount={participation.interestedCount}
-              goingCount={participation.goingCount}
               viewerStatus={participation.viewerStatus}
               isAuthenticated={Boolean(signedInUser?.id)}
               signInHref={`/${locale}/auth/signin?next=${encodeURIComponent(returnPath)}`}
@@ -257,8 +309,6 @@ export default async function EventDetailPage({
                 title: t("detail.participation.title"),
                 interested: t("detail.participation.interested"),
                 going: t("detail.participation.going"),
-                countsInterested: t("detail.participation.countsInterested"),
-                countsGoing: t("detail.participation.countsGoing"),
                 signIn: t("detail.participation.signIn"),
               }}
             />

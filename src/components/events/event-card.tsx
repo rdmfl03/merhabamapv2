@@ -85,7 +85,16 @@ export function EventCard({
               <MapPin className="h-4 w-4" />
               <span>
                 {event.venueName ? `${event.venueName}, ` : ""}
-                {cityLabel}
+                {event.city.slug ? (
+                  <Link
+                    href={`/cities/${encodeURIComponent(event.city.slug)}`}
+                    className="underline-offset-2 hover:underline"
+                  >
+                    {cityLabel}
+                  </Link>
+                ) : (
+                  cityLabel
+                )}
               </span>
             </p>
             {venueRating ? (

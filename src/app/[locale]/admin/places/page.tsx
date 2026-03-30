@@ -34,6 +34,7 @@ export default async function AdminPlacesPage({ params }: AdminPlacesPageProps) 
         ingest: t("nav.ingest"),
         places: t("nav.places"),
         logs: t("nav.logs"),
+        productInsights: t("nav.productInsights"),
       }}
     >
       <div className="grid gap-4">

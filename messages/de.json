@@ -1,4 +1,9 @@
 {
+  "socialSafety": {
+    "rateWaitRetry": "Bitte kurz warten und dann erneut versuchen.",
+    "duplicateSent": "Dieser Inhalt wurde gerade bereits gesendet.",
+    "actionUnavailable": "Aktion im Moment nicht möglich."
+  },
   "common": {
     "brandName": "MerhabaMap",
     "taglineShort": "Türkische Orte und Events",
@@ -167,6 +172,8 @@
   },
   "onboarding": {
     "eyebrow": "Onboarding",
+    "metaTitle": "Onboarding",
+    "metaDescription": "Persönliche Einstellungen für MerhabaMap — nur für angemeldete Nutzer:innen.",
     "title": "Richte MerhabaMap auf dich aus.",
     "description": "Wähle Sprache, Stadt und Interessen, damit dein Einstieg direkt relevanter wird.",
     "languageTitle": "Sprache",
@@ -176,6 +183,7 @@
     "interestsTitle": "Interessen",
     "interestsDescription": "Interessen werden bewusst flexibel gespeichert, damit dein Profil ohne starres Modell zu dir passt.",
     "submit": "Weiter zu MerhabaMap",
+    "afterSubmitHint": "Danach gelangst du zur Startseite. Dort kannst du deiner Stadt auf der Karte folgen, den lokalen Feed nutzen und erste Orte oder Events speichern — alles freiwillig.",
     "success": "Deine Einstellungen wurden gespeichert.",
     "error": "Die Einstellungen konnten nicht gespeichert werden.",
     "existingSelections": "Aktuell gespeicherte Interessen",
@@ -325,6 +333,15 @@
         "privateBadge": "privat",
         "signIn": "Zum Organisieren anmelden",
         "signInHint": "Mit einem Konto kannst du Orte in eigenen Listen sammeln."
+      },
+      "community": {
+        "ariaLabel": "Öffentliche Aktivität zu diesem Ort",
+        "title": "Öffentliche Aktivität",
+        "comments": "{count, plural, one {# öffentlicher Kommentar} other {# öffentliche Kommentare}}",
+        "saves": "{count, plural, one {# Mal gespeichert} other {# Mal gespeichert}}",
+        "publicLists": "{count, plural, one {In # öffentlichen Liste} other {In # öffentlichen Listen}}",
+        "hintRecentComments": "In den letzten Tagen gab es Kommentare.",
+        "footnote": "Nur zusammengefasste, öffentliche Zahlen — ohne Einzelpersonen oder private Listen."
       },
       "noticeTitle": "Hinweis zu den Angaben",
       "noticeDescription": "Die dargestellten Informationen beruhen auf veröffentlichten oder von Nutzerinnen und Nutzern gemeldeten Quellen und können unvollständig oder zwischenzeitlich überholt sein. Für Korrekturen oder Hinweise auf rechtswidrige oder falsche Inhalte kannst du die Meldefunktion nutzen."
@@ -477,7 +494,19 @@
         "going": "Bin dabei",
         "countsInterested": "{n} interessiert",
         "countsGoing": "{n} dabei",
-        "signIn": "Zur Teilnahme anmelden"
+        "signIn": "Zur Teilnahme anmelden",
+        "validationError": "Die Eingabe war ungültig. Bitte versuche es erneut.",
+        "eventNotFound": "Dieses Event ist nicht mehr verfügbar."
+      },
+      "community": {
+        "ariaLabel": "Öffentliche Aktivität zu diesem Event",
+        "title": "Öffentliche Aktivität",
+        "comments": "{count, plural, one {# öffentlicher Kommentar} other {# öffentliche Kommentare}}",
+        "saves": "{count, plural, one {# Mal gespeichert} other {# Mal gespeichert}}",
+        "interested": "{count, number} interessiert",
+        "going": "{count, number} dabei",
+        "hintRecentComments": "In den letzten Tagen gab es Kommentare.",
+        "footnote": "Nur zusammengefasste, öffentliche Zahlen — ohne Einzelpersonen."
       },
       "noticeTitle": "Hinweis zu den Angaben und Links",
       "noticeDescription": "Externe Links führen zu Angeboten Dritter; MerhabaMap verkauft keine Tickets. Eventangaben beruhen auf veröffentlichten Informationen und Community-Meldungen und können unvollständig oder zwischenzeitlich überholt sein. Korrekturen und Hinweise kannst du über „Event melden“ einreichen."
@@ -512,7 +541,16 @@
       "aiReview": "AI-Review",
       "ingest": "Ingest",
       "places": "Places",
-      "logs": "Logs"
+      "logs": "Logs",
+      "productInsights": "Nutzung"
+    },
+    "productInsights": {
+      "title": "Produkt-Nutzung (intern)",
+      "description": "Aggregierte First-Party-Ereignisse ohne personenbezogene Inhalte. Kein Drittanbieter-Tracking.",
+      "countsTitle": "Ereignisse (7 Tage)",
+      "countsSince": "Seit {date}",
+      "recentTitle": "Letzte Ereignisse",
+      "empty": "Noch keine Einträge."
     },
     "overview": {
       "title": "Moderation und Trust",
@@ -1263,16 +1301,39 @@
   },
   "cities": {
     "countryLabel": "Deutschland",
-    "metaTitle": "Türkische Orte und Events in {city}",
+    "metaTitle": "Türkische Orte & Events in {city}",
     "metaDescription": "Entdecke türkische Orte, Events und lokale Einstiegspunkte in {city}.",
     "eyebrow": "Orte und Events entdecken",
     "title": "{city} auf MerhabaMap",
     "description": "Starte deine Discovery in {city} mit kuratierten Orten, relevanten Events und klaren nächsten Schritten.",
+    "browse": {
+      "eyebrow": "Stadt entdecken",
+      "metaTitle": "Türkische Orte & Events in {city}",
+      "metaDescription": "Öffentliche Orte und kommende Events in {city} — mit Karte, Listen und lokalem Kontext.",
+      "notFoundTitle": "Stadt nicht gefunden",
+      "intro": "Hier findest du eine übersichtliche Auswahl öffentlicher Orte und kommender Events in {city}. Alles Veröffentlichte entspricht den üblichen Sichtbarkeitsregeln von MerhabaMap.",
+      "statsLine": "Öffentlich gelistet: {places, number} Orte · {events, number} kommende Events",
+      "ctaMap": "Auf der Karte ansehen",
+      "ctaPlaces": "Alle Orte in dieser Stadt",
+      "ctaEvents": "Alle Events in dieser Stadt",
+      "placesTitle": "Orte in {city}",
+      "eventsTitle": "Kommende Events in {city}",
+      "viewAllPlaces": "Zur Orte-Übersicht",
+      "viewAllEvents": "Zur Event-Übersicht",
+      "emptyPlaces": "Für diese Stadt sind noch keine öffentlichen Orte sichtbar.",
+      "emptyEvents": "Für diese Stadt sind aktuell keine kommenden öffentlichen Events hinterlegt.",
+      "collectionsTitle": "Öffentliche Listen mit Orten hier",
+      "collectionsFootnote": "Nur öffentliche Listen, die mindestens einen Ort in dieser Stadt enthalten.",
+      "collectionsItemCount": "{n, plural, one {# Ort} other {# Orte}}",
+      "exploreByCategories": "Nach Kategorie entdecken"
+    },
     "cityFollow": {
       "follow": "Stadt folgen",
       "unfollow": "Nicht mehr folgen",
       "signIn": "Anmelden",
-      "signInHint": "Melde dich an, um Städte zu folgen und einen lokalen Feed zu nutzen."
+      "signUp": "Registrieren",
+      "signInHint": "Melde dich an, um Städte zu folgen und einen lokalen Feed zu nutzen.",
+      "validationError": "Die Anfrage war ungültig. Bitte versuche es erneut."
     },
     "map": {
       "title": "{city} als Discovery-Karte",
@@ -1336,6 +1397,81 @@
     "emptyPlaces": "Für diese Stadt sind noch keine hervorgehobenen Orte sichtbar. Nutze trotzdem die Places-Liste für neue Einträge.",
     "emptyEvents": "Für diese Stadt sind aktuell keine kommenden Events sichtbar. Über die Events-Liste findest du neue Einträge, sobald sie veröffentlicht werden."
   },
+  "placeCategories": {
+    "index": {
+      "metaTitle": "Orte nach Kategorie | MerhabaMap",
+      "metaDescription": "Öffentliche Orte auf MerhabaMap nach Kategorie — nur Kategorien mit mehreren sichtbaren Einträgen.",
+      "eyebrow": "Kategorien",
+      "title": "Nach Kategorie entdecken",
+      "intro": "Jede Kategorie führt zu einer kompakten Übersicht öffentlicher Orte. Aufgelistet werden nur Kategorien, in denen mindestens zwei sichtbare Orte existieren.",
+      "empty": "Zurzeit gibt es keine Kategorie mit ausreichend öffentlichen Orten für diese Übersicht.",
+      "placeCount": "{count, plural, one {# Ort} other {# Orte}}"
+    },
+    "browse": {
+      "eyebrow": "Kategorie",
+      "notFoundTitle": "Kategorie nicht gefunden",
+      "metaTitle": "{category} — öffentliche Orte | MerhabaMap",
+      "metaDescription": "Öffentliche Orte in der Kategorie „{category}“ auf MerhabaMap: kompakte Auswahl mit Stadtbezug und weiterführenden Listen.",
+      "intro": "Öffentliche Orte in „{category}“. Die Auswahl ist bewusst kurz; in der Orte-Übersicht mit Filter siehst du die vollständige Liste.",
+      "statsLine": "{places, number} öffentliche Orte in dieser Kategorie",
+      "ctaMap": "Zur Karte",
+      "ctaPlaces": "Alle Orte in dieser Kategorie",
+      "placesTitle": "Orte in {category}",
+      "viewAllPlaces": "Zur Orte-Übersicht",
+      "citiesTitle": "Städte mit Orten in dieser Kategorie",
+      "citiesFootnote": "Sortiert nach Anzahl sichtbarer Orte in der Kategorie — keine Beliebtheits- oder Rankingaussage.",
+      "cityHintCount": "{count, plural, one {# Ort} other {# Orte}}",
+      "backToIndex": "Alle Kategorien"
+    }
+  },
+  "search": {
+    "metaTitle": "Suche | MerhabaMap",
+    "metaDescription": "Öffentliche Orte und kommende Events auf MerhabaMap durchsuchen.",
+    "metaTitleWithQuery": "„{query}“ — Suche | MerhabaMap",
+    "metaDescriptionWithQuery": "Suchergebnisse für „{query}“: öffentliche Orte und kommende Events auf MerhabaMap.",
+    "eyebrow": "Suche",
+    "title": "Orte und Events durchsuchen",
+    "description": "Einfache Textsuche nur in veröffentlichten Orten und kommenden Events. Es werden keine Nutzerprofile oder Listen durchsucht.",
+    "headerLabel": "Suche",
+    "headerPlaceholder": "Ort oder Event …",
+    "headerSubmit": "Suchen",
+    "form": {
+      "queryLabel": "Suchbegriff",
+      "queryPlaceholder": "z. B. Restaurant, Moschee, Konzert …",
+      "cityLabel": "Stadt (optional)",
+      "cityAll": "Alle Städte",
+      "submit": "Suchen"
+    },
+    "queryTooShort": "Bitte mindestens zwei Zeichen eingeben.",
+    "resultsFor": "Ergebnisse für „{query}“",
+    "sectionPlaces": "Orte",
+    "sectionEvents": "Kommende Events",
+    "nonePlaces": "Keine passenden öffentlichen Orte.",
+    "noneEvents": "Keine passenden kommenden Events.",
+    "empty": {
+      "message": "Keine Treffer für diese Suche. Du kannst die Karte, den Feed oder die Kategorien nutzen.",
+      "ctaMap": "Zur Karte",
+      "ctaFeed": "Zum Feed",
+      "ctaCategories": "Zu den Kategorien"
+    }
+  },
+  "guestConversion": {
+    "title": "Mit Konto mehr Möglichkeiten",
+    "benefitSave": "Orte und Events speichern",
+    "benefitCities": "Städten folgen",
+    "benefitFeed": "Lokalen Feed und Mitteilungen nutzen",
+    "benefitCollections": "Eigene Listen anlegen und pflegen",
+    "benefitComments": "Kommentieren und mit der Community austauschen",
+    "optional": "Alles freiwillig — die Seite bleibt ohne Anmeldung vollständig lesbar.",
+    "signIn": "Anmelden",
+    "signUp": "Registrieren"
+  },
+  "share": {
+    "label": "Teilen",
+    "copied": "Link kopiert",
+    "copyFailed": "Kopieren nicht möglich",
+    "ariaLabel": "Teilen oder Link kopieren"
+  },
   "saved": {
     "common": {
       "details": "Details ansehen",
@@ -1366,6 +1502,85 @@
       "fallbackDescription": "Weitere Eventinformationen folgen."
     }
   },
+  "participating": {
+    "events": {
+      "metaTitle": "Meine geplanten Events | MerhabaMap",
+      "metaDescription": "Kommende öffentliche Events, bei denen du interessiert bist oder dabei sein willst.",
+      "eyebrow": "Teilnahme",
+      "title": "Meine geplanten Events",
+      "description": "Nur Events, die noch bevorstehen und öffentlich sichtbar sind — ohne Druck, ohne Erinnerungen.",
+      "backHome": "Zurück zum Start",
+      "emptyTitle": "Noch keine kommenden Events",
+      "emptyDescription": "Wenn du bei einem Event „Interessiert“ oder „Dabei“ wählst, erscheint es hier.",
+      "cta": "Events entdecken"
+    }
+  },
+  "home": {
+    "metaTitle": "Start | MerhabaMap",
+    "metaDescription": "Dein ruhiger Einstieg: Mitteilungen, Aktivitäten, Entdecken und Städte.",
+    "eyebrow": "Start",
+    "title": "Willkommen zurück, {name}",
+    "subtitle": "Hier findest du, was als Nächstes sinnvoll ist – ohne Überladung.",
+    "activation": {
+      "citiesTitle": "Stadt folgen",
+      "citiesBody": "Mit einer gefolgten Stadt wird der lokale Feed und die Karte für dich relevant. Das machst du bewusst auf der Karte — nichts wird automatisch für dich gesetzt.",
+      "citiesOnboardingHint": "Du hast {city} in den Einstellungen gewählt. Auf der Karte kannst du dieser Stadt dort explizit folgen.",
+      "savesTitle": "Etwas merken",
+      "savesBody": "Speichere einen Ort oder ein Event, wenn es dir gefällt — dann findest du es später wieder unter „Gespeichert“.",
+      "moreTitle": "Noch mehr von MerhabaMap",
+      "moreBody": "Listen anlegen oder einen Ort bzw. ein Event vorschlagen — freiwillig und ohne Druck.",
+      "linkMapFollow": "Zur Karte (Stadt folgen)",
+      "linkLocalFeed": "Lokaler Feed",
+      "linkPlaces": "Orte entdecken",
+      "linkEvents": "Events entdecken",
+      "linkFeed": "Aktivitäten-Feed",
+      "linkCollections": "Meine Listen",
+      "linkSubmitPlace": "Ort vorschlagen",
+      "linkSubmitEvent": "Event vorschlagen"
+    },
+    "continue": {
+      "title": "Weitermachen",
+      "lead": "Ruhige nächste Schritte — nur das, was für dich gerade passt.",
+      "notifications": "Mitteilungen",
+      "notificationsNone": "keine ungelesenen",
+      "feed": "Aktivitäten-Feed",
+      "feedHint": "Alles, was du und die Community gerade öffentlich teilt.",
+      "feedLocal": "Aktivitäten in meinen Städten",
+      "feedLocalHint": "Nur aus Städten, denen du folgst.",
+      "savedPlaces": "Gespeicherte Orte",
+      "savedEvents": "Gespeicherte Events",
+      "participatingEvents": "Meine geplanten Events",
+      "collections": "Meine Listen",
+      "contributions": "Eingereichte Orte & Events",
+      "previewEvent": "Aktuelles Event aus der Entdeckung:",
+      "previewPlace": "Aktueller Ort aus der Entdeckung:",
+      "map": "Zur Karte"
+    },
+    "discovery": {
+      "title": "Gerade viel los",
+      "footnote": "Wie im Feed: öffentliche Signale der letzten 10 Tage (Speichern, Kommentare, Teilnahme, Listen).",
+      "moreOnFeed": "Alles im Feed",
+      "places": "Orte",
+      "events": "Events",
+      "collections": "Öffentliche Listen"
+    },
+    "cities": {
+      "title": "Meine Städte",
+      "empty": "Du folgst noch keiner Stadt. Auf der Karte kannst du Städte folgen und lokale Aktivitäten im Feed sehen.",
+      "ctaMap": "Zur Karte",
+      "feedLocal": "Lokaler Feed"
+    },
+    "activity": {
+      "title": "Dein Bereich",
+      "profile": "Öffentliches Profil",
+      "settings": "Konto & Einstellungen",
+      "collections": "Meine Listen",
+      "savedPlaces": "Gespeicherte Orte",
+      "savedEvents": "Gespeicherte Events",
+      "participatingEvents": "Geplante Events (interessiert / dabei)",
+      "contributions": "Eingereichte Orte & Events"
+    }
+  },
   "feed": {
     "metaTitle": "Aktivitäten | MerhabaMap",
     "metaDescription": "Was die Community auf MerhabaMap gerade tut.",
@@ -1383,6 +1598,12 @@
     "emptyCtaPlaces": "Orte entdecken",
     "emptyCtaFollow": "Profil & Nutzer:innen",
     "emptyCtaFollowSignIn": "Anmelden & folgen",
+    "returnHints": {
+      "contextDefault": "Dieser Feed zeigt Aktivitäten von dir, von Nutzer:innen, denen du folgst, und öffentliche Signale auf MerhabaMap.",
+      "contextLocal": "Hier siehst du Aktivitäten zu Orten und Events in deinen gefolgten Städten.",
+      "openLocalFeed": "Zu „Meine Städte“ wechseln",
+      "openNotifications": "Mitteilungen ({count} ungelesen)"
+    },
     "activity": {
       "unknownEntity": "Eintrag nicht mehr verfügbar",
       "savedPlaceVerb": "hat gespeichert:",
@@ -1410,6 +1631,34 @@
       "cityFollowedVerb": "folgt jetzt:",
       "cityFollowedOwn": "Du folgst jetzt:",
       "genericType": "Aktivität ({type})"
+    },
+    "discovery": {
+      "footnoteGlobal": "Basierend auf öffentlichen Daten der letzten 10 Tage: Speichern, Kommentare, Teilnahme, Listeneinträge.",
+      "footnoteLocal": "Gleiche Regeln, eingegrenzt auf deine gefolgten Städte.",
+      "footnoteCategory": "Gleiche Regeln, eingegrenzt auf diese Kategorie.",
+      "placesTitle": "Orte mit viel Aktivität",
+      "placesTitleLocal": "Aktive Orte in deinen Städten",
+      "placesTitleCategory": "Aktivität in dieser Kategorie",
+      "eventsTitle": "Events mit viel Aktivität",
+      "eventsTitleLocal": "Aktive Events in deinen Städten",
+      "collectionsTitle": "Öffentliche Listen mit Zuwachs",
+      "collectionsTitleLocal": "Listen mit Zuwachs in deinen Städten",
+      "placeReason": {
+        "saved": "Häufig gespeichert",
+        "comments": "Viel kommentiert",
+        "listed": "Oft zu Listen hinzugefügt",
+        "mixed": "Mehrere Aktivitäten"
+      },
+      "eventReason": {
+        "participation": "Viel Interesse / Teilnahme",
+        "comments": "Viel kommentiert",
+        "saved": "Häufig gespeichert",
+        "mixed": "Mehrere Aktivitäten"
+      },
+      "collectionReason": {
+        "recentAdds": "Kürzlich neue Einträge",
+        "newList": "Kürzlich veröffentlicht"
+      }
     }
   },
   "notifications": {
@@ -1417,6 +1666,7 @@
     "metaDescription": "Deine in-app Mitteilungen zu Follows und Kommentaren.",
     "title": "Mitteilungen",
     "subtitle": "Hier siehst du Follows und Hinweise zu deinen Orten und Events. Keine Push- oder E-Mail-Benachrichtigungen.",
+    "backToHome": "Zurück zum Start",
     "empty": "Noch keine Mitteilungen.",
     "emptyHint": "Wenn dir jemand folgt oder jemand einen Ort oder ein Event kommentiert, für das du als Eigentümer:in oder Einreichende:r erkannt wirst, erscheint es hier.",
     "markRead": "Als gelesen",
@@ -1490,7 +1740,10 @@
     "deleteConfirm": "Liste und alle Einträge endgültig löschen?",
     "listTitle": "Deine Listen",
     "empty": "Du hast noch keine Liste angelegt.",
+    "actionValidationError": "Bitte prüfe deine Angaben.",
+    "actionErrorFallback": "Die Aktion konnte nicht ausgeführt werden.",
     "detailMetaTitle": "{title} | Liste",
+    "detailMetaDescriptionFallback": "Öffentliche Ortsliste auf MerhabaMap.",
     "detailOwnerPrefix": "Liste von",
     "detailItemCount": "{n} Orte",
     "detailEmpty": "In dieser Liste sind noch keine Orte.",

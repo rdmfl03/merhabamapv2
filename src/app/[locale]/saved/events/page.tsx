@@ -1,6 +1,8 @@
+import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { EventCard } from "@/components/events/event-card";
+import { robotsNoIndex } from "@/lib/seo/robots-meta";
 import { SavedEmptyState } from "@/components/saved/saved-empty-state";
 import { getEventCategoryLabelKey, getLocalizedEventText } from "@/lib/events";
 import { getLocalizedCityDisplayName } from "@/lib/cities/city-display-name";
@@ -10,6 +12,16 @@ import { getSavedEvents } from "@/server/queries/user/get-saved-events";
 type SavedEventsPageProps = {
   params: Promise<{ locale: "de" | "tr" }>;
 };
+
+export async function generateMetadata({ params }: SavedEventsPageProps): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "saved" });
+  return {
+    title: t("events.title"),
+    description: t("events.description"),
+    robots: robotsNoIndex,
+  };
+}
 
 export default async function SavedEventsPage({ params }: SavedEventsPageProps) {
   const { locale } = await params;

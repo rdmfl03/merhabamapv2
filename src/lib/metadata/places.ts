@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { robotsIndexFollow } from "@/lib/seo/robots-meta";
 import { buildOpenGraphMetadata } from "@/lib/seo/site";
 
 export function buildPlacesListingMetadata(args: {
@@ -11,6 +12,7 @@ export function buildPlacesListingMetadata(args: {
   return {
     title: args.title,
     description: args.description,
+    robots: robotsIndexFollow,
     ...buildOpenGraphMetadata({
       locale: args.locale,
       path: args.path ?? "/places",
@@ -30,6 +32,7 @@ export function buildPlaceDetailMetadata(args: {
   return {
     title: args.title,
     description: args.description,
+    robots: robotsIndexFollow,
     ...buildOpenGraphMetadata({
       locale: args.locale,
       path: `/places/${args.slug}`,

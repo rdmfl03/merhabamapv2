@@ -1,6 +1,8 @@
+import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { auth } from "@/auth";
+import { robotsNoIndex } from "@/lib/seo/robots-meta";
 import { EventSubmissionForm } from "@/components/submissions/event-submission-form";
 import { getEventCategoryLabelKey } from "@/lib/events";
 import { getLocalizedCityDisplayName } from "@/lib/cities/city-display-name";
@@ -10,6 +12,16 @@ import { getSubmissionFormOptions } from "@/server/queries/submissions/get-submi
 type SubmitEventPageProps = {
   params: Promise<{ locale: "de" | "tr" }>;
 };
+
+export async function generateMetadata({ params }: SubmitEventPageProps): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "submissions" });
+  return {
+    title: t("event.pageTitle"),
+    description: t("event.pageDescription"),
+    robots: robotsNoIndex,
+  };
+}
 
 export default async function SubmitEventPage({ params }: SubmitEventPageProps) {
   const { locale } = await params;

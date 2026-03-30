@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 
@@ -20,11 +21,14 @@ export function ProfileFollowButton({
   labels,
 }: ProfileFollowButtonProps) {
   const router = useRouter();
+  const tGuard = useTranslations("socialSafety");
   const [following, setFollowing] = useState(initialFollowing);
   const [pending, setPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function toggle() {
     setPending(true);
+    setError(null);
     try {
       if (following) {
         const res = await fetch(
@@ -42,6 +46,10 @@ export function ProfileFollowButton({
         });
         if (res.ok) {
           setFollowing(true);
+        } else if (res.status === 429) {
+          setError(tGuard("rateWaitRetry"));
+        } else {
+          setError(tGuard("actionUnavailable"));
         }
       }
       router.refresh();
@@ -51,8 +59,15 @@ export function ProfileFollowButton({
   }
 
   return (
-    <Button type="button" variant={following ? "outline" : "default"} disabled={pending} onClick={toggle}>
-      {following ? labels.unfollow : labels.follow}
-    </Button>
+    <div className="flex flex-col items-stretch gap-1 sm:items-end">
+      <Button type="button" variant={following ? "outline" : "default"} disabled={pending} onClick={toggle}>
+        {following ? labels.unfollow : labels.follow}
+      </Button>
+      {error ? (
+        <p className="max-w-xs text-right text-xs text-destructive" role="alert">
+          {error}
+        </p>
+      ) : null}
+    </div>
   );
 }

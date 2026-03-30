@@ -1,6 +1,8 @@
+import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { auth } from "@/auth";
+import { robotsNoIndex } from "@/lib/seo/robots-meta";
 import { PlaceSubmissionForm } from "@/components/submissions/place-submission-form";
 import { getLocalizedCityDisplayName } from "@/lib/cities/city-display-name";
 import { getLocalizedPlaceCategoryLabel } from "@/lib/places";
@@ -9,6 +11,16 @@ import { getSubmissionFormOptions } from "@/server/queries/submissions/get-submi
 type SubmitPlacePageProps = {
   params: Promise<{ locale: "de" | "tr" }>;
 };
+
+export async function generateMetadata({ params }: SubmitPlacePageProps): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "submissions" });
+  return {
+    title: t("place.pageTitle"),
+    description: t("place.pageDescription"),
+    robots: robotsNoIndex,
+  };
+}
 
 export default async function SubmitPlacePage({ params }: SubmitPlacePageProps) {
   const { locale } = await params;

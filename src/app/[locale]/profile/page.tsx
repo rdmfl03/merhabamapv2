@@ -1,6 +1,8 @@
+import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { ProfileForm } from "@/components/profile/profile-form";
+import { robotsNoIndex } from "@/lib/seo/robots-meta";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "@/i18n/navigation";
 import { getLocalizedCityDisplayName } from "@/lib/cities/city-display-name";
@@ -12,6 +14,16 @@ import { getCurrentUserProfile } from "@/server/queries/user/get-current-user-pr
 type ProfilePageProps = {
   params: Promise<{ locale: "de" | "tr" }>;
 };
+
+export async function generateMetadata({ params }: ProfilePageProps): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "profile" });
+  return {
+    title: t("title"),
+    description: t("description"),
+    robots: robotsNoIndex,
+  };
+}
 
 export default async function ProfilePage({ params }: ProfilePageProps) {
   const { locale } = await params;

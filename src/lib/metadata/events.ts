@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { robotsIndexFollow } from "@/lib/seo/robots-meta";
 import { buildOpenGraphMetadata } from "@/lib/seo/site";
 
 export function buildEventsListingMetadata(args: {
@@ -11,6 +12,7 @@ export function buildEventsListingMetadata(args: {
   return {
     title: args.title,
     description: args.description,
+    robots: robotsIndexFollow,
     ...buildOpenGraphMetadata({
       locale: args.locale,
       path: args.path ?? "/events",
@@ -30,6 +32,7 @@ export function buildEventDetailMetadata(args: {
   return {
     title: args.title,
     description: args.description,
+    robots: robotsIndexFollow,
     ...buildOpenGraphMetadata({
       locale: args.locale,
       path: `/events/${args.slug}`,

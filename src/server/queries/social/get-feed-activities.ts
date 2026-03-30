@@ -214,16 +214,21 @@ export async function getFeedActivities(
     }
   }
 
-  const labelCities =
-    labelCityIds.size > 0
-      ? await prisma.city.findMany({
-          where: { id: { in: [...labelCityIds] } },
-          select: { id: true, slug: true, nameDe: true, nameTr: true },
-        })
-      : [];
-  const cityLabelById = new Map(
-    labelCities.map((c) => [c.id, getLocalizedCityDisplayName(locale, c)]),
-  );
+  const cityLabelById = new Map<string, string>();
+  for (const c of activityCities) {
+    cityLabelById.set(c.id, getLocalizedCityDisplayName(locale, c));
+  }
+
+  const labelIdsToFetch = [...labelCityIds].filter((id) => !cityLabelById.has(id));
+  if (labelIdsToFetch.length > 0) {
+    const labelCities = await prisma.city.findMany({
+      where: { id: { in: labelIdsToFetch } },
+      select: { id: true, slug: true, nameDe: true, nameTr: true },
+    });
+    for (const c of labelCities) {
+      cityLabelById.set(c.id, getLocalizedCityDisplayName(locale, c));
+    }
+  }
 
   return selected.map((row) => {
     let name: string | null = null;

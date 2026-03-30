@@ -1,24 +1,85 @@
+import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { notFound } from "next/navigation";
 
-import { PlaceholderState } from "@/components/ui/placeholder-state";
+import { auth } from "@/auth";
+import { CategoryBrowsePage } from "@/components/categories/category-browse-page";
+import { buildCategoryBrowseMetadata } from "@/lib/metadata/public";
+import { getLocalizedPlaceCategoryLabel } from "@/lib/places";
+import { robotsNoIndex } from "@/lib/seo/robots-meta";
+import { getCategoryBrowseData } from "@/server/queries/categories/get-category-browse-data";
+import { trackProductInsight } from "@/server/product-insights/track-product-insight";
 
-type CategoryPageProps = {
-  params: Promise<{ locale: string; slug: string }>;
+export const dynamic = "force-dynamic";
+
+type CategoryBrowseRouteProps = {
+  params: Promise<{ locale: "de" | "tr"; slug: string }>;
 };
 
-export default async function CategoryPage({ params }: CategoryPageProps) {
+export async function generateMetadata({ params }: CategoryBrowseRouteProps): Promise<Metadata> {
+  const { locale, slug } = await params;
+  const t = await getTranslations({ locale, namespace: "placeCategories" });
+  const data = await getCategoryBrowseData({
+    categorySlug: slug,
+    locale,
+    viewerUserId: null,
+  });
+
+  if (!data) {
+    return {
+      title: t("browse.notFoundTitle"),
+      robots: robotsNoIndex,
+    };
+  }
+
+  const categoryLabel = getLocalizedPlaceCategoryLabel(data.category, locale);
+  return buildCategoryBrowseMetadata({
+    locale,
+    path: `/categories/${slug}`,
+    title: t("browse.metaTitle", { category: categoryLabel }),
+    description: t("browse.metaDescription", { category: categoryLabel }),
+  });
+}
+
+export default async function CategoryBrowseRoute({ params }: CategoryBrowseRouteProps) {
   const { locale, slug } = await params;
   setRequestLocale(locale);
 
-  const t = await getTranslations("placeholders");
+  let session = null;
+  try {
+    session = await auth();
+  } catch {
+    session = null;
+  }
+
+  const data = await getCategoryBrowseData({
+    categorySlug: slug,
+    locale,
+    viewerUserId: session?.user?.id ?? null,
+  });
+
+  if (!data) {
+    notFound();
+  }
+
+  await trackProductInsight({
+    name: "public_category_browse_view",
+    payload: {
+      locale,
+      authenticated: Boolean(session?.user?.id),
+      browseMode: "detail",
+      categorySlug: data.category.slug,
+    },
+  });
+
+  const returnPath = `/${locale}/categories/${slug}`;
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-12">
-      <PlaceholderState
-        eyebrow={slug}
-        title={t("categoryTitle")}
-        description={t("categoryDescription")}
-      />
-    </div>
+    <CategoryBrowsePage
+      locale={locale}
+      data={data}
+      returnPath={returnPath}
+      isAuthenticated={Boolean(session?.user?.id)}
+    />
   );
 }

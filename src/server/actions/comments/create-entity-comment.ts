@@ -8,6 +8,7 @@ import { NotificationType } from "@prisma/client";
 import { auth } from "@/auth";
 import { NOTIFICATION_ENTITY } from "@/lib/notifications/notification-types";
 import { ACTIVITY_ENTITY, ACTIVITY_TYPE } from "@/lib/social/activity-types";
+import { getEntityCommentGuard } from "@/lib/rate-limit/social-action-guard";
 import { createEntityCommentSchema } from "@/lib/validators/comments";
 import { prisma } from "@/lib/prisma";
 import { insertActivity } from "@/server/social/insert-activity";
@@ -75,6 +76,16 @@ export async function createEntityComment(
       return { status: "error", message: "entity_not_found" };
     }
     eventForNotify = { id: event.id };
+  }
+
+  const commentGuard = await getEntityCommentGuard({
+    userId: session.user.id,
+    entityType,
+    entityId,
+    content,
+  });
+  if (commentGuard) {
+    return { status: "error", message: commentGuard };
   }
 
   await prisma.entityComment.create({

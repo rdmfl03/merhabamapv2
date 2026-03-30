@@ -1,4 +1,9 @@
 {
+  "socialSafety": {
+    "rateWaitRetry": "Lütfen kısa bir süre bekle ve tekrar dene.",
+    "duplicateSent": "Bu içerik az önce zaten gönderildi.",
+    "actionUnavailable": "Şu anda bu işlem mümkün değil."
+  },
   "common": {
     "brandName": "MerhabaMap",
     "taglineShort": "Türk mekanları ve etkinlikleri",
@@ -167,6 +172,8 @@
   },
   "onboarding": {
     "eyebrow": "Onboarding",
+    "metaTitle": "Onboarding",
+    "metaDescription": "MerhabaMap kişisel ayarlar — yalnızca giriş yapmış kullanıcılar için.",
     "title": "MerhabaMap'i kendine göre ayarla.",
     "description": "Dilini, şehrini ve ilgi alanlarını seç; böylece ilk deneyim daha ilgili olsun.",
     "languageTitle": "Dil",
@@ -176,6 +183,7 @@
     "interestsTitle": "İlgi alanları",
     "interestsDescription": "İlgi alanları esnek tutulur; katı bir profil modeli zorunlu değil.",
     "submit": "MerhabaMap'e devam et",
+    "afterSubmitHint": "Kaydettikten sonra başlangıç sayfasına gidersin. Orada haritadan şehrini takip edebilir, yerel akışa bakabilir ve ilk mekan ya da etkinliği kaydedebilirsin — hepsi isteğe bağlı.",
     "success": "Tercihlerin kaydedildi.",
     "error": "Tercihler kaydedilemedi.",
     "existingSelections": "Kayıtlı ilgi alanları",
@@ -325,6 +333,15 @@
         "privateBadge": "gizli",
         "signIn": "Düzenlemek için giriş yap",
         "signInHint": "Hesabınla mekanları kendi listelerinde toplayabilirsin."
+      },
+      "community": {
+        "ariaLabel": "Bu mekana ilişkin herkese açık etkinlik",
+        "title": "Herkese açık özet",
+        "comments": "{count, plural, one {# herkese açık yorum} other {# herkese açık yorum}}",
+        "saves": "{count, plural, one {# kez kaydedildi} other {# kez kaydedildi}}",
+        "publicLists": "{count, plural, one {# herkese açık listede} other {# herkese açık listede}}",
+        "hintRecentComments": "Son günlerde yorum yapıldı.",
+        "footnote": "Yalnızca toplu, herkese açık sayılar — kişi veya gizli listeler gösterilmez."
       },
       "noticeTitle": "Bilgilere ilişkin not",
       "noticeDescription": "Gösterilen bilgiler yayımlanmış veya kullanıcı bildirimlerine dayanır; eksik veya güncelliğini yitirmiş olabilir. Düzeltmeler veya hukuka aykırı ya da hatalı içerikler için bildirim işlevini kullanabilirsin."
@@ -477,7 +494,19 @@
         "going": "Katılıyorum",
         "countsInterested": "{n} ilgileniyor",
         "countsGoing": "{n} katılıyor",
-        "signIn": "Katılmak için giriş yap"
+        "signIn": "Katılmak için giriş yap",
+        "validationError": "Girdi geçersizdi. Lütfen tekrar dene.",
+        "eventNotFound": "Bu etkinlik artık yok."
+      },
+      "community": {
+        "ariaLabel": "Bu etkinliğe ilişkin herkese açık özet",
+        "title": "Herkese açık özet",
+        "comments": "{count, plural, one {# herkese açık yorum} other {# herkese açık yorum}}",
+        "saves": "{count, plural, one {# kez kaydedildi} other {# kez kaydedildi}}",
+        "interested": "{count, number} ilgileniyor",
+        "going": "{count, number} katılıyor",
+        "hintRecentComments": "Son günlerde yorum yapıldı.",
+        "footnote": "Yalnızca toplu, herkese açık sayılar — kişiler listelenmez."
       },
       "noticeTitle": "Bilgilere ve harici bağlantılara ilişkin not",
       "noticeDescription": "Harici bağlantılar üçüncü taraf tekliflerine gider; MerhabaMap bilet satmaz. Etkinlik bilgileri yayımlanan kaynaklara ve topluluk bildirimlerine dayanır; eksik veya güncelliğini yitirmiş olabilir. Düzeltme ve uyarıları “Etkinliği bildir” üzerinden iletebilirsin."
@@ -521,7 +550,16 @@
       "aiReview": "AI inceleme",
       "ingest": "Ingest",
       "places": "Placeler",
-      "logs": "Loglar"
+      "logs": "Loglar",
+      "productInsights": "Kullanım"
+    },
+    "productInsights": {
+      "title": "Ürün kullanımı (dahili)",
+      "description": "Kişisel içerik olmadan, birinci taraf özet olaylar. Üçüncü taraf izleme yok.",
+      "countsTitle": "Olaylar (7 gün)",
+      "countsSince": "{date} tarihinden beri",
+      "recentTitle": "Son olaylar",
+      "empty": "Henüz kayıt yok."
     },
     "overview": {
       "title": "Moderasyon ve güven",
@@ -1272,16 +1310,39 @@
   },
   "cities": {
     "countryLabel": "Almanya",
-    "metaTitle": "{city} için Türk mekanları ve etkinlikleri",
+    "metaTitle": "{city} — Türk mekan ve etkinlikleri",
     "metaDescription": "{city} içinde Türk mekanlarını, etkinliklerini ve yerel giriş noktalarını keşfet.",
     "eyebrow": "Mekân ve etkinlikleri keşfet",
     "title": "MerhabaMap'te {city}",
     "description": "{city} için seçilmiş mekanlar, ilgili etkinlikler ve net sonraki adımlarla keşfe başla.",
+    "browse": {
+      "eyebrow": "Şehri keşfet",
+      "metaTitle": "{city} — Türk mekan ve etkinlikleri",
+      "metaDescription": "{city} için herkese açık mekanlar ve yaklaşan etkinlikler — harita, listeler ve yerel bağlam.",
+      "notFoundTitle": "Şehir bulunamadı",
+      "intro": "{city} için herkese açık mekanların ve yaklaşan etkinliklerin derli toplu bir özeti. Yayında olan içerik MerhabaMap görünürlük kurallarına uyar.",
+      "statsLine": "Herkese açık: {places, number} mekan · {events, number} yaklaşan etkinlik",
+      "ctaMap": "Haritada gör",
+      "ctaPlaces": "Bu şehirdeki tüm mekanlar",
+      "ctaEvents": "Bu şehirdeki tüm etkinlikler",
+      "placesTitle": "{city} içindeki mekanlar",
+      "eventsTitle": "{city} içindeki yaklaşan etkinlikler",
+      "viewAllPlaces": "Mekan listesine git",
+      "viewAllEvents": "Etkinlik listesine git",
+      "emptyPlaces": "Bu şehir için henüz herkese açık mekan yok.",
+      "emptyEvents": "Bu şehir için şu an yaklaşan herkese açık etkinlik yok.",
+      "collectionsTitle": "Bu şehirden mekan içeren herkese açık listeler",
+      "collectionsFootnote": "Yalnızca herkese açık listeler; bu şehirden en az bir mekan içerenler.",
+      "collectionsItemCount": "{n, plural, one {# mekan} other {# mekan}}",
+      "exploreByCategories": "Kategoriye göre keşfet"
+    },
     "cityFollow": {
       "follow": "Şehri takip et",
       "unfollow": "Takibi bırak",
       "signIn": "Giriş yap",
-      "signInHint": "Şehirleri takip etmek ve yerel akışı kullanmak için giriş yap."
+      "signUp": "Kayıt ol",
+      "signInHint": "Şehirleri takip etmek ve yerel akışı kullanmak için giriş yap.",
+      "validationError": "İstek geçersizdi. Lütfen tekrar dene."
     },
     "map": {
       "title": "{city} için keşif haritası",
@@ -1345,6 +1406,81 @@
     "emptyPlaces": "Bu şehir için henüz öne çıkan mekan görünmüyor. Yine de yeni kayıtlar için mekan listesine geçebilirsin.",
     "emptyEvents": "Bu şehir için şimdilik yaklaşan etkinlik görünmüyor. Yeni yayınlanan etkinlikler için etkinlik listesine bakabilirsin."
   },
+  "placeCategories": {
+    "index": {
+      "metaTitle": "Kategoriye göre mekanlar | MerhabaMap",
+      "metaDescription": "MerhabaMap'te herkese açık mekanları kategoriye göre keşfet — yalnızca birden fazla görünür kaydı olan kategoriler.",
+      "eyebrow": "Kategoriler",
+      "title": "Kategoriye göre keşfet",
+      "intro": "Her kategori, herkese açık mekanların kısa bir özetine gider. Yalnızca en az iki görünür mekanı olan kategoriler listelenir.",
+      "empty": "Şu an bu özet için yeterli herkese açık mekana sahip bir kategori yok.",
+      "placeCount": "{count, plural, one {# mekan} other {# mekan}}"
+    },
+    "browse": {
+      "eyebrow": "Kategori",
+      "notFoundTitle": "Kategori bulunamadı",
+      "metaTitle": "{category} — herkese açık mekanlar | MerhabaMap",
+      "metaDescription": "MerhabaMap'te „{category}“ kategorisindeki herkese açık mekanlar: kısa seçki, şehir bağlantıları ve listeler.",
+      "intro": "„{category}“ kategorisindeki herkese açık mekanlar. Liste bilinçli olarak kısa; filtresiz tam liste için mekan sayfasını kullan.",
+      "statsLine": "Bu kategoride {places, number} herkese açık mekan",
+      "ctaMap": "Haritaya git",
+      "ctaPlaces": "Bu kategorideki tüm mekanlar",
+      "placesTitle": "{category} mekanları",
+      "viewAllPlaces": "Mekan listesine git",
+      "citiesTitle": "Bu kategoride mekanı olan şehirler",
+      "citiesFootnote": "Görünür mekan sayısına göre sıralı — popülerlik iddiası yok.",
+      "cityHintCount": "{count, plural, one {# mekan} other {# mekan}}",
+      "backToIndex": "Tüm kategoriler"
+    }
+  },
+  "search": {
+    "metaTitle": "Arama | MerhabaMap",
+    "metaDescription": "MerhabaMap'te herkese açık mekanları ve yaklaşan etkinlikleri ara.",
+    "metaTitleWithQuery": "„{query}“ — Arama | MerhabaMap",
+    "metaDescriptionWithQuery": "„{query}“ için sonuçlar: herkese açık mekanlar ve yaklaşan etkinlikler.",
+    "eyebrow": "Arama",
+    "title": "Mekan ve etkinlik ara",
+    "description": "Yalnızca yayınlanmış mekanlar ve yaklaşan etkinliklerde basit metin araması. Profiller veya listeler aranmaz.",
+    "headerLabel": "Arama",
+    "headerPlaceholder": "Mekan veya etkinlik …",
+    "headerSubmit": "Ara",
+    "form": {
+      "queryLabel": "Arama metni",
+      "queryPlaceholder": "Örn. restoran, cami, konser …",
+      "cityLabel": "Şehir (isteğe bağlı)",
+      "cityAll": "Tüm şehirler",
+      "submit": "Ara"
+    },
+    "queryTooShort": "Lütfen en az iki karakter gir.",
+    "resultsFor": "„{query}“ için sonuçlar",
+    "sectionPlaces": "Mekanlar",
+    "sectionEvents": "Yaklaşan etkinlikler",
+    "nonePlaces": "Uygun herkese açık mekan yok.",
+    "noneEvents": "Uygun yaklaşan etkinlik yok.",
+    "empty": {
+      "message": "Bu arama için sonuç yok. Harita, akış veya kategorilere geçebilirsin.",
+      "ctaMap": "Haritaya git",
+      "ctaFeed": "Akışa git",
+      "ctaCategories": "Kategorilere git"
+    }
+  },
+  "guestConversion": {
+    "title": "Hesapla daha fazla seçenek",
+    "benefitSave": "Mekan ve etkinlikleri kaydet",
+    "benefitCities": "Şehirleri takip et",
+    "benefitFeed": "Yerel akış ve bildirimleri kullan",
+    "benefitCollections": "Kendi listelerini oluştur ve yönet",
+    "benefitComments": "Yorum yap ve toplulukla etkileş",
+    "optional": "Hepsi isteğe bağlı — kayıt olmadan sayfa tamamen okunabilir.",
+    "signIn": "Giriş yap",
+    "signUp": "Kayıt ol"
+  },
+  "share": {
+    "label": "Paylaş",
+    "copied": "Bağlantı kopyalandı",
+    "copyFailed": "Kopyalanamadı",
+    "ariaLabel": "Paylaş veya bağlantıyı kopyala"
+  },
   "saved": {
     "common": {
       "details": "Detayları gör",
@@ -1375,6 +1511,85 @@
       "fallbackDescription": "Yakında daha fazla etkinlik bilgisi eklenecek."
     }
   },
+  "participating": {
+    "events": {
+      "metaTitle": "Planladığım etkinlikler | MerhabaMap",
+      "metaDescription": "İlgilendiğin veya katılacağını seçtiğin yaklaşan herkese açık etkinlikler.",
+      "eyebrow": "Katılım",
+      "title": "Planladığım etkinlikler",
+      "description": "Yalnızca henüz gerçekleşmemiş ve herkese açık etkinlikler — baskı yok, hatırlatma yok.",
+      "backHome": "Başa dön",
+      "emptyTitle": "Yaklaşan etkinlik yok",
+      "emptyDescription": "Bir etkinlikte „İlgileniyorum“ veya „Katılıyorum“ seçtiğinde burada görünür.",
+      "cta": "Etkinlikleri keşfet"
+    }
+  },
+  "home": {
+    "metaTitle": "Başlangıç | MerhabaMap",
+    "metaDescription": "Sakin bir giriş: bildirimler, akış, keşif ve şehirler.",
+    "eyebrow": "Başlangıç",
+    "title": "Tekrar hoş geldin, {name}",
+    "subtitle": "Sırada ne var, net ve sade şekilde burada.",
+    "activation": {
+      "citiesTitle": "Şehir takibi",
+      "citiesBody": "Takip ettiğin şehirlerle yerel akış ve harita senin için anlamlı olur. Bunu haritada bilinçli olarak yaparsın — otomatik ayar yok.",
+      "citiesOnboardingHint": "Ayarlarında {city} seçtin. Haritadan bu şehri orada açıkça takip edebilirsin.",
+      "savesTitle": "Bir şey kaydet",
+      "savesBody": "Beğendiğin bir mekanı veya etkinliği kaydedebilirsin — sonra „Kaydedilenler“ altında bulursun.",
+      "moreTitle": "MerhabaMap’i biraz daha kullan",
+      "moreBody": "Liste oluşturmak veya mekan / etkinlik önermek — tamamen isteğe bağlı, baskı yok.",
+      "linkMapFollow": "Haritaya git (şehir takibi)",
+      "linkLocalFeed": "Yerel akış",
+      "linkPlaces": "Mekanları keşfet",
+      "linkEvents": "Etkinlikleri keşfet",
+      "linkFeed": "Aktivite akışı",
+      "linkCollections": "Listelerim",
+      "linkSubmitPlace": "Mekan öner",
+      "linkSubmitEvent": "Etkinlik öner"
+    },
+    "continue": {
+      "title": "Devam et",
+      "lead": "Sakin sonraki adımlar — yalnızca şu an senin için uygun olanlar.",
+      "notifications": "Bildirimler",
+      "notificationsNone": "okunmamış yok",
+      "feed": "Aktivite akışı",
+      "feedHint": "Senin ve topluluğun şu an paylaştığı herkese açık sinyaller.",
+      "feedLocal": "Şehirlerimdeki aktiviteler",
+      "feedLocalHint": "Yalnızca takip ettiğin şehirlerden.",
+      "savedPlaces": "Kaydedilen mekanlar",
+      "savedEvents": "Kaydedilen etkinlikler",
+      "participatingEvents": "Planladığım etkinlikler",
+      "collections": "Listelerim",
+      "contributions": "Gönderdiğim mekan ve etkinlikler",
+      "previewEvent": "Keşiften bir etkinlik:",
+      "previewPlace": "Keşiften bir mekan:",
+      "map": "Haritaya git"
+    },
+    "discovery": {
+      "title": "Şu an hareketli",
+      "footnote": "Akıştaki gibi: son 10 günün açık sinyalleri (kaydetme, yorumlar, katılım, listeler).",
+      "moreOnFeed": "Tümünü akışta gör",
+      "places": "Mekanlar",
+      "events": "Etkinlikler",
+      "collections": "Herkese açık listeler"
+    },
+    "cities": {
+      "title": "Şehirlerim",
+      "empty": "Henüz hiçbir şehri takip etmiyorsun. Haritadan şehir takip ederek yerel aktiviteleri akışta görebilirsin.",
+      "ctaMap": "Haritaya git",
+      "feedLocal": "Yerel akış"
+    },
+    "activity": {
+      "title": "Senin alanın",
+      "profile": "Herkese açık profil",
+      "settings": "Hesap ve ayarlar",
+      "collections": "Listelerim",
+      "savedPlaces": "Kaydedilen mekanlar",
+      "savedEvents": "Kaydedilen etkinlikler",
+      "participatingEvents": "Planlanan etkinlikler (ilgili / katılıyorum)",
+      "contributions": "Önerdiğim mekanlar ve etkinlikler"
+    }
+  },
   "feed": {
     "metaTitle": "Aktiviteler | MerhabaMap",
     "metaDescription": "MerhabaMap topluluğunda neler oluyor.",
@@ -1392,6 +1607,12 @@
     "emptyCtaPlaces": "Mekanları keşfet",
     "emptyCtaFollow": "Profil ve kullanıcılar",
     "emptyCtaFollowSignIn": "Giriş yap ve takip et",
+    "returnHints": {
+      "contextDefault": "Bu akışta senin aktivitelerin, takip ettiklerinin ve MerhabaMap’teki herkese açık sinyaller görünür.",
+      "contextLocal": "Burada yalnızca takip ettiğin şehirlerdeki mekan ve etkinliklere dair aktiviteler listelenir.",
+      "openLocalFeed": "„Şehirlerim“ akışına geç",
+      "openNotifications": "Bildirimler ({count} okunmamış)"
+    },
     "activity": {
       "unknownEntity": "İçerik artık yok",
       "savedPlaceVerb": "kaydetti:",
@@ -1419,6 +1640,34 @@
       "cityFollowedVerb": "artık takip ediyor:",
       "cityFollowedOwn": "Artık takip ediyorsun:",
       "genericType": "Aktivite ({type})"
+    },
+    "discovery": {
+      "footnoteGlobal": "Son 10 güne açık veriler: kaydetme, yorumlar, katılım ve liste eklemeleri.",
+      "footnoteLocal": "Aynı kurallar; yalnızca takip ettiğin şehirler.",
+      "footnoteCategory": "Aynı kurallar; yalnızca bu kategori.",
+      "placesTitle": "Çok etkileşim alan mekanlar",
+      "placesTitleLocal": "Şehirlerinde öne çıkan mekanlar",
+      "placesTitleCategory": "Bu kategoride etkileşim",
+      "eventsTitle": "Çok etkileşim alan etkinlikler",
+      "eventsTitleLocal": "Şehirlerinde öne çıkan etkinlikler",
+      "collectionsTitle": "Yeni eklemeleri olan herkese açık listeler",
+      "collectionsTitleLocal": "Şehirlerinde büyüyen listeler",
+      "placeReason": {
+        "saved": "Sık kaydedilen",
+        "comments": "Çok yorumlanan",
+        "listed": "Sık listeye eklenen",
+        "mixed": "Birden fazla sinyal"
+      },
+      "eventReason": {
+        "participation": "Yoğun ilgi / katılım",
+        "comments": "Çok yorumlanan",
+        "saved": "Sık kaydedilen",
+        "mixed": "Birden fazla sinyal"
+      },
+      "collectionReason": {
+        "recentAdds": "Yakında yeni eklemeler",
+        "newList": "Yakında yayınlandı"
+      }
     }
   },
   "notifications": {
@@ -1426,6 +1675,7 @@
     "metaDescription": "Takip ve mekan yorumlarına dair uygulama içi bildirimler.",
     "title": "Bildirimler",
     "subtitle": "Takipler ile mekanına veya önerdiğin etkinliğe yapılan yorumlar burada görünür. Push veya e-posta gönderilmez.",
+    "backToHome": "Başa dön",
     "empty": "Henüz bildirim yok.",
     "emptyHint": "Biri seni takip ettiğinde veya sahibi olduğun bir mekana ya da önerdiğin bir etkinliğe yorum yazıldığında burada görünür.",
     "markRead": "Okundu işaretle",
@@ -1499,7 +1749,10 @@
     "deleteConfirm": "Liste ve tüm öğeler kalıcı olarak silinsin mi?",
     "listTitle": "Listelerin",
     "empty": "Henüz liste oluşturmadın.",
+    "actionValidationError": "Lütfen bilgilerini kontrol et.",
+    "actionErrorFallback": "İşlem yapılamadı.",
     "detailMetaTitle": "{title} | Liste",
+    "detailMetaDescriptionFallback": "MerhabaMap'te herkese açık mekan listesi.",
     "detailOwnerPrefix": "Liste sahibi:",
     "detailItemCount": "{n} mekan",
     "detailEmpty": "Bu listede henüz mekan yok.",

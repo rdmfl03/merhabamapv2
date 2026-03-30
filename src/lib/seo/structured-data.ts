@@ -28,6 +28,33 @@ export function buildCityCollectionSchema(args: {
   };
 }
 
+export function buildCategoryCollectionSchema(args: {
+  locale: AppLocale;
+  categoryName: string;
+  description: string;
+  path: string;
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: `${args.categoryName} | ${appConfig.name}`,
+    description: args.description,
+    url: buildLocalizedUrl(args.locale, args.path) ?? undefined,
+    inLanguage: args.locale,
+  };
+}
+
+function schemaGeo(latitude?: number | null, longitude?: number | null) {
+  if (latitude == null || longitude == null) {
+    return undefined;
+  }
+  return {
+    "@type": "GeoCoordinates",
+    latitude,
+    longitude,
+  };
+}
+
 export function buildPlaceSchema(args: {
   locale: AppLocale;
   slug: string;
@@ -39,6 +66,8 @@ export function buildPlaceSchema(args: {
   phone?: string | null;
   websiteUrl?: string | null;
   image?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
   aggregateRating?: {
     ratingValue: number;
     ratingCount: number;
@@ -53,6 +82,7 @@ export function buildPlaceSchema(args: {
     image: args.image ?? undefined,
     telephone: args.phone ?? undefined,
     sameAs: args.websiteUrl ?? undefined,
+    geo: schemaGeo(args.latitude, args.longitude),
     aggregateRating:
       args.aggregateRating && args.aggregateRating.ratingCount > 0
         ? {
@@ -88,6 +118,8 @@ export function buildEventSchema(args: {
   externalUrl?: string | null;
   image?: string | null;
   organizerName?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
 }) {
   return {
     "@context": "https://schema.org",
@@ -109,6 +141,7 @@ export function buildEventSchema(args: {
     location: {
       "@type": "Place",
       name: args.venueName ?? args.cityName,
+      geo: schemaGeo(args.latitude, args.longitude),
       address: {
         "@type": "PostalAddress",
         streetAddress: args.addressLine1 ?? undefined,

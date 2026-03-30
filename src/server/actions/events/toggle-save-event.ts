@@ -8,6 +8,8 @@ import { prisma } from "@/lib/prisma";
 import { saveEventSchema } from "@/lib/validators/events";
 import { buildPublicEventWhere } from "@/server/queries/events/shared";
 
+import { trackProductInsight } from "@/server/product-insights/track-product-insight";
+
 import { sanitizeEventReturnPath } from "./shared";
 
 export async function toggleSaveEvent(formData: FormData) {
@@ -54,6 +56,7 @@ export async function toggleSaveEvent(formData: FormData) {
     },
   });
 
+  let saveAdded = false;
   if (existing) {
     await prisma.savedEvent.delete({
       where: {
@@ -63,6 +66,7 @@ export async function toggleSaveEvent(formData: FormData) {
         },
       },
     });
+    saveAdded = false;
   } else {
     await prisma.savedEvent.create({
       data: {
@@ -70,7 +74,19 @@ export async function toggleSaveEvent(formData: FormData) {
         eventId: event.id,
       },
     });
+    saveAdded = true;
   }
+
+  await trackProductInsight({
+    name: "save_click",
+    payload: {
+      locale: parsed.data.locale,
+      authenticated: true,
+      entityType: "event",
+      eventId: event.id,
+      saveAdded,
+    },
+  });
 
   revalidatePath(returnPath);
   revalidatePath(`/${parsed.data.locale}/events/${event.slug}`);

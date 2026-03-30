@@ -1,5 +1,7 @@
+import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
+import { robotsNoIndex } from "@/lib/seo/robots-meta";
 import { requireAuthenticatedUser } from "@/server/actions/user/shared";
 import { getSavedPlaces } from "@/server/queries/user/get-saved-places";
 import { PlaceCard } from "@/components/places/place-card";
@@ -10,6 +12,16 @@ import { getLocalizedPlaceCategoryLabel, getLocalizedText } from "@/lib/places";
 type SavedPlacesPageProps = {
   params: Promise<{ locale: "de" | "tr" }>;
 };
+
+export async function generateMetadata({ params }: SavedPlacesPageProps): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "saved" });
+  return {
+    title: t("places.title"),
+    description: t("places.description"),
+    robots: robotsNoIndex,
+  };
+}
 
 export default async function SavedPlacesPage({ params }: SavedPlacesPageProps) {
   const { locale } = await params;

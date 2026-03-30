@@ -40,8 +40,8 @@ export async function signInWithEmail(formData: FormData) {
       },
     });
 
-    if (user?.onboardingCompletedAt && user.onboardingCity?.slug) {
-      redirect(`/${locale}/map?city=${user.onboardingCity.slug}` as Route);
+    if (user?.onboardingCompletedAt) {
+      redirect(`/${locale}/home` as Route);
     }
   }
 

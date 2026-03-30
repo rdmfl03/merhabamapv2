@@ -220,7 +220,7 @@ export default async function UserProfilePage({ params }: UserProfilePageProps) 
                   className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border/80 bg-white/90 px-4 py-3 shadow-sm"
                 >
                   <Link
-                    href={`/map?city=${encodeURIComponent(city.slug)}`}
+                    href={`/cities/${encodeURIComponent(city.slug)}`}
                     className="font-medium text-brand underline-offset-2 hover:underline"
                   >
                     {getLocalizedCityDisplayName(locale, city)}
@@ -236,6 +236,7 @@ export default async function UserProfilePage({ params }: UserProfilePageProps) 
                       follow: tCities("cityFollow.follow"),
                       unfollow: tCities("cityFollow.unfollow"),
                       signIn: tCities("cityFollow.signIn"),
+                      signUp: tCities("cityFollow.signUp"),
                       signInHint: tCities("cityFollow.signInHint"),
                     }}
                   />

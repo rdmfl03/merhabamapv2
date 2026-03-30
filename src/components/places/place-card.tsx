@@ -25,6 +25,8 @@ type PlaceCardProps = {
   locale: "de" | "tr";
   description: string;
   categoryLabel: string;
+  /** When set, category line links to public category browse (only if that page exists). */
+  categoryHref?: string;
   cityLabel: string;
   returnPath: string;
   isAuthenticated: boolean;
@@ -45,6 +47,7 @@ export function PlaceCard({
   locale,
   description,
   categoryLabel,
+  categoryHref,
   cityLabel,
   returnPath,
   isAuthenticated,
@@ -95,7 +98,16 @@ export function PlaceCard({
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">
-                {categoryLabel}
+                {categoryHref ? (
+                  <Link
+                    href={categoryHref}
+                    className="underline-offset-2 hover:underline"
+                  >
+                    {categoryLabel}
+                  </Link>
+                ) : (
+                  categoryLabel
+                )}
               </p>
               <h3 className="mt-1 text-lg font-semibold text-foreground">
                 <Link href={`/places/${place.slug}`}>{place.name}</Link>
@@ -105,7 +117,18 @@ export function PlaceCard({
 
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <MapPin className="h-4 w-4" />
-            <span>{cityLabel}</span>
+            <span>
+              {place.city.slug ? (
+                <Link
+                  href={`/cities/${encodeURIComponent(place.city.slug)}`}
+                  className="underline-offset-2 hover:underline"
+                >
+                  {cityLabel}
+                </Link>
+              ) : (
+                cityLabel
+              )}
+            </span>
           </div>
 
           {ratingSummary ? (

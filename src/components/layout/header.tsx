@@ -1,7 +1,8 @@
 import Image from "next/image";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 import { auth } from "@/auth";
+import { HeaderSearch } from "@/components/layout/header-search";
 import { HeaderNotificationsLink } from "@/components/layout/header-notifications-link";
 import {
   HeaderPrimaryNavDesktop,
@@ -11,9 +12,12 @@ import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { Button } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
 import { canAccessBusiness } from "@/lib/permissions";
+import { isAppLocale } from "@/i18n/routing";
 
 export async function Header() {
   const t = await getTranslations("common");
+  const localeRaw = await getLocale();
+  const locale = isAppLocale(localeRaw) ? localeRaw : "de";
   let session = null;
 
   try {
@@ -84,6 +88,10 @@ export async function Header() {
               {authButtons}
             </div>
           </div>
+        </div>
+
+        <div className="mt-3 border-t border-border/50 pt-3">
+          <HeaderSearch locale={locale} />
         </div>
       </div>
     </header>

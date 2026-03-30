@@ -31,6 +31,7 @@ export default async function AdminLogsPage({ params }: AdminLogsPageProps) {
         ingest: t("nav.ingest"),
         places: t("nav.places"),
         logs: t("nav.logs"),
+        productInsights: t("nav.productInsights"),
       }}
     >
       <Card className="bg-white/90">

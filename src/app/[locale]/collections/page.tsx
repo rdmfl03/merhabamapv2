@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
+import { robotsNoIndex } from "@/lib/seo/robots-meta";
 import { CollectionsManageClient } from "@/components/collections/collections-manage-client";
 import { listMyPlaceCollections } from "@/server/queries/collections/list-my-place-collections";
 
@@ -18,6 +19,7 @@ export async function generateMetadata({ params }: CollectionsPageProps): Promis
   return {
     title: t("metaTitle"),
     description: t("metaDescription"),
+    robots: robotsNoIndex,
   };
 }
 

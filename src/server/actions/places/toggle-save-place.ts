@@ -11,6 +11,8 @@ import { buildPublicPlaceWhere } from "@/server/queries/places/shared";
 import { ACTIVITY_ENTITY, ACTIVITY_TYPE } from "@/lib/social/activity-types";
 import { insertActivity } from "@/server/social/insert-activity";
 
+import { trackProductInsight } from "@/server/product-insights/track-product-insight";
+
 import { sanitizeReturnPath } from "./shared";
 
 export async function toggleSavePlace(formData: FormData) {
@@ -57,6 +59,7 @@ export async function toggleSavePlace(formData: FormData) {
     select: { id: true },
   });
 
+  let saveAdded = false;
   if (existing) {
     await prisma.savedPlace.delete({
       where: {
@@ -66,6 +69,7 @@ export async function toggleSavePlace(formData: FormData) {
         },
       },
     });
+    saveAdded = false;
   } else {
     await prisma.savedPlace.create({
       data: {
@@ -73,6 +77,7 @@ export async function toggleSavePlace(formData: FormData) {
         placeId: place.id,
       },
     });
+    saveAdded = true;
 
     const existingSaveActivity = await prisma.activity.findFirst({
       where: {
@@ -92,6 +97,17 @@ export async function toggleSavePlace(formData: FormData) {
       });
     }
   }
+
+  await trackProductInsight({
+    name: "save_click",
+    payload: {
+      locale: parsed.data.locale,
+      authenticated: true,
+      entityType: "place",
+      placeId: place.id,
+      saveAdded,
+    },
+  });
 
   revalidatePath(returnPath);
   revalidatePath(`/${parsed.data.locale}/places/${place.slug}`);

@@ -5,8 +5,10 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import { auth } from "@/auth";
+import { getCityFollowToggleGuard } from "@/lib/rate-limit/social-action-guard";
 import { prisma } from "@/lib/prisma";
 import { sanitizeReturnPath } from "@/server/actions/places/shared";
+import { trackProductInsight } from "@/server/product-insights/track-product-insight";
 import {
   recordCityFollowedActivity,
   removeCityFollowedActivity,
@@ -29,6 +31,7 @@ function revalidateCityFollowSurfaces(locale: "de" | "tr", citySlug: string | nu
   revalidatePath(`/${locale}/feed`);
   if (citySlug) {
     revalidatePath(`/${locale}/map?city=${citySlug}`);
+    revalidatePath(`/${locale}/cities/${citySlug}`);
   }
   revalidatePath(`/${locale}/map`);
   revalidatePath(`/${locale}/profile`);
@@ -73,19 +76,37 @@ export async function toggleCityFollow(
     select: { id: true },
   });
 
+  let cityFollowed = false;
   if (existing) {
     await prisma.$transaction(async (tx) => {
       await tx.cityFollow.delete({ where: { id: existing.id } });
       await removeCityFollowedActivity(userId, city.id, tx);
     });
+    cityFollowed = false;
   } else {
+    const cityGuard = await getCityFollowToggleGuard(userId);
+    if (cityGuard) {
+      return { status: "error", message: cityGuard };
+    }
     await prisma.$transaction(async (tx) => {
       await tx.cityFollow.create({
         data: { userId, cityId: city.id },
       });
       await recordCityFollowedActivity(userId, city.id, tx);
     });
+    cityFollowed = true;
   }
+
+  await trackProductInsight({
+    name: "city_follow_click",
+    payload: {
+      locale,
+      authenticated: true,
+      entityType: "city",
+      citySlug: city.slug,
+      cityFollowed,
+    },
+  });
 
   revalidateCityFollowSurfaces(locale, city.slug);
 

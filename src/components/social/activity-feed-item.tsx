@@ -64,7 +64,7 @@ function EntityNameLink({
   }
   if (entityType === ACTIVITY_ENTITY.city && slug) {
     return (
-      <Link href={`/map?city=${slug}`} className="font-medium underline-offset-2 hover:underline">
+      <Link href={`/cities/${encodeURIComponent(slug)}`} className="font-medium underline-offset-2 hover:underline">
         {label}
       </Link>
     );

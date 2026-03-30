@@ -14,6 +14,7 @@ type AdminShellProps = {
     ingest?: string;
     places?: string;
     logs: string;
+    productInsights?: string;
   };
 };
 
@@ -39,6 +40,14 @@ export function AdminShell({
       ? [{ href: `/${locale}/admin/places`, label: labels.places }]
       : []),
     { href: `/${locale}/admin/logs`, label: labels.logs },
+    ...(labels.productInsights
+      ? [
+          {
+            href: `/${locale}/admin/product-insights`,
+            label: labels.productInsights,
+          },
+        ]
+      : []),
   ];
 
   return (

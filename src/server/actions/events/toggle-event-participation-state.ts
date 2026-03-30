@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import type { EventParticipationStatus } from "@prisma/client";
 
 import { auth } from "@/auth";
+import { getEventParticipationToggleGuard } from "@/lib/rate-limit/social-action-guard";
 import { toggleEventParticipationSchema } from "@/lib/validators/event-participation";
 import { prisma } from "@/lib/prisma";
 import { buildPublicEventWhere } from "@/server/queries/events/shared";
@@ -13,6 +14,8 @@ import {
   clearEventParticipationActivities,
   setEventParticipationActivity,
 } from "@/server/social/sync-event-participation-activity";
+
+import { trackProductInsight } from "@/server/product-insights/track-product-insight";
 
 import { sanitizeReturnPath } from "../places/shared";
 
@@ -59,6 +62,14 @@ export async function toggleEventParticipation(
   }
 
   const { eventId, intent } = parsed.data;
+
+  const participationGuard = await getEventParticipationToggleGuard({
+    userId: session.user.id,
+    eventId,
+  });
+  if (participationGuard) {
+    return { status: "error", message: participationGuard };
+  }
   const userId = session.user.id;
 
   const current = await prisma.eventParticipation.findUnique({
@@ -108,6 +119,17 @@ export async function toggleEventParticipation(
   if (un) {
     revalidatePath(`/${parsed.data.locale}/user/${un}`);
   }
+
+  await trackProductInsight({
+    name: "event_participation_click",
+    payload: {
+      locale: parsed.data.locale,
+      authenticated: true,
+      entityType: "event",
+      eventId,
+      participationIntent: targetInterested ? "interested" : "going",
+    },
+  });
 
   return { status: "success" };
 }

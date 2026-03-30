@@ -338,6 +338,7 @@ model Place {
   @@index([imageSetStatus])
   @@index([primaryImageAssetId])
   @@index([fallbackImageAssetId])
+  @@index([name(ops: raw("gin_trgm_ops"))], map: "places_name_trgm_idx", type: Gin)
   @@map("places")
 }
 
@@ -406,6 +407,7 @@ model SavedPlace {
 
   @@unique([userId, placeId])
   @@index([userId])
+  @@index([placeId, createdAt(sort: Desc)])
   @@map("saved_places")
 }
 
@@ -419,6 +421,7 @@ model SavedEvent {
 
   @@unique([userId, eventId])
   @@index([userId])
+  @@index([eventId, createdAt(sort: Desc)])
   @@map("saved_events")
 }
 
@@ -491,6 +494,17 @@ model AdminActionLog {
   @@index([actorUserId])
   @@index([targetType, targetId])
   @@map("admin_action_logs")
+}
+
+/// First-party, low-cardinality product usage events (no PII, no raw search text).
+model ProductInsightEvent {
+  id        String   @id @default(cuid())
+  name      String
+  payload   Json     @default("{}")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([name, createdAt])
+  @@map("product_insight_events")
 }
 
 model AiRecheckRequest {

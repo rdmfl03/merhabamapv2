@@ -2,8 +2,10 @@
 
 import { useActionState, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 import { Link } from "@/i18n/navigation";
+import { resolveSocialGuardMessage } from "@/lib/social/social-guard-ui";
 import {
   createPlaceCollection,
   deletePlaceCollection,
@@ -48,6 +50,8 @@ export function CollectionsManageClient({
   labels,
 }: CollectionsManageClientProps) {
   const router = useRouter();
+  const tCols = useTranslations("collections");
+  const tGuard = useTranslations("socialSafety");
   const [createState, createAction, createPending] = useActionState(
     createPlaceCollection,
     idlePlaceCollectionActionState as PlaceCollectionActionState,
@@ -100,7 +104,10 @@ export function CollectionsManageClient({
           </Button>
           {createState.status === "error" ? (
             <p className="text-sm text-destructive" role="alert">
-              {createState.message}
+              {createState.message === "validation_error"
+                ? tCols("actionValidationError")
+                : (resolveSocialGuardMessage(createState.message, (k) => tGuard(k)) ??
+                  tCols("actionErrorFallback"))}
             </p>
           ) : null}
         </form>
@@ -148,6 +155,8 @@ function CollectionRow({
   labels: CollectionsManageClientProps["labels"];
   onMutate: () => void;
 }) {
+  const tCols = useTranslations("collections");
+  const tGuard = useTranslations("socialSafety");
   const [updateState, updateAction, updatePending] = useActionState(
     updatePlaceCollection,
     idlePlaceCollectionActionState as PlaceCollectionActionState,
@@ -244,7 +253,12 @@ function CollectionRow({
             </Button>
           </div>
           {updateState.status === "error" ? (
-            <p className="text-sm text-destructive">{updateState.message}</p>
+            <p className="text-sm text-destructive" role="alert">
+              {updateState.message === "validation_error"
+                ? tCols("actionValidationError")
+                : (resolveSocialGuardMessage(updateState.message, (k) => tGuard(k)) ??
+                  tCols("actionErrorFallback"))}
+            </p>
           ) : null}
         </form>
       )}

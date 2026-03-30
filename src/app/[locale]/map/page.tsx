@@ -173,6 +173,7 @@ export default async function DiscoveryMapPage({ params, searchParams }: MapPage
                 follow: t("cityFollow.follow"),
                 unfollow: t("cityFollow.unfollow"),
                 signIn: t("cityFollow.signIn"),
+                signUp: t("cityFollow.signUp"),
                 signInHint: t("cityFollow.signInHint"),
               }}
             />

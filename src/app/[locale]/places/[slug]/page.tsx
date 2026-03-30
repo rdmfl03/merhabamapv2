@@ -14,8 +14,10 @@ import { PlaceSaveButton } from "@/components/places/place-save-button";
 import { PlaceTrustBadge, PlaceTrustHelper } from "@/components/places/place-trust-badge";
 import { JsonLd } from "@/components/seo/json-ld";
 import { Card, CardContent } from "@/components/ui/card";
+import { Link } from "@/i18n/navigation";
 import { getLocalizedCityDisplayName } from "@/lib/cities/city-display-name";
 import { buildPlaceDetailMetadata } from "@/lib/metadata/places";
+import { clampMetaDescription } from "@/lib/seo/meta-text";
 import { formatDisplayAddress } from "@/lib/format-display-address";
 import {
   formatOpeningHoursDay,
@@ -28,10 +30,17 @@ import {
   resolvePlaceImage,
 } from "@/lib/places";
 import { getPlaceImageFallbackKey } from "@/lib/category-fallback-visual";
+import { buildLocalizedUrl } from "@/lib/seo/site";
 import { buildPlaceSchema } from "@/lib/seo/structured-data";
+import { GuestConversionHint } from "@/components/account/guest-conversion-hint";
+import { DetailCommunityContext } from "@/components/detail/detail-community-context";
+import { PublicShareButton } from "@/components/sharing/public-share-button";
 import { getPlaceCollectionMembershipFlags } from "@/server/queries/collections/get-place-collection-membership-flags";
 import { hasCreatorEntityContributionForPlace } from "@/server/queries/contributions/has-creator-entity-contribution";
+import { getCategoryIdsEligibleForBrowse } from "@/server/queries/categories/category-browse-eligibility";
 import { getPlaceBySlug } from "@/server/queries/places/get-place-by-slug";
+import { getPlaceDetailSocialContext } from "@/server/queries/places/get-place-detail-social-context";
+import { trackProductInsight } from "@/server/product-insights/track-product-insight";
 
 type PlaceDetailPageProps = {
   params: Promise<{ locale: "de" | "tr"; slug: string }>;
@@ -47,17 +56,20 @@ export async function generateMetadata({
     return {};
   }
 
-  const description = getLocalizedText(
-    { de: place.descriptionDe, tr: place.descriptionTr },
-    locale,
-    place.name,
+  const cityLabel = getLocalizedCityDisplayName(locale, place.city);
+  const description = clampMetaDescription(
+    getLocalizedText(
+      { de: place.descriptionDe, tr: place.descriptionTr },
+      locale,
+      place.name,
+    ),
   );
   const image = resolvePlaceImage(place);
 
   return buildPlaceDetailMetadata({
     locale,
     slug,
-    title: place.name,
+    title: `${place.name} · ${cityLabel}`,
     description,
     image: image?.url,
   });
@@ -69,8 +81,9 @@ export default async function PlaceDetailPage({
   const { locale, slug } = await params;
   setRequestLocale(locale);
 
-  const [t, session] = await Promise.all([
+  const [t, tGuest, session] = await Promise.all([
     getTranslations("places"),
+    getTranslations("guestConversion"),
     auth(),
   ]);
   const signedInUser = session?.user;
@@ -83,12 +96,23 @@ export default async function PlaceDetailPage({
     notFound();
   }
 
-  const [membershipRows, showUserSubmittedAttribution] = await Promise.all([
-    signedInUser?.id != null
-      ? getPlaceCollectionMembershipFlags(signedInUser.id, place.id)
-      : Promise.resolve([]),
-    hasCreatorEntityContributionForPlace(place.id),
-  ]);
+  await trackProductInsight({
+    name: "public_place_view",
+    payload: {
+      locale,
+      authenticated: Boolean(signedInUser?.id),
+    },
+  });
+
+  const [membershipRows, showUserSubmittedAttribution, placeSocialContext, categoryBrowseEligible] =
+    await Promise.all([
+      signedInUser?.id != null
+        ? getPlaceCollectionMembershipFlags(signedInUser.id, place.id)
+        : Promise.resolve([]),
+      hasCreatorEntityContributionForPlace(place.id),
+      getPlaceDetailSocialContext(place.id),
+      getCategoryIdsEligibleForBrowse([place.category.id]).then((set) => set.has(place.category.id)),
+    ]);
 
   const description = getLocalizedText(
     { de: place.descriptionDe, tr: place.descriptionTr },
@@ -132,6 +156,8 @@ export default async function PlaceDetailPage({
           phone: place.phone,
           websiteUrl: place.websiteUrl,
           image: image?.url,
+          latitude: place.latitude,
+          longitude: place.longitude,
           aggregateRating: safeRatingSummary
             ? {
                 ratingValue: safeRatingSummary.value,
@@ -160,7 +186,16 @@ export default async function PlaceDetailPage({
           <CardContent className="space-y-5 p-6">
             <div className="space-y-3">
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-brand">
-                {categoryLabel}
+                {categoryBrowseEligible ? (
+                  <Link
+                    href={`/categories/${encodeURIComponent(place.category.slug)}`}
+                    className="underline-offset-2 hover:underline"
+                  >
+                    {categoryLabel}
+                  </Link>
+                ) : (
+                  categoryLabel
+                )}
               </p>
               <div className="space-y-2">
                 <h1 className="font-display text-4xl text-foreground">
@@ -168,7 +203,12 @@ export default async function PlaceDetailPage({
                 </h1>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <MapPin className="h-4 w-4" />
-                  <span>{cityLabel}</span>
+                  <Link
+                    href={`/cities/${encodeURIComponent(place.city.slug)}`}
+                    className="underline-offset-2 hover:underline"
+                  >
+                    {cityLabel}
+                  </Link>
                 </div>
               </div>
 
@@ -237,6 +277,14 @@ export default async function PlaceDetailPage({
               />
             ) : null}
 
+            <DetailCommunityContext
+              variant="place"
+              commentCount={placeSocialContext.commentCount}
+              saveCount={placeSocialContext.saveCount}
+              publicListCount={placeSocialContext.publicListCount}
+              latestCommentAt={placeSocialContext.latestCommentAt}
+            />
+
             <div className="flex flex-wrap gap-3">
               <PlaceSaveButton
                 placeId={place.id}
@@ -252,7 +300,19 @@ export default async function PlaceDetailPage({
                   signIn: t("card.signIn"),
                 }}
               />
+              <PublicShareButton
+                locale={locale}
+                insightSurface="place_detail"
+                absoluteUrl={buildLocalizedUrl(locale, `/places/${place.slug}`)}
+                canonicalPath={`/${locale}/places/${place.slug}`}
+                title={`${place.name} · ${cityLabel}`}
+                text={description}
+              />
             </div>
+
+            {!signedInUser ? (
+              <GuestConversionHint locale={locale} returnPath={returnPath} />
+            ) : null}
 
             <PlaceCollectionsPanel
               placeId={place.id}
@@ -267,6 +327,7 @@ export default async function PlaceDetailPage({
                 manageLink: t("detail.collections.manageLink"),
                 privateBadge: t("detail.collections.privateBadge"),
                 signIn: t("detail.collections.signIn"),
+                signUp: tGuest("signUp"),
                 signInHint: t("detail.collections.signInHint"),
               }}
             />

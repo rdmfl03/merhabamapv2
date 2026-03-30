@@ -1,6 +1,8 @@
+import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { OnboardingForm } from "@/components/onboarding/onboarding-form";
+import { robotsNoIndex } from "@/lib/seo/robots-meta";
 import { requireAuthenticatedUser } from "@/server/actions/user/shared";
 import { getActiveCities } from "@/server/queries/user/get-active-cities";
 import { getCurrentUserProfile } from "@/server/queries/user/get-current-user-profile";
@@ -10,6 +12,16 @@ import { interestValues, parseUserInterests } from "@/lib/user-preferences";
 type OnboardingPageProps = {
   params: Promise<{ locale: "de" | "tr" }>;
 };
+
+export async function generateMetadata({ params }: OnboardingPageProps): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "onboarding" });
+  return {
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+    robots: robotsNoIndex,
+  };
+}
 
 export default async function OnboardingPage({ params }: OnboardingPageProps) {
   const { locale } = await params;
@@ -57,6 +69,7 @@ export default async function OnboardingPage({ params }: OnboardingPageProps) {
           cityTitle: t("cityTitle"),
           interestsTitle: t("interestsTitle"),
           submit: t("submit"),
+          afterSubmitHint: t("afterSubmitHint"),
           success: t("success"),
           error: t("error"),
         }}

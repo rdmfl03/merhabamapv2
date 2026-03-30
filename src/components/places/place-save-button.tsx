@@ -1,10 +1,12 @@
 "use client";
 
 import { useFormStatus } from "react-dom";
+import { useTranslations } from "next-intl";
 
 import { toggleSavePlace } from "@/server/actions/places/toggle-save-place";
 import { Button } from "@/components/ui/button";
-import { Link } from "@/i18n/navigation";
+import { GuestCtaInsightLink } from "@/components/product-insights/guest-cta-insight-link";
+import { guestAuthSignUpHrefFromSignIn } from "@/lib/auth/guest-auth-links";
 
 function SaveSubmitButton({
   isSaved,
@@ -50,11 +52,23 @@ export function PlaceSaveButton({
   signInHref,
   labels,
 }: PlaceSaveButtonProps) {
+  const tGuest = useTranslations("guestConversion");
+
   if (!isAuthenticated) {
+    const signUpHref = guestAuthSignUpHrefFromSignIn(signInHref);
     return (
-      <Button variant="outline" size="sm" asChild>
-        <Link href={signInHref}>{labels.signIn}</Link>
-      </Button>
+      <div className="flex flex-wrap items-center gap-2">
+        <Button variant="outline" size="sm" asChild>
+          <GuestCtaInsightLink href={signInHref} locale={locale} surface="place_save" ctaType="signin">
+            {labels.signIn}
+          </GuestCtaInsightLink>
+        </Button>
+        <Button variant="ghost" size="sm" className="h-8 px-2 text-xs text-muted-foreground" asChild>
+          <GuestCtaInsightLink href={signUpHref} locale={locale} surface="place_save" ctaType="signup">
+            {tGuest("signUp")}
+          </GuestCtaInsightLink>
+        </Button>
+      </div>
     );
   }
 
