@@ -1,4 +1,4 @@
-import { GERMANY_DISCOVERY_CENTER } from "@/lib/cities/discovery-city-center";
+import { GERMANY_DISCOVERY_CENTER, resolveDiscoveryCityCenter } from "@/lib/cities/discovery-city-center";
 import type { GermanyMapCluster } from "@/lib/cities/germany-map-cluster";
 import { prisma } from "@/lib/prisma";
 import { getGermanyMapClusters } from "@/server/queries/cities/get-germany-map-clusters";
@@ -19,11 +19,6 @@ import {
   type PublicPlaceRecordWithAiDiscoveryMap,
 } from "@/server/queries/places/shared";
 
-const pilotCityCenters: Record<string, { latitude: number; longitude: number }> = {
-  berlin: { latitude: 52.52, longitude: 13.405 },
-  koeln: { latitude: 50.9375, longitude: 6.9603 },
-};
-
 const GERMANY_MAP_VIRTUAL_CITY = {
   id: "virtual-de-discovery-map",
   slug: "deutschland",
@@ -32,9 +27,9 @@ const GERMANY_MAP_VIRTUAL_CITY = {
   isPilot: false,
 } as const;
 
-/** Per-city discovery map: was 36 → 18 markers; too small for cities with many venues. */
-const CITY_MAP_PLACE_FETCH_LIMIT = 400;
-const CITY_MAP_PLACE_MARKER_LIMIT = 400;
+/** Per-city discovery map: genug für große Städte; Deutschland-Übersicht nutzt nur Cluster. */
+const CITY_MAP_PLACE_FETCH_LIMIT = 2500;
+const CITY_MAP_PLACE_MARKER_LIMIT = 2500;
 const CITY_MAP_EVENT_FETCH_LIMIT = 120;
 const CITY_MAP_EVENT_MARKER_LIMIT = 60;
 
@@ -109,6 +104,8 @@ export async function getPublicCityPage(citySlug: string, userId?: string) {
       nameDe: true,
       nameTr: true,
       isPilot: true,
+      lat: true,
+      lng: true,
     },
   });
 
@@ -116,7 +113,7 @@ export async function getPublicCityPage(citySlug: string, userId?: string) {
     return null;
   }
 
-  const cityCenter = pilotCityCenters[city.slug] ?? null;
+  const cityCenter = resolveDiscoveryCityCenter(city.slug, city.lat, city.lng);
 
   const [mapPlacesLite, mapEvents, placeCount, eventCount] = await prisma.$transaction([
     prisma.place.findMany({

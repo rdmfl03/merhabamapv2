@@ -22,6 +22,10 @@ import { useMapBasemap } from "@/components/maps/map-basemap-context";
 import { MerhabaTileLayer } from "@/components/maps/merhaba-tile-layer";
 import { Link } from "@/i18n/navigation";
 import type { CityMapPoint, MapViewportBounds } from "@/components/cities/city-discovery-map-types";
+import {
+  CITY_DISCOVERY_MAP_MIN_ZOOM,
+  maxBoundsFromCenterRadiusKm,
+} from "@/lib/cities/city-map-max-bounds";
 
 export type GermanyCityClusterMarker = {
   slug: string;
@@ -65,6 +69,8 @@ type CityDiscoveryLeafletMapProps = {
   clusterLoadingLabel?: string;
   resultsCitiesUnitLabel?: string;
   germanyClusterRevealLabel?: string;
+  /** Wenn gesetzt (Stadt-Ansicht): Pan/Zoom auf Kreis um cityCenter begrenzt (km). Deutschland-Cluster: weglassen. */
+  restrictToCityRadiusKm?: number | null;
 };
 
 const DEFAULT_CENTER: LatLngExpression = [51.1657, 10.4515];
@@ -410,12 +416,15 @@ function FitToMarkers({
   userLocation,
   germanyCityClusters,
   mapLayoutEpoch,
+  mapMinZoom,
 }: {
   points: CityMapPoint[];
   cityCenter: { latitude: number; longitude: number } | null;
   userLocation: { latitude: number; longitude: number } | null;
   germanyCityClusters?: GermanyCityClusterMarker[];
   mapLayoutEpoch?: number;
+  /** Mindest-Zoom der Karte (fitBounds maxZoom bei 0 Pins darf nicht darunter liegen). */
+  mapMinZoom: number;
 }) {
   const map = useMap();
 
@@ -482,12 +491,16 @@ function FitToMarkers({
       return;
     }
 
+    const fitMaxZoomWhenNoPins = germanyCityClusters?.length
+      ? 8
+      : Math.max(8, mapMinZoom);
+
     map.fitBounds(bounds, {
       padding: [40, 40],
-      maxZoom: points.length > 0 ? 14 : 8,
+      maxZoom: points.length > 0 ? 14 : fitMaxZoomWhenNoPins,
       animate: false,
     });
-  }, [bounds, map, points.length]);
+  }, [bounds, map, points.length, germanyCityClusters?.length, mapMinZoom]);
 
   return null;
 }
@@ -550,6 +563,24 @@ function PanToUserLocation({
     });
   }, [map, userLocation]);
 
+  return null;
+}
+
+function SyncMapViewConstraints({
+  maxBounds,
+  minZoom,
+}: {
+  maxBounds: LatLngBoundsExpression;
+  minZoom: number;
+}) {
+  const map = useMap();
+  useEffect(() => {
+    map.setMaxBounds(maxBounds);
+    map.setMinZoom(minZoom);
+    if (map.getZoom() < minZoom) {
+      map.setZoom(minZoom);
+    }
+  }, [map, maxBounds, minZoom]);
   return null;
 }
 
@@ -621,6 +652,7 @@ export function CityDiscoveryLeafletMap({
   clusterLoadingLabel,
   resultsCitiesUnitLabel,
   germanyClusterRevealLabel,
+  restrictToCityRadiusKm = null,
 }: CityDiscoveryLeafletMapProps) {
   const basemap = useMapBasemap();
   /**
@@ -656,6 +688,42 @@ export function CityDiscoveryLeafletMap({
     Boolean(germanyCityClusters?.length) &&
     Boolean(onGermanyCityClusterClick);
 
+  const effectiveMaxBounds = useMemo<LatLngBoundsExpression>(() => {
+    if (showGermanyClusters) {
+      return DISCOVERY_MAP_MAX_BOUNDS;
+    }
+    if (
+      restrictToCityRadiusKm != null &&
+      restrictToCityRadiusKm > 0 &&
+      cityCenter &&
+      Number.isFinite(cityCenter.latitude) &&
+      Number.isFinite(cityCenter.longitude)
+    ) {
+      return maxBoundsFromCenterRadiusKm(
+        cityCenter.latitude,
+        cityCenter.longitude,
+        restrictToCityRadiusKm,
+      );
+    }
+    return DISCOVERY_MAP_MAX_BOUNDS;
+  }, [showGermanyClusters, restrictToCityRadiusKm, cityCenter]);
+
+  const effectiveMinZoom = useMemo(() => {
+    if (showGermanyClusters) {
+      return DISCOVERY_MAP_MIN_ZOOM;
+    }
+    if (
+      restrictToCityRadiusKm != null &&
+      restrictToCityRadiusKm > 0 &&
+      cityCenter &&
+      Number.isFinite(cityCenter.latitude) &&
+      Number.isFinite(cityCenter.longitude)
+    ) {
+      return CITY_DISCOVERY_MAP_MIN_ZOOM;
+    }
+    return DISCOVERY_MAP_MIN_ZOOM;
+  }, [showGermanyClusters, restrictToCityRadiusKm, cityCenter]);
+
   const frameClassName =
     "relative isolate z-0 h-[36rem] overflow-hidden rounded-[1.9rem] border border-border/70 bg-[#f5f6f8] lg:h-[42rem]";
 
@@ -672,8 +740,8 @@ export function CityDiscoveryLeafletMap({
       <MapContainer
         center={DEFAULT_CENTER}
         zoom={6}
-        minZoom={DISCOVERY_MAP_MIN_ZOOM}
-        maxBounds={DISCOVERY_MAP_MAX_BOUNDS}
+        minZoom={effectiveMinZoom}
+        maxBounds={effectiveMaxBounds}
         maxBoundsViscosity={1}
         zoomControl={false}
         className="relative z-0 h-full w-full"
@@ -681,12 +749,14 @@ export function CityDiscoveryLeafletMap({
         <MerhabaTileLayer />
         <SpiderfyMapClickGuard />
         <ZoomControl position="bottomright" />
+        <SyncMapViewConstraints maxBounds={effectiveMaxBounds} minZoom={effectiveMinZoom} />
         <FitToMarkers
           points={points}
           cityCenter={cityCenter}
           userLocation={userLocation}
           germanyCityClusters={showGermanyClusters ? germanyCityClusters : undefined}
           mapLayoutEpoch={mapLayoutEpoch}
+          mapMinZoom={effectiveMinZoom}
         />
         <ViewportBoundsReporter onBoundsChange={onViewportBoundsChange} />
         <PanToSelected points={points} selectedId={selectedId} />

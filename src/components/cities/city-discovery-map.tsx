@@ -27,6 +27,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getLocalizedCityDisplayName } from "@/lib/cities/city-display-name";
+import { CITY_DISCOVERY_MAP_RADIUS_KM } from "@/lib/cities/city-map-max-bounds";
 import type { GermanyMapCluster } from "@/lib/cities/germany-map-cluster";
 import type { DiscoveryMapCityOption } from "@/server/queries/cities/get-discovery-map-cities";
 import { cn } from "@/lib/utils";
@@ -1167,6 +1168,9 @@ export function CityDiscoveryMap({
             clusterLoadingLabel={germanyLoadingCity}
             resultsCitiesUnitLabel={resultsCitiesUnit}
             germanyClusterRevealLabel={germanyClusterRevealLabel}
+            restrictToCityRadiusKm={
+              isGermanyClusterMode ? null : CITY_DISCOVERY_MAP_RADIUS_KM
+            }
           />
         </DiscoveryMapLeafletErrorBoundary>
 
