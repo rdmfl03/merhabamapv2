@@ -44,6 +44,8 @@ export default function robots(): MetadataRoute.Robots {
         "/tr/business",
         "/de/submit/",
         "/tr/submit/",
+        "/de/participating/",
+        "/tr/participating/",
       ],
     },
     sitemap: appUrl ? `${appUrl}/sitemap.xml` : undefined,

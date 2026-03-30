@@ -14,6 +14,7 @@ import { getUnreadNotificationCount } from "@/server/queries/notifications/get-u
 
 import type { Metadata } from "next";
 
+import { guestAuthSignInHref, guestAuthSignUpHref } from "@/lib/auth/guest-auth-links";
 import { robotsNoIndex } from "@/lib/seo/robots-meta";
 import { trackProductInsight } from "@/server/product-insights/track-product-insight";
 
@@ -48,13 +49,19 @@ export default async function FeedPage({ params, searchParams }: FeedPageProps) 
   const session = await auth();
   const viewerId = session?.user?.id ?? null;
 
-  const [t, followedCityIds, items, discovery, unreadNotifications] = await Promise.all([
+  const [t, tCommon, tGuest, followedCityIds, items, discovery, unreadNotifications] = await Promise.all([
     getTranslations("feed"),
+    getTranslations("common"),
+    getTranslations("guestConversion"),
     viewerId ? getFollowedCityIdsForUser(viewerId) : Promise.resolve([]),
     getFeedActivities(viewerId, { locale, mode }),
     getFeedDiscoveryBundle({ locale, mode, viewerUserId: viewerId }),
     viewerId ? getUnreadNotificationCount(viewerId) : Promise.resolve(0),
   ]);
+
+  const feedReturnPath = `/${locale}/feed${mode === "local" ? "?mode=local" : ""}`;
+  const guestSignInHref = guestAuthSignInHref(locale, feedReturnPath);
+  const guestSignUpHref = guestAuthSignUpHref(locale, feedReturnPath);
 
   const hasFollowedCitiesForLocal = followedCityIds.length > 0;
 
@@ -83,12 +90,13 @@ export default async function FeedPage({ params, searchParams }: FeedPageProps) 
             <p className="mt-2 text-xs text-muted-foreground">{t("emptyLocalGuestHint")}</p>
             <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
               <Button variant="default" asChild>
-                <Link href={`/auth/signin?next=${encodeURIComponent(`/${locale}/feed?mode=local`)}`}>
-                  {t("emptyCtaFollowSignIn")}
-                </Link>
+                <Link href="/map">{t("emptyLocalCtaMap")}</Link>
               </Button>
               <Button variant="outline" asChild>
-                <Link href="/map">{t("emptyLocalCtaMap")}</Link>
+                <Link href={guestSignInHref}>{tCommon("signIn")}</Link>
+              </Button>
+              <Button variant="ghost" size="sm" className="text-muted-foreground" asChild>
+                <Link href={guestSignUpHref}>{tGuest("signUp")}</Link>
               </Button>
             </div>
           </div>
@@ -128,17 +136,20 @@ export default async function FeedPage({ params, searchParams }: FeedPageProps) 
           <Button variant="default" asChild>
             <Link href="/places">{t("emptyCtaPlaces")}</Link>
           </Button>
-          <Button variant="outline" asChild>
-            <Link
-              href={
-                viewerId
-                  ? "/profile"
-                  : `/auth/signin?next=${encodeURIComponent(`/${locale}/feed`)}`
-              }
-            >
-              {viewerId ? t("emptyCtaFollow") : t("emptyCtaFollowSignIn")}
-            </Link>
-          </Button>
+          {viewerId ? (
+            <Button variant="outline" asChild>
+              <Link href="/profile">{t("emptyCtaFollow")}</Link>
+            </Button>
+          ) : (
+            <>
+              <Button variant="outline" asChild>
+                <Link href={guestSignInHref}>{tCommon("signIn")}</Link>
+              </Button>
+              <Button variant="ghost" size="sm" className="text-muted-foreground" asChild>
+                <Link href={guestSignUpHref}>{tGuest("signUp")}</Link>
+              </Button>
+            </>
+          )}
         </div>
       </div>
     );

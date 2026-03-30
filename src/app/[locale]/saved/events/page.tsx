@@ -49,7 +49,7 @@ export default async function SavedEventsPage({ params }: SavedEventsPageProps) 
           title={t("events.emptyTitle")}
           description={t("events.emptyDescription")}
           ctaLabel={t("events.cta")}
-          href={`/${locale}/events`}
+          href="/events"
         />
       ) : (
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">

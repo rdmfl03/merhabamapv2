@@ -297,6 +297,15 @@
       "description": "Listeyi yüklemek için yukarıdan bir şehir veya „Tüm şehirler“ seç.",
       "showAllCities": "Tüm şehirleri göster"
     },
+    "savedFilter": {
+      "toggle": "Kaydedilenler",
+      "activeHint": "Yalnızca bu cihazda kaydettiğin mekanlar.",
+      "panelTitle": "Son kaydedilenler",
+      "results": "{count} kaydedilen mekan",
+      "emptyTitle": "Bu görünümde kayıtlı mekan yok",
+      "emptyDescription": "Listeden veya detaydan mekan kaydet — burada bu cihazda görünür.",
+      "showAll": "Tüm mekanları göster"
+    },
     "empty": {
       "title": "Bu seçim için mekan bulunamadı.",
       "description": "Daha fazla sonuç görmek için farklı bir şehir veya kategori seç ya da arama kelimesini kaldır.",
@@ -365,6 +374,9 @@
     "report": {
       "title": "Mekanı bildir",
       "description": "Bilgilerin güncel ve güvenilir kalmasına yardım et.",
+      "trustFootnotePrefix": "Bildirimler ",
+      "trustFootnoteLink": "topluluk kuralları",
+      "trustFootnoteSuffix": " çerçevesinde değerlendirilir.",
       "reasonLabel": "Sebep",
       "detailsLabel": "Detaylar (isteğe bağlı)",
       "detailsPlaceholder": "Sorun veya yanlış bilgi nedir?",
@@ -490,11 +502,12 @@
       "openMap": "Haritada aç",
       "participation": {
         "title": "Katılım",
+        "guestHint": "Hesabınla ilgi veya katılımı işaretleyebilirsin — diğer herkese açık sinyaller gibi görünür.",
         "interested": "İlgileniyorum",
         "going": "Katılıyorum",
         "countsInterested": "{n} ilgileniyor",
         "countsGoing": "{n} katılıyor",
-        "signIn": "Katılmak için giriş yap",
+        "signIn": "Giriş yap",
         "validationError": "Girdi geçersizdi. Lütfen tekrar dene.",
         "eventNotFound": "Bu etkinlik artık yok."
       },
@@ -514,6 +527,9 @@
     "report": {
       "title": "Etkinliği bildir",
       "description": "Etkinlik bilgilerinin güncel ve güvenilir kalmasına yardım et.",
+      "trustFootnotePrefix": "Bildirimler ",
+      "trustFootnoteLink": "topluluk kuralları",
+      "trustFootnoteSuffix": " çerçevesinde değerlendirilir.",
       "reasonLabel": "Sebep",
       "detailsLabel": "Detaylar (isteğe bağlı)",
       "detailsPlaceholder": "Sorun veya yanlış bilgi nedir?",
@@ -1263,16 +1279,18 @@
     }
   },
   "footer": {
-    "navAriaLabel": "Ana menü",
+    "navAriaLabel": "Alt bilgi gezintisi",
     "tagline": "Almanya'daki Türk mekanları ve etkinlikleri için keşif platformu.",
     "essentialNotice": "MerhabaMap teknik olarak gerekli oturum ve giriş çerezlerini, dil seçiminde bir yerel ayar çerezini ve kayıtlı mekânlar için yerel depolamayı kullanır; isteğe bağlı pazarlama veya reklam izleyicileri ön yüzde yer almaz.",
     "copyright": "© MerhabaMap. Tüm hakları saklıdır."
   },
   "legal": {
     "eyebrow": "Hukuki bilgiler",
+    "crossLinksTitle": "Diğer bilgilendirme ve belgeler",
+    "crossLinksAria": "Ek hukuki ve güven sayfaları",
     "navigation": {
       "impressum": "Impressum",
-      "privacy": "Gizlilik",
+      "privacy": "Gizlilik politikası",
       "contact": "İletişim",
       "cookies": "Çerezler",
       "terms": "Kullanım koşulları",
@@ -1458,9 +1476,9 @@
     "nonePlaces": "Uygun herkese açık mekan yok.",
     "noneEvents": "Uygun yaklaşan etkinlik yok.",
     "empty": {
-      "message": "Bu arama için sonuç yok. Harita, akış veya kategorilere geçebilirsin.",
+      "message": "Bu arama için sonuç yok. Harita, aktivite akışı veya kategoriler yardımcı olabilir.",
       "ctaMap": "Haritaya git",
-      "ctaFeed": "Akışa git",
+      "ctaFeed": "Aktivite akışına git",
       "ctaCategories": "Kategorilere git"
     }
   },
@@ -1601,12 +1619,12 @@
     "emptyLocal": "Henüz yerel aktivite yok.",
     "emptyLocalHint": "Haritadan şehir seçip „Şehri takip et“ ile burada görebilirsin.",
     "emptyLocalCtaMap": "Haritada şehirler",
-    "emptyLocalGuestHint": "Yerel akış için giriş yap ve haritadan şehirleri takip et.",
+    "emptyLocalGuestHint": "Hesabınla haritadan şehir takip edebilirsin — yerel aktiviteler burada görünür.",
     "empty": "Henüz aktivite yok.",
-    "emptyHint": "Mekan kaydet, diğer kullanıcıları takip et veya platformdakileri keşfet.",
+    "emptyHint": "Mekan veya etkinlik kaydet, kullanıcıları takip et ya da gezin — akış zamanla dolar.",
     "emptyCtaPlaces": "Mekanları keşfet",
     "emptyCtaFollow": "Profil ve kullanıcılar",
-    "emptyCtaFollowSignIn": "Giriş yap ve takip et",
+    "emptyCtaFollowSignIn": "Giriş yap",
     "returnHints": {
       "contextDefault": "Bu akışta senin aktivitelerin, takip ettiklerinin ve MerhabaMap’teki herkese açık sinyaller görünür.",
       "contextLocal": "Burada yalnızca takip ettiğin şehirlerdeki mekan ve etkinliklere dair aktiviteler listelenir.",
@@ -1678,6 +1696,8 @@
     "backToHome": "Başa dön",
     "empty": "Henüz bildirim yok.",
     "emptyHint": "Biri seni takip ettiğinde veya sahibi olduğun bir mekana ya da önerdiğin bir etkinliğe yorum yazıldığında burada görünür.",
+    "emptyCtaFeed": "Aktivite akışına git",
+    "emptyCtaMap": "Haritaya git",
     "markRead": "Okundu işaretle",
     "markAllRead": "Tümünü okundu işaretle",
     "readLabel": "Okundu",
@@ -1761,6 +1781,9 @@
     "report": {
       "title": "Herkese açık listeyi bildir",
       "description": "Bu liste topluluk kurallarını ihlal ediyor veya kötüye kullanım gibi görünüyorsa bildirebilirsin.",
+      "trustFootnotePrefix": "Bildirimler ",
+      "trustFootnoteLink": "topluluk kuralları",
+      "trustFootnoteSuffix": " çerçevesinde değerlendirilir.",
       "reasonLabel": "Sebep",
       "detailsLabel": "Detaylar (isteğe bağlı)",
       "detailsPlaceholder": "Sorun nedir?",

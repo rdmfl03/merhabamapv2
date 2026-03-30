@@ -39,7 +39,8 @@ export function resolveOgImageUrl(image: string | null | undefined): string | un
   }
   const siteUrl = getSiteUrl();
   if (!siteUrl) {
-    return raw;
+    // Relative paths need APP_URL to become valid absolute OG/Twitter image URLs.
+    return undefined;
   }
   if (raw.startsWith("/")) {
     return `${siteUrl}${raw}`;

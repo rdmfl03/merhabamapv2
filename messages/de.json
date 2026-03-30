@@ -297,6 +297,15 @@
       "description": "Wähle oben eine Stadt oder „Alle Städte“, um die Orte-Liste zu laden. So bleibt die Übersicht lokal und überschaubar.",
       "showAllCities": "Alle Städte anzeigen"
     },
+    "savedFilter": {
+      "toggle": "Gespeichert",
+      "activeHint": "Nur auf diesem Gerät gespeicherte Orte.",
+      "panelTitle": "Zuletzt gespeichert",
+      "results": "{count} gespeicherte Orte",
+      "emptyTitle": "Keine gespeicherten Orte in dieser Ansicht",
+      "emptyDescription": "Speichere Orte in der Liste oder auf der Detailseite — sie erscheinen hier auf diesem Gerät.",
+      "showAll": "Alle Orte anzeigen"
+    },
     "empty": {
       "title": "Keine Orte für diese Auswahl gefunden.",
       "description": "Versuche eine andere Stadt, eine andere Kategorie oder entferne den Suchbegriff, um mehr Ergebnisse zu sehen.",
@@ -365,6 +374,9 @@
     "report": {
       "title": "Ort melden",
       "description": "Hilf mit, die Informationen aktuell und vertrauenswürdig zu halten.",
+      "trustFootnotePrefix": "Wir prüfen Meldungen anhand der ",
+      "trustFootnoteLink": "Community-Regeln",
+      "trustFootnoteSuffix": ".",
       "reasonLabel": "Grund",
       "detailsLabel": "Details (optional)",
       "detailsPlaceholder": "Was ist falsch oder problematisch?",
@@ -490,11 +502,12 @@
       "openMap": "In Karte öffnen",
       "participation": {
         "title": "Teilnahme",
+        "guestHint": "Mit Konto kannst du Interesse oder Teilnahme markieren — sichtbar wie andere öffentliche Aktivität.",
         "interested": "Interessiert",
         "going": "Bin dabei",
         "countsInterested": "{n} interessiert",
         "countsGoing": "{n} dabei",
-        "signIn": "Zur Teilnahme anmelden",
+        "signIn": "Anmelden",
         "validationError": "Die Eingabe war ungültig. Bitte versuche es erneut.",
         "eventNotFound": "Dieses Event ist nicht mehr verfügbar."
       },
@@ -514,6 +527,9 @@
     "report": {
       "title": "Event melden",
       "description": "Hilf mit, Eventinformationen aktuell und vertrauenswürdig zu halten.",
+      "trustFootnotePrefix": "Wir prüfen Meldungen anhand der ",
+      "trustFootnoteLink": "Community-Regeln",
+      "trustFootnoteSuffix": ".",
       "reasonLabel": "Grund",
       "detailsLabel": "Details (optional)",
       "detailsPlaceholder": "Was ist falsch oder problematisch?",
@@ -1254,13 +1270,15 @@
     }
   },
   "footer": {
-    "navAriaLabel": "Hauptnavigation",
+    "navAriaLabel": "Fußzeilen-Navigation",
     "tagline": "Discovery-Plattform für türkische Orte und Events in Deutschland.",
     "essentialNotice": "MerhabaMap setzt technisch notwendige Session- und Anmelde-Cookies, bei Sprachwahl ein Cookie für die Locale sowie lokalen Speicher für gespeicherte Orte ein; es sind keine optionalen Marketing- oder Werbetracker im Frontend eingebunden.",
     "copyright": "© MerhabaMap. Alle Rechte vorbehalten."
   },
   "legal": {
     "eyebrow": "Rechtliches",
+    "crossLinksTitle": "Weitere Hinweise & Dokumente",
+    "crossLinksAria": "Weitere rechtliche und Vertrauens-Seiten",
     "navigation": {
       "impressum": "Impressum",
       "privacy": "Datenschutz",
@@ -1449,9 +1467,9 @@
     "nonePlaces": "Keine passenden öffentlichen Orte.",
     "noneEvents": "Keine passenden kommenden Events.",
     "empty": {
-      "message": "Keine Treffer für diese Suche. Du kannst die Karte, den Feed oder die Kategorien nutzen.",
+      "message": "Für diese Suche keine Treffer. Karte, Aktivitäten-Feed oder Kategorien können weiterhelfen.",
       "ctaMap": "Zur Karte",
-      "ctaFeed": "Zum Feed",
+      "ctaFeed": "Zum Aktivitäten-Feed",
       "ctaCategories": "Zu den Kategorien"
     }
   },
@@ -1592,12 +1610,12 @@
     "emptyLocal": "Noch keine lokalen Aktivitäten.",
     "emptyLocalHint": "Folge Städte auf der Karte, um hier Aktivitäten aus deinen Städten zu sehen.",
     "emptyLocalCtaMap": "Städte auf der Karte",
-    "emptyLocalGuestHint": "Melde dich an und folge Städte auf der Karte, um hier lokale Aktivitäten zu sehen.",
+    "emptyLocalGuestHint": "Mit Konto kannst du Städten auf der Karte folgen — dann erscheinen lokale Aktivitäten hier.",
     "empty": "Noch keine Aktivität.",
-    "emptyHint": "Speichere Orte, folge anderen Nutzer:innen oder entdecke neue Einträge auf der Plattform.",
+    "emptyHint": "Speichere Orte oder Events, folge anderen Nutzer:innen oder stöbere weiter — der Feed füllt sich mit der Zeit.",
     "emptyCtaPlaces": "Orte entdecken",
     "emptyCtaFollow": "Profil & Nutzer:innen",
-    "emptyCtaFollowSignIn": "Anmelden & folgen",
+    "emptyCtaFollowSignIn": "Anmelden",
     "returnHints": {
       "contextDefault": "Dieser Feed zeigt Aktivitäten von dir, von Nutzer:innen, denen du folgst, und öffentliche Signale auf MerhabaMap.",
       "contextLocal": "Hier siehst du Aktivitäten zu Orten und Events in deinen gefolgten Städten.",
@@ -1669,6 +1687,8 @@
     "backToHome": "Zurück zum Start",
     "empty": "Noch keine Mitteilungen.",
     "emptyHint": "Wenn dir jemand folgt oder jemand einen Ort oder ein Event kommentiert, für das du als Eigentümer:in oder Einreichende:r erkannt wirst, erscheint es hier.",
+    "emptyCtaFeed": "Zum Aktivitäten-Feed",
+    "emptyCtaMap": "Zur Karte",
     "markRead": "Als gelesen",
     "markAllRead": "Alle als gelesen",
     "readLabel": "Gelesen",
@@ -1752,6 +1772,9 @@
     "report": {
       "title": "Öffentliche Liste melden",
       "description": "Wenn diese Liste gegen Community-Regeln verstößt oder missbräuchlich wirkt, kannst du das hier melden.",
+      "trustFootnotePrefix": "Wir prüfen Meldungen anhand der ",
+      "trustFootnoteLink": "Community-Regeln",
+      "trustFootnoteSuffix": ".",
       "reasonLabel": "Grund",
       "detailsLabel": "Details (optional)",
       "detailsPlaceholder": "Was ist problematisch?",

@@ -27,6 +27,9 @@ type PlaceReportFormProps = {
     error: string;
     cooldown: string;
     dailyLimit: string;
+    trustFootnotePrefix: string;
+    trustFootnoteLink: string;
+    trustFootnoteSuffix: string;
     reasons: Array<{ value: string; label: string }>;
   };
 };
@@ -50,6 +53,16 @@ export function PlaceReportForm({
         <div className="space-y-1">
           <h3 className="font-semibold text-foreground">{labels.title}</h3>
           <p className="text-sm text-muted-foreground">{labels.description}</p>
+          <p className="text-xs leading-relaxed text-muted-foreground">
+            {labels.trustFootnotePrefix}
+            <Link
+              href="/community-rules"
+              className="text-brand underline-offset-2 hover:underline"
+            >
+              {labels.trustFootnoteLink}
+            </Link>
+            {labels.trustFootnoteSuffix}
+          </p>
         </div>
 
         {!isAuthenticated ? (

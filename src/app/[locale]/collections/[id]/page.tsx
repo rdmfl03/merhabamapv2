@@ -163,6 +163,9 @@ export default async function CollectionDetailPage({ params }: CollectionDetailP
             error: t("report.error"),
             cooldown: t("report.cooldown"),
             dailyLimit: t("report.dailyLimit"),
+            trustFootnotePrefix: t("report.trustFootnotePrefix"),
+            trustFootnoteLink: t("report.trustFootnoteLink"),
+            trustFootnoteSuffix: t("report.trustFootnoteSuffix"),
           }}
           reasons={[
             {

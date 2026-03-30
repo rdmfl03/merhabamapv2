@@ -76,14 +76,23 @@ export default async function NotificationsPage({ params }: NotificationsPagePro
         <div className="rounded-2xl border border-dashed border-border/80 bg-muted/30 px-6 py-12 text-center">
           <p className="text-sm text-foreground">{t("empty")}</p>
           <p className="mt-2 text-xs text-muted-foreground">{t("emptyHint")}</p>
-          <p className="mt-4">
-            <Link
-              href="/home"
-              className="text-sm font-medium text-brand underline-offset-2 hover:underline"
-            >
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm">
+            <Link href="/home" className="font-medium text-brand underline-offset-2 hover:underline">
               {t("backToHome")}
             </Link>
-          </p>
+            <span className="hidden text-muted-foreground sm:inline" aria-hidden>
+              ·
+            </span>
+            <Link href="/feed" className="font-medium text-brand underline-offset-2 hover:underline">
+              {t("emptyCtaFeed")}
+            </Link>
+            <span className="hidden text-muted-foreground sm:inline" aria-hidden>
+              ·
+            </span>
+            <Link href="/map" className="font-medium text-brand underline-offset-2 hover:underline">
+              {t("emptyCtaMap")}
+            </Link>
+          </div>
         </div>
       ) : (
         <ul className="space-y-3">

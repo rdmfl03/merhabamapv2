@@ -300,31 +300,18 @@ export default async function PlacesPage({
         currentPath={currentPath}
         imageAttributionLabels={imageAttributionLabels}
         labels={{
-          toggle: locale === "tr" ? "Kaydedilenler" : "Gespeichert",
-          activeHint:
-            locale === "tr"
-              ? "Yalnizca kaydedilen yerler gosteriliyor"
-              : "Nur gespeicherte Orte werden angezeigt",
-          panelTitle:
-            locale === "tr"
-              ? "Kaydettigin yerler"
-              : "Deine gespeicherten Orte",
-          results:
-            locale === "tr"
-              ? "{count} kaydedilen yer"
-              : "{count} gespeicherte Orte",
-          emptyTitle:
-            locale === "tr"
-              ? "Henuz kaydedilen bir yer yok."
-              : "Du hast noch keine Orte gespeichert.",
-          emptyDescription:
-            locale === "tr"
-              ? "Daha sonra tekrar bulmak icin yerleri kaydet."
-              : "Speichere Orte, um sie hier wiederzufinden.",
-          showAll: locale === "tr" ? "Tum yerleri goster" : "Alle Orte anzeigen",
+          toggle: t("savedFilter.toggle"),
+          activeHint: t("savedFilter.activeHint"),
+          panelTitle: t("savedFilter.panelTitle"),
+          results: t("savedFilter.results"),
+          emptyTitle: t("savedFilter.emptyTitle"),
+          emptyDescription: t("savedFilter.emptyDescription"),
+          showAll: t("savedFilter.showAll"),
           details: t("card.details"),
           save: t("card.save"),
           saved: t("card.saved"),
+          saving: t("card.saving"),
+          signIn: t("card.signIn"),
           verified: t("badges.verified"),
           fallbackDescription: t("card.fallbackDescription"),
         }}

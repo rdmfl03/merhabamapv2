@@ -497,6 +497,9 @@ export default async function PlaceDetailPage({
               error: t("report.error"),
               cooldown: t("report.cooldown"),
               dailyLimit: t("report.dailyLimit"),
+              trustFootnotePrefix: t("report.trustFootnotePrefix"),
+              trustFootnoteLink: t("report.trustFootnoteLink"),
+              trustFootnoteSuffix: t("report.trustFootnoteSuffix"),
               reasons: [
                 {
                   value: "INACCURATE_INFORMATION",

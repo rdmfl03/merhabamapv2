@@ -48,7 +48,7 @@ export default async function SavedPlacesPage({ params }: SavedPlacesPageProps) 
           title={t("places.emptyTitle")}
           description={t("places.emptyDescription")}
           ctaLabel={t("places.cta")}
-          href={`/${locale}/places`}
+          href="/places"
         />
       ) : (
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">

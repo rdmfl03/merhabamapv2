@@ -35,6 +35,8 @@ type PlacesSavedFilterShellProps = {
     details: string;
     save: string;
     saved: string;
+    saving: string;
+    signIn: string;
     verified: string;
     fallbackDescription: string;
   };
@@ -74,7 +76,6 @@ export function PlacesSavedFilterShell({
   return (
     <div className="space-y-6">
       <section className="flex flex-wrap items-center gap-2 rounded-[1.3rem] border border-border bg-white/90 px-4 py-3 text-sm">
-        <span className="font-medium text-foreground">{toggleLabel}</span>
         <Button
           type="button"
           variant={savedOnly ? "default" : "outline"}
@@ -133,8 +134,8 @@ export function PlacesSavedFilterShell({
                     details: labels.details,
                     save: labels.save,
                     saved: labels.saved,
-                    saving: labels.save,
-                    signIn: labels.save,
+                    saving: labels.saving,
+                    signIn: labels.signIn,
                     verified: labels.verified,
                   }}
                   imageAttributionLabels={imageAttributionLabels}
@@ -169,8 +170,8 @@ export function PlacesSavedFilterShell({
                       details: labels.details,
                       save: labels.save,
                       saved: labels.saved,
-                      saving: labels.save,
-                      signIn: labels.save,
+                      saving: labels.saving,
+                      signIn: labels.signIn,
                       verified: labels.verified,
                     }}
                     imageAttributionLabels={imageAttributionLabels}

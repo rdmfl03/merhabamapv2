@@ -260,7 +260,7 @@ export default async function UserProfilePage({ params }: UserProfilePageProps) 
               title={tSaved("places.emptyTitle")}
               description={tSaved("places.emptyDescription")}
               ctaLabel={tSaved("places.cta")}
-              href={`/${locale}/places`}
+              href="/places"
             />
           ) : (
             <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">

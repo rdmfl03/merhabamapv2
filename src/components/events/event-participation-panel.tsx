@@ -14,6 +14,7 @@ import {
 } from "@/server/actions/events/toggle-event-participation-state";
 import { Button } from "@/components/ui/button";
 import { GuestCtaInsightLink } from "@/components/product-insights/guest-cta-insight-link";
+import { guestAuthSignUpHrefFromSignIn } from "@/lib/auth/guest-auth-links";
 import { cn } from "@/lib/utils";
 
 type EventParticipationPanelProps = {
@@ -43,6 +44,7 @@ export function EventParticipationPanel({
   const router = useRouter();
   const tGuard = useTranslations("socialSafety");
   const tParticipation = useTranslations("events.detail.participation");
+  const tGuest = useTranslations("guestConversion");
   const [state, formAction, pending] = useActionState(
     toggleEventParticipation,
     idleEventParticipationActionState as EventParticipationActionState,
@@ -55,14 +57,23 @@ export function EventParticipationPanel({
   }, [state.status, router]);
 
   if (!isAuthenticated) {
+    const signUpHref = guestAuthSignUpHrefFromSignIn(signInHref);
     return (
       <div className="rounded-2xl border border-border/80 bg-muted/20 px-4 py-4">
         <p className="text-sm font-medium text-foreground">{labels.title}</p>
-        <Button variant="outline" size="sm" className="mt-3" asChild>
-          <GuestCtaInsightLink href={signInHref} locale={locale} surface="event_participation" ctaType="signin">
-            {labels.signIn}
-          </GuestCtaInsightLink>
-        </Button>
+        <p className="mt-2 text-xs text-muted-foreground">{tParticipation("guestHint")}</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Button variant="outline" size="sm" asChild>
+            <GuestCtaInsightLink href={signInHref} locale={locale} surface="event_participation" ctaType="signin">
+              {labels.signIn}
+            </GuestCtaInsightLink>
+          </Button>
+          <Button variant="ghost" size="sm" className="text-xs text-muted-foreground" asChild>
+            <GuestCtaInsightLink href={signUpHref} locale={locale} surface="event_participation" ctaType="signup">
+              {tGuest("signUp")}
+            </GuestCtaInsightLink>
+          </Button>
+        </div>
       </div>
     );
   }

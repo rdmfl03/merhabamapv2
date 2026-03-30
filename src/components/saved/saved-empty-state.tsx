@@ -1,9 +1,11 @@
 import { Button } from "@/components/ui/button";
+import { Link } from "@/i18n/navigation";
 
 type SavedEmptyStateProps = {
   title: string;
   description: string;
   ctaLabel: string;
+  /** Locale-agnostic path, e.g. `/places` (Link adds the active locale). */
   href: string;
 };
 
@@ -23,7 +25,7 @@ export function SavedEmptyState({
       </div>
       <div className="mt-6">
         <Button variant="outline" asChild>
-          <a href={href}>{ctaLabel}</a>
+          <Link href={href}>{ctaLabel}</Link>
         </Button>
       </div>
     </div>

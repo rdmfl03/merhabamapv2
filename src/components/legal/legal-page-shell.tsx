@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 
-export function LegalPageShell({
+import { LegalCrossLinks } from "@/components/legal/legal-cross-links";
+
+export async function LegalPageShell({
   eyebrow,
   title,
   intro,
@@ -32,6 +34,7 @@ export function LegalPageShell({
           ) : null}
         </header>
         <div className="space-y-8">{children}</div>
+        <LegalCrossLinks />
       </div>
     </div>
   );
