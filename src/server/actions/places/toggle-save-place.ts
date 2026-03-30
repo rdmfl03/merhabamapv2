@@ -8,6 +8,9 @@ import { prisma } from "@/lib/prisma";
 import { savePlaceSchema } from "@/lib/validators/places";
 import { buildPublicPlaceWhere } from "@/server/queries/places/shared";
 
+import { ACTIVITY_ENTITY, ACTIVITY_TYPE } from "@/lib/social/activity-types";
+import { insertActivity } from "@/server/social/insert-activity";
+
 import { sanitizeReturnPath } from "./shared";
 
 export async function toggleSavePlace(formData: FormData) {
@@ -70,8 +73,36 @@ export async function toggleSavePlace(formData: FormData) {
         placeId: place.id,
       },
     });
+
+    const existingSaveActivity = await prisma.activity.findFirst({
+      where: {
+        userId: session.user.id,
+        type: ACTIVITY_TYPE.SAVE_PLACE,
+        entityId: place.id,
+      },
+      select: { id: true },
+    });
+
+    if (!existingSaveActivity) {
+      await insertActivity(prisma, {
+        userId: session.user.id,
+        type: ACTIVITY_TYPE.SAVE_PLACE,
+        entityType: ACTIVITY_ENTITY.place,
+        entityId: place.id,
+      });
+    }
   }
 
   revalidatePath(returnPath);
   revalidatePath(`/${parsed.data.locale}/places/${place.slug}`);
+  revalidatePath(`/${parsed.data.locale}/feed`);
+
+  const viewer = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { username: true },
+  });
+  const viewerUsername = viewer?.username?.trim();
+  if (viewerUsername) {
+    revalidatePath(`/${parsed.data.locale}/user/${viewerUsername}`);
+  }
 }

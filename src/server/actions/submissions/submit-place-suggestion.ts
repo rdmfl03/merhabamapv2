@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+import { EntityContributionEntityType } from "@prisma/client";
+
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { getContentSubmissionGuard } from "@/lib/rate-limit/submission-guard";
@@ -14,10 +16,26 @@ import {
 } from "@/lib/submissions";
 import { placeSuggestionSchema } from "@/lib/validators/submissions";
 
+import { upsertCreatorEntityContribution } from "@/server/social/upsert-creator-entity-contribution";
+
 import {
   idleSubmissionActionState,
   type SubmissionActionState,
 } from "./state";
+
+async function revalidatePublicProfilePaths(userId: string) {
+  const u = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { username: true },
+  });
+  const un = u?.username?.trim();
+  if (!un) {
+    return;
+  }
+  for (const loc of ["de", "tr"] as const) {
+    revalidatePath(`/${loc}/user/${un}`);
+  }
+}
 
 export async function submitPlaceSuggestion(
   _previousState: SubmissionActionState = idleSubmissionActionState,
@@ -144,6 +162,12 @@ export async function submitPlaceSuggestion(
       },
     });
 
+    await upsertCreatorEntityContribution(tx, {
+      userId: session.user.id,
+      entityType: EntityContributionEntityType.PLACE,
+      entityId: place.id,
+    });
+
     await tx.submission.create({
       data: {
         id: crypto.randomUUID(),
@@ -169,6 +193,7 @@ export async function submitPlaceSuggestion(
   });
 
   revalidatePath(`/${parsed.data.locale}/admin/ingest/submissions`);
+  await revalidatePublicProfilePaths(session.user.id);
 
   return {
     status: "success",

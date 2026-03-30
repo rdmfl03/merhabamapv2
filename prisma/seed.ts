@@ -48,6 +48,15 @@ function openingHours(entries: Array<{ day: string; open: string; close: string 
 }
 
 async function resetDatabase() {
+  await prisma.entityComment.deleteMany();
+  await prisma.placeCollectionItem.deleteMany();
+  await prisma.placeCollection.deleteMany();
+  await prisma.cityFollow.deleteMany();
+  await prisma.eventParticipation.deleteMany();
+  await prisma.follow.deleteMany();
+  await prisma.notification.deleteMany();
+  await prisma.entityContribution.deleteMany();
+  await prisma.activity.deleteMany();
   await prisma.adminActionLog.deleteMany();
   await prisma.report.deleteMany();
   await prisma.businessClaim.deleteMany();

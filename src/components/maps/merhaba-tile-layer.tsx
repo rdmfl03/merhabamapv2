@@ -1,9 +1,21 @@
 "use client";
 
-import { TileLayer } from "react-leaflet";
+import { useEffect } from "react";
+import { TileLayer, useMap } from "react-leaflet";
 
 import { useMapBasemap } from "@/components/maps/map-basemap-context";
 import { OSM_ATTRIBUTION, OSM_TILE_URL } from "@/lib/map-config";
+
+/**
+ * Entfernt nur das Standard-„Leaflet |“-Präfix. Kachel-Attribution (OSM / MapTiler) bleibt unverändert.
+ */
+function SuppressLeafletAttributionPrefix() {
+  const map = useMap();
+  useEffect(() => {
+    map.attributionControl?.setPrefix(false);
+  }, [map]);
+  return null;
+}
 
 /**
  * MapTiler „Pastel“ via same-origin /api/map-tiles when `MAPTILER_API_KEY` is set;
@@ -16,5 +28,10 @@ export function MerhabaTileLayer() {
   const url = basemap.pastelEnabled ? basemap.tileUrl : OSM_TILE_URL;
   const attribution = basemap.pastelEnabled ? basemap.attribution : OSM_ATTRIBUTION;
 
-  return <TileLayer attribution={attribution} url={url} />;
+  return (
+    <>
+      <TileLayer attribution={attribution} url={url} />
+      <SuppressLeafletAttributionPrefix />
+    </>
+  );
 }

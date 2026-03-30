@@ -9,8 +9,10 @@ import {
   findMatchingEventDuplicate,
   getEventDuplicateSearchWindow,
 } from "@/lib/ingest/event-duplicates";
+import { ACTIVITY_ENTITY, ACTIVITY_TYPE } from "@/lib/social/activity-types";
 import { prisma } from "@/lib/prisma";
 import { buildSlugBase, buildUniqueSlug } from "@/lib/submissions";
+import { insertActivity } from "@/server/social/insert-activity";
 import { reviewNormalizedIngestEventSchema } from "@/lib/validators/admin";
 
 import { idleAdminActionState, type AdminActionState } from "./state";
@@ -238,6 +240,13 @@ export async function reviewNormalizedIngestEvent(
         },
       });
 
+      await insertActivity(tx, {
+        userId: null,
+        type: ACTIVITY_TYPE.NEW_EVENT,
+        entityType: ACTIVITY_ENTITY.event,
+        entityId: event.id,
+      });
+
       return {
         promoted: true,
         linkedEventId: event.id,
@@ -268,6 +277,7 @@ export async function reviewNormalizedIngestEvent(
     revalidatePath(`/${parsed.data.locale}/admin/ingest/submissions`);
     revalidatePath(`/${parsed.data.locale}/admin/events`);
     revalidatePath(`/${parsed.data.locale}/admin/events/${result.linkedEventId}`);
+    revalidatePath(`/${parsed.data.locale}/feed`);
 
     return {
       status: "success",

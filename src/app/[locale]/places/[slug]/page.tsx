@@ -8,6 +8,8 @@ import { PlaceClaimForm } from "@/components/places/place-claim-form";
 import { PlaceDetailHero } from "@/components/places/place-detail-hero";
 import { PlaceMapPreview } from "@/components/places/place-map-preview";
 import { PlaceReportForm } from "@/components/places/place-report-form";
+import { EntityCommentsSection } from "@/components/comments/entity-comments-section";
+import { PlaceCollectionsPanel } from "@/components/collections/place-collections-panel";
 import { PlaceSaveButton } from "@/components/places/place-save-button";
 import { PlaceTrustBadge, PlaceTrustHelper } from "@/components/places/place-trust-badge";
 import { JsonLd } from "@/components/seo/json-ld";
@@ -27,6 +29,8 @@ import {
 } from "@/lib/places";
 import { getPlaceImageFallbackKey } from "@/lib/category-fallback-visual";
 import { buildPlaceSchema } from "@/lib/seo/structured-data";
+import { getPlaceCollectionMembershipFlags } from "@/server/queries/collections/get-place-collection-membership-flags";
+import { hasCreatorEntityContributionForPlace } from "@/server/queries/contributions/has-creator-entity-contribution";
 import { getPlaceBySlug } from "@/server/queries/places/get-place-by-slug";
 
 type PlaceDetailPageProps = {
@@ -78,6 +82,13 @@ export default async function PlaceDetailPage({
   if (!place) {
     notFound();
   }
+
+  const [membershipRows, showUserSubmittedAttribution] = await Promise.all([
+    signedInUser?.id != null
+      ? getPlaceCollectionMembershipFlags(signedInUser.id, place.id)
+      : Promise.resolve([]),
+    hasCreatorEntityContributionForPlace(place.id),
+  ]);
 
   const description = getLocalizedText(
     { de: place.descriptionDe, tr: place.descriptionTr },
@@ -173,6 +184,10 @@ export default async function PlaceDetailPage({
 
             <p className="text-sm leading-7 text-muted-foreground">{description}</p>
 
+            {showUserSubmittedAttribution ? (
+              <p className="text-xs text-muted-foreground">{t("detail.userSubmittedAttribution")}</p>
+            ) : null}
+
             {safeRatingSummary ? (
               <div className="rounded-2xl border border-amber-200 bg-amber-50/70 px-4 py-3">
                 <div className="flex items-center gap-2 text-base font-semibold text-foreground">
@@ -238,6 +253,23 @@ export default async function PlaceDetailPage({
                 }}
               />
             </div>
+
+            <PlaceCollectionsPanel
+              placeId={place.id}
+              locale={locale}
+              returnPath={returnPath}
+              signInHref={`/${locale}/auth/signin?next=${encodeURIComponent(returnPath)}`}
+              isAuthenticated={Boolean(signedInUser?.id)}
+              membershipRows={membershipRows}
+              labels={{
+                title: t("detail.collections.title"),
+                emptyHint: t("detail.collections.emptyHint"),
+                manageLink: t("detail.collections.manageLink"),
+                privateBadge: t("detail.collections.privateBadge"),
+                signIn: t("detail.collections.signIn"),
+                signInHint: t("detail.collections.signInHint"),
+              }}
+            />
           </CardContent>
         </Card>
       </section>
@@ -376,6 +408,15 @@ export default async function PlaceDetailPage({
               </p>
             </CardContent>
           </Card>
+
+          <EntityCommentsSection
+            entityType="place"
+            entityId={place.id}
+            locale={locale}
+            viewerId={signedInUser?.id ?? null}
+            returnPath={returnPath}
+            signInHref={`/${locale}/auth/signin?next=${encodeURIComponent(returnPath)}`}
+          />
 
           <PlaceReportForm
             placeId={place.id}

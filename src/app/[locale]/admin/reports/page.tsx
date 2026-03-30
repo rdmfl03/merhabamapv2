@@ -12,6 +12,29 @@ type AdminReportsPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
+function reportListPrimaryLabel(report: {
+  targetType: ReportTargetType;
+  place: { name: string } | null;
+  event: { title: string } | null;
+  entityComment: { content: string } | null;
+  placeCollection: { title: string } | null;
+}): string {
+  if (report.targetType === "PLACE") {
+    return report.place?.name ?? "—";
+  }
+  if (report.targetType === "EVENT") {
+    return report.event?.title ?? "—";
+  }
+  if (report.targetType === "PLACE_COLLECTION") {
+    return report.placeCollection?.title ?? "—";
+  }
+  const raw = report.entityComment?.content?.trim();
+  if (!raw) {
+    return "—";
+  }
+  return raw.length > 72 ? `${raw.slice(0, 72)}…` : raw;
+}
+
 export default async function AdminReportsPage({
   params,
   searchParams,
@@ -45,6 +68,9 @@ export default async function AdminReportsPage({
           ? "success"
           : "danger";
 
+  const filterClass =
+    "rounded-2xl border border-border px-4 py-3 text-sm text-foreground hover:bg-muted/30";
+
   return (
     <AdminShell
       locale={locale}
@@ -63,24 +89,30 @@ export default async function AdminReportsPage({
     >
       <Card className="bg-white/90">
         <CardContent className="space-y-4 p-6">
-          <div className="grid gap-3 md:grid-cols-3">
-            <a
-              href={`/${locale}/admin/reports`}
-              className="rounded-2xl border border-border px-4 py-3 text-sm text-foreground"
-            >
+          <div className="flex flex-wrap gap-2">
+            <a href={`/${locale}/admin/reports`} className={filterClass}>
               {t("reports.filters.reset")}
             </a>
-            <a
-              href={`/${locale}/admin/reports?status=OPEN`}
-              className="rounded-2xl border border-border px-4 py-3 text-sm text-foreground"
-            >
+            <a href={`/${locale}/admin/reports?status=OPEN`} className={filterClass}>
               {t("reports.filters.open")}
             </a>
-            <a
-              href={`/${locale}/admin/reports?targetType=PLACE`}
-              className="rounded-2xl border border-border px-4 py-3 text-sm text-foreground"
-            >
+            <a href={`/${locale}/admin/reports?targetType=PLACE`} className={filterClass}>
               {t("reports.filters.placeOnly")}
+            </a>
+            <a href={`/${locale}/admin/reports?targetType=EVENT`} className={filterClass}>
+              {t("reports.filters.eventOnly")}
+            </a>
+            <a
+              href={`/${locale}/admin/reports?targetType=ENTITY_COMMENT`}
+              className={filterClass}
+            >
+              {t("reports.filters.entityCommentOnly")}
+            </a>
+            <a
+              href={`/${locale}/admin/reports?targetType=PLACE_COLLECTION`}
+              className={filterClass}
+            >
+              {t("reports.filters.collectionOnly")}
             </a>
           </div>
 
@@ -96,9 +128,7 @@ export default async function AdminReportsPage({
                 >
                   <div className="space-y-1">
                     <p className="text-sm font-medium text-foreground">
-                      {report.targetType === "PLACE"
-                        ? report.place?.name
-                        : report.event?.title}
+                      {reportListPrimaryLabel(report)}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {report.targetType} • {report.reason}

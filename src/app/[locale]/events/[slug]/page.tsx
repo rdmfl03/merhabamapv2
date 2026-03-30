@@ -8,6 +8,8 @@ import { EventHeroMedia } from "@/components/events/event-hero-media";
 import { MediaAttribution } from "@/components/media/media-attribution";
 import { EventMapPreview } from "@/components/events/event-map-preview";
 import { EventReportForm } from "@/components/events/event-report-form";
+import { EntityCommentsSection } from "@/components/comments/entity-comments-section";
+import { EventParticipationPanel } from "@/components/events/event-participation-panel";
 import { EventSaveButton } from "@/components/events/event-save-button";
 import { JsonLd } from "@/components/seo/json-ld";
 import { Badge } from "@/components/ui/badge";
@@ -26,7 +28,9 @@ import { getLocalizedCityDisplayName } from "@/lib/cities/city-display-name";
 import { formatDisplayAddress } from "@/lib/format-display-address";
 import { buildEventDetailMetadata } from "@/lib/metadata/events";
 import { buildEventSchema } from "@/lib/seo/structured-data";
+import { hasCreatorEntityContributionForEvent } from "@/server/queries/contributions/has-creator-entity-contribution";
 import { getEventBySlug } from "@/server/queries/events/get-event-by-slug";
+import { getEventParticipationSummary } from "@/server/queries/events/get-event-participation-summary";
 
 type EventDetailPageProps = {
   params: Promise<{ locale: "de" | "tr"; slug: string }>;
@@ -73,6 +77,11 @@ export default async function EventDetailPage({
   if (!event) {
     notFound();
   }
+
+  const [participation, showUserSubmittedAttribution] = await Promise.all([
+    getEventParticipationSummary(event.id, signedInUser?.id ?? null),
+    hasCreatorEntityContributionForEvent(event.id),
+  ]);
 
   const description = getLocalizedEventText(
     { de: event.descriptionDe, tr: event.descriptionTr },
@@ -169,6 +178,10 @@ export default async function EventDetailPage({
 
             <p className="text-sm leading-7 text-muted-foreground">{description}</p>
 
+            {showUserSubmittedAttribution ? (
+              <p className="text-xs text-muted-foreground">{t("detail.userSubmittedAttribution")}</p>
+            ) : null}
+
             {venueRating ? (
               <div className="rounded-2xl border border-amber-200 bg-amber-50/70 px-4 py-3">
                 <p className="text-sm font-medium text-foreground">
@@ -230,6 +243,25 @@ export default async function EventDetailPage({
                 </Button>
               ) : null}
             </div>
+
+            <EventParticipationPanel
+              eventId={event.id}
+              locale={locale}
+              returnPath={returnPath}
+              interestedCount={participation.interestedCount}
+              goingCount={participation.goingCount}
+              viewerStatus={participation.viewerStatus}
+              isAuthenticated={Boolean(signedInUser?.id)}
+              signInHref={`/${locale}/auth/signin?next=${encodeURIComponent(returnPath)}`}
+              labels={{
+                title: t("detail.participation.title"),
+                interested: t("detail.participation.interested"),
+                going: t("detail.participation.going"),
+                countsInterested: t("detail.participation.countsInterested"),
+                countsGoing: t("detail.participation.countsGoing"),
+                signIn: t("detail.participation.signIn"),
+              }}
+            />
           </CardContent>
         </Card>
       </section>
@@ -305,6 +337,15 @@ export default async function EventDetailPage({
               </p>
             </CardContent>
           </Card>
+
+          <EntityCommentsSection
+            entityType="event"
+            entityId={event.id}
+            locale={locale}
+            viewerId={signedInUser?.id ?? null}
+            returnPath={returnPath}
+            signInHref={`/${locale}/auth/signin?next=${encodeURIComponent(returnPath)}`}
+          />
 
           <EventReportForm
             eventId={event.id}

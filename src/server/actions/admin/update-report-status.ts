@@ -37,6 +37,8 @@ export async function updateReportStatus(
       targetType: true,
       placeId: true,
       eventId: true,
+      entityCommentId: true,
+      placeCollectionId: true,
     },
   });
 
@@ -65,6 +67,8 @@ export async function updateReportStatus(
       reportTargetType: report.targetType,
       placeId: report.placeId,
       eventId: report.eventId,
+      entityCommentId: report.entityCommentId,
+      placeCollectionId: report.placeCollectionId,
     },
   });
 

@@ -1,3 +1,4 @@
+import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 
 import { env } from "@/lib/env";
@@ -5,7 +6,9 @@ import { isKnownPlaceCategorySlug } from "@/lib/place-category-catalog";
 import { handleServerError } from "@/lib/errors/handle-server-error";
 import { prisma } from "@/lib/prisma";
 import { buildSlugBase, buildUniqueSlug, getSafeHttpUrl } from "@/lib/submissions";
+import { ACTIVITY_ENTITY, ACTIVITY_TYPE } from "@/lib/social/activity-types";
 import { ingestPlaceSchema } from "@/lib/validators/submissions";
+import { insertActivity } from "@/server/social/insert-activity";
 
 export const dynamic = "force-dynamic";
 
@@ -283,8 +286,18 @@ export async function POST(request: NextRequest) {
         },
       });
 
+      await insertActivity(tx, {
+        userId: null,
+        type: ACTIVITY_TYPE.NEW_PLACE,
+        entityType: ACTIVITY_ENTITY.place,
+        entityId: place.id,
+      });
+
       return { place, submission };
     });
+
+    revalidatePath("/de/feed");
+    revalidatePath("/tr/feed");
 
     return NextResponse.json(
       {

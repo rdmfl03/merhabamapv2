@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
 import type { EventCategory } from "@prisma/client";
+import { EntityContributionEntityType } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
 import { getContentSubmissionGuard } from "@/lib/rate-limit/submission-guard";
@@ -15,12 +16,29 @@ import {
   parseBerlinLocalDateTime,
   sanitizeSubmissionReturnPath,
 } from "@/lib/submissions";
+import { ACTIVITY_ENTITY, ACTIVITY_TYPE } from "@/lib/social/activity-types";
 import { eventSuggestionSchema } from "@/lib/validators/submissions";
+import { insertActivity } from "@/server/social/insert-activity";
+import { upsertCreatorEntityContribution } from "@/server/social/upsert-creator-entity-contribution";
 
 import {
   idleSubmissionActionState,
   type SubmissionActionState,
 } from "./state";
+
+async function revalidatePublicProfilePaths(userId: string) {
+  const u = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { username: true },
+  });
+  const un = u?.username?.trim();
+  if (!un) {
+    return;
+  }
+  for (const loc of ["de", "tr"] as const) {
+    revalidatePath(`/${loc}/user/${un}`);
+  }
+}
 
 export async function submitEventSuggestion(
   _previousState: SubmissionActionState = idleSubmissionActionState,
@@ -161,6 +179,12 @@ export async function submitEventSuggestion(
       },
     });
 
+    await upsertCreatorEntityContribution(tx, {
+      userId: session.user.id,
+      entityType: EntityContributionEntityType.EVENT,
+      entityId: event.id,
+    });
+
     await tx.submission.create({
       data: {
         id: crypto.randomUUID(),
@@ -186,9 +210,18 @@ export async function submitEventSuggestion(
         status: "PENDING",
       },
     });
+
+    await insertActivity(tx, {
+      userId: session.user.id,
+      type: ACTIVITY_TYPE.NEW_EVENT,
+      entityType: ACTIVITY_ENTITY.event,
+      entityId: event.id,
+    });
   });
 
   revalidatePath(`/${parsed.data.locale}/admin/ingest/submissions`);
+  revalidatePath(`/${parsed.data.locale}/feed`);
+  await revalidatePublicProfilePaths(session.user.id);
 
   return {
     status: "success",

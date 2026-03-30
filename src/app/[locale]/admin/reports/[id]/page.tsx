@@ -28,7 +28,15 @@ export default async function AdminReportDetailPage({
   }
 
   const targetTitle =
-    report.targetType === "PLACE" ? report.place?.name : report.event?.title;
+    report.targetType === "PLACE"
+      ? report.place?.name
+      : report.targetType === "EVENT"
+        ? report.event?.title
+        : report.targetType === "PLACE_COLLECTION"
+          ? report.placeCollection?.title
+          : report.entityComment?.content?.trim().slice(0, 120) ||
+            report.entityComment?.content ||
+            "—";
 
   return (
     <AdminShell
@@ -54,7 +62,7 @@ export default async function AdminReportDetailPage({
                 <p className="text-sm font-medium text-muted-foreground">
                   {report.targetType}
                 </p>
-                <h2 className="font-display text-3xl text-foreground">
+                <h2 className="font-display text-2xl text-foreground sm:text-3xl">
                   {targetTitle}
                 </h2>
               </div>
@@ -89,6 +97,31 @@ export default async function AdminReportDetailPage({
                   {report.user?.name ?? report.user?.email ?? t("reportDetail.unknown")}
                 </p>
               </div>
+
+              {report.targetType === "ENTITY_COMMENT" && report.entityComment ? (
+                <div>
+                  <p className="font-medium text-foreground">{t("reportDetail.commentPreview")}</p>
+                  <p className="whitespace-pre-wrap text-muted-foreground">
+                    {report.entityComment.content}
+                  </p>
+                  {report.commentParent ? (
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      {t("reportDetail.commentContext")}:{" "}
+                      <Link
+                        href={
+                          report.commentParent.kind === "place"
+                            ? `/places/${report.commentParent.slug}`
+                            : `/events/${report.commentParent.slug}`
+                        }
+                        className="text-brand underline-offset-2 hover:underline"
+                      >
+                        {report.commentParent.label}
+                      </Link>
+                    </p>
+                  ) : null}
+                </div>
+              ) : null}
+
               <div>
                 <p className="font-medium text-foreground">{t("reportDetail.target")}</p>
                 {report.targetType === "PLACE" && report.place ? (
@@ -99,6 +132,26 @@ export default async function AdminReportDetailPage({
                   <Link href={`/events/${report.event.slug}`} className="text-brand">
                     {report.event.title}
                   </Link>
+                ) : report.targetType === "PLACE_COLLECTION" && report.placeCollection ? (
+                  <Link
+                    href={`/collections/${report.placeCollection.id}`}
+                    className="text-brand"
+                  >
+                    {t("reportDetail.openCollection")}: {report.placeCollection.title}
+                  </Link>
+                ) : report.targetType === "ENTITY_COMMENT" && report.commentParent ? (
+                  <Link
+                    href={
+                      report.commentParent.kind === "place"
+                        ? `/places/${report.commentParent.slug}`
+                        : `/events/${report.commentParent.slug}`
+                    }
+                    className="text-brand"
+                  >
+                    {report.commentParent.label}
+                  </Link>
+                ) : report.targetType === "ENTITY_COMMENT" ? (
+                  <p className="text-muted-foreground">{t("reportDetail.unknown")}</p>
                 ) : (
                   <p className="text-muted-foreground">{t("reportDetail.unknown")}</p>
                 )}

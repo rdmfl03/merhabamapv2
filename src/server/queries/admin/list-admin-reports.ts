@@ -42,6 +42,18 @@ export async function listAdminReports(filters?: {
           slug: true,
         },
       },
+      entityComment: {
+        select: {
+          id: true,
+          content: true,
+        },
+      },
+      placeCollection: {
+        select: {
+          id: true,
+          title: true,
+        },
+      },
     },
   });
 }

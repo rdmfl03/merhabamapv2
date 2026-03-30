@@ -1,5 +1,7 @@
 "use client";
 
+import type { ReactNode } from "react";
+
 import { CityDiscoveryMap } from "@/components/cities/city-discovery-map";
 import { EventCard } from "@/components/events/event-card";
 import { PlaceCard } from "@/components/places/place-card";
@@ -48,6 +50,8 @@ type CityDiscoveryOverviewProps = {
   mapEvents: CityEventCardRecord[];
   isAuthenticated: boolean;
   germanyMapClusters?: GermanyMapCluster[] | null;
+  /** Nur bei konkreter Stadt (?city=…): Stadt folgen / entfolgen */
+  cityFollowSlot?: ReactNode;
   labels: {
     eyebrow: string;
     title: string;
@@ -129,6 +133,7 @@ export function CityDiscoveryOverview({
   mapEvents,
   isAuthenticated,
   germanyMapClusters = null,
+  cityFollowSlot,
   labels,
 }: CityDiscoveryOverviewProps) {
   const isGermanyNationalMap =
@@ -160,6 +165,7 @@ export function CityDiscoveryOverview({
               <Link href="/auth/signup">{labels.signUpCta}</Link>
             </Button>
           </div>
+          {cityFollowSlot ? <div className="pt-1">{cityFollowSlot}</div> : null}
         </div>
 
         <CityDiscoveryMap

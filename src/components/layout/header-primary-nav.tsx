@@ -36,6 +36,10 @@ function isEventsActive(path: string): boolean {
   return path === "/events" || path.startsWith("/events/");
 }
 
+function isFeedActive(path: string): boolean {
+  return path === "/feed";
+}
+
 function usePrimaryNavState() {
   const pathname = usePathname() ?? "/";
   const t = useTranslations("common");
@@ -47,6 +51,7 @@ function usePrimaryNavState() {
     mapOn: isMapActive(pathname),
     placesOn: isPlacesActive(pathname),
     eventsOn: isEventsActive(pathname),
+    feedOn: isFeedActive(pathname),
   };
 }
 
@@ -61,7 +66,7 @@ function navItemClass(active: boolean, mobile?: boolean): string {
 }
 
 export function HeaderPrimaryNavDesktop() {
-  const { t, primaryNavAria, mapOn, placesOn, eventsOn } = usePrimaryNavState();
+  const { t, primaryNavAria, mapOn, placesOn, eventsOn, feedOn } = usePrimaryNavState();
 
   return (
     <nav
@@ -85,12 +90,19 @@ export function HeaderPrimaryNavDesktop() {
       >
         {t("events")}
       </Link>
+      <Link
+        href="/feed"
+        className={navItemClass(feedOn)}
+        aria-current={feedOn ? "page" : undefined}
+      >
+        {t("feed")}
+      </Link>
     </nav>
   );
 }
 
 export function HeaderPrimaryNavMobile({ className }: { className?: string }) {
-  const { t, primaryNavAria, mapOn, placesOn, eventsOn } = usePrimaryNavState();
+  const { t, primaryNavAria, mapOn, placesOn, eventsOn, feedOn } = usePrimaryNavState();
 
   return (
     <nav
@@ -116,6 +128,13 @@ export function HeaderPrimaryNavMobile({ className }: { className?: string }) {
         aria-current={eventsOn ? "page" : undefined}
       >
         {t("events")}
+      </Link>
+      <Link
+        href="/feed"
+        className={navItemClass(feedOn, true)}
+        aria-current={feedOn ? "page" : undefined}
+      >
+        {t("feed")}
       </Link>
     </nav>
   );

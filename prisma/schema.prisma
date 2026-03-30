@@ -91,9 +91,156 @@ model User {
   submittedSubmissions  Submission[]       @relation("SubmittedSubmissions")
   actionTokens          UserActionToken[]
   onboardingCity        City?              @relation("OnboardingCity", fields: [onboardingCityId], references: [id])
+  activities            Activity[]
+  followsInitiated      Follow[]           @relation("FollowFollower")
+  followsReceived       Follow[]           @relation("FollowFollowing")
+  entityComments        EntityComment[]
+  eventParticipations   EventParticipation[]
+  placeCollections      PlaceCollection[]
+  cityFollows           CityFollow[]
+  notificationsReceived Notification[] @relation("NotificationRecipient")
+  notificationsAsActor  Notification[] @relation("NotificationActor")
+  entityContributions   EntityContribution[]
 
   @@index([role])
   @@map("users")
+}
+
+model Notification {
+  id          String           @id @default(cuid())
+  userId      String           @map("user_id")
+  type        NotificationType @map("notification_type")
+  actorUserId String?          @map("actor_user_id")
+  entityType  String?          @map("entity_type")
+  entityId    String?          @map("entity_id")
+  createdAt   DateTime         @default(now()) @map("created_at")
+  readAt      DateTime?        @map("read_at")
+  recipient   User             @relation("NotificationRecipient", fields: [userId], references: [id], onDelete: Cascade)
+  actor       User?            @relation("NotificationActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([userId, readAt])
+  @@map("notifications")
+}
+
+model EntityContribution {
+  id         String                       @id @default(cuid())
+  userId     String                       @map("user_id")
+  entityType EntityContributionEntityType @map("entity_type")
+  entityId   String                       @map("entity_id")
+  role       EntityContributionRole       @map("role")
+  createdAt  DateTime                     @default(now()) @map("created_at")
+  user       User                         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, entityType, entityId, role])
+  @@index([userId])
+  @@index([entityType, entityId])
+  @@map("entity_contributions")
+}
+
+model Activity {
+  id         String   @id @default(cuid())
+  userId     String?  @map("user_id")
+  type       String
+  entityType String   @map("entity_type")
+  entityId   String?  @map("entity_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+  user       User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([createdAt(sort: Desc)])
+  @@index([userId])
+  @@map("activities")
+}
+
+model Follow {
+  id              String   @id @default(cuid())
+  followerId      String   @map("follower_id")
+  followingUserId String   @map("following_user_id")
+  createdAt       DateTime @default(now()) @map("created_at")
+  follower        User     @relation("FollowFollower", fields: [followerId], references: [id], onDelete: Cascade)
+  following       User     @relation("FollowFollowing", fields: [followingUserId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingUserId])
+  @@index([followerId])
+  @@index([followingUserId])
+  @@map("follows")
+}
+
+model EntityComment {
+  id         String    @id @default(cuid())
+  userId     String    @map("user_id")
+  entityType String    @map("entity_type")
+  entityId   String    @map("entity_id")
+  content    String    @db.VarChar(500)
+  createdAt  DateTime  @default(now()) @map("created_at")
+  deletedAt  DateTime? @map("deleted_at")
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reports    Report[]
+
+  @@index([entityType, entityId, createdAt(sort: Desc)])
+  @@index([userId])
+  @@map("entity_comments")
+}
+
+model EventParticipation {
+  id        String                   @id @default(cuid())
+  userId    String                   @map("user_id")
+  eventId   String                   @map("event_id")
+  status    EventParticipationStatus
+  createdAt DateTime                 @default(now()) @map("created_at")
+  updatedAt DateTime                 @updatedAt @map("updated_at")
+  user      User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event     Event                    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, eventId])
+  @@index([eventId])
+  @@index([userId])
+  @@map("event_participations")
+}
+
+model PlaceCollection {
+  id          String                   @id @default(cuid())
+  userId      String                   @map("user_id")
+  title       String                   @db.VarChar(80)
+  description String?                  @db.VarChar(300)
+  visibility  PlaceCollectionVisibility
+  createdAt   DateTime                 @default(now()) @map("created_at")
+  updatedAt   DateTime                 @updatedAt @map("updated_at")
+  user        User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items       PlaceCollectionItem[]
+  reports     Report[]
+
+  @@index([userId])
+  @@index([visibility])
+  @@map("place_collections")
+}
+
+model PlaceCollectionItem {
+  id           String          @id @default(cuid())
+  collectionId String          @map("collection_id")
+  placeId      String          @map("place_id")
+  createdAt    DateTime        @default(now()) @map("created_at")
+  collection   PlaceCollection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  place        Place           @relation(fields: [placeId], references: [id], onDelete: Cascade)
+
+  @@unique([collectionId, placeId])
+  @@index([collectionId])
+  @@index([placeId])
+  @@map("place_collection_items")
+}
+
+model CityFollow {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  cityId    String   @map("city_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  city      City     @relation(fields: [cityId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, cityId])
+  @@index([userId])
+  @@index([cityId])
+  @@map("city_follows")
 }
 
 model City {
@@ -113,6 +260,7 @@ model City {
   normalizedIngestEvents NormalizedIngestEvent[]
   places                 Place[]
   usersOnboarding        User[] @relation("OnboardingCity")
+  cityFollows            CityFollow[]
 
   @@index([stateCode])
   @@index([countryCode])
@@ -180,6 +328,7 @@ model Place {
   reports              Report[]
   savedBy              SavedPlace[]
   venueEvents          Event[]            @relation("EventVenuePlace")
+  collectionItems      PlaceCollectionItem[]
 
   @@index([cityId])
   @@index([categoryId])
@@ -230,6 +379,7 @@ model Event {
   venuePlace             Place?           @relation("EventVenuePlace", fields: [venuePlaceId], references: [id], onDelete: SetNull)
   reports                Report[]
   savedBy                SavedEvent[]
+  participations         EventParticipation[]
 
   @@unique([title, cityId, startsAt], map: "events_unique_event")
   @@unique([title, cityId, startsAt], map: "events_unique_title_city_starts_at")
@@ -297,27 +447,33 @@ model BusinessClaim {
 }
 
 model Report {
-  id               String           @id @default(cuid())
-  userId           String?          @map("user_id")
-  targetType       ReportTargetType @map("target_type")
-  placeId          String?          @map("place_id")
-  eventId          String?          @map("event_id")
-  reason           String
-  details          String?
-  status           ReportStatus     @default(OPEN)
-  reviewedAt       DateTime?        @map("reviewed_at")
-  reviewedByUserId String?          @map("reviewed_by_user_id")
-  createdAt        DateTime         @default(now()) @map("created_at")
-  updatedAt        DateTime         @updatedAt @map("updated_at")
-  event            Event?           @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  place            Place?           @relation(fields: [placeId], references: [id], onDelete: Cascade)
-  reviewedBy       User?            @relation("ReportReviewer", fields: [reviewedByUserId], references: [id])
-  user             User?            @relation(fields: [userId], references: [id])
+  id                  String           @id @default(cuid())
+  userId              String?          @map("user_id")
+  targetType          ReportTargetType @map("target_type")
+  placeId             String?          @map("place_id")
+  eventId             String?          @map("event_id")
+  entityCommentId     String?          @map("entity_comment_id")
+  placeCollectionId   String?          @map("place_collection_id")
+  reason              String
+  details             String?
+  status              ReportStatus     @default(OPEN)
+  reviewedAt          DateTime?        @map("reviewed_at")
+  reviewedByUserId    String?          @map("reviewed_by_user_id")
+  createdAt           DateTime         @default(now()) @map("created_at")
+  updatedAt           DateTime         @updatedAt @map("updated_at")
+  entityComment       EntityComment?   @relation(fields: [entityCommentId], references: [id], onDelete: SetNull)
+  event               Event?           @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  place               Place?           @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  placeCollection     PlaceCollection? @relation(fields: [placeCollectionId], references: [id], onDelete: SetNull)
+  reviewedBy          User?            @relation("ReportReviewer", fields: [reviewedByUserId], references: [id])
+  user                User?            @relation(fields: [userId], references: [id])
 
   @@index([status])
   @@index([targetType])
   @@index([placeId])
   @@index([eventId])
+  @@index([entityCommentId])
+  @@index([placeCollectionId])
   @@map("reports")
 }
 
@@ -726,6 +882,16 @@ enum EventCategory {
   RELIGIOUS
 }
 
+enum EventParticipationStatus {
+  INTERESTED
+  GOING
+}
+
+enum PlaceCollectionVisibility {
+  PRIVATE
+  PUBLIC
+}
+
 enum MediaAssetRole {
   PRIMARY_CANDIDATE
   GALLERY
@@ -781,9 +947,25 @@ enum ClaimStatus {
   REJECTED
 }
 
+enum EntityContributionEntityType {
+  PLACE
+  EVENT
+}
+
+enum EntityContributionRole {
+  CREATOR
+}
+
+enum NotificationType {
+  NEW_FOLLOWER
+  COMMENT_ON_MY_CONTENT
+}
+
 enum ReportTargetType {
   PLACE
   EVENT
+  ENTITY_COMMENT
+  PLACE_COLLECTION
 }
 
 enum ReportStatus {

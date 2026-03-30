@@ -1,0 +1,179 @@
+import { getTranslations, setRequestLocale } from "next-intl/server";
+
+import { ActivityFeedItem } from "@/components/social/activity-feed-item";
+import { Link } from "@/i18n/navigation";
+import { auth } from "@/auth";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { getFollowedCityIdsForUser } from "@/server/queries/cities/list-followed-cities-for-user";
+import { getFeedActivities, type FeedMode } from "@/server/queries/social/get-feed-activities";
+
+import type { Metadata } from "next";
+
+export const dynamic = "force-dynamic";
+
+type FeedPageProps = {
+  params: Promise<{ locale: "de" | "tr" }>;
+  searchParams: Promise<{ mode?: string | string[] }>;
+};
+
+function parseMode(raw: string | string[] | undefined): FeedMode {
+  const v = Array.isArray(raw) ? raw[0] : raw;
+  return v === "local" ? "local" : "default";
+}
+
+export async function generateMetadata({ params }: FeedPageProps): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "feed" });
+  return {
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+  };
+}
+
+export default async function FeedPage({ params, searchParams }: FeedPageProps) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+
+  const mode = parseMode((await searchParams).mode);
+
+  const session = await auth();
+  const viewerId = session?.user?.id ?? null;
+
+  const [t, followedCityIds, items] = await Promise.all([
+    getTranslations("feed"),
+    viewerId && mode === "local" ? getFollowedCityIdsForUser(viewerId) : Promise.resolve([]),
+    getFeedActivities(viewerId, { locale, mode }),
+  ]);
+
+  const hasFollowedCitiesForLocal = followedCityIds.length > 0;
+
+  const subtitle =
+    mode === "local"
+      ? t("subtitleLocal")
+      : viewerId
+        ? t("subtitlePersonalized")
+        : t("metaDescription");
+
+  const renderEmpty = () => {
+    if (mode === "local") {
+      if (!viewerId) {
+        return (
+          <div className="rounded-2xl border border-dashed border-border/80 bg-muted/30 px-6 py-10 text-center">
+            <p className="text-sm font-medium text-foreground">{t("emptyLocal")}</p>
+            <p className="mt-2 text-xs text-muted-foreground">{t("emptyLocalGuestHint")}</p>
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+              <Button variant="default" asChild>
+                <Link href={`/auth/signin?next=${encodeURIComponent(`/${locale}/feed?mode=local`)}`}>
+                  {t("emptyCtaFollowSignIn")}
+                </Link>
+              </Button>
+              <Button variant="outline" asChild>
+                <Link href="/map">{t("emptyLocalCtaMap")}</Link>
+              </Button>
+            </div>
+          </div>
+        );
+      }
+      if (!hasFollowedCitiesForLocal) {
+        return (
+          <div className="rounded-2xl border border-dashed border-border/80 bg-muted/30 px-6 py-10 text-center">
+            <p className="text-sm font-medium text-foreground">{t("emptyLocal")}</p>
+            <p className="mt-2 text-xs text-muted-foreground">{t("emptyLocalHint")}</p>
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+              <Button variant="default" asChild>
+                <Link href="/map">{t("emptyLocalCtaMap")}</Link>
+              </Button>
+            </div>
+          </div>
+        );
+      }
+      return (
+        <div className="rounded-2xl border border-dashed border-border/80 bg-muted/30 px-6 py-10 text-center">
+          <p className="text-sm font-medium text-foreground">{t("emptyLocal")}</p>
+          <p className="mt-2 text-xs text-muted-foreground">{t("emptyLocalHint")}</p>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+            <Button variant="outline" asChild>
+              <Link href="/map">{t("emptyLocalCtaMap")}</Link>
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="rounded-2xl border border-dashed border-border/80 bg-muted/30 px-6 py-10 text-center">
+        <p className="text-sm font-medium text-foreground">{t("empty")}</p>
+        <p className="mt-2 text-xs text-muted-foreground">{t("emptyHint")}</p>
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+          <Button variant="default" asChild>
+            <Link href="/places">{t("emptyCtaPlaces")}</Link>
+          </Button>
+          <Button variant="outline" asChild>
+            <Link
+              href={
+                viewerId
+                  ? "/profile"
+                  : `/auth/signin?next=${encodeURIComponent(`/${locale}/feed`)}`
+              }
+            >
+              {viewerId ? t("emptyCtaFollow") : t("emptyCtaFollowSignIn")}
+            </Link>
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="mx-auto max-w-2xl space-y-8 px-4 py-12">
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <h1 className="font-display text-3xl text-foreground md:text-4xl">{t("title")}</h1>
+          <p className="text-sm text-muted-foreground">{subtitle}</p>
+        </div>
+
+        <div
+          className="inline-flex gap-1 rounded-xl border border-border/80 bg-muted/25 p-1"
+          role="tablist"
+          aria-label={t("title")}
+        >
+          <Link
+            href="/feed"
+            className={cn(
+              "rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
+              mode === "default"
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground",
+            )}
+            scroll={false}
+          >
+            {t("tabForYou")}
+          </Link>
+          <Link
+            href="/feed?mode=local"
+            className={cn(
+              "rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
+              mode === "local"
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground",
+            )}
+            scroll={false}
+          >
+            {t("tabMyCities")}
+          </Link>
+        </div>
+      </div>
+
+      {items.length === 0 ? (
+        renderEmpty()
+      ) : (
+        <ul className="space-y-3">
+          {items.map((item) => (
+            <ActivityFeedItem key={item.id} item={item} locale={locale} showActor />
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}

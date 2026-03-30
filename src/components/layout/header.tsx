@@ -2,6 +2,7 @@ import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 
 import { auth } from "@/auth";
+import { HeaderNotificationsLink } from "@/components/layout/header-notifications-link";
 import {
   HeaderPrimaryNavDesktop,
   HeaderPrimaryNavMobile,
@@ -28,6 +29,7 @@ export async function Header() {
           <Link href="/business">{t("business")}</Link>
         </Button>
       ) : null}
+      <HeaderNotificationsLink userId={session.user.id} />
       <Button variant="outline" size="sm" className="md:h-10 md:px-4 md:text-sm" asChild>
         <Link href="/profile">{t("account")}</Link>
       </Button>

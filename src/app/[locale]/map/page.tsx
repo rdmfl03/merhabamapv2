@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 
 import { auth } from "@/auth";
 import { CityDiscoveryOverview } from "@/components/cities/city-discovery-overview";
+import { CityFollowPanel } from "@/components/cities/city-follow-panel";
 import { JsonLd } from "@/components/seo/json-ld";
 import { getLocalizedCityDisplayName } from "@/lib/cities/city-display-name";
 import type { GermanyMapCluster } from "@/lib/cities/germany-map-cluster";
@@ -14,6 +15,7 @@ import {
   getPublicCityPage,
   getPublicGermanyDiscoveryPage,
 } from "@/server/queries/cities/get-public-city-page";
+import { isUserFollowingCity } from "@/server/queries/cities/list-followed-cities-for-user";
 
 export const dynamic = "force-dynamic";
 
@@ -102,11 +104,18 @@ export default async function DiscoveryMapPage({ params, searchParams }: MapPage
   const description = t("metaDescription", { city: cityName });
   const isNational = !citySlug;
 
-  const placesListHref = isNational ? "/places" : `/places?city=${pageData.city.slug}`;
-  const eventsListHref = isNational ? "/events" : `/events?city=${pageData.city.slug}`;
-  const cardReturnPath = isNational
+  const mapReturnPath = isNational
     ? `/${locale}/map`
     : `/${locale}/map?city=${pageData.city.slug}`;
+
+  const followingCity =
+    !isNational && userId
+      ? await isUserFollowingCity(userId, pageData.city.id)
+      : false;
+
+  const placesListHref = isNational ? "/places" : `/places?city=${pageData.city.slug}`;
+  const eventsListHref = isNational ? "/events" : `/events?city=${pageData.city.slug}`;
+  const cardReturnPath = mapReturnPath;
 
   const collectionPath = isNational ? "/map" : `/map?city=${pageData.city.slug}`;
 
@@ -151,6 +160,24 @@ export default async function DiscoveryMapPage({ params, searchParams }: MapPage
         mapEvents={pageData.mapEvents}
         isAuthenticated={Boolean(userId)}
         germanyMapClusters={germanyMapClusters}
+        cityFollowSlot={
+          !isNational ? (
+            <CityFollowPanel
+              cityId={pageData.city.id}
+              locale={locale}
+              returnPath={mapReturnPath}
+              isFollowing={followingCity}
+              isAuthenticated={Boolean(userId)}
+              signInHref={`/${locale}/auth/signin?next=${encodeURIComponent(mapReturnPath)}`}
+              labels={{
+                follow: t("cityFollow.follow"),
+                unfollow: t("cityFollow.unfollow"),
+                signIn: t("cityFollow.signIn"),
+                signInHint: t("cityFollow.signInHint"),
+              }}
+            />
+          ) : undefined
+        }
         labels={{
           eyebrow: t("eyebrow"),
           title: t("title", { city: cityName }),

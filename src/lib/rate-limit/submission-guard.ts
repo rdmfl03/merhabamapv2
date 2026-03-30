@@ -81,6 +81,8 @@ export async function getReportSubmissionGuard(args: {
   targetType: ReportTargetType;
   placeId?: string;
   eventId?: string;
+  entityCommentId?: string;
+  placeCollectionId?: string;
 }) {
   const duplicateTargetCount = await prisma.report.count({
     where: {
@@ -88,6 +90,8 @@ export async function getReportSubmissionGuard(args: {
       targetType: args.targetType,
       placeId: args.placeId,
       eventId: args.eventId,
+      entityCommentId: args.entityCommentId,
+      placeCollectionId: args.placeCollectionId,
       createdAt: {
         gte: windowStart(REPORT_DUPLICATE_WINDOW_MS),
       },

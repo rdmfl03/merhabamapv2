@@ -10,11 +10,17 @@ import {
   placeReportSchema,
   placesFilterSchema,
 } from "@/lib/validators/places";
+import {
+  entityCommentReportSchema,
+  placeCollectionReportSchema,
+} from "@/lib/validators/social-content-report";
 import { onboardingSchema, profileUpdateSchema } from "@/lib/validators/user";
 
 const cityId = "cjld2cjxh0000qzrmn831i7rn";
 const placeId = "cjld2cyuq0000t3rmniod1foy";
 const eventId = "cjld2d0h00001qzrmn5qx6jex";
+const commentId = "cjld2d0h00002qzrmn5qx6jex";
+const collectionId = "cjld2d0h00003qzrmn5qx6jex";
 
 describe("validators", () => {
   it("validates onboarding payloads with at least one interest", () => {
@@ -99,6 +105,25 @@ describe("validators", () => {
         reason: "INVALID_REASON",
       }).success,
     ).toBe(false);
+
+    expect(
+      entityCommentReportSchema.safeParse({
+        locale: "de",
+        commentId,
+        returnPath: "/de/places/foo",
+        reason: "SPAM_OR_ABUSE",
+        details: "  ",
+      }).success,
+    ).toBe(true);
+
+    expect(
+      placeCollectionReportSchema.safeParse({
+        locale: "tr",
+        collectionId,
+        returnPath: "/tr/collections/abc",
+        reason: "OTHER",
+      }).success,
+    ).toBe(true);
   });
 
   it("allows only supported event filter values", () => {
