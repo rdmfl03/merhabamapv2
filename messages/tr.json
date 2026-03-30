@@ -15,17 +15,17 @@
   },
   "landing": {
     "metaTitle": "Almanya'da mekanlar, etkinlikler ve topluluk | MerhabaMap",
-    "metaDescription": "Şehrinde ilgili mekanları, etkinlikleri ve buluşma noktalarını keşfet – haritada net bir bakışla; Berlin ve Köln öncelikli.",
+    "metaDescription": "Şehrinde ilgili mekanları, etkinlikleri ve buluşma noktalarını keşfet – haritada net bir bakışla, şehir filtresiyle.",
     "eyebrow": "Yerelde önemli olanı keşfet",
     "title": "Günlük hayatına uygun mekanları, etkinlikleri ve topluluğu bul.",
-    "subtitle": "Kafeden restorana, etkinlikten buluşma noktalarına kadar hepsi bir arada – Almanca ve Türkçe, Berlin ve Köln’de yerel odakla.",
+    "subtitle": "Kafeden restorana, etkinlikten buluşma noktalarına kadar hepsi bir arada – Almanca ve Türkçe, yerel bağlamla.",
     "explorePlaces": "Mekanları keşfet",
     "browseEvents": "Etkinlikleri keşfet",
     "heroMapCta": "Mekanları ve etkinlikleri haritada keşfet",
     "heroTrust": {
       "title": "Bilmen iyi olur",
       "curated": "Uzun listeler yerine harita – nerede ne var, bir bakışta.",
-      "cityFirst": "Berlin ve Köln’de başla: somut, yakın ve büyüyen bir içerik.",
+      "cityFirst": "Şehrini seç, haritayı aç: çevrendeki somut mekanlar ve etkinlikler.",
       "reportable": "Bildirim gönderebilir, işletme sahipleri mekanlarını talep edebilir – kurallar baştan net."
     },
     "cards": {
@@ -42,13 +42,13 @@
       "map": {
         "eyebrow": "Harita",
         "title": "Mekanlar ve etkinlikler için tek harita",
-        "description": "Mekanlar ve etkinlikler aynı haritada; şehre göre süz – önce Berlin ve Köln odaklı."
+        "description": "Mekanlar ve etkinlikler aynı haritada; şehre göre süz, nerede neyin ilgili olduğunu gör."
       }
     },
     "pilotSection": {
-      "eyebrow": "Pilot şehirler",
+      "eyebrow": "Şehrin",
       "title": "Topluluğun günlük hayatta görünür olduğu yerden başla.",
-      "description": "Berlin ve Köln ilk açık giriş noktalarıdır. MerhabaMap buradan yerel, güvenilir ve ölçeklenebilir bir discovery ağı olarak büyür.",
+      "description": "Şehrini seç ve yerel bağlamı olan mekanları ve etkinlikleri keşfet. MerhabaMap topluluk için güvenilir bir keşif ağı olarak büyür.",
       "cta": "Haritayı aç",
       "placesLabel": "Mekanlar",
       "eventsLabel": "Etkinlikler"
@@ -60,7 +60,7 @@
       "steps": {
         "one": {
           "title": "Şehir seç",
-          "description": "Berlin veya Köln ile başla; çevrene net bağlantılı kayıtları gör."
+          "description": "Şehrini seç; çevrene net bağlantılı kayıtları gör."
         },
         "two": {
           "title": "Mekan ve etkinlikleri keşfet",
@@ -169,7 +169,7 @@
     "languageTitle": "Dil",
     "languageDescription": "Almanca ve Türkçe eşdeğer birinci sınıf lokalizasyon olarak kuruldu.",
     "cityTitle": "Şehir",
-    "cityDescription": "Pilot şehirler: {cities}. Daha fazla şehir yapıyı bozmadan daha sonra eklenebilir.",
+    "cityDescription": "Seçenekler: {cities}. Daha fazla şehir daha sonra eklenebilir.",
     "interestsTitle": "İlgi alanları",
     "interestsDescription": "İlgi alanları esnek tutulur; katı bir profil modeli zorunlu değil.",
     "submit": "MerhabaMap'e devam et",
@@ -208,14 +208,14 @@
   },
   "places": {
     "metaTitle": "Almanya'daki Türk mekanları",
-    "metaDescription": "Berlin ve Köln'de restoran, kafe, market ve diğer Türk mekanlarını keşfet.",
+    "metaDescription": "Almanya'da restoran, kafe, market ve diğer Türk mekanlarını keşfet – şehir filtresiyle.",
     "metaTitleCity": "{city} için Türk mekanları",
     "metaTitleCategory": "Türk topluluğu için {category}",
     "metaDescriptionCity": "{city} içindeki Türk mekanlarını, restoranları, marketleri ve hizmetleri keşfet.",
     "eyebrow": "Mekanlar",
     "title": "Yerel bağlamı olan Türk mekanları.",
     "titleCity": "{city} içindeki mekanlar",
-    "description": "Berlin ve Köln'de Türk topluluğuna yakın restoranları, kafeleri, fırınlari, marketleri ve hizmetleri bul.",
+    "description": "Türk topluluğuna yakın restoranları, kafeleri, fırınları, marketleri ve hizmetleri şehrinde bul.",
     "descriptionCity": "{city} içinde Türk topluluğuna yakın restoranları, kafeleri, fırınları, marketleri ve hizmetleri keşfet.",
     "submitCta": "Mekan öner",
     "cityContext": "Şu anda {city} içinde geziyorsun.",
@@ -343,14 +343,14 @@
   },
   "events": {
     "metaTitle": "Almanya'daki Türk etkinlikleri",
-    "metaDescription": "Berlin ve Köln'de topluluk etkinliklerini, konserleri ve kültür programlarını keşfet.",
+    "metaDescription": "Almanya'da topluluk etkinliklerini, konserleri ve kültür programlarını keşfet – şehir filtresiyle.",
     "metaTitleCity": "{city} için Türk etkinlikleri",
     "metaTitleCategory": "{category} etkinlikleri Almanya'da",
     "metaDescriptionCity": "{city} içindeki Türk ve topluluk odaklı etkinlikleri keşfet.",
     "eyebrow": "Etkinlikler",
     "title": "Türk topluluğu için anlamlı etkinlikler.",
     "titleCity": "{city} içindeki etkinlikler",
-    "description": "Berlin ve Köln'de konserler, kültür geceleri, topluluk buluşmaları ve diğer yerel etkinlikleri bul.",
+    "description": "Konserler, kültür geceleri, topluluk buluşmaları ve diğer yerel etkinlikleri şehrinde bul.",
     "descriptionCity": "{city} içinde konserler, kültür geceleri, topluluk buluşmaları ve diğer yerel etkinlikleri keşfet.",
     "submitCta": "Etkinlik öner",
     "cityContext": "Şu anda {city} içinde geziyorsun.",
@@ -675,7 +675,7 @@
       },
       "sourceRollout": {
         "title": "Aktif v1 kaynak rollout sözleşmesi",
-        "description": "Berlin ve Köln için şu anda izinli olan kaynak konfigürasyonunun salt-okunur referansı. Veriler doğrudan merkezi allowlist konfigürasyonundan okunur.",
+        "description": "Şehir rollout segmentleri için şu anda izinli kaynak konfigürasyonunun salt-okunur referansı. Veriler doğrudan merkezi allowlist konfigürasyonundan okunur.",
         "activeBadge": "Aktif",
         "actionLabel": "Bloklanan raw kayıtları incele",
         "sectionLabel": "Bölüm",
@@ -1430,7 +1430,7 @@
     "place": {
       "eyebrow": "Mekan öner",
       "pageTitle": "Yeni bir mekan öner",
-      "pageDescription": "Berlin veya Köln'de eksik olduğunu düşündüğün bir mekanı burada güvenli şekilde incelemeye gönderebilirsin.",
+      "pageDescription": "Şehrinde eksik olduğunu düşündüğün bir mekanı burada güvenli şekilde incelemeye gönderebilirsin.",
       "form": {
         "title": "Yeni mekan gönder",
         "description": "Önerin kaydedilir ve yayına alınmadan önce manuel olarak incelenir.",
@@ -1445,7 +1445,7 @@
         },
         "placeholders": {
           "name": "ör. Hasir Restaurant",
-          "addressLine1": "ör. Adalbertstraße 10, Berlin",
+          "addressLine1": "ör. Örnek Cadde 10, 12345 Şehir",
           "sourceUrl": "https://…",
           "description": "Bu mekanı MerhabaMap için neden önemli buluyorsun?",
           "note": "İnceleme için opsiyonel ek not"
@@ -1471,7 +1471,7 @@
     "event": {
       "eyebrow": "Etkinlik öner",
       "pageTitle": "Yeni bir etkinlik öner",
-      "pageDescription": "Berlin veya Köln'de eksik olduğunu düşündüğün bir etkinliği burada manuel incelemeye gönderebilirsin.",
+      "pageDescription": "Şehrinde eksik olduğunu düşündüğün bir etkinliği burada manuel incelemeye gönderebilirsin.",
       "categories": {
         "concert": "Konser",
         "culture": "Kültür",
@@ -1497,9 +1497,9 @@
           "note": "Moderasyon ekibine not"
         },
         "placeholders": {
-          "title": "ör. Kültür Akşamı Köln",
+          "title": "ör. Şehrinde kültür akşamı",
           "venueName": "ör. Die Kantine",
-          "addressLine1": "ör. Neusser Landstraße 2, Köln",
+          "addressLine1": "ör. Etkinlik Sokak 2, 12345 Şehir",
           "sourceUrl": "https://…",
           "description": "Etkinlik neyle ilgili ve kimler için önemli?",
           "note": "İnceleme için opsiyonel ek not"

@@ -166,12 +166,8 @@ If a feature request appears to need a schema change, the AI must first:
 
 ### Cities
 
-Currently:
-- Berlin
-- Köln
-
-Future:
-- predefined list of major German cities
+- City-scoped discovery and filters are first-class; the set of available cities is **data-driven** (database / rollout config), not hard-coded in marketing copy.
+- Additional German cities can be added without structural breaks.
 
 ---
 
@@ -469,7 +465,7 @@ MerhabaMap aims to become:
 
 - Early-stage product
 - Core schema exists
-- Initial data in Berlin & Köln
+- Initial seed and pilot data tied to configured cities (see database / rollout)
 - Ingest pipeline developed in separate repository
 
 ---

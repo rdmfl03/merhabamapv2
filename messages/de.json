@@ -15,17 +15,17 @@
   },
   "landing": {
     "metaTitle": "Orte, Events und Community in Deutschland | MerhabaMap",
-    "metaDescription": "Entdecke relevante Orte, Veranstaltungen und lokale Treffpunkte – übersichtlich auf der Karte, mit Schwerpunkt auf Städten wie Berlin und Köln.",
+    "metaDescription": "Entdecke relevante Orte, Veranstaltungen und lokale Treffpunkte – übersichtlich auf der Karte, filterbar nach deiner Stadt.",
     "eyebrow": "Entdecken, was vor Ort zählt",
     "title": "Entdecke Orte, Events und Community, die zu deinem Alltag passen.",
-    "subtitle": "Alles auf einen Blick: von Cafés und Restaurants bis zu Veranstaltungen und Treffpunkten in deiner Nähe – auf Deutsch und Türkisch, mit lokalem Schwerpunkt in Berlin und Köln.",
+    "subtitle": "Alles auf einen Blick: von Cafés und Restaurants bis zu Veranstaltungen und Treffpunkten in deiner Nähe – auf Deutsch und Türkisch, mit lokalem Bezug.",
     "explorePlaces": "Orte entdecken",
     "browseEvents": "Events entdecken",
     "heroMapCta": "Orte und Events auf der Karte entdecken",
     "heroTrust": {
       "title": "Gut zu wissen",
       "curated": "Eine Karte statt endlose Listen – du siehst, was wo liegt.",
-      "cityFirst": "Start in Berlin und Köln: konkret, nahbar, mit wachsendem Angebot.",
+      "cityFirst": "Stadt wählen, Karte öffnen: konkrete Orte und Events in deiner Umgebung.",
       "reportable": "Du kannst melden, Inhaber können ihre Orte beanspruchen – fair und von Anfang an klar geregelt."
     },
     "cards": {
@@ -42,13 +42,13 @@
       "map": {
         "eyebrow": "Karte",
         "title": "Eine Karte für Orte und Events",
-        "description": "Orte und Events teilen sich eine Karte; du filterst nach Stadt – zuerst mit Fokus auf Berlin und Köln."
+        "description": "Orte und Events teilen sich eine Karte; du filterst nach Stadt und siehst, was wo relevant ist."
       }
     },
     "pilotSection": {
-      "eyebrow": "Pilotstädte",
+      "eyebrow": "Deine Stadt",
       "title": "Beginne dort, wo Community im Alltag sichtbar wird.",
-      "description": "Berlin und Köln sind die ersten öffentlichen Einstiegspunkte. Von hier aus wächst MerhabaMap als lokales, vertrauenswürdiges Discovery-Netzwerk weiter.",
+      "description": "Wähle deine Stadt und entdecke Orte und Events mit lokalem Bezug. MerhabaMap wächst als vertrauenswürdiges Netzwerk für die Community.",
       "cta": "Karte öffnen",
       "placesLabel": "Orte",
       "eventsLabel": "Events"
@@ -60,7 +60,7 @@
       "steps": {
         "one": {
           "title": "Stadt wählen",
-          "description": "Starte mit Berlin oder Köln und sieh Einträge mit klarem Bezug zu deiner Umgebung."
+          "description": "Wähle deine Stadt und sieh Einträge mit klarem Bezug zu deiner Umgebung."
         },
         "two": {
           "title": "Orte und Events entdecken",
@@ -169,7 +169,7 @@
     "languageTitle": "Sprache",
     "languageDescription": "Deutsch und Türkisch sind als gleichwertige First-Class-Lokalisierungen eingerichtet.",
     "cityTitle": "Stadt",
-    "cityDescription": "Pilotstädte: {cities}. Weitere Städte können später ohne Strukturbruch ergänzt werden.",
+    "cityDescription": "Zur Auswahl stehen: {cities}. Weitere Städte können später ergänzt werden.",
     "interestsTitle": "Interessen",
     "interestsDescription": "Interessen werden bewusst flexibel gespeichert, damit dein Profil ohne starres Modell zu dir passt.",
     "submit": "Weiter zu MerhabaMap",
@@ -208,14 +208,14 @@
   },
   "places": {
     "metaTitle": "Türkische Orte in Deutschland",
-    "metaDescription": "Entdecke Restaurants, Cafés, Märkte und weitere türkische Orte in Berlin und Köln.",
+    "metaDescription": "Entdecke Restaurants, Cafés, Märkte und weitere türkische Orte in Deutschland – nach Stadt filterbar.",
     "metaTitleCity": "Türkische Orte in {city}",
     "metaTitleCategory": "{category} für die türkische Community",
     "metaDescriptionCity": "Entdecke türkische Orte, Restaurants, Märkte und Services in {city}.",
     "eyebrow": "Places",
     "title": "Türkische Orte mit lokalem Kontext.",
     "titleCity": "Orte in {city}",
-    "description": "Finde Restaurants, Cafés, Bäckereien, Märkte und Services aus der türkischen Community in Berlin und Köln.",
+    "description": "Finde Restaurants, Cafés, Bäckereien, Märkte und Services aus der türkischen Community – lokal in deiner Stadt.",
     "descriptionCity": "Entdecke Restaurants, Cafés, Bäckereien, Märkte und Services aus der türkischen Community in {city}.",
     "submitCta": "Ort vorschlagen",
     "cityContext": "Aktuell stöberst du in {city}.",
@@ -343,14 +343,14 @@
   },
   "events": {
     "metaTitle": "Türkische Events in Deutschland",
-    "metaDescription": "Entdecke Community-Events, Konzerte und kulturelle Veranstaltungen in Berlin und Köln.",
+    "metaDescription": "Entdecke Community-Events, Konzerte und kulturelle Veranstaltungen in Deutschland – nach Stadt filterbar.",
     "metaTitleCity": "Türkische Events in {city}",
     "metaTitleCategory": "{category} Events in Deutschland",
     "metaDescriptionCity": "Entdecke türkische und community-relevante Events in {city}.",
     "eyebrow": "Events",
     "title": "Relevante Events für die türkische Community.",
     "titleCity": "Events in {city}",
-    "description": "Finde Konzerte, Kulturabende, Community-Treffen und weitere Veranstaltungen mit lokalem Kontext in Berlin und Köln.",
+    "description": "Finde Konzerte, Kulturabende, Community-Treffen und weitere Veranstaltungen mit lokalem Kontext – in deiner Stadt.",
     "descriptionCity": "Entdecke Konzerte, Kulturabende, Community-Treffen und weitere Veranstaltungen mit lokalem Kontext in {city}.",
     "submitCta": "Event vorschlagen",
     "cityContext": "Aktuell stöberst du in {city}.",
@@ -666,7 +666,7 @@
       },
       "sourceRollout": {
         "title": "Aktiver v1-Quellen-Rollout",
-        "description": "Read-only Referenz der aktuell freigegebenen Quellen-Konfiguration für Berlin und Köln. Die Daten werden direkt aus der zentralen Allowlist gelesen.",
+        "description": "Read-only Referenz der aktuell freigegebenen Quellen-Konfiguration (städtische Rollout-Segmente). Die Daten werden direkt aus der zentralen Allowlist gelesen.",
         "activeBadge": "Aktiv",
         "actionLabel": "Blockierte Raw-Items prüfen",
         "sectionLabel": "Bereich",
@@ -1421,7 +1421,7 @@
     "place": {
       "eyebrow": "Ort vorschlagen",
       "pageTitle": "Schlage einen neuen Ort vor",
-      "pageDescription": "Wenn dir ein Ort für türkisches Leben in Berlin oder Köln fehlt, kannst du ihn hier sicher zur Prüfung einreichen.",
+      "pageDescription": "Wenn dir ein Ort für türkisches Leben in deiner Stadt fehlt, kannst du ihn hier sicher zur Prüfung einreichen.",
       "form": {
         "title": "Neuen Ort einreichen",
         "description": "Dein Vorschlag wird gespeichert und vor einer Veröffentlichung manuell geprüft.",
@@ -1436,7 +1436,7 @@
         },
         "placeholders": {
           "name": "z. B. Hasir Restaurant",
-          "addressLine1": "z. B. Adalbertstraße 10, Berlin",
+          "addressLine1": "z. B. Musterstraße 10, 12345 Ort",
           "sourceUrl": "https://…",
           "description": "Was macht diesen Ort relevant für MerhabaMap?",
           "note": "Optionaler Zusatzhinweis für die Prüfung"
@@ -1462,7 +1462,7 @@
     "event": {
       "eyebrow": "Event vorschlagen",
       "pageTitle": "Schlage ein neues Event vor",
-      "pageDescription": "Wenn dir ein relevantes Event in Berlin oder Köln fehlt, kannst du es hier zur manuellen Prüfung einreichen.",
+      "pageDescription": "Wenn dir ein relevantes Event in deiner Stadt fehlt, kannst du es hier zur manuellen Prüfung einreichen.",
       "categories": {
         "concert": "Konzert",
         "culture": "Kultur",
@@ -1488,9 +1488,9 @@
           "note": "Hinweis für das Moderationsteam"
         },
         "placeholders": {
-          "title": "z. B. Kulturabend Köln",
+          "title": "z. B. Kulturabend in deiner Stadt",
           "venueName": "z. B. Die Kantine",
-          "addressLine1": "z. B. Neusser Landstraße 2, Köln",
+          "addressLine1": "z. B. Veranstaltungsweg 2, 12345 Ort",
           "sourceUrl": "https://…",
           "description": "Worum geht es bei dem Event und für wen ist es relevant?",
           "note": "Optionaler Zusatzhinweis für die Prüfung"
