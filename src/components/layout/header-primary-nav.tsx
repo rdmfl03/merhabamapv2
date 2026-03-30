@@ -89,12 +89,15 @@ export function HeaderPrimaryNavDesktop() {
   );
 }
 
-export function HeaderPrimaryNavMobile() {
+export function HeaderPrimaryNavMobile({ className }: { className?: string }) {
   const { t, primaryNavAria, mapOn, placesOn, eventsOn } = usePrimaryNavState();
 
   return (
     <nav
-      className="mt-3 flex w-full flex-wrap items-center justify-center gap-1 md:hidden"
+      className={cn(
+        "flex flex-wrap items-center gap-1 md:hidden",
+        className,
+      )}
       aria-label={primaryNavAria}
     >
       <Link href="/map" className={navItemClass(mapOn, true)} aria-current={mapOn ? "page" : undefined}>
