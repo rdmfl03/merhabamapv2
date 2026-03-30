@@ -43,7 +43,12 @@ export async function generateMetadata({ params, searchParams }: MapPageProps): 
   const t = await getTranslations({ locale, namespace: "cities" });
 
   if (citySlug) {
-    const cityPage = await getPublicCityPage(citySlug);
+    let cityPage = null;
+    try {
+      cityPage = await getPublicCityPage(citySlug);
+    } catch {
+      return {};
+    }
     if (!cityPage) {
       return {};
     }
@@ -80,9 +85,9 @@ export default async function DiscoveryMapPage({ params, searchParams }: MapPage
   const userId = session?.user?.id;
 
   const [t, placesTexts, eventsTexts, pageData, mapCityOptions] = await Promise.all([
-    getTranslations("cities"),
-    getTranslations("places"),
-    getTranslations("events"),
+    getTranslations({ locale, namespace: "cities" }),
+    getTranslations({ locale, namespace: "places" }),
+    getTranslations({ locale, namespace: "events" }),
     citySlug
       ? getPublicCityPage(citySlug, userId)
       : getPublicGermanyDiscoveryPage(userId),

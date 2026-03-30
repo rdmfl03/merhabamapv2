@@ -7,6 +7,20 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
   typedRoutes: true,
+  async redirects() {
+    return [
+      {
+        source: "/legal/imprint",
+        destination: "/de/impressum",
+        permanent: true,
+      },
+      {
+        source: "/legal/privacy",
+        destination: "/de/privacy",
+        permanent: true,
+      },
+    ];
+  },
   images: {
     remotePatterns: [
       {

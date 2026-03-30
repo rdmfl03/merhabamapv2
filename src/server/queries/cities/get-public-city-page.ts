@@ -1,4 +1,5 @@
 import { GERMANY_DISCOVERY_CENTER } from "@/lib/cities/discovery-city-center";
+import type { GermanyMapCluster } from "@/lib/cities/germany-map-cluster";
 import { prisma } from "@/lib/prisma";
 import { getGermanyMapClusters } from "@/server/queries/cities/get-germany-map-clusters";
 import { computeCategoryAdjustedScore, getPlaceScoreRatingCount } from "@/lib/places";
@@ -86,8 +87,8 @@ function rankCityPlaces(
         return ratingCountDiff;
       }
 
-      const verificationStatusDiff = placeLeft.verificationStatus.localeCompare(
-        placeRight.verificationStatus,
+      const verificationStatusDiff = (placeLeft.verificationStatus ?? "").localeCompare(
+        placeRight.verificationStatus ?? "",
       );
 
       if (verificationStatusDiff !== 0) {
@@ -298,7 +299,7 @@ export async function getPublicGermanyDiscoveryPage(userId?: string) {
     rawFeaturedEvents,
     placeCount,
     eventCount,
-    germanyMapClusters,
+    germanyMapClustersResult,
   ] = await Promise.all([
     prisma.place.findMany({
       where: wherePlace,
@@ -319,8 +320,10 @@ export async function getPublicGermanyDiscoveryPage(userId?: string) {
         startsAt: { gte: new Date() },
       }),
     }),
-    getGermanyMapClusters(),
+    getGermanyMapClusters().catch((): GermanyMapCluster[] => []),
   ]);
+
+  const germanyMapClusters = germanyMapClustersResult;
 
   const rankedFeaturedPlaces = rankCityPlaces(rawFeaturedPlaces);
   const rankedFeaturedEvents = rankCityEvents(rawFeaturedEvents);

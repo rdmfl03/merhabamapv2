@@ -14,9 +14,15 @@ export default async function SubmitPlacePage({ params }: SubmitPlacePageProps) 
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const [t, session, options] = await Promise.all([
-    getTranslations("submissions"),
-    auth(),
+  let session = null;
+  try {
+    session = await auth();
+  } catch {
+    session = null;
+  }
+
+  const [t, options] = await Promise.all([
+    getTranslations({ locale, namespace: "submissions" }),
     getSubmissionFormOptions(),
   ]);
 

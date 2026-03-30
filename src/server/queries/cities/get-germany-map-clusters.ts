@@ -59,17 +59,25 @@ export async function getGermanyMapClusters(): Promise<GermanyMapCluster[]> {
     },
   });
 
-  return cities.map((city) => {
-    const counts = countsByCity.get(city.id) ?? { placeCount: 0, eventCount: 0 };
-    const center = resolveDiscoveryCityCenter(city.slug, city.lat, city.lng);
-    return {
-      slug: city.slug,
-      nameDe: city.nameDe,
-      nameTr: city.nameTr,
-      latitude: center.latitude,
-      longitude: center.longitude,
-      placeCount: counts.placeCount,
-      eventCount: counts.eventCount,
-    };
-  });
+  return cities
+    .map((city) => {
+      const counts = countsByCity.get(city.id) ?? { placeCount: 0, eventCount: 0 };
+      const center = resolveDiscoveryCityCenter(city.slug, city.lat, city.lng);
+      return {
+        slug: city.slug,
+        nameDe: city.nameDe,
+        nameTr: city.nameTr,
+        latitude: center.latitude,
+        longitude: center.longitude,
+        placeCount: counts.placeCount,
+        eventCount: counts.eventCount,
+      };
+    })
+    .filter(
+      (row) =>
+        Number.isFinite(row.latitude) &&
+        Number.isFinite(row.longitude) &&
+        Math.abs(row.latitude) <= 90 &&
+        Math.abs(row.longitude) <= 180,
+    );
 }

@@ -35,8 +35,8 @@ function rankPlaces(places: PublicPlaceRecordWithAi[]) {
         return ratingCountDiff;
       }
 
-      const verificationStatusDiff = placeLeft.verificationStatus.localeCompare(
-        placeRight.verificationStatus,
+      const verificationStatusDiff = (placeLeft.verificationStatus ?? "").localeCompare(
+        placeRight.verificationStatus ?? "",
       );
 
       if (verificationStatusDiff !== 0) {

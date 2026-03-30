@@ -15,6 +15,5 @@ export const prisma =
         : ["error"],
   });
 
-if (env.NODE_ENV !== "production") {
-  globalThis.__prisma__ = prisma;
-}
+/** Reuse one client per Node worker (build + runtime) to avoid exhausting DB connections. */
+globalThis.__prisma__ = prisma;

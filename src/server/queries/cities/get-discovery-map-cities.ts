@@ -12,56 +12,68 @@ export type DiscoveryMapCityOption = {
 };
 
 export async function getDiscoveryMapCityOptions(): Promise<DiscoveryMapCityOption[]> {
-  const [placeRows, eventRows] = await Promise.all([
-    prisma.place.findMany({
-      where: buildPublicPlaceWhere({
-        city: { countryCode: "DE" },
+  try {
+    const [placeRows, eventRows] = await Promise.all([
+      prisma.place.findMany({
+        where: buildPublicPlaceWhere({
+          city: { countryCode: "DE" },
+        }),
+        select: { cityId: true },
+        distinct: ["cityId"],
       }),
-      select: { cityId: true },
-      distinct: ["cityId"],
-    }),
-    prisma.event.findMany({
-      where: buildPublicEventWhere({
-        city: { countryCode: "DE" },
-        startsAt: { gte: new Date() },
+      prisma.event.findMany({
+        where: buildPublicEventWhere({
+          city: { countryCode: "DE" },
+          startsAt: { gte: new Date() },
+        }),
+        select: { cityId: true },
+        distinct: ["cityId"],
       }),
-      select: { cityId: true },
-      distinct: ["cityId"],
-    }),
-  ]);
+    ]);
 
-  const cityIds = new Set<string>();
-  for (const row of placeRows) {
-    cityIds.add(row.cityId);
-  }
-  for (const row of eventRows) {
-    cityIds.add(row.cityId);
-  }
+    const cityIds = new Set<string>();
+    for (const row of placeRows) {
+      cityIds.add(row.cityId);
+    }
+    for (const row of eventRows) {
+      cityIds.add(row.cityId);
+    }
 
-  if (cityIds.size === 0) {
+    if (cityIds.size === 0) {
+      return [];
+    }
+
+    const cities = await prisma.city.findMany({
+      where: { id: { in: [...cityIds] } },
+      orderBy: { nameDe: "asc" },
+      select: {
+        slug: true,
+        nameDe: true,
+        nameTr: true,
+        lat: true,
+        lng: true,
+      },
+    });
+
+    return cities
+      .map((city) => {
+        const center = resolveDiscoveryCityCenter(city.slug, city.lat, city.lng);
+        return {
+          slug: city.slug,
+          nameDe: city.nameDe,
+          nameTr: city.nameTr,
+          latitude: center.latitude,
+          longitude: center.longitude,
+        };
+      })
+      .filter(
+        (row) =>
+          Number.isFinite(row.latitude) &&
+          Number.isFinite(row.longitude) &&
+          Math.abs(row.latitude) <= 90 &&
+          Math.abs(row.longitude) <= 180,
+      );
+  } catch {
     return [];
   }
-
-  const cities = await prisma.city.findMany({
-    where: { id: { in: [...cityIds] } },
-    orderBy: { nameDe: "asc" },
-    select: {
-      slug: true,
-      nameDe: true,
-      nameTr: true,
-      lat: true,
-      lng: true,
-    },
-  });
-
-  return cities.map((city) => {
-    const center = resolveDiscoveryCityCenter(city.slug, city.lat, city.lng);
-    return {
-      slug: city.slug,
-      nameDe: city.nameDe,
-      nameTr: city.nameTr,
-      latitude: center.latitude,
-      longitude: center.longitude,
-    };
-  });
 }

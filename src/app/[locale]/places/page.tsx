@@ -27,7 +27,6 @@ import { getPlaceFilters } from "@/server/queries/places/get-place-filters";
 import {
   listPlaces,
   PLACES_LIST_PAGE_SIZE,
-  type ListedPlace,
   type ListPlacesResult,
 } from "@/server/queries/places/list-places";
 
