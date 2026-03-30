@@ -157,8 +157,6 @@ export function getImpressumContent(locale: AppLocale): LegalPageContent {
   };
 }
 
-// TODO(legal): Confirm in production whether S3-compatible object storage (e.g. Cloudflare R2 per .env examples) is enabled and whether any CDN or reverse proxy is used in addition to Netlify's own delivery network.
-
 export function getPrivacyContent(locale: AppLocale): LegalPageContent {
   const company = getLegalCompanyProfile(locale);
 
@@ -199,9 +197,9 @@ export function getPrivacyContent(locale: AppLocale): LegalPageContent {
         {
           title: "Barındırma ve teknik hizmet sağlayıcıları",
           paragraphs: [
-            "Uygulama, Netlify üzerinde oluşturulur ve barındırılır; içerik dağıtımı Netlify ağı üzerinden yapılır (ayrıntılar depo dokümantasyonunda). Veritabanı olarak yönetilen PostgreSQL hizmeti DigitalOcean tarafından sağlanır; bağlantı, dağıtım ortamındaki DATABASE_URL yapılandırması ile kurulur.",
+            "Uygulama, Netlify üzerinde oluşturulur ve barındırılır; içerik dağıtımı Netlify ağı üzerinden yapılır (ayrıntılar depo dokümantasyonunda). Kamuya açık alan adı için DNS veya CDN katmanında ek bir sağlayıcı (ör. Cloudflare) kullanılıyorsa, bağlantılar önce bu ağ üzerinden yönlendirilir; burada teknik erişim verileri ve güvenlik işlevleri devreye girebilir. Veritabanı olarak yönetilen PostgreSQL hizmeti DigitalOcean tarafından sağlanır; bağlantı, dağıtım ortamındaki DATABASE_URL yapılandırması ile kurulur.",
             "Harita görünümleri istemci tarafında yüklenir. MapTiler Pastel karoları etkinse, tarayıcı önce kendi alan adınıza ait bir sunucu uç noktasından ister; API anahtarı yalnızca barındırma ortamında tutulur. Aksi halde veya hata durumunda OpenStreetMap proje sunucularından (tile.openstreetmap.org) standart karolar yüklenir.",
-            "Ortam değişkenleri üzerinden yapılandırıldığında, medya veya dosyalar için S3 uyumlu nesne depolama (örnek yapılandırma depoda Cloudflare R2 ile belgelenmiştir) kullanılabilir. Hangi sağlayıcıların fiilen etkin olduğu, ilgili dağıtımın çevre değişkenlerine bağlıdır.",
+            "Mevcut uygulama sürümünde kişisel veriler, S3 uyumlu nesne depolamaya (ör. ileride Cloudflare R2 gibi) aktarılmak üzere işlenmez; kaynak kodda yalnızca isteğe bağlı yapılandırma değişkenleri tanımlıdır ve üretim şablonunda bu hizmet için kimlik bilgileri doldurulmamıştır. İleride nesne depolama üretimde etkinleştirilirse dosyalar ve üst veriler ilgili sağlayıcıda işlenir; bu metin o zaman güncellenmelidir.",
           ],
         },
         {
@@ -298,9 +296,9 @@ export function getPrivacyContent(locale: AppLocale): LegalPageContent {
       {
         title: "Hosting und technische Dienstleister",
         paragraphs: [
-          "Die Next.js-Anwendung wird über Netlify gebaut, gehostet und über das Netlify-Netzwerk ausgeliefert (Einzelheiten siehe Projektdokumentation). Als verwaltete Datenbank wird PostgreSQL bei DigitalOcean eingesetzt; die Anbindung erfolgt über die in der jeweiligen Umgebung konfigurierte Datenbank-URL.",
+          "Die Next.js-Anwendung wird über Netlify gebaut, gehostet und über das Netlify-Netzwerk ausgeliefert (Einzelheiten siehe Projektdokumentation). Für die öffentlich erreichbare Domain kann vor Netlify ein DNS- bzw. CDN-Anbieter (z. B. Cloudflare) vorgeschaltet sein; dann werden Verbindungen zunächst über dessen Netzwerk geführt, und es können dort technische Zugriffsdaten sowie Sicherheits- und Performancefunktionen zum Einsatz kommen. Als verwaltete Datenbank wird PostgreSQL bei DigitalOcean eingesetzt; die Anbindung erfolgt über die in der jeweiligen Umgebung konfigurierte Datenbank-URL.",
           "Kartenkacheln werden im Browser geladen. Wenn MapTiler („Pastel“) aktiviert ist, bezieht der Browser die Kacheln zunächst über eine eigene Serverroute unter derselben Domain; der MapTiler-Schlüssel verbleibt ausschließlich in der Hosting-Umgebung. Andernfalls oder bei Fehlern nutzen wir die Standardkacheln der OpenStreetMap-Projektserver unter tile.openstreetmap.org.",
-          "Optional können über Umgebungsvariablen S3-kompatible Objektspeicher für Medien oder Dateien angebunden sein (in den .env-Beispielen des Repositories u. a. mit Cloudflare R2 skizziert). Welche Speicherdienste tatsächlich aktiv sind, hängt von der konkreten Deploy-Konfiguration ab.",
+          "In der derzeit ausgelieferten Anwendungsversion werden personenbezogene Daten nicht zur Ablage in S3-kompatiblem Objektspeicher verarbeitet; im Quellcode existieren lediglich optionale Konfigurationsvariablen für eine mögliche künftige Medienablage (z. B. Cloudflare R2), und in der bereitgestellten Produktions-Konfigurationsvorlage sind die hierfür vorgesehenen Zugangsdaten nicht gesetzt. Sobald ein solcher Speicher produktiv geschaltet wird, sind Inhalte und Metadaten beim jeweiligen Anbieter zu berücksichtigen; diese Erklärung ist dann anzupassen.",
         ],
       },
       {
