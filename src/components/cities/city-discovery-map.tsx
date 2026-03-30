@@ -593,6 +593,34 @@ export function CityDiscoveryMap({
     }
   }, [selectedCitySlug]);
 
+  const germanyClusterMarkers = useMemo(() => {
+    if (!isGermanyClusterMode || !germanyMapClusters?.length) {
+      return undefined;
+    }
+    return germanyMapClusters.map((cluster) => ({
+      slug: cluster.slug,
+      label: getLocalizedCityDisplayName(locale, cluster),
+      latitude: cluster.latitude,
+      longitude: cluster.longitude,
+      placeCount: cluster.placeCount,
+      eventCount: cluster.eventCount,
+    }));
+  }, [germanyMapClusters, isGermanyClusterMode, locale]);
+
+  const handleGermanyClusterClick = useCallback(
+    async (slug: string) => {
+      setClusterLoadingSlug(slug);
+      try {
+        await router.push(
+          `/${locale}/map?city=${encodeURIComponent(slug)}` as Route,
+        );
+      } finally {
+        setClusterLoadingSlug(null);
+      }
+    },
+    [locale, router],
+  );
+
   const normalized = useMemo<NormalizedPoint[]>(() => {
     const normalizedPlaces = effectivePlaces
       .filter(
@@ -1002,8 +1030,10 @@ export function CityDiscoveryMap({
             viewEventLabel={viewEventLabel}
             myLocationLabel={myLocationLabel}
             onViewportBoundsChange={handleViewportBounds}
-            germanyCityClusters={undefined}
-            onGermanyCityClusterClick={undefined}
+            germanyCityClusters={germanyClusterMarkers}
+            onGermanyCityClusterClick={
+              isGermanyClusterMode ? handleGermanyClusterClick : undefined
+            }
             mapLayoutEpoch={0}
             clusterLoadingSlug={clusterLoadingSlug}
             clusterLoadingLabel={germanyLoadingCity}
