@@ -34,7 +34,9 @@ The AI must behave like a cautious senior engineer working on a legally sensitiv
 This AI operates within the **main MerhabaMap repository only**.
 
 There exists a separate repository:
-- merhabamap-ingest
+- **merhabamap-ingest** (private; ingestion/automation lives there)
+
+Do **not** treat ingest as public: never copy **private** ingest details (credentials, internal URLs, operational runbooks, raw pipeline dumps) into **this** public repository without **sanitization** and maintainer approval.
 
 Rules:
 
@@ -178,7 +180,7 @@ If the AI is unsure whether data may be personal data, it must treat it as poten
 
 ## Ingest Guardrails
 
-MerhabaMap ingest is handled in a separate repository.
+MerhabaMap ingest is handled in a separate **private** repository (`merhabamap-ingest`).
 
 The AI must preserve the conceptual pipeline:
 
