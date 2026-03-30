@@ -85,7 +85,7 @@ export function PublicHero({
             </div>
 
             <aside
-              className="relative flex min-h-0 flex-col justify-center rounded-3xl border border-brand/10 bg-gradient-to-b from-card/95 via-card/90 to-brand/[0.04] p-6 shadow-[0_16px_40px_-20px_rgba(15,23,42,0.15)] ring-1 ring-black/[0.04] backdrop-blur-sm sm:p-7"
+              className="relative flex min-h-0 flex-col justify-center rounded-3xl border border-brand/10 bg-gradient-to-b from-card/95 via-card/90 to-brand/[0.04] p-6 pb-8 shadow-[0_16px_40px_-20px_rgba(15,23,42,0.15)] ring-1 ring-black/[0.04] backdrop-blur-sm sm:p-7 sm:pb-7"
               aria-label={trustTitle}
             >
               <div className="absolute left-6 top-0 h-1 w-10 -translate-y-1/2 rounded-full bg-brand sm:left-7" />
@@ -99,8 +99,8 @@ export function PublicHero({
               </div>
               <ul className="space-y-0 divide-y divide-border/50">
                 {trustPoints.map((point) => (
-                  <li key={point} className="flex gap-3.5 py-3.5 first:pt-0 last:pb-0">
-                    <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand text-brand-foreground shadow-sm shadow-brand/30">
+                  <li key={point} className="flex gap-3 py-3.5 first:pt-0 last:pb-1 sm:gap-3.5 sm:last:pb-0">
+                    <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand text-brand-foreground shadow-sm shadow-brand/20">
                       <Check className="h-3.5 w-3.5 stroke-[2.75]" aria-hidden />
                     </span>
                     <span className="text-sm leading-relaxed text-muted-foreground sm:text-[0.9375rem] sm:leading-relaxed">

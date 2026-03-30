@@ -12,7 +12,7 @@ export async function Footer() {
 
   return (
     <footer className="border-t border-border bg-white">
-      <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8 text-sm text-muted-foreground">
+      <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8 pb-[max(2rem,calc(2rem+env(safe-area-inset-bottom,0px)))] text-sm text-muted-foreground">
         <div>
           <div className="flex items-center gap-3">
             <div className="overflow-hidden rounded-2xl shadow-sm ring-1 ring-border/70">
