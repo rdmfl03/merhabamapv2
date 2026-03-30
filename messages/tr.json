@@ -14,34 +14,34 @@
     "saved": "Kaydedildi"
   },
   "landing": {
-    "metaTitle": "Almanya'da Türk mekanları ve etkinlikler",
-    "metaDescription": "Almanya genelinde Türk mekanlarını, etkinlikleri ve yerel işletmeleri keşfet – önce haritada, isteğe bağlı şehir filtresiyle.",
-    "eyebrow": "Almanya için iki dilli başlangıç",
-    "title": "Almanya'daki Türk mekanları, etkinlikleri ve topluluk bağlarını görünür kılan dijital harita.",
-    "subtitle": "MerhabaMap; Berlin ve Köln için yerel keşfi, topluluk bağlamını ve güvenilir yönlendirmeyi iki dilli, harita merkezli bir deneyimde bir araya getirir.",
+    "metaTitle": "Almanya'da mekanlar, etkinlikler ve topluluk | MerhabaMap",
+    "metaDescription": "Şehrinde ilgili mekanları, etkinlikleri ve buluşma noktalarını keşfet – haritada net bir bakışla; Berlin ve Köln öncelikli.",
+    "eyebrow": "Yerelde önemli olanı keşfet",
+    "title": "Günlük hayatına uygun mekanları, etkinlikleri ve topluluğu bul.",
+    "subtitle": "Kafeden restorana, etkinlikten buluşma noktalarına kadar hepsi bir arada – Almanca ve Türkçe, Berlin ve Köln’de yerel odakla.",
     "explorePlaces": "Mekanları keşfet",
-    "browseEvents": "Etkinlikleri gör",
+    "browseEvents": "Etkinlikleri keşfet",
     "heroTrust": {
-      "title": "Almanya başlangıcı",
-      "curated": "Dağınık liste değil, harita merkezli keşif.",
-      "cityFirst": "Berlin ve Köln yerel topluluk için net başlangıç noktalarıdır.",
-      "reportable": "Moderasyon, bildirim ve business-claim akışı en baştan düşünülür."
+      "title": "Bilmen iyi olur",
+      "curated": "Uzun listeler yerine harita – nerede ne var, bir bakışta.",
+      "cityFirst": "Berlin ve Köln’de başla: somut, yakın ve büyüyen bir içerik.",
+      "reportable": "Bildirim gönderebilir, işletme sahipleri mekanlarını talep edebilir – kurallar baştan net."
     },
     "cards": {
       "places": {
         "eyebrow": "Mekanlar",
-        "title": "Kültürel bağlamı olan mekanlar",
-        "description": "Restoranlar, fırınlar, marketler, camiler ve hizmetler yalnızca arama sonucu değil, yerel topluluk altyapısı olarak görünür olur."
+        "title": "Günlük hayatta işine yarayan yerler",
+        "description": "Restoran, kafe, market, cami ve hizmetler – aradığını daha çabuk bulman için düzenli bir arayüzde."
       },
       "events": {
         "eyebrow": "Etkinlikler",
-        "title": "Şehre bağlı etkinlikler",
-        "description": "Kültür buluşmaları, topluluk etkinlikleri ve organizasyonlar, topluluk için gerçekten yerel anlam taşıdığı yerde görünür olur."
+        "title": "Yerel bağlı etkinlikler",
+        "description": "Buluşmalar, akşamlar ve tarihler; senin ve çevrendeki topluluk için gerçekten yerinde anlam taşıdığı yerde."
       },
       "map": {
         "eyebrow": "Harita",
-        "title": "Almanya geneli keşif haritası",
-        "description": "Mekanlar ve etkinlikler ortak bir haritada görünür; Berlin ve Köln gibi pilot şehirlere filtreyle odaklanabilirsin."
+        "title": "Mekanlar ve etkinlikler için tek harita",
+        "description": "Mekanlar ve etkinlikler aynı haritada; şehre göre süz – önce Berlin ve Köln odaklı."
       }
     },
     "pilotSection": {
@@ -54,48 +54,48 @@
     },
     "howItWorks": {
       "eyebrow": "Nasıl çalışır",
-      "title": "Rastgele bir platform değil, topluluk haritası.",
-      "description": "MerhabaMap önce şehir, ilgi ve güven sinyalleri üzerinden somut mekanlara, etkinliklere ve yerel bağlama götürür.",
+      "title": "İlgini çeken şeye üç adımda yaklaş.",
+      "description": "Önce şehir ve yakınlık, sonra somut mekanlar ve etkinlikler – alakasız sonuçlara takılmadan.",
       "steps": {
         "one": {
           "title": "Şehir seç",
-          "description": "Berlin veya Köln ile başla ve yerel topluluk odaklı bir giriş sayfası aç."
+          "description": "Berlin veya Köln ile başla; çevrene net bağlantılı kayıtları gör."
         },
         "two": {
-          "title": "Mekan ve etkinlikleri bul",
-          "description": "Restoran, kafe, market, topluluk etkinliği ve diğer buluşma noktalarını ortak bir keşif deneyiminde bul."
+          "title": "Mekan ve etkinlikleri keşfet",
+          "description": "Restoran, kafe, market, etkinlik ve buluşma noktaları – aynı sade görünümde."
         },
         "three": {
-          "title": "Kaydet ve geri dön",
-          "description": "Hesabınla favorilerini kaydedebilir, dilini seçebilir ve deneyimini şehir ile ilgi alanlarına göre düzenleyebilirsin."
+          "title": "Kaydet, sonra dön",
+          "description": "Hesabınla favorileri saklar, şehir, dil ve ilgi alanlarını kendine göre ayarlarsın."
         }
       }
     },
     "trust": {
       "eyebrow": "Güven",
-      "title": "Açık görünürlük, net sınırlar ve anlaşılır güven sinyalleri.",
-      "description": "MerhabaMap yalnızca veri, moderasyon ve ürün gerçeğinin taşıyabildiği kadar iddialı olmalı; fazlasını vaat etmemelidir.",
+      "title": "Özen, abartısız vaat",
+      "description": "Sadece veri, moderasyon ve ürünün karşılayabildiğini söylüyoruz: anlaşılır içerik, net kurallar ve düzeltme imkânı.",
       "items": {
         "quality": {
-          "title": "Özenle seçilmiş herkese açık içerikler",
-          "description": "Herkese açık olarak yalnızca yayınlanmış ve onaylanmış mekanlar ile etkinlikler gösterilir."
+          "title": "Özenle yayımlanan herkese açık kayıtlar",
+          "description": "Yayında olan ve onaylanmış mekanlar ile etkinlikler görünür – gereksiz bilgi yükü olmadan."
         },
         "reports": {
-          "title": "Görmezden gelme, bildir",
-          "description": "Kullanıcılar sorunlu kayıtları bildirerek bilgilerin daha hızlı incelenmesine ve düzeltilmesine yardımcı olur."
+          "title": "Bir şey mi yanlış? Bildir.",
+          "description": "Sorunlu kayıtları işaret edebilirsin; böylece daha hızlı kontrol edip gerekirse güncelleriz."
         },
         "claims": {
-          "title": "Net sınırlarla business-claim",
-          "description": "İşletmeler sahiplik talebi gönderebilir; bu süreç yanıltıcı doğrulama vaatlerine veya sahte güven sinyallerine dönüşmez."
+          "title": "İşletme talepleri net sınırlarla",
+          "description": "İşletmeler profillerini talep edebilir – şeffaf ve erken “onaylandı” vaatlerine kapalı."
         }
       }
     },
     "cta": {
-      "eyebrow": "Sıradaki adım",
-      "title": "Önce keşfet. Sana gerçekten fayda sağlıyorsa kayıt ol.",
-      "description": "Platform herkese açık kalır. Hesap ise kaydetme, kişiselleştirme ve güvenli katkılar için yardımcı olur.",
-      "primary": "Mekanları gör",
-      "secondary": "Etkinlikleri gör",
+      "eyebrow": "Başla",
+      "title": "Önce göz at – uyarsa kayıt ol.",
+      "description": "Hesapsız da kullanılabilir. Kayıt; kaydetmek, kişisel ayarlar ve şehrinde katkıda bulunmak için işine yarar.",
+      "primary": "Mekanlara git",
+      "secondary": "Etkinliklere git",
       "tertiary": "Hesap oluştur"
     }
   },

@@ -14,34 +14,34 @@
     "saved": "Gespeichert"
   },
   "landing": {
-    "metaTitle": "Türkische Orte und Events in Deutschland",
-    "metaDescription": "Entdecke türkische Orte, Events und lokale Businesses in Deutschland – zuerst auf der Karte, optional nach Stadt gefiltert.",
-    "eyebrow": "Bilingualer Start in Deutschland",
-    "title": "Die digitale Karte für türkische Orte, Events und Community-Relevanz in Deutschland.",
-    "subtitle": "MerhabaMap verbindet lokale Entdeckung, Community-Kontext und vertrauenswürdige Orientierung für Berlin und Köln in einer zweisprachigen, kartenbasierten Erfahrung.",
+    "metaTitle": "Orte, Events und Community in Deutschland | MerhabaMap",
+    "metaDescription": "Entdecke relevante Orte, Veranstaltungen und lokale Treffpunkte – übersichtlich auf der Karte, mit Schwerpunkt auf Städten wie Berlin und Köln.",
+    "eyebrow": "Entdecken, was vor Ort zählt",
+    "title": "Entdecke Orte, Events und Community, die zu deinem Alltag passen.",
+    "subtitle": "Alles auf einen Blick: von Cafés und Restaurants bis zu Veranstaltungen und Treffpunkten in deiner Nähe – auf Deutsch und Türkisch, mit lokalem Schwerpunkt in Berlin und Köln.",
     "explorePlaces": "Orte entdecken",
-    "browseEvents": "Events ansehen",
+    "browseEvents": "Events entdecken",
     "heroTrust": {
-      "title": "Deutschland Start",
-      "curated": "Map-first Discovery statt beliebiger Sammlung.",
-      "cityFirst": "Berlin und Köln bilden den klaren Startpunkt für lokale Relevanz.",
-      "reportable": "Moderation, Meldungen und Business-Claims sind von Anfang an mitgedacht."
+      "title": "Gut zu wissen",
+      "curated": "Eine Karte statt endlose Listen – du siehst, was wo liegt.",
+      "cityFirst": "Start in Berlin und Köln: konkret, nahbar, mit wachsendem Angebot.",
+      "reportable": "Du kannst melden, Inhaber können ihre Orte beanspruchen – fair und von Anfang an klar geregelt."
     },
     "cards": {
       "places": {
         "eyebrow": "Orte",
-        "title": "Orte mit kulturellem Kontext",
-        "description": "Restaurants, Bäckereien, Supermärkte, Moscheen und Services werden als lokale Infrastruktur sichtbar, nicht nur als lose Trefferliste."
+        "title": "Orte, die im Alltag helfen",
+        "description": "Restaurants, Cafés, Supermärkte, Moscheen und Services – übersichtlich zusammengeführt, damit du schneller findest, was du suchst."
       },
       "events": {
         "eyebrow": "Events",
-        "title": "Events mit Stadtbezug",
-        "description": "Kulturabende, Treffen und Veranstaltungen erscheinen dort, wo sie für die Community tatsächlich lokal relevant sind."
+        "title": "Veranstaltungen mit lokalem Bezug",
+        "description": "Treffen, Abende und Termine dort, wo sie für dich und die Community vor Ort Sinn ergeben – nicht irgendwo im Netz."
       },
       "map": {
         "eyebrow": "Karte",
-        "title": "Deutschlandweite Discovery-Karte",
-        "description": "Orte und Events erscheinen auf einer gemeinsamen Karte; Pilotstädte wie Berlin und Köln kannst du gezielt per Filter ansteuern."
+        "title": "Eine Karte für Orte und Events",
+        "description": "Orte und Events teilen sich eine Karte; du filterst nach Stadt – zuerst mit Fokus auf Berlin und Köln."
       }
     },
     "pilotSection": {
@@ -54,49 +54,49 @@
     },
     "howItWorks": {
       "eyebrow": "So funktioniert es",
-      "title": "Eine Community-Karte statt einer beliebigen Plattform.",
-      "description": "MerhabaMap führt zuerst über Stadt, Relevanz und Vertrauen zu konkreten Orten, Events und lokalen Signalen.",
+      "title": "Drei Schritte zu dem, was dich interessiert.",
+      "description": "Zuerst Stadt und Nähe, dann konkrete Orte und Events – ohne Umweg durch irrelevante Treffer.",
       "steps": {
         "one": {
           "title": "Stadt wählen",
-          "description": "Beginne mit Berlin oder Köln und öffne einen lokalen Einstieg mit klarer Community-Relevanz."
+          "description": "Starte mit Berlin oder Köln und sieh Einträge mit klarem Bezug zu deiner Umgebung."
         },
         "two": {
           "title": "Orte und Events entdecken",
-          "description": "Entdecke Restaurants, Cafés, Märkte, Community-Events und weitere Treffpunkte in einem gemeinsamen Discovery-Kontext."
+          "description": "Restaurants, Cafés, Märkte, Veranstaltungen und Treffpunkte – alles im gleichen, übersichtlichen Überblick."
         },
         "three": {
-          "title": "Speichern und zurückkommen",
-          "description": "Mit einem Konto kannst du Favoriten sichern und deinen Einstieg an Stadt, Sprache und Interessen ausrichten."
+          "title": "Speichern und wiederkommen",
+          "description": "Mit Konto sicherst du dir Favoriten und stimmst Stadt, Sprache und Interessen auf dich ab."
         }
       }
     },
     "trust": {
       "eyebrow": "Vertrauen",
-      "title": "Öffentliche Sichtbarkeit mit klaren Grenzen und nachvollziehbaren Signalen.",
-      "description": "MerhabaMap soll nützlich und glaubwürdig sein, ohne mehr zu versprechen als Daten, Moderation und Produktrealität tatsächlich tragen.",
+      "title": "Sorgfalt statt großer Versprechen",
+      "description": "Wir sagen nur, was Daten, Moderation und Produkt tragen: nachvollziehbare Inhalte, klare Regeln und die Möglichkeit, Fehler zu korrigieren.",
       "items": {
         "quality": {
-          "title": "Kuratierte öffentliche Inhalte",
-          "description": "Öffentlich sichtbar sind nur veröffentlichte und freigegebene Orte und Events mit nachvollziehbarer Einordnung."
+          "title": "Sorgfältig gepflegte öffentliche Einträge",
+          "description": "Sichtbar sind veröffentlichte und freigegebene Orte und Events – mit klarer Einordnung, ohne unnötigen Ballast."
         },
         "reports": {
-          "title": "Melden statt wegschauen",
-          "description": "Problematische Einträge können gemeldet werden, damit Informationen schneller geprüft und bei Bedarf korrigiert werden."
+          "title": "Etwas stimmt nicht? Melden.",
+          "description": "Du kannst uns auf problematische Einträge hinweisen – damit wir schneller prüfen und bei Bedarf anpassen können."
         },
         "claims": {
-          "title": "Business-Claims mit klaren Grenzen",
-          "description": "Unternehmen können Besitzansprüche einreichen, ohne dass daraus voreilige Verifizierungsversprechen oder falsche Sicherheit entstehen."
+          "title": "Inhaber-Accounts mit klaren Grenzen",
+          "description": "Unternehmen können ihr Profil beanspruchen – transparent und ohne vorschnelle „abgesegnet“-Versprechen."
         }
       }
     },
     "cta": {
-      "eyebrow": "Nächster Schritt",
-      "title": "Erst entdecken. Dann registrieren, wenn es dir echten Mehrwert gibt.",
-      "description": "MerhabaMap bleibt öffentlich nutzbar. Ein Konto hilft dir beim Speichern, Personalisieren und beim vertrauensvollen Mitwirken in deiner Stadt.",
-      "primary": "Orte ansehen",
-      "secondary": "Events ansehen",
-      "tertiary": "Account erstellen"
+      "eyebrow": "Loslegen",
+      "title": "Erst stöbern – anmelden, wenn es dir zusagt.",
+      "description": "Ohne Konto nutzbar. Registrierung hilft beim Speichern, bei persönlichen Einstellungen und wenn du in deiner Stadt mitwirken möchtest.",
+      "primary": "Zu den Orten",
+      "secondary": "Zu den Events",
+      "tertiary": "Konto erstellen"
     }
   },
   "auth": {
