@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { EntityContributionEntityType } from "@prisma/client";
 
 import { auth } from "@/auth";
+import { appConfig } from "@/lib/app-config";
 import { prisma } from "@/lib/prisma";
 import { getContentSubmissionGuard } from "@/lib/rate-limit/submission-guard";
 import {
@@ -94,7 +95,7 @@ export async function submitPlaceSuggestion(
         id: parsed.data.cityId,
         countryCode: "DE",
         slug: {
-          in: ["berlin", "koeln"],
+          in: [...appConfig.pilotCities],
         },
       },
       select: {

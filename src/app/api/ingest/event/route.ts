@@ -3,6 +3,7 @@ import type { EventCategory, NormalizedIngestEventStatus } from "@prisma/client"
 
 import { env, isDevelopmentLike } from "@/lib/env";
 import { handleServerError } from "@/lib/errors/handle-server-error";
+import type { PilotCitySlug } from "@/lib/pilot-cities";
 import {
   findMatchingEventDuplicate,
   getEventDuplicateSearchWindow,
@@ -37,12 +38,18 @@ const INGEST_EVENT_CATEGORY_MAP: Record<string, EventCategory> = {
   religion: "RELIGIOUS",
 };
 
-const SUPPORTED_CITY_ALIASES: Record<string, "berlin" | "koeln"> = {
+const SUPPORTED_CITY_ALIASES: Record<string, PilotCitySlug> = {
   berlin: "berlin",
   koeln: "koeln",
   koln: "koeln",
   "köln": "koeln",
   cologne: "koeln",
+  essen: "essen",
+  duisburg: "duisburg",
+  dortmund: "dortmund",
+  duesseldorf: "duesseldorf",
+  düsseldorf: "duesseldorf",
+  dusseldorf: "duesseldorf",
 };
 
 function getIngestToken(request: NextRequest) {

@@ -794,8 +794,16 @@
           "shared": "shared",
           "placeBerlin": "place.berlin",
           "placeKoeln": "place.koeln",
+          "placeEssen": "place.essen",
+          "placeDuisburg": "place.duisburg",
+          "placeDortmund": "place.dortmund",
+          "placeDuesseldorf": "place.duesseldorf",
           "eventBerlin": "event.berlin",
-          "eventKoeln": "event.koeln"
+          "eventKoeln": "event.koeln",
+          "eventEssen": "event.essen",
+          "eventDuisburg": "event.duisburg",
+          "eventDortmund": "event.dortmund",
+          "eventDuesseldorf": "event.duesseldorf"
         },
         "fields": {
           "sourceType": "Kaynak türü",

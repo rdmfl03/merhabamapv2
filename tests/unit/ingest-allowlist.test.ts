@@ -90,6 +90,22 @@ describe("ingest allowlist source rollout v1", () => {
     }
   });
 
+  it("allows trusted manual submissions for new pilot cities without city-specific domains", () => {
+    const decision = evaluateIngestAllowlist({
+      entityType: "event",
+      city: "Essen",
+      category: "COMMUNITY",
+      title: "Stammtisch",
+      sourceType: "trusted_manual_submission",
+      sourceUrl: null,
+    });
+
+    expect(decision.allowed).toBe(true);
+    if (decision.allowed) {
+      expect(decision.normalizedCity).toBe("essen");
+    }
+  });
+
   it("derives a conservative Berlin city guess from raw event text", () => {
     expect(
       deriveRawEventCityGuessFromText(
@@ -106,11 +122,23 @@ describe("ingest allowlist source rollout v1", () => {
     ).toBe("koeln");
   });
 
+  it("derives a conservative Dortmund city guess from raw event text", () => {
+    expect(
+      deriveRawEventCityGuessFromText("Open Air Konzert in Dortmund am Phoenix-See."),
+    ).toBe("dortmund");
+  });
+
   it("ignores ambiguous raw event text that mentions both rollout cities", () => {
     expect(
       deriveRawEventCityGuessFromText(
         "Auftakt in Berlin, Abschlussveranstaltung später in Köln.",
       ),
+    ).toBeNull();
+  });
+
+  it("ignores ambiguous raw event text that mentions two pilot cities including Ruhr", () => {
+    expect(
+      deriveRawEventCityGuessFromText("Erster Termin in Berlin, zweiter Workshop in Dortmund."),
     ).toBeNull();
   });
 

@@ -9,6 +9,7 @@ import {
 import { hashPassword } from "../src/lib/auth/password";
 import { demoAccounts } from "../src/lib/dev/demo-accounts";
 import { upsertAllPlaceCategories } from "../src/lib/place-category-catalog";
+import { PILOT_CITY_DEFINITIONS } from "../src/lib/pilot-cities";
 
 const prisma = new PrismaClient();
 
@@ -74,25 +75,28 @@ async function resetDatabase() {
 }
 
 async function seedCities() {
-  const berlin = await prisma.city.create({
-    data: {
-      slug: "berlin",
-      nameDe: "Berlin",
-      nameTr: "Berlin",
-      isPilot: true,
-    },
-  });
+  const created = await Promise.all(
+    PILOT_CITY_DEFINITIONS.map((def) =>
+      prisma.city.create({
+        data: {
+          slug: def.slug,
+          nameDe: def.nameDe,
+          nameTr: def.nameTr,
+          isPilot: true,
+          countryCode: "DE",
+          lat: def.lat,
+          lng: def.lng,
+        },
+      }),
+    ),
+  );
 
-  const koeln = await prisma.city.create({
-    data: {
-      slug: "koeln",
-      nameDe: "Köln",
-      nameTr: "Koln",
-      isPilot: true,
-    },
-  });
+  const bySlug = Object.fromEntries(created.map((city) => [city.slug, city])) as {
+    berlin: (typeof created)[number];
+    koeln: (typeof created)[number];
+  };
 
-  return { berlin, koeln };
+  return { berlin: bySlug.berlin, koeln: bySlug.koeln };
 }
 
 async function seedCategories() {

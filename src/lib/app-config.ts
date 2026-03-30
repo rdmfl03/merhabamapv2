@@ -1,4 +1,5 @@
 import { routing } from "@/i18n/routing";
+import { PILOT_CITY_SLUGS } from "@/lib/pilot-cities";
 
 export const appConfig = {
   name: process.env.APP_NAME?.trim() || "MerhabaMap",
@@ -6,7 +7,7 @@ export const appConfig = {
     "Bilingual discovery platform for Turkish places and events in Germany.",
   defaultLocale: routing.defaultLocale,
   locales: routing.locales,
-  pilotCities: ["berlin", "koeln"] as const,
+  pilotCities: PILOT_CITY_SLUGS,
   brand: {
     primaryHex: "#E30A17",
   },

@@ -9,6 +9,7 @@ import {
   type PilotEventRecord,
   type PilotPlaceRecord,
 } from "../src/config/pilot-batch-v1";
+import { PILOT_CITY_SLUGS } from "../src/lib/pilot-cities";
 
 const prisma = new PrismaClient();
 
@@ -296,7 +297,7 @@ async function main() {
   const cityBySlug = Object.fromEntries(cities.map((city) => [city.slug, city]));
   const categoryBySlug = Object.fromEntries(categories.map((category) => [category.slug, category]));
 
-  for (const citySlug of ["berlin", "koeln"] as const) {
+  for (const citySlug of PILOT_CITY_SLUGS) {
     if (!cityBySlug[citySlug]) {
       throw new Error(`Missing city row for slug "${citySlug}"`);
     }

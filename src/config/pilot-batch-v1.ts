@@ -1,3 +1,5 @@
+import type { PilotCitySlug } from "@/lib/pilot-cities";
+
 export const SEEDED_PUBLIC_PLACE_SLUGS = [
   "ankara-reisebuero-berlin",
   "firin-7-berlin",
@@ -21,7 +23,7 @@ export const SEEDED_PUBLIC_EVENT_SLUGS = [
 export type PilotPlaceRecord = {
   slug: string;
   name: string;
-  citySlug: "berlin" | "koeln";
+  citySlug: PilotCitySlug;
   categorySlug: "restaurants";
   sourceLabel: string;
   sourceKind: "trusted_manual_submission" | "official_website" | "official_venue_website";
@@ -39,7 +41,7 @@ export type PilotPlaceRecord = {
 export type PilotEventRecord = {
   slug: string;
   title: string;
-  citySlug: "berlin" | "koeln";
+  citySlug: PilotCitySlug;
   category: "CONCERT" | "CULTURE";
   venueName: string;
   startsAt: string;

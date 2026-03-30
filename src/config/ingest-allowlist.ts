@@ -1,7 +1,8 @@
 import { isKnownPlaceCategorySlug } from "@/lib/place-category-catalog";
+import { PILOT_CITY_SLUGS, type PilotCitySlug } from "@/lib/pilot-cities";
 
 export const INGEST_ALLOWLIST = {
-  allowedCities: ["berlin", "koeln"] as const,
+  allowedCities: [...PILOT_CITY_SLUGS],
   allowedEventCategories: ["CONCERT", "CULTURE", "COMMUNITY", "FAMILY"] as const,
   allowedSourceTypes: [
     "official_website",
@@ -54,6 +55,10 @@ export const INGEST_ALLOWLIST = {
           domains: ["koelntourismus.de"],
         },
       ],
+      essen: [],
+      duisburg: [],
+      dortmund: [],
+      duesseldorf: [],
     },
     event: {
       berlin: [
@@ -90,12 +95,16 @@ export const INGEST_ALLOWLIST = {
           domains: ["koelnmesse.de"],
         },
       ],
+      essen: [],
+      duisburg: [],
+      dortmund: [],
+      duesseldorf: [],
     },
   },
 } as const;
 
 type IngestEntityType = "place" | "event";
-type IngestAllowlistCity = (typeof INGEST_ALLOWLIST.allowedCities)[number];
+type IngestAllowlistCity = PilotCitySlug;
 type AllowedSourceType = (typeof INGEST_ALLOWLIST.allowedSourceTypes)[number];
 export type IngestSourceAllowlistEntry = {
   key: string;
@@ -107,8 +116,13 @@ export type IngestSourceAllowlistEntry = {
   allowWithoutSourceUrl?: boolean;
 };
 
+export type IngestSourceRolloutSectionKey =
+  | "shared"
+  | `place.${PilotCitySlug}`
+  | `event.${PilotCitySlug}`;
+
 export type IngestSourceRolloutSection = {
-  key: "shared" | "place.berlin" | "place.koeln" | "event.berlin" | "event.koeln";
+  key: IngestSourceRolloutSectionKey;
   entries: readonly IngestSourceAllowlistEntry[];
 };
 
@@ -214,8 +228,24 @@ function normalizeCity(value: string | null | undefined) {
     return "berlin";
   }
 
+  if (normalized === "dusseldorf" || normalized === "duesseldorf" || normalized === "düsseldorf") {
+    return "duesseldorf";
+  }
+
+  if (normalized === "essen" || normalized === "duisburg" || normalized === "dortmund") {
+    return normalized;
+  }
+
   return normalized.replace(/\s+/g, "-");
 }
+
+const CITY_GUESS_PATTERNS: Partial<Record<PilotCitySlug, RegExp>> = {
+  berlin: /(^|[^a-z])berlin([^a-z]|$)/,
+  koeln: /(^|[^a-z])(koeln|koln|cologne)([^a-z]|$)/,
+  dortmund: /(^|[^a-z])dortmund([^a-z]|$)/,
+  duisburg: /(^|[^a-z])duisburg([^a-z]|$)/,
+  duesseldorf: /(^|[^a-z])(duesseldorf|dusseldorf)([^a-z]|$)/,
+};
 
 export function deriveRawEventCityGuessFromText(value: string | null | undefined) {
   const normalized = normalizeText(value)
@@ -227,15 +257,9 @@ export function deriveRawEventCityGuessFromText(value: string | null | undefined
     return null;
   }
 
-  const hasBerlin = /(^|[^a-z])berlin([^a-z]|$)/.test(normalized);
-  const hasKoeln =
-    /(^|[^a-z])(koeln|koln|cologne)([^a-z]|$)/.test(normalized);
+  const matched = PILOT_CITY_SLUGS.filter((slug) => CITY_GUESS_PATTERNS[slug]?.test(normalized));
 
-  if (hasBerlin === hasKoeln) {
-    return null;
-  }
-
-  return hasBerlin ? "berlin" : "koeln";
+  return matched.length === 1 ? matched[0]! : null;
 }
 
 export function deriveRawEventDatetimeTextFromText(value: string | null | undefined) {
@@ -316,7 +340,7 @@ export function deriveRawEventLocationTextFromText(value: string | null | undefi
 
   const addressMatches = Array.from(
     normalized.matchAll(
-      /\b([\p{L}0-9 .,'’()/-]{3,80}?(?:str\.|straße|strasse|platz|allee|weg|gasse|ufer|ring|damm|chaussee|kai)\s+\d{1,4}[a-zA-Z]?(?:,\s*|\s+)\d{5}\s+(?:Berlin|Köln|Koeln|Koln))\b/giu,
+      /\b([\p{L}0-9 .,'’()/-]{3,80}?(?:str\.|straße|strasse|platz|allee|weg|gasse|ufer|ring|damm|chaussee|kai)\s+\d{1,4}[a-zA-Z]?(?:,\s*|\s+)\d{5}\s+(?:Berlin|Köln|Koeln|Koln|Essen|Duisburg|Dortmund|Düsseldorf|Duesseldorf|Dusseldorf))\b/giu,
     ),
   );
 
@@ -468,28 +492,25 @@ function matchConcreteSourceAllowlistEntry(
 }
 
 export function getSourceRolloutV1Sections(): readonly IngestSourceRolloutSection[] {
-  return [
+  const sections: IngestSourceRolloutSection[] = [
     {
       key: "shared",
       entries: INGEST_ALLOWLIST.sourceRolloutV1.shared,
     },
-    {
-      key: "place.berlin",
-      entries: INGEST_ALLOWLIST.sourceRolloutV1.place.berlin,
-    },
-    {
-      key: "place.koeln",
-      entries: INGEST_ALLOWLIST.sourceRolloutV1.place.koeln,
-    },
-    {
-      key: "event.berlin",
-      entries: INGEST_ALLOWLIST.sourceRolloutV1.event.berlin,
-    },
-    {
-      key: "event.koeln",
-      entries: INGEST_ALLOWLIST.sourceRolloutV1.event.koeln,
-    },
   ];
+
+  for (const city of PILOT_CITY_SLUGS) {
+    sections.push({
+      key: `place.${city}`,
+      entries: INGEST_ALLOWLIST.sourceRolloutV1.place[city],
+    });
+    sections.push({
+      key: `event.${city}`,
+      entries: INGEST_ALLOWLIST.sourceRolloutV1.event[city],
+    });
+  }
+
+  return sections;
 }
 
 export function evaluateIngestAllowlist(
@@ -536,12 +557,7 @@ export function evaluateIngestAllowlist(
     };
   }
 
-  if (
-    normalizedCity &&
-    !INGEST_ALLOWLIST.allowedCities.includes(
-      normalizedCity as (typeof INGEST_ALLOWLIST.allowedCities)[number],
-    )
-  ) {
+  if (normalizedCity && !INGEST_ALLOWLIST.allowedCities.includes(normalizedCity as PilotCitySlug)) {
     return {
       allowed: false,
       blockCode: "BLOCKED_BY_ALLOWLIST",

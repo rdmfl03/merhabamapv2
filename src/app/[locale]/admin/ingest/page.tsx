@@ -5,7 +5,11 @@ import { IngestReviewChecklistReference } from "@/components/admin/ingest-review
 import { SourceRolloutV1Reference } from "@/components/admin/source-rollout-v1-reference";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { getSourceRolloutV1Sections } from "@/config/ingest-allowlist";
+import {
+  getSourceRolloutV1Sections,
+  type IngestSourceRolloutSection,
+} from "@/config/ingest-allowlist";
+import { appConfig } from "@/lib/app-config";
 import { Link } from "@/i18n/navigation";
 import { getAdminStagedEventIngestOverview } from "@/server/queries/admin/get-admin-staged-event-ingest-overview";
 import { listAdminIngestRuns } from "@/server/queries/admin/list-admin-ingest-runs";
@@ -37,6 +41,17 @@ function getStatusTone(status: string) {
 }
 
 function getSourceRolloutLabels(t: Awaited<ReturnType<typeof getTranslations>>) {
+  const translate = t as (key: string) => string;
+  const sections = {
+    shared: t("ingest.sourceRollout.sections.shared"),
+  } as Record<IngestSourceRolloutSection["key"], string>;
+
+  for (const city of appConfig.pilotCities) {
+    const cap = city.charAt(0).toUpperCase() + city.slice(1);
+    sections[`place.${city}`] = translate(`ingest.sourceRollout.sections.place${cap}`);
+    sections[`event.${city}`] = translate(`ingest.sourceRollout.sections.event${cap}`);
+  }
+
   return {
     title: t("ingest.sourceRollout.title"),
     description: t("ingest.sourceRollout.description"),
@@ -51,13 +66,7 @@ function getSourceRolloutLabels(t: Awaited<ReturnType<typeof getTranslations>>) 
       externalIds: t("ingest.sourceRollout.fields.externalIds"),
       noSourceUrlRequired: t("ingest.sourceRollout.fields.noSourceUrlRequired"),
     },
-    sections: {
-      shared: t("ingest.sourceRollout.sections.shared"),
-      "place.berlin": t("ingest.sourceRollout.sections.placeBerlin"),
-      "place.koeln": t("ingest.sourceRollout.sections.placeKoeln"),
-      "event.berlin": t("ingest.sourceRollout.sections.eventBerlin"),
-      "event.koeln": t("ingest.sourceRollout.sections.eventKoeln"),
-    },
+    sections,
   };
 }
 

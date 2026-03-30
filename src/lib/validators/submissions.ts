@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { routing } from "@/i18n/routing";
+import { isPilotCitySlug } from "@/lib/pilot-cities";
 
 const trimmedString = z.string().trim();
 
@@ -125,7 +126,7 @@ export const ingestEventSchema = z.object({
 
 export const ingestPlaceSchema = z.object({
   name: trimmedString.min(2, "name_required").max(140),
-  citySlug: trimmedString.toLowerCase().refine((value) => ["berlin", "koeln"].includes(value), {
+  citySlug: trimmedString.toLowerCase().refine((value) => isPilotCitySlug(value), {
     message: "city_not_allowed",
   }),
   description: optionalTrimmedString.pipe(z.string().max(1200).optional()),

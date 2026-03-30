@@ -35,6 +35,7 @@
     "db:reset": "node scripts/run-with-env.mjs prisma db push --force-reset --skip-generate",
     "db:seed": "node scripts/run-with-env.mjs tsx prisma/seed.ts",
     "db:ensure-categories": "node scripts/run-with-env.mjs tsx scripts/ensure-place-categories.ts",
+    "db:ensure-cities": "node scripts/run-with-env.mjs tsx scripts/ensure-pilot-cities.ts",
     "db:pilot:replace": "node scripts/run-with-env.mjs tsx scripts/replace-public-pilot-batch.ts",
     "db:pilot:publish": "node scripts/run-with-env.mjs tsx scripts/publish-pilot-batch-v1.ts",
     "db:pilot:set-coordinates": "node scripts/run-with-env.mjs tsx scripts/set-pilot-batch-coordinates.ts",

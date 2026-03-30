@@ -1,8 +1,7 @@
 import type { EventCategory } from "@prisma/client";
 
+import { appConfig } from "@/lib/app-config";
 import { prisma } from "@/lib/prisma";
-
-const PILOT_CITY_SLUGS = ["berlin", "koeln"] as const;
 
 const eventCategories: EventCategory[] = [
   "CONCERT",
@@ -20,7 +19,7 @@ export async function getSubmissionFormOptions() {
       where: {
         countryCode: "DE",
         slug: {
-          in: [...PILOT_CITY_SLUGS],
+          in: [...appConfig.pilotCities],
         },
       },
       orderBy: [{ nameDe: "asc" }],
@@ -44,7 +43,7 @@ export async function getSubmissionFormOptions() {
       where: {
         city: {
           slug: {
-            in: [...PILOT_CITY_SLUGS],
+            in: [...appConfig.pilotCities],
           },
         },
       },
@@ -59,7 +58,7 @@ export async function getSubmissionFormOptions() {
       where: {
         city: {
           slug: {
-            in: [...PILOT_CITY_SLUGS],
+            in: [...appConfig.pilotCities],
           },
         },
       },
