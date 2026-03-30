@@ -1200,7 +1200,7 @@
       "privacy": "Datenschutz",
       "contact": "Kontakt",
       "cookies": "Cookies",
-      "terms": "Nutzungsbedingungen",
+      "terms": "AGB / Nutzungsbedingungen",
       "communityRules": "Community-Regeln"
     },
     "essentialServices": {
@@ -1225,8 +1225,8 @@
       "metaDescription": "Informationen zu technisch erforderlichen Cookies und lokalem Browser-Speicher bei MerhabaMap."
     },
     "terms": {
-      "metaTitle": "Nutzungsbedingungen",
-      "metaDescription": "Grundregeln und Nutzungsbedingungen für MerhabaMap."
+      "metaTitle": "AGB & Nutzungsbedingungen",
+      "metaDescription": "Allgemeine Geschäfts- und Nutzungsbedingungen (AGB) für MerhabaMap."
     },
     "communityRules": {
       "metaTitle": "Community-Regeln",

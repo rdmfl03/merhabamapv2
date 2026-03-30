@@ -79,6 +79,13 @@ export function getImpressumContent(locale: AppLocale): LegalPageContent {
             "Harici web sitelerine bağlantılar, yalnızca kullanıcı kolaylığı içindir. Bağlantı verilen sitelerin içeriği üzerinde işletenin etkisi yoktur; bu nedenle bağlantı anında ilgili sitelerin içeriği için sorumluluk üstlenilmez.",
           ],
         },
+        {
+          title: "Tüketici uyuşmazlıkları / çevrimiçi uyuşmazlık çözümü",
+          paragraphs: [
+            "Avrupa Komisyonu, çevrimiçi uyuşmazlıkların çözümü için bir platform sunmaktadır: https://ec.europa.eu/consumers/odr/ — E-posta adresimiz yukarıdaki iletişim bölümündedir.",
+            "Yürürlükteki Alman hukukunda (ör. Verbraucherstreitbeilegungsgesetz) öngörülen bilgilendirme yükümlülükleri çerçevesinde: Tüketici hakem heyetlerinde yürütülen uyuşmazlık çözüm süreçlerine, ayrıca ve gönüllü olarak katılmıyoruz ve buna yasal olarak da genel olarak yükümlü değiliz; yalnızca yasada açıkça öngörülen zorunlu katılım halleri saklıdır.",
+          ],
+        },
       ],
     };
   }
@@ -137,6 +144,13 @@ export function getImpressumContent(locale: AppLocale): LegalPageContent {
         paragraphs: [
           "Als Diensteanbieter sind wir gemäß den allgemeinen gesetzlichen Vorgaben für eigene Inhalte auf diesen Seiten verantwortlich. Für fremde Inhalte, etwa in Nutzerbeiträgen, eingereichten Orts- oder Veranstaltungsdaten oder in Kommunikation zwischen Nutzern, haften wir grundsätzlich nur, soweit uns Kenntnis einer konkreten Rechtsverletzung zukommt und die technische Entfernung oder Sperrung zumutbar ist.",
           "Unser Angebot kann Links zu externen Websites Dritter enthalten. Auf deren Inhalte haben wir keinen Einfluss; deshalb können wir für diese fremden Inhalte keine Gewähr übernehmen. Zum Zeitpunkt der Verlinkung waren die verlinkten Seiten jedoch frei von erkennbaren Rechtsverletzungen. Bei Bekanntwerden von Rechtsverletzungen werden derartige Links unverzüglich entfernt, soweit technisch und organisatorisch zumutbar.",
+        ],
+      },
+      {
+        title: "Streitbeilegung / Verbraucherschlichtung",
+        paragraphs: [
+          "Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit: https://ec.europa.eu/consumers/odr/. Unsere E-Mail-Adresse finden Sie oben unter „Kontakt“.",
+          "Wir sind weder verpflichtet noch gesondert bereit, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen; gesetzlich zwingend vorgeschriebene Teilnahme bleibt unberührt.",
         ],
       },
     ],
@@ -571,9 +585,9 @@ export function getTermsContent(locale: AppLocale): LegalPageContent {
   }
 
   return {
-    title: "Allgemeine Nutzungsbedingungen",
+    title: "Allgemeine Nutzungsbedingungen (AGB)",
     intro:
-      "Diese Nutzungsbedingungen regeln die Nutzung der Plattform MerhabaMap. Sie gelten gegenüber allen Nutzerinnen und Nutzern, die auf das Angebot zugreifen oder ein Nutzerkonto führen. Ergänzend gelten die Datenschutzerklärung sowie die Community-Regeln. Stand: März 2026.",
+      "Diese Nutzungsbedingungen (Allgemeine Geschäftsbedingungen, AGB) regeln die Nutzung der Plattform MerhabaMap. Sie gelten gegenüber allen Nutzerinnen und Nutzern, die auf das Angebot zugreifen oder ein Nutzerkonto führen. Ergänzend gelten die Datenschutzerklärung sowie die Community-Regeln. Stand: März 2026.",
     sections: [
       {
         title: "Vertragsgegenstand und Leistungsbeschreibung",
