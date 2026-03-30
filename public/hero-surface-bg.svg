@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" fill="none" role="img" aria-label="">
+  <defs>
+    <linearGradient id="heroBase" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F8FAFC"/>
+      <stop offset="42%" stop-color="#F1F5F9"/>
+      <stop offset="100%" stop-color="#E8EEF4"/>
+    </linearGradient>
+    <radialGradient id="heroBrandGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1280 180) rotate(90) scale(520 640)">
+      <stop offset="0%" stop-color="#E30A17" stop-opacity="0.11"/>
+      <stop offset="45%" stop-color="#E30A17" stop-opacity="0.04"/>
+      <stop offset="100%" stop-color="#E30A17" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="heroCoolGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(120 720) rotate(-35) scale(440 520)">
+      <stop offset="0%" stop-color="#64748B" stop-opacity="0.09"/>
+      <stop offset="55%" stop-color="#64748B" stop-opacity="0.03"/>
+      <stop offset="100%" stop-color="#64748B" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="heroSheen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.55"/>
+      <stop offset="35%" stop-color="#FFFFFF" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <pattern id="heroDots" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="0.9" fill="#94A3B8" fill-opacity="0.14"/>
+    </pattern>
+  </defs>
+  <rect width="1600" height="1000" fill="url(#heroBase)"/>
+  <rect width="1600" height="1000" fill="url(#heroBrandGlow)"/>
+  <rect width="1600" height="1000" fill="url(#heroCoolGlow)"/>
+  <rect width="1600" height="1000" fill="url(#heroSheen)"/>
+  <rect width="1600" height="1000" fill="url(#heroDots)" opacity="0.45"/>
+
+  <g opacity="0.22" stroke="#64748B" stroke-width="1.25" stroke-linecap="round" fill="none">
+    <path d="M-40 420 C 200 380, 320 520, 520 480 S 820 340, 1040 400 S 1380 520, 1650 460"/>
+    <path d="M80 780 C 280 640, 480 860, 720 720 S 1080 580, 1620 640"/>
+    <path d="M200 120 C 420 200, 560 40, 780 140 S 1180 280, 1580 100"/>
+  </g>
+  <g opacity="0.28" stroke="#E30A17" stroke-width="1.5" stroke-linecap="round" fill="none">
+    <path d="M420 900 C 580 720, 760 820, 920 640 S 1220 480, 1420 360"/>
+    <path d="M980 980 C 1100 800, 1280 860, 1380 700 S 1520 520, 1620 440"/>
+  </g>
+  <g opacity="0.12" fill="#E30A17">
+    <circle cx="1180" cy="220" r="4"/>
+    <circle cx="1320" cy="380" r="3"/>
+    <circle cx="1080" cy="480" r="3.5"/>
+    <circle cx="1450" cy="280" r="2.5"/>
+  </g>
+</svg>

@@ -25,19 +25,30 @@ export function PublicHero({
 }: PublicHeroProps) {
   return (
     <section className="mx-auto max-w-6xl px-4 pt-6 sm:pt-10">
-      <div className="relative overflow-hidden rounded-[2rem] border border-border/50 bg-gradient-to-br from-[#faf8f5] via-[#f7f4f0] to-[#f2efe9] shadow-[0_24px_60px_-24px_rgba(15,23,42,0.12),0_0_0_1px_rgba(227,10,23,0.06)]">
-        {/* Decorative map — low contrast so copy stays primary */}
+      <div className="relative overflow-hidden rounded-[2rem] border border-border/40 bg-slate-100 shadow-[0_24px_60px_-24px_rgba(15,23,42,0.14),0_0_0_1px_rgba(15,23,42,0.04)]">
+        {/* Designed surface (SVG) + optional map accent + readability scrim */}
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute inset-y-8 right-0 hidden w-[min(52%,520px)] opacity-[0.22] saturate-[0.85] lg:block">
+          <Image
+            src="/hero-surface-bg.svg"
+            alt=""
+            fill
+            priority
+            className="object-cover object-[center_40%]"
+            sizes="(max-width: 1280px) 100vw, 1200px"
+          />
+          <div className="absolute inset-y-6 right-0 hidden w-[min(50%,480px)] opacity-[0.2] saturate-[0.9] lg:block">
             <Image
               src="/hero-map-bg.svg"
               alt=""
               fill
-              priority
               className="object-contain object-right"
+              sizes="480px"
             />
           </div>
-          <div className="absolute inset-0 bg-[#faf8f5]/96 lg:bg-[linear-gradient(105deg,rgba(250,248,245,0.98)_0%,rgba(250,248,245,0.9)_44%,rgba(250,248,245,0.55)_68%,transparent_88%)]" />
+          <div
+            className="absolute inset-0 bg-gradient-to-b from-white/92 via-white/65 to-slate-50/50 lg:bg-[linear-gradient(105deg,rgba(255,255,255,0.94)_0%,rgba(255,255,255,0.78)_38%,rgba(248,250,252,0.45)_62%,rgba(248,250,252,0.12)_82%,transparent_100%)]"
+            aria-hidden
+          />
         </div>
 
         <div className="relative px-6 py-10 sm:px-10 sm:py-12 lg:px-14 lg:py-14">
