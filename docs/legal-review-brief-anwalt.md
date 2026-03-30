@@ -24,7 +24,7 @@ Dieses Dokument beschreibt **was existiert**, **wo es im Projekt liegt**, und **
 | Betreiber-Stammdaten (Name, Adresse, E-Mails, ggf. USt-ID, Vertretung, Medienverantwortlicher) | `src/content/legal/company.ts` |
 | Darstellung (Layout, keine inhaltliche Rechtslogik) | u. a. `src/components/legal/`, Routen unter `src/app/[locale]/…` |
 
-Deployment: **Netlify** (Next.js); vor Netlify kann je nach DNS ein **CDN (z. B. Cloudflare)** vorgeschaltet sein. Datenbank: **PostgreSQL bei DigitalOcean**. E-Mail transaktional: **Zoho** (laut Datenschutztext). Karten: **MapTiler** (optional, serverseitig gekapselt) bzw. **OpenStreetMap**-Kacheln.
+Deployment: **Netlify** (Next.js); vor Netlify kann je nach DNS ein **CDN (z. B. Cloudflare)** vorgeschaltet sein. Datenbank: **PostgreSQL bei DigitalOcean**. Transaktionaler E-Mail-Versand in Produktion: **Resend** (sofern `EMAIL_TRANSPORT=resend`). Karten: **MapTiler** (optional, serverseitig gekapselt) bzw. **OpenStreetMap**-Kacheln.
 
 **Hinweis:** Es gibt **keine** produktive Anbindung eines **S3-kompatiblen Objektspeichers** in der aktuell ausgelieferten Anwendung; optional sind nur Konfigurationsvariablen für eine künftige Medienablage vorgesehen. Wenn Sie später R2/S3 o. Ä. produktiv schalten, muss die Datenschutzerklärung angepasst werden.
 
@@ -52,7 +52,7 @@ Bitte insbesondere:
 1. **Vollständigkeit und Pflichtangaben** für den **tatsächlichen Geschäftsbetrieb** (kostenlos vs. künftig entgeltliche Leistungen, geschäftsmäßig vs. privat — soweit relevant für Verbraucherrecht, AGB-Kontrolle, Informationspflichten).
 2. **Impressum** — Angaben zur **GbR**, **Vertretung**, **Erreichbarkeit**, ggf. **Registereintrag/USt-ID** sofern vorhanden und auskunftspflichtig; **MStV**-Verantwortlicher nur soweit sachlich begründet.
 3. **§ 36 VSBG / EU-Online-Streitbeilegung** — ob **Umfang und Form** der Hinweise für Ihr Mandat passen (Online-Verträge mit Verbrauchern, Informationspflichten vs. freiwillige Schlichtung).
-4. **Datenschutz** — Rechtsgrundlagen, Transparenz, **Auftragsverarbeitung** (Netlify, DigitalOcean, ggf. Cloudflare, MapTiler/OSM, Zoho); **Drittlandübermittlungen** und **geeignete Garantien**; **Cookies** und **TTDSG** (soweit Sie eine ausdrückliche Erwähnung oder Cookie-Banner-Logik für notwendig halten).
+4. **Datenschutz** — Rechtsgrundlagen, Transparenz, **Auftragsverarbeitung** (Netlify, DigitalOcean, ggf. Cloudflare, MapTiler/OSM, Resend); **Drittlandübermittlungen** und **geeignete Garantien**; **Cookies** und **TTDSG** (soweit Sie eine ausdrückliche Erwähnung oder Cookie-Banner-Logik für notwendig halten).
 5. **AGB** — **Wirksamkeit** bei Verbrauchern (sofern einschlägig), **Kündigung/Sperrung**, **Haftung**, **Anwendbares Recht/Gerichte** — Anpassung an Ihre Risikoempfehlung.
 6. **Community-Regeln / Moderation** — Abstimmung mit **Meinungsfreiheit**, **Hausrecht**, **Notice-and-Action**; keine zwingenden Fristversprechen, sofern nicht gewollt.
 7. **Zweisprachigkeit** — ob die **türkische Fassung** für Ihre Mandanten ausreicht oder ob Sie **redaktionelle oder rechtliche Anpassungen** in TR empfehlen.
@@ -64,7 +64,7 @@ Bitte insbesondere:
 ## 6. Was die Betreiberseite bereits bewusst kommuniziert
 
 - Rechtsform **GbR** und vertretungsberechtigte Gesellschafter in den Texten.
-- **Keine gesonderte / freiwillige Teilnahme** an **Verbraucherschlichtungsverfahren**; **gesetzlich zwingend** vorgeschriebene Teilnahme ausdrücklich vorbehalten.
+- Im **Impressum** wird **kein** Link auf die EU-Online-Streitbeilegungsplattform geführt — bitte prüfen, ob dies für Ihr Mandat zulässig bzw. ergänzungspflichtig ist.
 - Datenschutz: **Hosting/CDN** und **kein produktiver S3-/R2-Einsatz** in der aktuellen App-Version, mit Hinweis auf **Aktualisierungspflicht** bei späterer Aktivierung.
 
 ---

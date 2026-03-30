@@ -16,17 +16,19 @@ export type LegalPageContent = {
 
 export function getImpressumContent(locale: AppLocale): LegalPageContent {
   const company = getLegalCompanyProfile(locale);
-  const contactParagraphs = [`E-Mail: ${company.adminEmail}`];
-
+  const contactLinesDe = [
+    `Allgemeine Anfragen: ${company.contactEmail}`,
+    `Technik und Plattformbetrieb: ${company.adminEmail}`,
+  ];
   if (company.contactPhone) {
-    contactParagraphs.push(`Telefon: ${company.contactPhone}`);
+    contactLinesDe.push(`Telefon: ${company.contactPhone}`);
   }
 
   if (locale === "tr") {
     return {
       title: "Impressum",
       intro:
-        "Bu sayfa, Almanya’da yerleşik çevrimiçi hizmet sağlayıcılarının bilgilendirme yükümlülükleri çerçevesinde MerhabaMap platformunun işleteni hakkında özet ve doğrulanabilir iletişim bilgileri sunar. Metin, özellikle Dijital Hizmetler Yasası (Digitale-Dienste-Gesetz, DDG) ve ilgili düzenlemelerde öngörülen şeffaflık beklentilerine yöneliktir; bireysel hukuki danışmanlığın yerini tutmaz.",
+        "Bu sayfa, Almanya’da yerleşik çevrimiçi hizmet sağlayıcılarının bilgilendirme yükümlülükleri çerçevesinde MerhabaMap platformunun işleteni hakkında özet ve doğrulanabilir iletişim bilgileri sunar. Gizlilik politikası, kullanım koşulları ve topluluk kuralları gibi diğer belgelere site altbilgisinden ulaşılabilir. Metin, özellikle Dijital Hizmetler Yasası (DDG) ve ilgili düzenlemelerde öngörülen şeffaflık beklentilerine yöneliktir; bireysel hukuki danışmanlığın yerini tutmaz.",
       sections: [
         {
           title: "Sağlayıcı bilgileri",
@@ -45,13 +47,13 @@ export function getImpressumContent(locale: AppLocale): LegalPageContent {
           title: "İletişim",
           paragraphs: [
             "Aşağıdaki kanallar üzerinden genel sorular, idari bildirimler ve teknik destek talepleri iletilebilir. E-posta, yazılı iletişim ve belge alışverişi için tercih edilen kanaldır.",
-            contactParagraphs.join(" · "),
+            `Genel sorular: ${company.contactEmail} · Teknik ve platform işletimi: ${company.adminEmail}${company.contactPhone ? ` · Telefon: ${company.contactPhone}` : ""}`,
           ],
         },
         {
           title: "İçerikten sorumlu kişi",
           paragraphs: [
-            `Gazetecilik ve editoryal içerikler bakımından § 18 Abs. 2 MStV (Medya devlet sözleşmesi) uyarınca sorumlu kişi: ${company.contentResponsiblePerson}. Bu atama, düzenlemenin kapsamına giren içerik türleri için geçerlidir.`,
+            `MerhabaMap’te MStV (Medya devlet sözleşmesi) anlamında gazetecilik veya editoryal içerikler yayınlanıyorsa, § 18 Abs. 2 MStV uyarınca sorumlu kişi: ${company.contentResponsiblePerson}. Bu tür içerik sunulmuyorsa bu bilgi gerekmez.`,
           ],
         },
         ...(company.registerEntry
@@ -79,13 +81,6 @@ export function getImpressumContent(locale: AppLocale): LegalPageContent {
             "Harici web sitelerine bağlantılar, yalnızca kullanıcı kolaylığı içindir. Bağlantı verilen sitelerin içeriği üzerinde işletenin etkisi yoktur; bu nedenle bağlantı anında ilgili sitelerin içeriği için sorumluluk üstlenilmez.",
           ],
         },
-        {
-          title: "Tüketici uyuşmazlıkları / çevrimiçi uyuşmazlık çözümü",
-          paragraphs: [
-            "Avrupa Komisyonu, çevrimiçi uyuşmazlıkların çözümü için bir platform sunmaktadır: https://ec.europa.eu/consumers/odr/ — E-posta adresimiz yukarıdaki iletişim bölümündedir.",
-            "Yürürlükteki Alman hukukunda (ör. Verbraucherstreitbeilegungsgesetz) öngörülen bilgilendirme yükümlülükleri çerçevesinde: Tüketici hakem heyetlerinde yürütülen uyuşmazlık çözüm süreçlerine, ayrıca ve gönüllü olarak katılmıyoruz ve buna yasal olarak da genel olarak yükümlü değiliz; yalnızca yasada açıkça öngörülen zorunlu katılım halleri saklıdır.",
-          ],
-        },
       ],
     };
   }
@@ -93,7 +88,7 @@ export function getImpressumContent(locale: AppLocale): LegalPageContent {
   return {
     title: "Impressum",
     intro:
-      "Dieses Impressum erfüllt die Informationspflichten für digitale Dienste mit Bezug zum deutschen Rechtsraum und dient der transparenten Anbieterkennzeichnung der Plattform MerhabaMap. Es ersetzt keine individuelle Rechtsberatung. Stand: März 2026.",
+      "Dieses Impressum erfüllt die Informationspflichten für digitale Dienste mit Bezug zum deutschen Rechtsraum und dient der transparenten Anbieterkennzeichnung der Plattform MerhabaMap. Weitere Dokumente (z. B. Datenschutz, Nutzungsbedingungen, Community-Regeln) erreichen Sie über die Fußzeile der Website. Es ersetzt keine individuelle Rechtsberatung. Stand: März 2026.",
     sections: [
       {
         title: "Angaben gemäß § 5 DDG",
@@ -111,14 +106,14 @@ export function getImpressumContent(locale: AppLocale): LegalPageContent {
       {
         title: "Kontakt",
         paragraphs: [
-          "Für allgemeine Anfragen, behördliche Zustellungen im erlaubten Umfang sowie für Rückfragen zum Betrieb der Plattform können Sie die folgenden Kontaktdaten nutzen. Für den Nachweis und die Dokumentation empfiehlt sich die schriftliche Kontaktaufnahme per E-Mail.",
-          contactParagraphs.join(" · "),
+          "Für allgemeine Anfragen, behördliche Zustellungen im erlaubten Umfang sowie für Rückfragen zum Betrieb der Plattform können Sie die folgenden Kontaktdaten nutzen. Für den Nachweis und die Dokumentation empfiehlt sich die schriftliche Kontaktaufnahme per E-Mail. Ergänzende Hinweise zur Kontaktaufnahme finden Sie auf der Seite „Kontakt“.",
+          contactLinesDe.join(" · "),
         ],
       },
       {
         title: "Verantwortlich für journalistisch-redaktionelle Inhalte gemäß § 18 Abs. 2 MStV",
         paragraphs: [
-          `Für journalistisch-redaktionelle Inhalte im Sinne des Medienstaatsvertrags ist verantwortlich: ${company.contentResponsiblePerson}. Diese Angabe bezieht sich auf Inhalte, die unter den Anwendungsbereich der genannten Vorschrift fallen können.`,
+          `Soweit auf MerhabaMap journalistisch-redaktionelle Inhalte im Sinne des Medienstaatsvertrags (MStV) veröffentlicht werden, ist im Sinne von § 18 Abs. 2 MStV verantwortlich: ${company.contentResponsiblePerson}. Die Angabe entfällt, soweit keine entsprechenden Inhalte angeboten werden.`,
         ],
       },
       ...(company.registerEntry
@@ -146,13 +141,6 @@ export function getImpressumContent(locale: AppLocale): LegalPageContent {
           "Unser Angebot kann Links zu externen Websites Dritter enthalten. Auf deren Inhalte haben wir keinen Einfluss; deshalb können wir für diese fremden Inhalte keine Gewähr übernehmen. Zum Zeitpunkt der Verlinkung waren die verlinkten Seiten jedoch frei von erkennbaren Rechtsverletzungen. Bei Bekanntwerden von Rechtsverletzungen werden derartige Links unverzüglich entfernt, soweit technisch und organisatorisch zumutbar.",
         ],
       },
-      {
-        title: "Streitbeilegung / Verbraucherschlichtung",
-        paragraphs: [
-          "Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit: https://ec.europa.eu/consumers/odr/. Unsere E-Mail-Adresse finden Sie oben unter „Kontakt“.",
-          "Wir sind weder verpflichtet noch gesondert bereit, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen; gesetzlich zwingend vorgeschriebene Teilnahme bleibt unberührt.",
-        ],
-      },
     ],
   };
 }
@@ -164,7 +152,7 @@ export function getPrivacyContent(locale: AppLocale): LegalPageContent {
     return {
       title: "Gizlilik Politikası",
       intro:
-        "Bu metin, Avrupa Birliği Genel Veri Koruma Tüzüğü (GDPR) ve Almanya Federal Veri Koruma Yasası (BDSG) çerçevesinde, MerhabaMap kullanımı sırasında kişisel verilerin hangi kapsamda, hangi amaçlarla ve hangi hukuki dayanaklarla işlendiğini açıklar. Veri sorumlusu, aşağıda kimlik bilgileri yer alan işletendir. Metin, mevcut ürün ve teknik mimariye göre hazırlanmıştır; işlevler genişledikçe güncellenmelidir. Stand: Mart 2026.",
+        "Bu metin, Avrupa Birliği Genel Veri Koruma Tüzüğü (GDPR) ve Almanya Federal Veri Koruma Yasası (BDSG) çerçevesinde, MerhabaMap kullanımı sırasında kişisel verilerin hangi kapsamda, hangi amaçlarla ve hangi hukuki dayanaklarla işlendiğini açıklar. Kullanım koşulları, topluluk kuralları ve çerez bilgilendirmesine site altbilgisinden ulaşılabilir. Veri sorumlusu, aşağıda kimlik bilgileri yer alan işletendir. Metin, mevcut ürün ve teknik mimariye göre hazırlanmıştır; işlevler genişledikçe güncellenmelidir. Stand: Mart 2026.",
       sections: [
         {
           title: "Veri sorumlusu",
@@ -183,14 +171,17 @@ export function getPrivacyContent(locale: AppLocale): LegalPageContent {
           title: "İşlenen veri kategorileri",
           paragraphs: [
             "Hesap oluşturma ve oturum açma sırasında e-posta adresi, kullanıcı adı ve parolanın tek yönlü özetlenmiş (hash) hali işlenir; parola düz metin olarak saklanmaz. Oturum yönetimi ve güvenlik için tarayıcı çerezleri ve sunucu tarafında oturumla bağlantılı teknik kayıtlar kullanılabilir.",
+            "E-posta adresinizi doğrulamak ve parola sıfırlamak için tek kullanımlık güvenlik bağlantıları (token) e-posta ile gönderilebilir ve sunucuda sınırlı süreyle işlenir; buna e-posta adresi, zaman damgaları ve teknik gönderim üst verileri dahildir.",
             "Platformda raporlama, bildirim, işletme talebi (claim), içerik önerisi veya destek süreçleri kullanıldığında, bu bağlamlarda ilettiğiniz metinler, iletişim verileri ve teknik protokol verileri işlenebilir. Doğrudan e-posta ile iletişim kurduğunuzda, gönderdiğiniz mesajın içeriği ve iletişim meta verileri (gönderim zamanı, konu başlığı vb.) işlenir.",
+            "Harita görünümünde tarayıcınızın konum iznini kullanırsanız („Konumumu kullan“ vb.), koordinatlar yalnızca cihazınızda yerel olarak görüntülemeyi desteklemek için işlenir; bu işlev sunucularımıza konumunuzu kaydetmez.",
             "„Kayıtlı“ veya benzeri işlevler kullanıldığında, seçtiğiniz mekân tanımlayıcıları tarayıcınızda yerel olarak (ör. localStorage) saklanabilir; bu veriler sunucuya yalnızca ilgili ürün akışı açıkça böyle tasarlandıysa aktarılır. Web sitesinin güvenli sunumu için sunucu ve ağ katmanında bağlantı verileri, hata günlükleri ve sınırlı teknik analitik bilgiler oluşabilir.",
           ],
         },
         {
           title: "İşleme amaçları ve hukuki dayanaklar",
           paragraphs: [
-            "Hesabın açılması ve sürdürülmesi, sözleşmenin kurulması ve ifası kapsamında gerekli işlemler GDPR md. 6(1)(b) uyarınca yapılır. Bildirimlerin, taleplerin ve müşteri iletişiminin değerlendirilmesi, duruma göre sözleşmeye hazırlık veya ifa (md. 6(1)(b)) veya meşru menfaat (md. 6(1)(f)) — örneğin dolandırıcılığın önlenmesi veya hukuki iddiaların savunulması — üzerine dayanabilir.",
+            "Hesabın açılması ve sürdürülmesi, sözleşmenin kurulması ve ifası kapsamında gerekli işlemler GDPR md. 6(1)(b) uyarınca yapılır; buna güvenli hesap için gerekli olduğu ölçüde e-posta doğrulama ve parola sıfırlama da dahildir.",
+            "Bildirimlerin, taleplerin ve müşteri iletişiminin değerlendirilmesi, duruma göre sözleşmeye hazırlık veya ifa (md. 6(1)(b)) veya meşru menfaat (md. 6(1)(f)) — örneğin dolandırıcılığın önlenmesi veya hukuki iddiaların savunulması — üzerine dayanabilir.",
             "Bilgi güvenliği, kötüye kullanımın tespiti, hizmet istikrarı ve hata giderme, GDPR md. 6(1)(f) kapsamında veri sorumlusunun meşru menfaatine dayanır; bu menfaat, kullanıcıların güvenliği ve platformun sürdürülebilir işletimi ile dengelenir. Yasal saklama veya raporlama yükümlülükleri varsa, işleme GDPR md. 6(1)(c) uyarınca yasal yükümlülüğe dayanır.",
           ],
         },
@@ -205,21 +196,22 @@ export function getPrivacyContent(locale: AppLocale): LegalPageContent {
         {
           title: "E-posta iletişimi",
           paragraphs: [
-            "Mevcut üretim kurulumunda, hesapla ilgili ve doğrudan iş iletişimi e-postaları Zoho altyapısı üzerinden gönderilir ve alınır. Bu bağlamda alıcı ve gönderici adresleri, teslimat durumu ve iletişi içeriği işlenebilir.",
+            "Otomatik gönderilen işlem e-postaları (e-posta doğrulama, parola sıfırlama ve — öngörüldüğü ölçüde — raporlar ve işletme talepleriyle ilgili bildirimler) üretim ortamında Resend üzerinden iletilir; yapılandırma genelde EMAIL_TRANSPORT=resend şeklindedir. Alıcı ve gönderici adresleri, gönderim üst verileri ve mesaj içeriği işlenir. Geliştirme veya test ortamlarında e-postalar günlüğe yazılabilir veya gönderim kapalı olabilir.",
+            "Genel iletişim adreslerimize gelen gelen iletiler, ilgili posta kutusu altyapısı kapsamında işlenir; sağlayıcı ve olası üçüncü ülke boyutu alan adı ve posta yapılandırmasına bağlıdır.",
           ],
         },
         {
-          title: "Alıcılar ve olası üçüncü ülke aktarımı",
+          title: "Alıcılar ve üçüncü ülke aktarımları",
           paragraphs: [
-            "Kişisel veriler, platformun işletilmesi için zorunlu olduğu ölçüde, yukarıda adı geçen teknik hizmet sağlayıcılarına aktarılır. Bazı sağlayıcılar verileri Avrupa Birliği veya Avrupa Ekonomik Alanı dışında işleyebilir.",
-            "Üçüncü ülkeye aktarım yalnızca GDPR’da öngörülen güvencelerle yapılır — örneğin Avrupa Komisyonu’nun yeterlilik kararı, uygun garantiler (standart sözleşme maddeleri) veya — nadir ve sıkı koşullarda — istisnai hükümler. İlgili garantilerin bir kopyası, makul talep üzerine ve yasal sınırlar içinde sağlanabilir.",
+            "Kişisel veriler, platformun işletilmesi için gerekli olduğu ölçüde yukarıda adı geçen teknik hizmet sağlayıcılarına aktarılır.",
+            "Bir sağlayıcının verileri AB/AEA dışında işlemesi hâlinde, aktarım yalnızca GDPR bölüm V koşullarında yapılır (ör. yeterlilik kararı, standart sözleşme maddeleri veya md. 49’daki sıkı istisnalar). Makul talep hâlinde hangi güvencelerin geçerli olduğu, yasal sınırlar içinde paylaşılabilir.",
           ],
         },
         {
           title: "Çerezler ve benzeri teknolojiler",
           paragraphs: [
             "Oturum ve kimlik doğrulama için Auth.js/NextAuth bir oturum çerezi kullanır (üretimde adı genellikle __Secure-authjs.session-token, geliştirmede authjs.session-token). Dil seçici kullanıldığında NEXT_LOCALE çerezi ayarlanabilir. Bu çerezler, hizmetin talep edilen işlevlerini sağlamak için teknik olarak gerekli kabul edilir.",
-            "Kayıtlı mekân listesi gibi veriler tarayıcıda localStorage ile tutulabilir. İsteğe bağlı pazarlama, reklam veya geniş kapsamlı analitik çerezleri mevcut kod tabanında kullanılmamaktadır; bu durum değişirse bu politika ve gerekirse onay mekanizmaları güncellenmelidir.",
+            "Kayıtlı mekân listesi gibi veriler tarayıcıda localStorage ile tutulabilir. Ön yüzde, isteğe bağlı çerezlerle davranışsal izleme yapan reklam veya analiz ağı betikleri kullanılmamaktadır; bu değişirse politika ve gerekirse onay mekanizmaları önceden güncellenir.",
           ],
         },
         {
@@ -229,10 +221,10 @@ export function getPrivacyContent(locale: AppLocale): LegalPageContent {
           ],
         },
         {
-          title: "Sorunlu içerikleri bildirme",
+          title: "Sorunlu içeriklerin bildirilmesi ve platform önlemleri",
           paragraphs: [
-            "Yayındaki mekân ve etkinlikler için arayüzde raporlama (bildirim) işlevleri bulunur; uygun olduğunda işletme talebi (claim) ve benzeri süreçler de kullanılabilir. Etkili inceleme için ilgili sayfanın bağlantısı veya adı, sorunun kısa ve tarafsız özeti ve varsa delil veya kaynak belirtilmesi önerilir.",
-            "MerhabaMap, bildirimleri örgütsel imkânlar çerçevesinde ve önceliklendirerek işlemeye çalışır; sabit yanıt süreleri taahhüt edilmez. İçerikler, yasal zorunluluk veya platform kuralları uyarınca sınırlandırılabilir, düzeltilebilir veya kaldırılabilir.",
+            "MerhabaMap, kullanıcı ve üçüncü taraflarca eklenen içerikleri (mekân, etkinlik, metinler) bir araya getirir. Yayındaki mekân ve etkinlikler için arayüzde raporlama işlevleri bulunur; uygun olduğunda işletme talebi (claim) ve benzeri süreçler kullanılabilir. Etkili inceleme için bağlantı veya ad, kısa ve tarafsız özet ve varsa kanıt önerilir.",
+            "Bildirimler, örgütsel ve teknik imkânlar çerçevesinde önceliklendirilerek incelenir; yanıt için sabit süre taahhüt edilmez. Hukuka veya kullanım ve topluluk kurallarına aykırı içerikler düzenlenebilir, kısıtlanabilir veya kaldırılabilir; hesaplara yönelik önlemler (ör. askıya alma) ağırlık ve tekrara göre orantılı olabilir. Belirli usuller için yasal süreler varsa bunlara uyulur.",
             `Veri koruma başvuruları yalnızca ${company.privacyContactEmail} adresine iletilmelidir. Diğer hukuki veya editoryal başvurular, iletişim sayfası ve bu metinde yer alan e-posta adresleri üzerinden yapılabilir.`,
           ],
         },
@@ -263,7 +255,7 @@ export function getPrivacyContent(locale: AppLocale): LegalPageContent {
   return {
     title: "Datenschutzerklärung",
     intro:
-      "Diese Datenschutzerklärung informiert Sie nach Art. 13 und 14 der Datenschutz-Grundverordnung (DSGVO) in Verbindung mit dem Bundesdatenschutzgesetz (BDSG) über die Verarbeitung personenbezogener Daten bei der Nutzung von MerhabaMap. Maßgeblich ist der jeweilige Stand der Plattform und der dokumentierten technischen Infrastruktur. Stand: März 2026.",
+      "Diese Datenschutzerklärung informiert Sie nach Art. 13 und 14 der Datenschutz-Grundverordnung (DSGVO) in Verbindung mit dem Bundesdatenschutzgesetz (BDSG) über die Verarbeitung personenbezogener Daten bei der Nutzung von MerhabaMap. Verknüpfte Hinweise (Nutzungsbedingungen, Community-Regeln, Cookies) finden Sie in der Fußzeile der Website. Maßgeblich ist der jeweilige Stand der Plattform und der dokumentierten technischen Infrastruktur. Stand: März 2026.",
     sections: [
       {
         title: "Verantwortlicher",
@@ -282,14 +274,17 @@ export function getPrivacyContent(locale: AppLocale): LegalPageContent {
         title: "Verarbeitete Datenkategorien",
         paragraphs: [
           "Bei Registrierung und Anmeldung verarbeiten wir insbesondere Ihre E-Mail-Adresse, einen von Ihnen gewählten Nutzernamen sowie ein kryptografisch gehashtes Passwort; das Passwort wird nicht im Klartext gespeichert. Für die Authentifizierung und zum Schutz vor Missbrauch fallen ferner Sitzungsdaten, Sicherheitsereignisse und begleitende technische Protokolldaten an.",
+          "Zur Bestätigung Ihrer E-Mail-Adresse und zum Zurücksetzen eines Passworts können einmalige Sicherheitslinks (Token) per E-Mail versendet und serverseitig mit begrenzter Gültigkeit verarbeitet werden. Dabei werden insbesondere die betroffene E-Mail-Adresse, Zeitstempel und technische Versandmetadaten verarbeitet.",
           "Wenn Sie Meldungen (Reports) auslösen, Inhalte einreichen, Business-Claims stellen oder den Support kontaktieren, verarbeiten wir die von Ihnen eingegebenen Texte, ggf. Anhänge, Kontaktdaten und die zur Bearbeitung erforderlichen Metadaten. Wenn Sie uns per E-Mail kontaktieren, verarbeiten wir den Inhalt der Nachricht sowie die üblichen Kopfdaten (Absender, Zeitstempel, Betreff).",
+          "Wenn Sie in der Kartenansicht die Standortfunktion Ihres Browsers nutzen („Standort verwenden“ o. Ä.), werden geografische Koordinaten im Rahmen Ihrer Browserberechtigung lokal verarbeitet, um die Darstellung zu unterstützen; eine Speicherung Ihres Standorts auf unseren Servern erfolgt durch diese Funktion nicht.",
           "Die Funktion „Gespeichert“ kann ausgewählte Orte lokal in Ihrem Browser (z. B. im localStorage) ablegen, ohne dass diese Auswahl zwingend mit einem Serverkonto synchronisiert werden muss — es sei denn, die Produktlogik sieht ausdrücklich eine serverseitige Speicherung vor. Zur sicheren Bereitstellung der Website können zudem Verbindungsdaten, begrenzte Logdaten und Infrastrukturmetriken bei Hosting- und Datenbankdienstleistern anfallen.",
         ],
       },
       {
         title: "Zwecke der Verarbeitung und Rechtsgrundlagen",
         paragraphs: [
-          "Die Bereitstellung des Nutzerkontos, der Login-Funktion und der vertraglich geschuldeten Plattformleistungen erfolgt auf Grundlage von Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung bzw. vorvertragliche Maßnahmen). Die Bearbeitung von Meldungen, Claims und Supportanfragen stützt sich je nach Sachverhalt auf Art. 6 Abs. 1 lit. b DSGVO oder auf Art. 6 Abs. 1 lit. f DSGVO, soweit ein berechtigtes Interesse an der Integrität der Plattform, an der Abwehr rechtswidriger Inhalte und an der Rechtsverfolgung besteht.",
+          "Die Bereitstellung des Nutzerkontos, der Login-Funktion und der vertraglich geschuldeten Plattformleistungen erfolgt auf Grundlage von Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung bzw. vorvertragliche Maßnahmen). Hierzu zählen auch die E-Mail-Verifizierung und das Passwort-Zurücksetzen, soweit diese zur sicheren Kontoführung erforderlich sind.",
+          "Die Bearbeitung von Meldungen, Claims und Supportanfragen stützt sich je nach Sachverhalt auf Art. 6 Abs. 1 lit. b DSGVO oder auf Art. 6 Abs. 1 lit. f DSGVO, soweit ein berechtigtes Interesse an der Integrität der Plattform, an der Abwehr rechtswidriger Inhalte und an der Rechtsverfolgung besteht.",
           "Die Gewährleistung der IT-Sicherheit, die Missbrauchsprävention, die Stabilität des Dienstes und die Fehleranalyse stützen sich auf Art. 6 Abs. 1 lit. f DSGVO. Unser berechtigtes Interesse liegt in einem sicheren, zuverlässigen Betrieb; dieses Interesse wird mit Ihren Grundrechten und Freiheiten abgewogen. Soweit wir gesetzlichen Aufbewahrungs- oder Auskunftspflichten unterliegen, ist Art. 6 Abs. 1 lit. c DSGVO einschlägig.",
         ],
       },
@@ -304,21 +299,22 @@ export function getPrivacyContent(locale: AppLocale): LegalPageContent {
       {
         title: "E-Mail-Kommunikation",
         paragraphs: [
-          "Im derzeitigen Produktivbetrieb nutzen wir Zoho für den Versand und Empfang transaktionaler und geschäftsbezogener E-Mails. Dabei werden insbesondere Empfänger- und Absenderadressen, Übermittlungsmetadaten sowie der Nachrichteninhalt verarbeitet.",
+          "Den automatisierten Versand transaktionaler E-Mails (insbesondere E-Mail-Verifizierung, Passwort-Zurücksetzen sowie Benachrichtigungen im Zusammenhang mit Meldungen und Business-Claims, soweit vorgesehen) führen wir über den Dienst Resend aus, sofern in der jeweiligen Umgebung die E-Mail-Versandkonfiguration auf den Anbieter Resend (technisch z. B. EMAIL_TRANSPORT=resend) eingestellt ist. Dabei werden insbesondere Empfänger- und Absenderadressen, Übermittlungsmetadaten und der Nachrichteninhalt verarbeitet. In Entwicklungs- oder Testumgebungen können E-Mails stattdessen protokolliert oder der Versand deaktiviert sein.",
+          "Eingehende Nachrichten an unsere öffentlichen E-Mail-Adressen werden im Rahmen des für diese Postfächer genutzten E-Mail-Betriebs verarbeitet (Zuordnung zu Anbietern und ggf. Drittlandbezug richtet sich nach der konkreten Domain- und Postfachkonfiguration).",
         ],
       },
       {
-        title: "Empfänger und mögliche Drittlandübermittlung",
+        title: "Empfänger und Übermittlungen in Drittländer",
         paragraphs: [
-          "Personenbezogene Daten werden an die vorgenannten technischen Dienstleister weitergegeben, soweit dies für den Betrieb der Plattform erforderlich ist. Einzelne Anbieter können Daten auch in Staaten außerhalb der Europäischen Union oder des Europäischen Wirtschaftsraums verarbeiten.",
-          "Eine Übermittlung in Drittländer erfolgt nur, wenn die Voraussetzungen der Kapitel V DSGVO erfüllt sind — etwa durch einen Angemessenheitsbeschluss der Kommission, durch geeignete Garantien (insbesondere die Standardvertragsklauseln der EU-Kommission) oder in den eng begrenzten Ausnahmefällen des Art. 49 DSGVO. Auf Anfrage teilen wir Ihnen mit, welche Garantien im Einzelfall vorliegen, soweit gesetzlich zulässig und zumutbar.",
+          "Personenbezogene Daten werden an die vorgenannten technischen Dienstleister weitergegeben, soweit dies für den Betrieb der Plattform erforderlich ist.",
+          "Soweit ein Anbieter Daten in einem Staat außerhalb der EU/des EWR verarbeitet, erfolgt dies nur unter den Voraussetzungen des Kapitels V DSGVO — etwa auf Grundlage eines Angemessenheitsbeschlusses der EU-Kommission, durch geeignete Garantien (insbesondere die Standardvertragsklauseln der EU-Kommission) oder in den eng begrenzten Ausnahmefällen des Art. 49 DSGVO. Auf Anfrage teilen wir mit, welche Garantien im jeweiligen Fall vorgesehen sind, soweit gesetzlich zulässig und zumutbar.",
         ],
       },
       {
         title: "Cookies und ähnliche Technologien",
         paragraphs: [
           "Für Sitzung und Anmeldung setzt Auth.js/NextAuth ein Session-Cookie (in der Produktionsumgebung typischerweise __Secure-authjs.session-token, in der Entwicklungsumgebung authjs.session-token). Über den Sprachschalter kann ein Cookie NEXT_LOCALE gesetzt werden. Diese Technologien sind nach dem derzeitigen Verständnis überwiegend technisch notwendig, um die von Ihnen angeforderten Funktionen bereitzustellen.",
-          "Für die Merkliste „Gespeichert“ kann der Browser-Speicher (localStorage) genutzt werden. Im Frontend sind keine optionalen Analytics-, Marketing- oder Werbe-Cookies implementiert. Sollte sich dies ändern, werden diese Erklärung und gegebenenfalls Einwilligungsmechanismen vorab angepasst.",
+          "Für die Merkliste „Gespeichert“ kann der Browser-Speicher (localStorage) genutzt werden. Im eingesetzten Frontend-Code sind keine Skripte von Werbe- oder Analyse-Netzwerken eingebunden, die ein verhaltensbezogenes Tracking über optionale Cookies ermöglichen würden. Sollte sich dies ändern, werden diese Erklärung und gegebenenfalls Einwilligungsmechanismen vorab angepasst.",
         ],
       },
       {
@@ -328,10 +324,10 @@ export function getPrivacyContent(locale: AppLocale): LegalPageContent {
         ],
       },
       {
-        title: "Melden problematischer Inhalte",
+        title: "Melden problematischer Inhalte und Plattformmaßnahmen",
         paragraphs: [
-          "Für veröffentlichte Orte und Veranstaltungen stehen Meldefunktionen in der Oberfläche zur Verfügung; wo vorgesehen, können ergänzend Business-Claims oder vergleichbare Verfahren genutzt werden. Für eine zügige Prüfung empfehlen wir die Angabe des betroffenen Links oder Namens, einer sachlichen Kurzbeschreibung des Problems sowie — soweit vorhanden — Belege oder Quellenhinweise.",
-          "Wir bearbeiten Hinweise im Rahmen unserer organisatorischen Möglichkeiten und priorisieren nach Dringlichkeit und Rechtsrisiko; feste Bearbeitungsfristen können wir nicht zusagen. Inhalte können eingeschränkt, berichtigt oder entfernt werden, sofern dies rechtlich geboten oder nach unseren Community- und Nutzungsregeln zulässig ist.",
+          "MerhabaMap führt nutzergenerierte und eingetragene Inhalte (Orte, Veranstaltungen, begleitende Texte) in einer Plattform zusammen. Für veröffentlichte Orte und Veranstaltungen stehen Meldefunktionen in der Oberfläche zur Verfügung; wo vorgesehen, können ergänzend Business-Claims oder vergleichbare Verfahren genutzt werden. Für eine zügige Prüfung empfehlen wir die Angabe des betroffenen Links oder Namens, einer sachlichen Kurzbeschreibung des Problems sowie — soweit vorhanden — Belege oder Quellenhinweise.",
+          "Wir prüfen eingegangene Meldungen im Rahmen unserer organisatorischen und technischen Möglichkeiten und priorisieren nach Dringlichkeit und erkennbarem Rechts- oder Sicherheitsrisiko. Rechtswidrige oder gegen unsere Nutzungs- und Community-Regeln verstoßende Inhalte können wir anpassen, in der Darstellung einschränken oder entfernen; auf Nutzerkonten bezogene Maßnahmen (z. B. Sperren) können wir im Verhältnis zur Schwere und Wiederholung verhältnismäßig ergreifen. Feste Bearbeitungsfristen können wir nicht zusagen; soweit gesetzliche Fristen für bestimmte Verfahren gelten, werden diese eingehalten.",
           `Datenschutzanliegen richten Sie bitte ausschließlich an ${company.privacyContactEmail}. Weitere inhaltliche oder rechtliche Hinweise können Sie über die auf der Kontaktseite genannten Adressen vortragen.`,
         ],
       },
@@ -345,7 +341,7 @@ export function getPrivacyContent(locale: AppLocale): LegalPageContent {
       {
         title: "Betroffenenrechte",
         paragraphs: [
-          "Sie haben das Recht auf Auskunft über die Sie betreffenden personenbezogenen Daten (Art. 15 DSGVO), auf Berichtigung unrichtiger Daten (Art. 16 DSGVO), auf Löschung (Art. 17 DSGVO), auf Einschränkung der Verarbeitung (Art. 18 DSGVO), auf Widerspruch gegen Verarbeitungen, die auf Art. 6 Abs. 1 lit. f DSGVO beruhen (Art. 21 DSGVO), sowie — soweit voraussetzungen erfüllt sind — auf Datenübertragbarkeit (Art. 20 DSGVO).",
+          "Sie haben das Recht auf Auskunft über die Sie betreffenden personenbezogenen Daten (Art. 15 DSGVO), auf Berichtigung unrichtiger Daten (Art. 16 DSGVO), auf Löschung (Art. 17 DSGVO), auf Einschränkung der Verarbeitung (Art. 18 DSGVO), auf Widerspruch gegen Verarbeitungen, die auf Art. 6 Abs. 1 lit. f DSGVO beruhen (Art. 21 DSGVO), sowie — soweit die Voraussetzungen erfüllt sind — auf Datenübertragbarkeit (Art. 20 DSGVO).",
           "Die Ausübung dieser Rechte ist grundsätzlich unentgeltlich. Nach Art. 12 Abs. 5 DSGVO kann bei offensichtlich unbegründeten oder — insbesondere bei Wiederholung — exzessiven Anträgen ein angemessenes Entgelt verlangt oder der Antrag abgelehnt werden.",
         ],
       },
@@ -361,11 +357,6 @@ export function getPrivacyContent(locale: AppLocale): LegalPageContent {
 
 export function getContactContent(locale: AppLocale): LegalPageContent {
   const company = getLegalCompanyProfile(locale);
-  const contactParagraphs = [`E-Mail: ${company.contactEmail}`];
-
-  if (company.contactPhone) {
-    contactParagraphs.push(`Telefon: ${company.contactPhone}`);
-  }
 
   if (locale === "tr") {
     return {
@@ -377,7 +368,8 @@ export function getContactContent(locale: AppLocale): LegalPageContent {
           title: "Genel iletişim",
           paragraphs: [
             "Genel sorular, öneriler ve iş birliği teklifleri için aşağıdaki kanallar kullanılabilir. E-posta, metin ve eklerin güvenli şekilde iletilmesi ve arşivlenmesi açısından tercih edilen yöntemdir. Telefonla yapılan görüşmelerde, talebin özeti mümkünse yazılı olarak da iletilmelidir.",
-            `${contactParagraphs.join(" · ")} MerhabaMap, sınırlı kaynaklarla çalışan bir platform olduğundan yanıtlar önceliklendirilir; acil güvenlik veya hukuki risk içeren başvurular öne alınabilir.`,
+            `Genel: ${company.contactEmail}. Teknik ve platform işletimi: ${company.adminEmail}.${company.contactPhone ? ` Telefon: ${company.contactPhone}.` : ""} Diğer yasal metinlere ve gizlilik politikasına site altbilgisinden ulaşılabilir.`,
+            "MerhabaMap sınırlı kaynaklarla çalıştığından yanıtlar önceliklendirilir; acil güvenlik veya hukuki risk içeren başvurular öne alınabilir.",
           ],
         },
         {
@@ -411,7 +403,8 @@ export function getContactContent(locale: AppLocale): LegalPageContent {
         title: "Kontaktmöglichkeiten",
         paragraphs: [
           "Für allgemeine Rückfragen, Kooperationsanfragen und nicht-dringliche Hinweise stehen Ihnen die folgenden Kontaktwege zur Verfügung. Schriftliche Kommunikation per E-Mail ist vorzugswürdig, weil Inhalte nachvollziehbar dokumentiert werden können. Wenn Sie telefonisch Kontakt aufnehmen, empfiehlt sich eine kurze schriftliche Zusammenfassung des Gesprächsgegenstands.",
-          `${contactParagraphs.join(" · ")} Als community-orientierte Plattform priorisieren wir Anfragen nach Dringlichkeit und rechtlicher Relevanz; ein Anspruch auf sofortige Bearbeitung besteht nicht.`,
+          `Allgemein: ${company.contactEmail}. Technik und Betrieb der Plattform: ${company.adminEmail}.${company.contactPhone ? ` Telefon: ${company.contactPhone}.` : ""} Weitere Rechtstexte und die Datenschutzerklärung erreichen Sie über die Fußzeile der Website.`,
+          "Als community-orientierte Plattform priorisieren wir Anfragen nach Dringlichkeit und rechtlicher Relevanz; ein Anspruch auf sofortige Bearbeitung besteht nicht.",
         ],
       },
       {
@@ -441,7 +434,7 @@ export function getCookiesContent(locale: AppLocale): LegalPageContent {
     return {
       title: "Çerezler ve benzeri teknolojiler",
       intro:
-        "Bu bilgilendirme, MerhabaMap’in tarayıcıda hangi çerezleri ve yerel depolama mekanizmalarını kullandığını, bunların amacını ve — GDPR açısından — hangi hukuki dayanağa dayandığını açıklar. Pazarlama veya geniş analitik çerezleri şu an kullanılmamaktadır. Stand: Mart 2026.",
+        "Bu bilgilendirme, MerhabaMap’in tarayıcıda hangi çerezleri ve yerel depolama mekanizmalarını kullandığını, bunların amacını ve — GDPR açısından — hangi hukuki dayanağa dayandığını açıklar. İncelenen ön yüz kodunda, isteğe bağlı çerezlerle davranışsal izleme yapan reklam veya analiz ağı betikleri yoktur. Stand: Mart 2026.",
       sections: [
         {
           title: "Teknik olarak gerekli çerezler ve depolama",
@@ -459,7 +452,8 @@ export function getCookiesContent(locale: AppLocale): LegalPageContent {
         {
           title: "İsteğe bağlı takip bulunmaması",
           paragraphs: [
-            "Ürünün mevcut sürümünde, reklam veya kapsamlı davranış analizi için üçüncü taraf izleme pikselleri veya isteğe bağlı analitik çerezleri kullanılmamaktadır. Harita karoları gibi içerikler istemci tarafında yüklenir; bu, çerez politikasından farklı olarak gizlilik bildiriminde açıklanan sağlayıcı erişimleri ile ilişkilidir.",
+            "Ürünün mevcut sürümünde, reklam veya kapsamlı davranış analizi için üçüncü taraf izleme pikselleri veya isteğe bağlı analitik çerezleri kullanılmamaktadır. Kod veya üçüncü taraf eklemeleri bunu değiştirirse bu sayfa ve gizlilik politikası güncellenmelidir.",
+            "Harita karoları gibi içerikler istemci tarafında yüklenir; bu, çerez politikasından farklı olarak gizlilik bildiriminde açıklanan sağlayıcı erişimleri ile ilişkilidir.",
           ],
         },
         {
@@ -475,7 +469,7 @@ export function getCookiesContent(locale: AppLocale): LegalPageContent {
   return {
     title: "Cookies und ähnliche Technologien",
     intro:
-      "Die folgenden Angaben beschreiben den Einsatz von Cookies und vergleichbaren lokalen Speichertechniken auf MerhabaMap, deren Funktion und — soweit einschlägig — die Rechtsgrundlagen nach DSGVO. Stand: März 2026.",
+      "Die folgenden Angaben beschreiben den Einsatz von Cookies und vergleichbaren lokalen Speichertechniken auf MerhabaMap, deren Funktion und — soweit einschlägig — die Rechtsgrundlagen nach DSGVO. Im geprüften Frontend-Code sind keine Skripte von Werbe- oder Analyse-Netzwerken eingebunden, die über optionale Cookies ein verhaltensbezogenes Tracking ermöglichen würden. Stand: März 2026.",
     sections: [
       {
         title: "Technisch erforderliche Cookies und Speichermechanismen",
@@ -493,7 +487,8 @@ export function getCookiesContent(locale: AppLocale): LegalPageContent {
       {
         title: "Kein optionales Tracking nach aktuellem Stand",
         paragraphs: [
-          "Im Frontend sind keine separaten Marketing-, Werbe- oder umfassenden Analytics-Cookies eingebunden, die ein verhaltensbezogenes Profiling ermöglichen. Die Darstellung von Kartenkacheln erfolgt clientseitig und wird — einschließlich der beteiligten Anbieter — in der Datenschutzerklärung erläutert; sie ist von dieser Cookie-Übersicht inhaltlich zu unterscheiden.",
+          "Im Frontend sind keine separaten Marketing-, Werbe- oder umfassenden Analytics-Cookies eingebunden, die ein verhaltensbezogenes Profiling ermöglichen. Eine Abweichung von dieser Beschreibung wäre ein Hinweis darauf, dass der eingesetzte Code oder Drittanbieter-Einbindungen überprüft und diese Seite sowie die Datenschutzerklärung angepasst werden müssen.",
+          "Die Darstellung von Kartenkacheln erfolgt clientseitig und wird — einschließlich der beteiligten Anbieter — in der Datenschutzerklärung erläutert; sie ist von dieser Cookie-Übersicht inhaltlich zu unterscheiden.",
         ],
       },
       {
@@ -513,7 +508,7 @@ export function getTermsContent(locale: AppLocale): LegalPageContent {
     return {
       title: "Kullanım koşulları",
       intro:
-        "Bu kullanım koşulları, MerhabaMap’e erişim ve kullanım ile ilgili tarafların hak ve yükümlülüklerini düzenler. Platform, bilgilendirme ve topluluk odaklı bir keşif hizmetidir; tüketici hukuku veya B2B ilişkileri açısından ek şartlar ayrı sözleşmelerle kararlaştırılabilir. Stand: Mart 2026.",
+        "Bu kullanım koşulları, MerhabaMap’e erişim ve kullanım ile ilgili tarafların hak ve yükümlülüklerini düzenler. Gizlilik politikası ve topluluk kuralları site altbilgisinden erişilebilir. Platform, bilgilendirme ve topluluk odaklı bir keşif hizmetidir; tüketici hukuku veya B2B ilişkileri açısından ek şartlar ayrı sözleşmelerle kararlaştırılabilir. Stand: Mart 2026.",
       sections: [
         {
           title: "Sözleşmenin konusu ve kapsamı",
@@ -525,21 +520,28 @@ export function getTermsContent(locale: AppLocale): LegalPageContent {
         {
           title: "Kullanıcı yükümlülükleri",
           paragraphs: [
-            "Hesap bilgilerinizin gizliliğinden ve yetkisiz kullanımdan siz sorumlusunuz. Platforma ilettiğiniz metinlerin, görsellerin ve diğer içeriklerin yasalara ve üçüncü kişilerin haklarına uygun olması gerekir. Yanıltıcı kimlik, sahte konum veya manipülatif değerlendirme davranışları yasaktır.",
+            "Hesap bilgilerinizin gizliliğinden ve yetkisiz kullanımdan siz sorumlusunuz. Hesap güvenliği için e-posta doğrulaması ve parola sıfırlama mesajları teknik olarak kullanılabilir; ayrıntılar gizlilik politikasında yer alır.",
+            "Platforma ilettiğiniz metinlerin, görsellerin ve diğer içeriklerin yasalara ve üçüncü kişilerin haklarına uygun olması gerekir. Yanıltıcı kimlik, sahte konum veya manipülatif değerlendirme davranışları yasaktır.",
+          ],
+        },
+        {
+          title: "Mekân ve etkinlik içerikleri",
+          paragraphs: [
+            "Mekân ve etkinlik bilgileri dikkatle ve doğru şekilde girilmelidir. Kullanıcıları veya işletmeleri kasıtlı olarak yanıltan eksik, yanlış veya mükerrer kayıtlar yasaktır. Platform, açıklık, mükerrer kayıt giderimi veya hukuk ve iç kurallara uyum için düzenleme yapabilir.",
           ],
         },
         {
           title: "Yasaklanan içerik ve davranışlar",
           paragraphs: [
-            "Nefret söylemi, ayrımcılık, şiddeti teşvik, kişilik haklarına saldırı, fikri mülkiyet ihlâli, yanıltıcı ticari uygulama veya yasa dışı faaliyetlere yönelik içerik veya bağlantılar yasaktır. Platformun güvenliğini tehdit eden, aşırı yük oluşturan veya otomasyonla kötüye kullanan davranışlar — örneğer botlarla izinsiz tarama — yasaktır.",
+            "Nefret söylemi, ayrımcılık, şiddeti teşvik veya kişilere yönelik şiddete çağrı, kişilik haklarına saldırı, taciz, fikri mülkiyet ihlâli, yanıltıcı ticari uygulama veya yasa dışı faaliyetlere yönelik içerik veya bağlantılar yasaktır. Üçüncü kişilerin özel verilerini hukuki dayanak olmadan yayımlamak (doxxing), altyapıyı bozmak, izinsiz otomasyon veya bağlamsız spam yasaktır.",
             "Ticari tanıtım, yalnızca topluluk kuralları ve — varsa — ilgili ücretli veya onaylı işletme özellikleri çerçevesinde yapılabilir. Bağlamsız spam veya alakasız toplu mesajlar yasaktır.",
           ],
         },
         {
-          title: "Moderasyon ve hesap önlemleri",
+          title: "Bildirimler, inceleme ve platform önlemleri",
           paragraphs: [
-            "MerhabaMap, yasal yükümlülükler ve platform bütünlüğü çerçevesinde içerikleri ön inceleyebilir, kullanıcı bildirimlerini değerlendirebilir, içerikleri düzeltebilir, gizleyebilir veya kaldırabilir. Tekrarlayan veya ağır ihlâllerde hesap geçici veya kalıcı olarak kısıtlanabilir veya sonlandırılabilir.",
-            "Önlem alınmadan önce — makul ölçüde — içerik sağlayıcısına açıklama imkânı tanınabilir; acil hukuki risk veya güvenlik tehditleri hariç tutulabilir.",
+            "Kullanıcılar ve etkilenen taraflar, muhtemel hukuka veya kurallara aykırı içerikleri bildirmek için arayüz işlevlerini (ve uygunsa claim süreçlerini) kullanabilir. Bildirimler örgütsel ve teknik imkânlar çerçevesinde incelenir; tüm içeriklerin ön onayı yalnızca yasal olarak zorunlu olduğu veya makul plausibilite kontrolleri yapıldığı ölçüde yapılır.",
+            "Hukuk, bu koşullar veya topluluk kurallarına aykırılık hâlinde içerikler düzenlenebilir, kısıtlanabilir veya kaldırılabilir; hesap önlemleri ağırlık ve tekrara göre orantılı olur. Mümkün olduğunda ağır önlemlerden önce görüş bildirme fırsatı tanınır; acil hukuki risk veya güvenlik tehditleri istisnadır.",
           ],
         },
         {
@@ -584,8 +586,8 @@ export function getTermsContent(locale: AppLocale): LegalPageContent {
 
   return {
     title: "Allgemeine Nutzungsbedingungen (AGB)",
-    intro:
-      "Diese Nutzungsbedingungen (Allgemeine Geschäftsbedingungen, AGB) regeln die Nutzung der Plattform MerhabaMap. Sie gelten gegenüber allen Nutzerinnen und Nutzern, die auf das Angebot zugreifen oder ein Nutzerkonto führen. Ergänzend gelten die Datenschutzerklärung sowie die Community-Regeln. Stand: März 2026.",
+      intro:
+      "Diese Nutzungsbedingungen (Allgemeine Geschäftsbedingungen, AGB) regeln die Nutzung der Plattform MerhabaMap. Sie gelten gegenüber allen Nutzerinnen und Nutzern, die auf das Angebot zugreifen oder ein Nutzerkonto führen. Ergänzend gelten die Datenschutzerklärung sowie die Community-Regeln (über die Fußzeile der Website erreichbar). Stand: März 2026.",
     sections: [
       {
         title: "Vertragsgegenstand und Leistungsbeschreibung",
@@ -597,21 +599,28 @@ export function getTermsContent(locale: AppLocale): LegalPageContent {
       {
         title: "Pflichten der Nutzer",
         paragraphs: [
-          "Nutzer sind verpflichtet, ihre Zugangsdaten vertraulich zu behandeln und unbefugte Nutzung ihres Kontos unverzüglich mitzuteilen, sobald sie davon Kenntnis erlangen. Alle über die Plattform bereitgestellten Inhalte müssen mit geltendem Recht, einschließlich Persönlichkeits-, Urheber- und Markenrecht, vereinbar sein. Täuschung über Identität, Standort oder Bewertungen ist unzulässig.",
+          "Nutzer sind verpflichtet, ihre Zugangsdaten vertraulich zu behandeln und unbefugte Nutzung ihres Kontos unverzüglich mitzuteilen, sobald sie davon Kenntnis erlangen. Zur Absicherung des Kontos können wir die Bestätigung Ihrer E-Mail-Adresse sowie den Versand von Nachrichten zum Zurücksetzen des Passworts technisch vorsehen; hierbei sind die Angaben in der Datenschutzerklärung maßgeblich.",
+          "Alle über die Plattform bereitgestellten Inhalte müssen mit geltendem Recht, einschließlich Persönlichkeits-, Urheber- und Markenrecht, vereinbar sein. Täuschung über Identität, Standort oder Bewertungen ist unzulässig.",
+        ],
+      },
+      {
+        title: "Inhalte zu Orten und Veranstaltungen",
+        paragraphs: [
+          "Orts- und Veranstaltungsangaben sollen zum Zeitpunkt der Eintragung sorgfältig recherchiert und wahrheitsgemäß sein. Irreführende, unvollständige oder doppelt angelegte Einträge, die Nutzerinnen und Nutzer oder Unternehmen vorsätzlich in die Irre führen, sind untersagt. Die Plattform kann editorische oder technische Anpassungen vornehmen, soweit dies zur Klarstellung, zur Duplikatbereinigung oder zur Einhaltung von Recht und internen Richtlinien erforderlich ist.",
         ],
       },
       {
         title: "Unzulässige Inhalte und Verhaltensweisen",
         paragraphs: [
-          "Untersagt sind insbesondere Inhalte oder Handlungen, die gegen Strafrecht oder Ordnungsrecht verstoßen, Hassrede oder Diskriminierung darstellen, Gewalt verherrlichen, die persönliche Ehre Dritter verletzen oder gewerbsmäßig irreführend sind. Ebenfalls unzulässig sind Störungen der technischen Infrastruktur, automatisierte Abfragen ohne Erlaubnis sowie Spam und unaufgeforderte Massenwerbung ohne erkennbaren Community-Bezug.",
+          "Untersagt sind insbesondere Inhalte oder Handlungen, die gegen Strafrecht oder Ordnungsrecht verstoßen, Hassrede oder Diskriminierung darstellen, Gewalt verherrlichen oder zu Gewalt gegen Personen aufrufen, die persönliche Ehre Dritter verletzen, andere belästigen oder gewerbsmäßig irreführend sind. Unzulässig sind ferner die Veröffentlichung oder das Organisieren von Doxxing (Weitergabe privater Daten Dritter ohne Rechtsgrundlage), Störungen der technischen Infrastruktur, automatisierte Abfragen ohne Erlaubnis sowie Spam und unaufgeforderte Massenwerbung ohne erkennbaren Community-Bezug.",
           "Werbliche Inhalte sind nur zulässig, soweit sie den Community-Regeln entsprechen und — falls vorgesehen — über gesonderte geschäftliche Produkte (z. B. Business-Funktionen) abgewickelt werden.",
         ],
       },
       {
-        title: "Moderation und Sanktionen",
+        title: "Meldungen, Prüfung und Plattformmaßnahmen",
         paragraphs: [
-          "Wir sind berechtigt, Inhalte zu prüfen, zu kürzen, zu sperren oder zu löschen, wenn ein Verstoß gegen diese Bedingungen, gegen Recht oder gegen interne Richtlinien vorliegt oder wenn dies zur Wahrung berechtigter Interessen Dritter oder der Allgemeinheit erforderlich ist. Wiederholte oder schwerwiegende Verstöße können zu vorübergehenden oder dauerhaften Kontosperren führen.",
-          "Soweit zumutbar, werden wir vor einschneidenden Maßnahmen Gelegenheit zur Stellungnahme geben, es sei denn, es besteht ein dringendes Rechtsrisiko oder eine Gefahr für Sicherheit und Integrität des Dienstes.",
+          "Wir stellen Funktionen bereit, mit denen Nutzerinnen und Nutzer sowie andere Betroffene auf möglicherweise rechts- oder regelwidrige Inhalte hinweisen können (z. B. Melde- und, wo vorgesehen, Claim-Funktionen). Eingegangene Hinweise prüfen wir im Rahmen unserer organisatorischen und technischen Möglichkeiten; eine Vorabprüfung aller Inhalte findet nur insoweit statt, wie dies gesetzlich angeordnet ist oder wir sie aus Plausibilitätsgründen vornehmen.",
+          "Wir können Inhalte anpassen, in der Sichtbarkeit beschränken oder entfernen, wenn ein hinreichender Anlass im Hinblick auf Recht, diese Nutzungsbedingungen oder die Community-Regeln besteht. Auf Nutzerkonten bezogene Maßnahmen (z. B. Sperren) treffen wir unter Würdigung von Schwere, Wiederholung und berechtigten Interessen verhältnismäßig. Soweit zumutbar, geben wir vor einschneidenden Maßnahmen Gelegenheit zur Stellungnahme, es sei denn, es besteht ein dringendes Rechtsrisiko oder eine Gefahr für Sicherheit und Integrität des Dienstes.",
         ],
       },
       {
@@ -668,19 +677,19 @@ export function getCommunityRulesContent(locale: AppLocale): LegalPageContent {
     return {
       title: "Topluluk kuralları",
       intro:
-        "Bu kurallar, MerhabaMap’i güvenilir, saygılı ve hukuka uygun biçimde kullanmayı amaçlar. Kullanım koşullarının ve gizlilik politikasının tamamlayıcısıdırlar; ihlâl hâlinde moderasyon ve hesap önlemleri devreye girebilir. Stand: Mart 2026.",
+        "Bu kurallar, MerhabaMap’i güvenilir, saygılı ve hukuka uygun biçimde kullanmayı amaçlar. Kullanım koşulları ve gizlilik politikası ile birlikte geçerlidir; moderasyon ve hesap önlemleri bu metinler ve yürürlükteki hukuk çerçevesinde değerlendirilir. Stand: Mart 2026.",
       sections: [
         {
           title: "Saygılı ve kapsayıcı iletişim",
           paragraphs: [
-            "Topluluk üyeleri birbirine ve listelenen işletmelere karşı saygılı davranmalıdır. Nefret söylemi, ırkçılık, cinsiyetçilik, dini veya köken temelli aşağılama veya taciz kabul edilmez. Eleştiri, kişilere yönelik hakaret veya tehdit içermeden, nesnel ve yapıcı olmalıdır.",
+            "Topluluk üyeleri birbirine ve listelenen işletmelere karşı saygılı davranmalıdır. Nefret söylemi, ırkçılık, cinsiyetçilik, dini veya köken temelli aşağılama, taciz, tehdit veya stalking kabul edilmez. İzinsiz özel veri yayımlama (doxxing) ve kasıtlı yanlış bilgi yasaktır. Eleştiri, kişilere yönelik hakaret veya tehdit içermeden, nesnel ve yapıcı olmalıdır.",
             "Özellikle cami, dernek veya kültür mekânı gibi hassas yerler hakkında yorum yaparken topluluk barışına ve yanlış bilgilendirmenin sonuçlarına dikkat edin.",
           ],
         },
         {
           title: "Doğruluk ve güven",
           paragraphs: [
-            "Sahte veya yanıltıcı mekân veya etkinlik kayıtları, topluluğun güvenini zedeler ve yasalara aykırı olabilir. Bilerek yanlış adres, kapalı işletmeleri açık gösterme veya telif hakkı ihlâli içeren görseller kullanma yasaktır.",
+            "Sahte veya yanıltıcı mekân veya etkinlik kayıtları (sahte listeler / etkinlikler), topluluğun güvenini zedeler ve yasalara aykırı olabilir. Bilerek yanlış adres, kapalı işletmeleri açık gösterme veya telif hakkı ihlâli içeren görseller kullanma yasaktır.",
             "İşletme talepleri (claim) ve raporlar yalnızca gerçek bir yetki veya sorun olduğunda kullanılmalıdır; kötü niyetli veya rekabeti engellemek amaçlı kötüye kullanım, hesap kapatılmasına yol açabilir.",
           ],
         },
@@ -715,19 +724,19 @@ export function getCommunityRulesContent(locale: AppLocale): LegalPageContent {
   return {
     title: "Community-Regeln",
     intro:
-      "Diese Community-Regeln konkretisieren den respektvollen Umgang auf MerhabaMap und ergänzen die Nutzungsbedingungen sowie die Datenschutzerklärung. Sie dienen dem Schutz von Nutzerinnen und Nutzern, von Unternehmen und der Integrität der Plattform. Stand: März 2026.",
+      "Diese Community-Regeln konkretisieren den respektvollen Umgang auf MerhabaMap und ergänzen die Nutzungsbedingungen sowie die Datenschutzerklärung. Maßstab für Moderation und Plattformmaßnahmen sind diese Regeln im Einklang mit den Nutzungsbedingungen und geltendem Recht. Sie dienen dem Schutz von Nutzerinnen und Nutzern, von Unternehmen und der Integrität der Plattform. Stand: März 2026.",
     sections: [
       {
         title: "Respektvoller und diskriminierungsfreier Umgang",
         paragraphs: [
-          "Wir erwarten einen sachlichen und wertschätzenden Ton. Beleidigungen, Bedrohungen, Hassrede und diskriminierende Äußerungen — etwa aufgrund Herkunft, Religion, Geschlecht, sexueller Identität oder einer Behinderung — sind unzulässig. Kritik an Orten oder Veranstaltungen soll sachlich bleiben und keine unwahren Tatsachenbehauptungen enthalten.",
-          "Inhalte zu sensiblen Orten (z. B. religiöse Einrichtungen oder communitybezogene Treffpunkte) sollten mit Rücksicht auf die betroffenen Communities formuliert werden.",
+          "Wir erwarten einen sachlichen und wertschätzenden Ton. Beleidigungen, Bedrohungen, Hassrede und diskriminierende Äußerungen — etwa aufgrund Herkunft, Religion, Geschlecht, sexueller Identität oder einer Behinderung — sind unzulässig. Belästigung, Stalking, die Veröffentlichung privater Daten anderer ohne Rechtsgrundlage (Doxxing) sowie absichtlich falsche Tatsachenbehauptungen zu Orten, Zeiten, Angeboten oder Personen sind ebenfalls untersagt.",
+          "Kritik an Orten oder Veranstaltungen soll sachlich bleiben und keine unwahren Tatsachenbehauptungen enthalten. Inhalte zu sensiblen Orten (z. B. religiöse Einrichtungen oder communitybezogene Treffpunkte) sollten mit Rücksicht auf die betroffenen Communities formuliert werden.",
         ],
       },
       {
         title: "Ehrlichkeit und Vertrauen",
         paragraphs: [
-          "Orts- und Veranstaltungsdaten sollen der Wahrheit entsprechen. Das bewusste Eintragen nicht existierender Angebote, das Irreführen über Öffnungszeiten oder Standorte sowie die Verwendung fremder urheberrechtlich geschützter Medien ohne Berechtigung sind untersagt.",
+          "Orts- und Veranstaltungsdaten sollen der Wahrheit entsprechen. Das bewusste Eintragen nicht existierender Angebote („Fake-Listings“), das Irreführen über Öffnungszeiten oder Standorte, erfundene Veranstaltungen sowie die Verwendung fremder urheberrechtlich geschützter Medien ohne Berechtigung sind untersagt.",
           "Business-Claims und Meldungen dürfen nur bei tatsächlichem Anlass erfolgen. Ein missbräuchlicher Einsatz zur Schädigung anderer Anbieter oder zur unlauteren Wettbewerbsbehinderung kann zu rechtlichen Schritten und zum Ausschluss vom Dienst führen.",
         ],
       },

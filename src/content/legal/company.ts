@@ -1,5 +1,7 @@
 import type { AppLocale } from "@/i18n/routing";
 
+// TODO(legal): registerEntry und vatId in getLegalCompanyProfile ergänzen, sobald Handelsregister- bzw. USt-Angaben vorliegen und auskunftspflichtig sind.
+
 export type LegalCompanyProfile = {
   entityName: string;
   /** Gesellschafterlich vertretungsberechtigt (GbR); Reihenfolge nur zur Darstellung. */
