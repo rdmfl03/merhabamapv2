@@ -1,5 +1,9 @@
 # AGENTS.md — MerhabaMap project rules
 
+## AI and compliance context
+
+For **legal-risk copy**, **DSGVO-style privacy expectations**, **ingest/repo boundaries**, and **product positioning** (community platform vs. state-like claims), follow **[docs/ai-guard-system.md](docs/ai-guard-system.md)** in addition to this file. Full system context: **[docs/ai-context.md](docs/ai-context.md)**.
+
 ## Project status
 MerhabaMap is a PUBLIC repository.
 Always assume that any code, docs, config, examples, comments, commit messages, and file changes may be visible to external users.

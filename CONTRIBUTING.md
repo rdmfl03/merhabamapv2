@@ -2,6 +2,7 @@
 
 ## Before You Start
 
+- read [docs/ai-guard-system.md](docs/ai-guard-system.md) if you use AI tools or touch user-facing copy, privacy, or security-sensitive areas (Germany/EU expectations, platform messaging)
 - treat MerhabaMap as a real production-oriented application
 - preserve Germany-first scope and bilingual Turkish/German behavior
 - avoid changes that weaken auth, moderation, privacy, or safety checks

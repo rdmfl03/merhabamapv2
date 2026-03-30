@@ -97,6 +97,8 @@ See [SECURITY.md](SECURITY.md) for vulnerability reporting guidance.
 Contributions are welcome.
 Please read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting changes.
 
+Maintainers and AI-assisted development: governance and compliance expectations for this repo are summarized in [docs/ai-guard-system.md](docs/ai-guard-system.md) (with broader context in [docs/ai-context.md](docs/ai-context.md)).
+
 ## Status
 
 Actively developed and tested locally before production rollout.

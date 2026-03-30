@@ -20,6 +20,8 @@ The platform focuses on:
 MerhabaMap is NOT a generic social network.
 It is a curated, semi-controlled ecosystem.
 
+**Tone vs. meaning:** “Curated” and “semi-controlled” refer to **review-first publishing**, moderation, and data responsibility—not a government portal, not official immigration/integration services, and not bureaucratic UX. User-facing language should stay **modern, open, and community-near** while keeping those safeguards. Binding rules for AI-assisted work (legal copy, security, ingest boundaries) are in **[ai-guard-system.md](ai-guard-system.md)**.
+
 ---
 
 ## 2. Core Principles

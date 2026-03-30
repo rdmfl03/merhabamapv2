@@ -16,6 +16,17 @@ MerhabaMap is a Germany-based platform with strict requirements around:
 
 The AI must behave like a cautious senior engineer working on a legally sensitive production system.
 
+### Related documents (read together)
+
+| Document | Role |
+|----------|------|
+| [ai-context.md](ai-context.md) | Full product and system context; must stay **consistent** with this file. |
+| [../AGENTS.md](../AGENTS.md) | Public-repo safety, secrets, non-breaking changes, git hygiene. |
+| [../CONTRIBUTING.md](../CONTRIBUTING.md) | Human contributor expectations; align with this file on risk and claims. |
+| [../SECURITY.md](../SECURITY.md) | Vulnerability reporting (not duplicated here). |
+
+**Precedence:** On **privacy, security, ingest boundaries, and legal-risk copy**, the rules in **this file** are mandatory for AI-assisted work. If another doc is vaguer, follow **this** file. If a human maintainer explicitly overrides in a ticket, follow the ticket.
+
 ---
 
 ## Repository Scope (CRITICAL)
@@ -281,6 +292,110 @@ The AI should behave like a senior engineer responsible for production safety in
 
 ---
 
+## Product positioning (user-facing vs. institutional)
+
+MerhabaMap is a **community and discovery platform** for places, events, and local relevance (Germany-first, bilingual Turkish/German where the product provides it). It is **not**:
+
+- a government or administration portal
+- an official integration or immigration portal
+- a state-backed or semi-state service (unless and until that is **explicitly** true and documented by maintainers)
+- a substitute for legal, official, or emergency information
+
+**Harmonization with “curated / semi-controlled”** (see [ai-context.md](ai-context.md)):
+
+- **Curated** = review-first publishing, moderation, quality gates, and responsible handling of data—not bureaucratic tone, not official authority.
+- The product can still feel **open, modern, and community-near** in copy and UX while keeping those safeguards.
+
+**Funding and external stakeholders (e.g. public grants):**
+
+- Documentation and marketing must remain **accurate**: do not invent partnerships, certifications, funding status, metrics, or legal roles.
+- Societal benefit may be described **factually and modestly**; avoid pompous or unverifiable superlatives.
+- When describing data practices or moderation, stay aligned with what the product **actually** does (see privacy policy and real behavior).
+
+---
+
+## Legal guardrails (Germany / EU) — binding for AI-generated changes
+
+These apply to **code, copy, comments, docs, and examples** the AI produces.
+
+### 1. DSGVO / Datenschutz
+
+- Data minimization; **privacy by default**.
+- Collect only **necessary** personal data; justify new fields or processing.
+- Consent only where required—**clear** wording, no dark patterns.
+- No **hidden** or unclear processing; no unnecessary tracking; no misleading “anonymous” claims.
+- No transfer of personal data without a **clear legal basis** (and no hand-waving in copy or docs).
+- Do not promise stricter privacy than implementation supports.
+
+### 2. Plattformhaftung / Inhalte
+
+- Do **not** promise that all content is correct, complete, or permanently up to date unless that is **literally** true and enforceable.
+- **Forbidden** user-facing patterns (unless factually backed): “always up to date”, “officially verified”, “guaranteed correct”, “100% accurate”, government-style authority.
+- Preserve clear **platform** character: third-party and user-influenced content; moderation and correction paths exist—do not oversell.
+- Content must remain **moderatable, correctable, and accountable** in product design and messaging.
+
+### 3. Urheberrecht / Quellen / Daten
+
+- No use of third-party content, maps, images, or data **without** adequate rights or license compatibility.
+- Do not integrate legally doubtful sources “for speed”.
+- Copy must **not** imply MerhabaMap owns or controls third-party rights it does not have.
+
+### 4. Wettbewerbs- und Verbraucherrecht
+
+- No **misleading** statements; no unsubstantiated superlatives (“unique”, “revolutionary”, “only”, “best”) for the product.
+- No fake endorsements, certifications, or partnerships.
+- Do not phrase product copy so it reads as **official recommendation** or **state approval** unless true.
+
+### 5. Gleichbehandlung / Diskriminierungsvermeidung
+
+- Inclusive, non-discriminatory language by default.
+- Focus on the **Turkish community and diaspora** is a product truth—frame it **positively and inclusively**, not as exclusion of others or stereotyping.
+- Avoid legally sensitive formulations about origin, religion, ethnicity, or migration status except where **necessary and neutral** (e.g. factual product scope).
+
+---
+
+## Copy, UX tone, and trust messaging
+
+**Do:**
+
+- Modern, clear, human, inviting, community-oriented, trustworthy—not kitschy, not hard-sell marketing.
+- Concrete over abstract; short sentences where possible.
+- Subtle signals of care: local relevance, careful publishing, reporting paths—without sounding like an NGO grant application on the landing page.
+
+**Do not:**
+
+- Bureaucratic or “Behörden” tone; NGO or “integration project” clichés on primary user surfaces.
+- Address only “newly arrived” users; speak to **everyone** who uses local discovery and community life.
+- Plural or “förder-ready” **claims** in user-facing UI without maintainer approval and factual basis.
+
+**Brand and visual discipline:**
+
+- Respect the **existing design system** (Tailwind tokens, components). Do not introduce ad-hoc colors or break the theme.
+- MerhabaMap’s brand palette is conceptually aligned with **clear hierarchy, trust, and warm accent** (e.g. brand red accent with neutrals)—implement via **existing** CSS variables / Tailwind theme, not literal flag pastiche unless already established in design tokens.
+
+---
+
+## Architecture and change discipline
+
+- Respect existing structure; **minimal-invasive** changes; no broad refactors without clear need (already required above—reiterated for funding-related audits).
+- No unnecessary renames; preserve bilingual and locale-aware behavior.
+- Ingest stays **out of this repo**; review-first assumptions stay intact (see **Repository Scope** and **Ingest Guardrails**).
+
+---
+
+## How Cursor (and other AI assistants) should behave in this repo
+
+1. **Default conservative:** safety, privacy, and legal defensibility over speed.
+2. **No legally risky copy** in UI, metadata, README, or docs without clear factual basis.
+3. **No unnecessary structural changes**—smallest change that satisfies the task.
+4. **Platform character:** never imply official government role or guaranteed accuracy of all listings.
+5. **Uncertainty:** if legal or compliance outcome is unclear, choose **defensive** wording and implementation; say what you are unsure about.
+6. **Consistency:** when changing copy, keep **German and Turkish** (and any other locales) aligned in **meaning**; flag if you cannot translate faithfully.
+7. **Secrets and public repo:** follow [AGENTS.md](../AGENTS.md)—never commit credentials or private operational data.
+8. **Checklist before done:** re-read **Mandatory Pre-Flight Checklist** below; add copy/legal items.
+
+---
+
 ## Mandatory Pre-Flight Checklist
 
 Before finalizing any code proposal, mentally verify:
@@ -308,3 +423,4 @@ When in doubt:
 - reduce legal/privacy exposure
 - respect repository boundaries
 - ask for explicit approval before risky structural changes
+- keep descriptions **funder- and audit-ready**: honest scope, no invented credentials or partnerships, no exaggerated societal impact claims
