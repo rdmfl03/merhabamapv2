@@ -7,7 +7,6 @@ import { PublicCtaSection } from "@/components/marketing/public-cta-section";
 import { HowItWorksSection } from "@/components/marketing/how-it-works-section";
 import { PublicHero } from "@/components/marketing/public-hero";
 import { TrustSection } from "@/components/marketing/trust-section";
-import { ValueGrid } from "@/components/marketing/value-grid";
 import { JsonLd } from "@/components/seo/json-ld";
 import { buildLandingMetadata } from "@/lib/metadata/public";
 import { buildOrganizationSchema } from "@/lib/seo/structured-data";
@@ -64,18 +63,14 @@ export default async function LandingPage({ params }: LandingPageProps) {
         eyebrow={t("eyebrow")}
         title={t("title")}
         description={t("subtitle")}
-        primaryCta={t("explorePlaces")}
-        secondaryCta={t("browseEvents")}
+        mapCta={t("heroMapCta")}
         trustTitle={t("heroTrust.title")}
         trustPoints={[
           t("heroTrust.curated"),
           t("heroTrust.cityFirst"),
           t("heroTrust.reportable"),
         ]}
-      />
-
-      <ValueGrid
-        items={["places", "events", "map"].map((key) => ({
+        pillars={["places", "events", "map"].map((key) => ({
           eyebrow: t(`cards.${key}.eyebrow`),
           title: t(`cards.${key}.title`),
           description: t(`cards.${key}.description`),

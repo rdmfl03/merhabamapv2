@@ -2,26 +2,33 @@ import { ArrowRight, Check, MapPinned } from "lucide-react";
 import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
+import { ValueGrid } from "@/components/marketing/value-grid";
 import { Link } from "@/i18n/navigation";
+
+type PillarItem = {
+  eyebrow: string;
+  title: string;
+  description: string;
+};
 
 type PublicHeroProps = {
   eyebrow: string;
   title: string;
   description: string;
-  primaryCta: string;
-  secondaryCta: string;
+  mapCta: string;
   trustTitle: string;
   trustPoints: string[];
+  pillars: PillarItem[];
 };
 
 export function PublicHero({
   eyebrow,
   title,
   description,
-  primaryCta,
-  secondaryCta,
+  mapCta,
   trustTitle,
   trustPoints,
+  pillars,
 }: PublicHeroProps) {
   return (
     <section className="mx-auto max-w-6xl px-4 pt-6 sm:pt-10">
@@ -63,24 +70,16 @@ export function PublicHero({
               <p className="max-w-2xl text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg sm:leading-relaxed">
                 {description}
               </p>
-              <div className="flex flex-col gap-3 pt-1 sm:flex-row sm:items-center sm:gap-4">
+              <div className="pt-1">
                 <Button
                   size="lg"
-                  className="h-12 rounded-full px-7 text-base shadow-md shadow-brand/25 transition-shadow hover:shadow-lg hover:shadow-brand/30"
+                  className="h-auto min-h-12 max-w-full rounded-full px-6 py-3 text-center text-base leading-snug shadow-md shadow-brand/25 transition-shadow hover:shadow-lg hover:shadow-brand/30 sm:max-w-xl sm:px-8 sm:text-left"
                   asChild
                 >
-                  <Link href="/places">
-                    {primaryCta}
-                    <ArrowRight className="ml-2 h-4 w-4" aria-hidden />
+                  <Link href="/map" className="inline-flex items-center justify-center gap-2">
+                    <span className="text-balance">{mapCta}</span>
+                    <ArrowRight className="h-4 w-4 shrink-0" aria-hidden />
                   </Link>
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="h-12 rounded-full border-border/80 bg-white/80 px-7 text-base backdrop-blur-sm transition-colors hover:bg-white"
-                  asChild
-                >
-                  <Link href="/events">{secondaryCta}</Link>
                 </Button>
               </div>
             </div>
@@ -112,6 +111,12 @@ export function PublicHero({
               </ul>
             </aside>
           </div>
+
+          {pillars.length > 0 ? (
+            <div className="relative mt-10 border-t border-border/25 pt-10 sm:mt-12 sm:pt-12">
+              <ValueGrid embedded items={pillars} />
+            </div>
+          ) : null}
         </div>
       </div>
     </section>
