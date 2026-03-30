@@ -33,6 +33,9 @@ function loadEnvFile(filename) {
     return;
   }
 
+  /** Non-empty entries in `.env*.local` override inherited vars (e.g. empty `MAPTILER_API_KEY=` from the IDE). */
+  const isLocalEnvFile = filename.endsWith(".env.local") || filename.endsWith(".env.test.local");
+
   const content = fs.readFileSync(fullPath, "utf8");
 
   for (const rawLine of content.split(/\r?\n/)) {
@@ -50,6 +53,11 @@ function loadEnvFile(filename) {
 
     const key = line.slice(0, separatorIndex).trim();
     const value = stripQuotes(line.slice(separatorIndex + 1).trim());
+
+    if (isLocalEnvFile && value !== "") {
+      process.env[key] = value;
+      continue;
+    }
 
     if (!initialEnvKeys.has(key) || !(key in process.env)) {
       process.env[key] = value;
