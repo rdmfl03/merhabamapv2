@@ -865,17 +865,17 @@ export function CityDiscoveryLeafletMap({
       ) : null}
 
       <div className="pointer-events-none absolute left-5 top-5 z-20 flex flex-wrap items-center gap-2">
-        <span className="rounded-full border border-border/80 bg-white/94 px-3 py-1.5 text-xs font-semibold text-foreground shadow-sm">
-          {basemap.provider === "maptiler" ? "MapTiler" : "OSM"}
+        <span className="rounded-full border border-slate-200/90 bg-white/88 px-3 py-1.5 text-xs font-semibold text-foreground shadow-md backdrop-blur-md">
+          {basemap.provider === "maptiler" ? "MapTiler · Pastel" : "OSM"}
         </span>
-        <span className="rounded-full border border-border/80 bg-white/94 px-3 py-1.5 text-xs text-muted-foreground shadow-sm">
+        <span className="rounded-full border border-slate-200/90 bg-white/88 px-3 py-1.5 text-xs text-muted-foreground shadow-md backdrop-blur-md">
           {showGermanyClusters && resultsCitiesUnitLabel
             ? `${germanyCityClusters?.length ?? 0} ${resultsCitiesUnitLabel}`
             : `${points.length} ${resultsSummaryUnitLabel}`}
         </span>
       </div>
 
-      <div className="pointer-events-none absolute bottom-5 left-5 z-20 flex items-center gap-4 rounded-full border border-slate-200 bg-white/98 px-4 py-2 text-xs text-slate-700 shadow-lg backdrop-blur-sm">
+      <div className="pointer-events-none absolute bottom-5 left-5 z-20 flex items-center gap-4 rounded-full border border-slate-200/90 bg-white/90 px-4 py-2 text-xs text-slate-700 shadow-lg backdrop-blur-md">
         <div className="flex items-center gap-2">
           <span
             className="box-border flex size-5 shrink-0 items-center justify-center overflow-visible"

@@ -34,16 +34,25 @@ const defaultBasemap: MapBasemapValue = {
 
 const MapBasemapContext = createContext<MapBasemapValue>(defaultBasemap);
 
-export function MapBasemapProvider({ children }: { children: ReactNode }) {
-  const [pastelEnabled, setPastelEnabled] = useState(false);
+type MapBasemapProviderProps = {
+  children: ReactNode;
+  /** From server layout when `MAPTILER_API_KEY` is set — avoids an initial OSM flash before `/api/map/basemap` responds. */
+  initialPastelEnabled?: boolean;
+};
+
+export function MapBasemapProvider({
+  children,
+  initialPastelEnabled = false,
+}: MapBasemapProviderProps) {
+  const [pastelEnabled, setPastelEnabled] = useState(initialPastelEnabled);
 
   useEffect(() => {
     let cancelled = false;
     fetch("/api/map/basemap", { cache: "no-store" })
       .then((res) => (res.ok ? res.json() : { pastelEnabled: false }))
       .then((data: { pastelEnabled?: boolean }) => {
-        if (!cancelled && data.pastelEnabled) {
-          setPastelEnabled(true);
+        if (!cancelled && typeof data.pastelEnabled === "boolean") {
+          setPastelEnabled(data.pastelEnabled);
         }
       })
       .catch(() => {});

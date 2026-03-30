@@ -5,6 +5,7 @@ import { getLocale, getMessages } from "next-intl/server";
 import "@/app/globals.css";
 import { MapBasemapProvider } from "@/components/maps/map-basemap-context";
 import { appConfig } from "@/lib/app-config";
+import { isMapTilerConfigured } from "@/lib/maptiler-server";
 
 function getMetadataBase() {
   const value = process.env.APP_URL?.trim();
@@ -35,11 +36,12 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const [locale, messages] = await Promise.all([getLocale(), getMessages()]);
+  const mapTilerPastelAvailable = isMapTilerConfigured();
 
   return (
     <html lang={locale} suppressHydrationWarning>
       <body className="antialiased">
-        <MapBasemapProvider>
+        <MapBasemapProvider initialPastelEnabled={mapTilerPastelAvailable}>
           <NextIntlClientProvider locale={locale} messages={messages}>
             {children}
           </NextIntlClientProvider>
