@@ -1,5 +1,4 @@
-import type { Metadata } from "next";
-import { getTranslations, setRequestLocale } from "next-intl/server";
+import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 
 import { auth } from "@/auth";
@@ -15,23 +14,6 @@ type LocaleLayoutProps = {
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
-}
-
-export async function generateMetadata({
-  params,
-}: LocaleLayoutProps): Promise<Metadata> {
-  const { locale } = await params;
-
-  if (!isAppLocale(locale)) {
-    return {};
-  }
-
-  const t = await getTranslations({ locale, namespace: "landing" });
-
-  return {
-    title: t("metaTitle"),
-    description: t("metaDescription"),
-  };
 }
 
 export default async function LocaleLayout({

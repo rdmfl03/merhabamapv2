@@ -9,7 +9,9 @@ export function buildLandingMetadata(args: {
   description: string;
 }): Metadata {
   return {
-    title: args.title,
+    title: {
+      absolute: args.title,
+    },
     description: args.description,
     ...buildOpenGraphMetadata({
       locale: args.locale,

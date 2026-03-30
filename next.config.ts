@@ -19,6 +19,21 @@ const nextConfig: NextConfig = {
         destination: "/de/privacy",
         permanent: true,
       },
+      {
+        source: "/favicon.ico",
+        destination: "/icon.svg",
+        permanent: false,
+      },
+      {
+        source: "/apple-touch-icon.png",
+        destination: "/icon.svg",
+        permanent: false,
+      },
+      {
+        source: "/apple-touch-icon-precomposed.png",
+        destination: "/icon.svg",
+        permanent: false,
+      },
     ];
   },
   images: {
