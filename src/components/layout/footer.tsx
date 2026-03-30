@@ -15,13 +15,13 @@ export async function Footer() {
       <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8 pb-[max(2rem,calc(2rem+env(safe-area-inset-bottom,0px)))] text-sm text-muted-foreground">
         <div>
           <div className="flex items-center gap-3">
-            <div className="overflow-hidden rounded-2xl shadow-sm ring-1 ring-border/70">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-brand shadow-sm ring-1 ring-black/10 md:ring-border/70">
               <Image
                 src="/logo-pin.svg"
                 alt="MerhabaMap logo"
                 width={40}
                 height={40}
-                className="h-10 w-10"
+                className="h-full w-full object-cover object-center"
               />
             </div>
             <div>

@@ -94,7 +94,7 @@ export function HeaderPrimaryNavMobile() {
 
   return (
     <nav
-      className="mt-3 flex items-center gap-1 overflow-x-auto md:hidden"
+      className="mt-3 flex w-full flex-wrap items-center justify-center gap-1 md:hidden"
       aria-label={primaryNavAria}
     >
       <Link href="/map" className={navItemClass(mapOn, true)} aria-current={mapOn ? "page" : undefined}>
