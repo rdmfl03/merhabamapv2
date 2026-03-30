@@ -298,12 +298,12 @@ export default async function PlacesPage({
         locale={locale}
         places={places}
         currentPath={currentPath}
+        isAuthenticated={Boolean(session?.user?.id)}
         imageAttributionLabels={imageAttributionLabels}
         labels={{
           toggle: t("savedFilter.toggle"),
           activeHint: t("savedFilter.activeHint"),
           panelTitle: t("savedFilter.panelTitle"),
-          results: t("savedFilter.results"),
           emptyTitle: t("savedFilter.emptyTitle"),
           emptyDescription: t("savedFilter.emptyDescription"),
           showAll: t("savedFilter.showAll"),

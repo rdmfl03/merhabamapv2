@@ -121,4 +121,6 @@ export async function toggleSavePlace(formData: FormData) {
   if (viewerUsername) {
     revalidatePath(`/${parsed.data.locale}/user/${viewerUsername}`);
   }
+
+  redirect(returnPath as Parameters<typeof redirect>[0]);
 }

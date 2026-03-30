@@ -1,6 +1,7 @@
 "use client";
 
 import { type ReactNode, useEffect, useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 
 import { PlaceCard } from "@/components/places/place-card";
 import { Button } from "@/components/ui/button";
@@ -22,13 +23,13 @@ type PlacesSavedFilterShellProps = {
   locale: "de" | "tr";
   places: ListedPlace[];
   currentPath: string;
+  isAuthenticated: boolean;
   children: ReactNode;
   imageAttributionLabels?: PlaceImageAttributionLabels;
   labels: {
     toggle: string;
     activeHint: string;
     panelTitle: string;
-    results: string;
     emptyTitle: string;
     emptyDescription: string;
     showAll: string;
@@ -46,10 +47,12 @@ export function PlacesSavedFilterShell({
   locale,
   places,
   currentPath,
+  isAuthenticated,
   children,
   imageAttributionLabels,
   labels,
 }: PlacesSavedFilterShellProps) {
+  const tPlaces = useTranslations("places");
   const [savedOnly, setSavedOnly] = useState(false);
   const [savedPlaceIds, setSavedPlaceIds] = useState<string[]>([]);
   const [savedPlaceCount, setSavedPlaceCount] = useState(0);
@@ -112,7 +115,7 @@ export function PlacesSavedFilterShell({
           <section className="space-y-3">
             <div className="flex items-center justify-between">
               <p className="text-sm text-muted-foreground">
-                {labels.results.replace("{count}", String(savedPlaces.length))}
+                {tPlaces("savedFilter.results", { count: savedPlaces.length })}
               </p>
             </div>
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -129,7 +132,7 @@ export function PlacesSavedFilterShell({
                   categoryLabel={getLocalizedPlaceCategoryLabel(place.category, locale)}
                   cityLabel={getLocalizedCityDisplayName(locale, place.city)}
                   returnPath={currentPath}
-                  isAuthenticated={false}
+                  isAuthenticated={isAuthenticated}
                   labels={{
                     details: labels.details,
                     save: labels.save,
@@ -165,7 +168,7 @@ export function PlacesSavedFilterShell({
                     categoryLabel={getLocalizedPlaceCategoryLabel(place.category, locale)}
                     cityLabel={getLocalizedCityDisplayName(locale, place.city)}
                     returnPath={currentPath}
-                    isAuthenticated={false}
+                    isAuthenticated={isAuthenticated}
                     labels={{
                       details: labels.details,
                       save: labels.save,
