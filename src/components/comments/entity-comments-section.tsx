@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 
 import type { AppLocale } from "@/i18n/routing";
+import { ENTITY_COMMENT_MAX_LENGTH } from "@/lib/validators/comments";
 import { Card, CardContent } from "@/components/ui/card";
 import { listEntityComments } from "@/server/queries/comments/list-entity-comments";
 
@@ -107,7 +108,7 @@ export async function EntityCommentsSection({
             placeholder: t("placeholder"),
             submit: t("submit"),
             signIn: t("signIn"),
-            counter: t("counter"),
+            counter: t("counter", { max: ENTITY_COMMENT_MAX_LENGTH }),
             success: t("success"),
             errorGeneric: t("errorGeneric"),
             errorValidation: t("errorValidation"),

@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { useLocale, useMessages, useTranslations } from "next-intl";
 
 import { Link, usePathname } from "@/i18n/navigation";
@@ -55,48 +56,58 @@ function usePrimaryNavState() {
   };
 }
 
-function navItemClass(active: boolean, mobile?: boolean): string {
-  return cn(
-    "rounded-full text-sm transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-    mobile ? "shrink-0 whitespace-nowrap px-3 py-1.5" : "px-3 py-1.5",
-    active
-      ? "bg-brand/12 font-semibold text-brand shadow-sm shadow-brand/[0.12]"
-      : "font-medium text-muted-foreground hover:bg-muted/60 hover:text-foreground",
+function PrimaryNavLink({
+  href,
+  active,
+  children,
+  mobile,
+}: {
+  href: string;
+  active: boolean;
+  children: ReactNode;
+  mobile?: boolean;
+}) {
+  return (
+    <Link
+      href={href}
+      aria-current={active ? "page" : undefined}
+      className={cn(
+        "inline-flex items-center justify-center whitespace-nowrap transition-all duration-200",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/35 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+        mobile ? "min-h-8 px-2.5 py-1.5 text-xs" : "min-h-9 px-3.5 py-2 text-sm sm:px-4",
+        "rounded-full tracking-wide",
+        active
+          ? "bg-background font-bold text-brand shadow-sm ring-1 ring-border/65"
+          : "font-medium text-muted-foreground hover:bg-background/80 hover:text-foreground",
+      )}
+    >
+      {children}
+    </Link>
   );
 }
+
+const navShellClass = cn(
+  "items-center gap-1 rounded-full border border-border/70 bg-muted/40 p-1 shadow-sm backdrop-blur-sm",
+  "ring-1 ring-black/[0.04]",
+);
 
 export function HeaderPrimaryNavDesktop() {
   const { t, primaryNavAria, mapOn, placesOn, eventsOn, feedOn } = usePrimaryNavState();
 
   return (
-    <nav
-      className="hidden items-center gap-1 md:flex"
-      aria-label={primaryNavAria}
-    >
-      <Link href="/map" className={navItemClass(mapOn)} aria-current={mapOn ? "page" : undefined}>
+    <nav className={cn("hidden md:flex", navShellClass)} aria-label={primaryNavAria}>
+      <PrimaryNavLink href="/map" active={mapOn}>
         {t("cities")}
-      </Link>
-      <Link
-        href="/places"
-        className={navItemClass(placesOn)}
-        aria-current={placesOn ? "page" : undefined}
-      >
+      </PrimaryNavLink>
+      <PrimaryNavLink href="/places" active={placesOn}>
         {t("places")}
-      </Link>
-      <Link
-        href="/events"
-        className={navItemClass(eventsOn)}
-        aria-current={eventsOn ? "page" : undefined}
-      >
+      </PrimaryNavLink>
+      <PrimaryNavLink href="/events" active={eventsOn}>
         {t("events")}
-      </Link>
-      <Link
-        href="/feed"
-        className={navItemClass(feedOn)}
-        aria-current={feedOn ? "page" : undefined}
-      >
+      </PrimaryNavLink>
+      <PrimaryNavLink href="/feed" active={feedOn}>
         {t("feed")}
-      </Link>
+      </PrimaryNavLink>
     </nav>
   );
 }
@@ -107,35 +118,24 @@ export function HeaderPrimaryNavMobile({ className }: { className?: string }) {
   return (
     <nav
       className={cn(
-        "flex flex-wrap items-center gap-1 md:hidden",
+        navShellClass,
+        "flex max-w-full flex-nowrap overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:hidden",
         className,
       )}
       aria-label={primaryNavAria}
     >
-      <Link href="/map" className={navItemClass(mapOn, true)} aria-current={mapOn ? "page" : undefined}>
+      <PrimaryNavLink href="/map" active={mapOn} mobile>
         {t("cities")}
-      </Link>
-      <Link
-        href="/places"
-        className={navItemClass(placesOn, true)}
-        aria-current={placesOn ? "page" : undefined}
-      >
+      </PrimaryNavLink>
+      <PrimaryNavLink href="/places" active={placesOn} mobile>
         {t("places")}
-      </Link>
-      <Link
-        href="/events"
-        className={navItemClass(eventsOn, true)}
-        aria-current={eventsOn ? "page" : undefined}
-      >
+      </PrimaryNavLink>
+      <PrimaryNavLink href="/events" active={eventsOn} mobile>
         {t("events")}
-      </Link>
-      <Link
-        href="/feed"
-        className={navItemClass(feedOn, true)}
-        aria-current={feedOn ? "page" : undefined}
-      >
+      </PrimaryNavLink>
+      <PrimaryNavLink href="/feed" active={feedOn} mobile>
         {t("feed")}
-      </Link>
+      </PrimaryNavLink>
     </nav>
   );
 }

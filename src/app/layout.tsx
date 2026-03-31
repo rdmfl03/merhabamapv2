@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { NextIntlClientProvider } from "next-intl";
-import { getLocale, getMessages } from "next-intl/server";
+import { getLocale } from "next-intl/server";
 
 import "@/app/globals.css";
 import { MapBasemapProvider } from "@/components/maps/map-basemap-context";
@@ -45,16 +44,15 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [locale, messages] = await Promise.all([getLocale(), getMessages()]);
+  /** Sprach-Attribut: Cookie/Middleware; Client-Übersetzungen kommen aus `app/[locale]/layout.tsx`. */
+  const locale = await getLocale();
   const mapTilerPastelAvailable = isMapTilerConfigured();
 
   return (
     <html lang={locale} suppressHydrationWarning>
       <body className="antialiased">
         <MapBasemapProvider initialPastelEnabled={mapTilerPastelAvailable}>
-          <NextIntlClientProvider locale={locale} messages={messages}>
-            {children}
-          </NextIntlClientProvider>
+          {children}
         </MapBasemapProvider>
       </body>
     </html>

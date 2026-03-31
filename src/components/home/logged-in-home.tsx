@@ -393,10 +393,11 @@ export async function LoggedInHome({
         <h2 id="home-activity-heading" className="text-sm font-semibold text-foreground">
           {t("activity.title")}
         </h2>
+        <p className="text-xs leading-relaxed text-muted-foreground">{t("activity.lead")}</p>
         <ul className="flex flex-col gap-2 text-sm">
           <li>
             <Link href={profilePublicHref} className="text-brand underline-offset-2 hover:underline">
-              {t("activity.profile")}
+              {username?.trim() ? t("activity.profile") : t("activity.profileSetup")}
             </Link>
           </li>
           <li>

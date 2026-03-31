@@ -194,6 +194,11 @@ export default async function UserProfilePage({ params }: UserProfilePageProps) 
               <Link href="/auth/signin">{t("signInToFollow")}</Link>
             </Button>
           ) : null}
+          {isOwnProfile ? (
+            <Button variant="ghost" size="sm" className="h-auto px-2 py-1 text-xs text-muted-foreground hover:text-foreground" asChild>
+              <Link href="/profile">{t("ownSettingsCta")}</Link>
+            </Button>
+          ) : null}
         </div>
       </div>
 
@@ -233,8 +238,12 @@ export default async function UserProfilePage({ params }: UserProfilePageProps) 
                     isAuthenticated={Boolean(viewerId)}
                     signInHref={`/auth/signin?next=${encodeURIComponent(profileReturnPath)}`}
                     labels={{
-                      follow: tCities("cityFollow.follow"),
-                      unfollow: tCities("cityFollow.unfollow"),
+                      follow: tCities("cityFollow.follow", {
+                        city: getLocalizedCityDisplayName(locale, city),
+                      }),
+                      unfollow: tCities("cityFollow.unfollow", {
+                        city: getLocalizedCityDisplayName(locale, city),
+                      }),
                       signIn: tCities("cityFollow.signIn"),
                       signUp: tCities("cityFollow.signUp"),
                       signInHint: tCities("cityFollow.signInHint"),

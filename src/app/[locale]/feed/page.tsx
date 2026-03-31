@@ -138,7 +138,7 @@ export default async function FeedPage({ params, searchParams }: FeedPageProps) 
           </Button>
           {viewerId ? (
             <Button variant="outline" asChild>
-              <Link href="/profile">{t("emptyCtaFollow")}</Link>
+              <Link href="/">{t("emptyCtaFollow")}</Link>
             </Button>
           ) : (
             <>

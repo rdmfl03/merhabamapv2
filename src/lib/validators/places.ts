@@ -79,16 +79,23 @@ export function parsePlacesFiltersFromSearchParams(
   };
 }
 
+/** Accepts Prisma `cuid()`, `cuid2()`, UUIDs, and other string primary keys (e.g. ingest). */
+const placeIdParamSchema = z
+  .string()
+  .trim()
+  .min(1, "place_id_required")
+  .max(128, "place_id_too_long");
+
 export const savePlaceSchema = z.object({
   locale: z.enum(routing.locales),
-  placeId: z.string().cuid(),
-  returnPath: z.string().min(1).max(300),
+  placeId: placeIdParamSchema,
+  returnPath: z.string().min(1).max(2000),
 });
 
 export const placeReportSchema = z.object({
   locale: z.enum(routing.locales),
-  placeId: z.string().cuid(),
-  returnPath: z.string().min(1).max(300),
+  placeId: placeIdParamSchema,
+  returnPath: z.string().min(1).max(2000),
   reason: z.enum([
     "INACCURATE_INFORMATION",
     "DUPLICATE",
@@ -102,8 +109,8 @@ export const placeReportSchema = z.object({
 
 export const placeClaimSchema = z.object({
   locale: z.enum(routing.locales),
-  placeId: z.string().cuid(),
-  returnPath: z.string().min(1).max(300),
+  placeId: placeIdParamSchema,
+  returnPath: z.string().min(1).max(2000),
   claimantName: z.string().trim().min(2).max(120),
   claimantEmail: z.string().trim().email().max(180),
   claimantPhone: trimmedOptionalString.pipe(z.string().max(40).optional()),

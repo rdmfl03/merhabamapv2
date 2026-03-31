@@ -2,8 +2,9 @@ import Image from "next/image";
 import { getLocale, getTranslations } from "next-intl/server";
 
 import { auth } from "@/auth";
-import { HeaderSearch } from "@/components/layout/header-search";
+import { HeaderAccountMenu } from "@/components/layout/header-account-menu";
 import { HeaderNotificationsLink } from "@/components/layout/header-notifications-link";
+import { HeaderSearch } from "@/components/layout/header-search";
 import {
   HeaderPrimaryNavDesktop,
   HeaderPrimaryNavMobile,
@@ -11,6 +12,7 @@ import {
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { Button } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
+import { prisma } from "@/lib/prisma";
 import { canAccessBusiness } from "@/lib/permissions";
 import { isAppLocale } from "@/i18n/routing";
 
@@ -26,6 +28,16 @@ export async function Header() {
     session = null;
   }
 
+  const headerUsername =
+    session?.user?.id != null
+      ? (
+          await prisma.user.findUnique({
+            where: { id: session.user.id },
+            select: { username: true },
+          })
+        )?.username?.trim() ?? null
+      : null;
+
   const authButtons = session?.user ? (
     <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5 sm:gap-2">
       {canAccessBusiness(session.user.role) ? (
@@ -34,9 +46,7 @@ export async function Header() {
         </Button>
       ) : null}
       <HeaderNotificationsLink userId={session.user.id} />
-      <Button variant="outline" size="sm" className="md:h-10 md:px-4 md:text-sm" asChild>
-        <Link href="/profile">{t("account")}</Link>
-      </Button>
+      <HeaderAccountMenu locale={locale} username={headerUsername} />
     </div>
   ) : (
     <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5 sm:gap-2">
@@ -79,19 +89,17 @@ export async function Header() {
 
           <div className="flex w-full min-w-0 flex-col gap-2 md:w-auto md:flex-row md:items-center md:justify-end md:gap-3">
             <div className="hidden md:flex md:flex-nowrap md:items-center md:justify-end md:gap-3">
+              <HeaderSearch />
               <HeaderPrimaryNavDesktop />
               <LanguageSwitcher />
               {authButtons}
             </div>
             <div className="flex w-full min-w-0 items-center justify-between gap-2 md:hidden">
+              <HeaderSearch />
               <HeaderPrimaryNavMobile className="min-w-0 flex-1 justify-start" />
               {authButtons}
             </div>
           </div>
-        </div>
-
-        <div className="mt-3 border-t border-border/50 pt-3">
-          <HeaderSearch locale={locale} />
         </div>
       </div>
     </header>

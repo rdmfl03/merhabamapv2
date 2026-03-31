@@ -14,18 +14,13 @@ import {
   removeCityFollowedActivity,
 } from "@/server/social/city-follow-activity";
 
+import type { CityFollowActionState } from "./city-follow-action-state";
+
 const schema = z.object({
   locale: z.enum(["de", "tr"]),
   returnPath: z.string().min(1),
   cityId: z.string().min(1),
 });
-
-export type CityFollowActionState =
-  | { status: "idle" }
-  | { status: "success" }
-  | { status: "error"; message: string };
-
-export const idleCityFollowActionState: CityFollowActionState = { status: "idle" };
 
 function revalidateCityFollowSurfaces(locale: "de" | "tr", citySlug: string | null) {
   revalidatePath(`/${locale}/feed`);

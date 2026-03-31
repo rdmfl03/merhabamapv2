@@ -79,8 +79,8 @@ export async function CityBrowsePage({
             isAuthenticated={isAuthenticated}
             signInHref={`/${locale}/auth/signin?next=${encodeURIComponent(returnPath)}`}
             labels={{
-              follow: tCities("cityFollow.follow"),
-              unfollow: tCities("cityFollow.unfollow"),
+              follow: tCities("cityFollow.follow", { city: cityLabel }),
+              unfollow: tCities("cityFollow.unfollow", { city: cityLabel }),
               signIn: tCities("cityFollow.signIn"),
               signUp: tCities("cityFollow.signUp"),
               signInHint: tCities("cityFollow.signInHint"),

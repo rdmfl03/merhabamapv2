@@ -88,12 +88,6 @@ export async function DetailCommunityContext(props: DetailCommunityContextProps)
     props.latestCommentAt != null &&
     isWithinLastDays(props.latestCommentAt, RECENT_COMMENT_DAYS);
 
-  const showCityHint =
-    props.commentCount > 0 ||
-    props.saveCount > 0 ||
-    props.interestedCount > 0 ||
-    props.goingCount > 0;
-
   return (
     <div
       className="rounded-2xl border border-border/70 bg-muted/15 px-4 py-3"

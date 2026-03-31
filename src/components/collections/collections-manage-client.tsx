@@ -9,10 +9,12 @@ import { resolveSocialGuardMessage } from "@/lib/social/social-guard-ui";
 import {
   createPlaceCollection,
   deletePlaceCollection,
-  idlePlaceCollectionActionState,
   updatePlaceCollection,
-  type PlaceCollectionActionState,
 } from "@/server/actions/collections/place-collection-actions";
+import {
+  idlePlaceCollectionActionState,
+  type PlaceCollectionActionState,
+} from "@/server/actions/collections/place-collection-action-state";
 import type { MyPlaceCollectionRow } from "@/server/queries/collections/list-my-place-collections";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

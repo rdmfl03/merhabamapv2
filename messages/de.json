@@ -19,7 +19,16 @@
     "notificationsAriaUnread": "{count} ungelesene Mitteilungen",
     "save": "Speichern",
     "saved": "Gespeichert",
-    "feed": "Aktivitäten"
+    "feed": "Aktivitäten",
+    "accountMenuTitle": "Einstellungen",
+    "accountMenuAria": "Konto, Einstellungen und mehr",
+    "menuPublicProfile": "Öffentliches Profil",
+    "menuPublicProfileSetup": "Nutzername festlegen",
+    "menuSettings": "Einstellungen",
+    "menuCollections": "Meine Listen",
+    "menuSavedPlaces": "Gespeicherte Orte",
+    "menuSavedEvents": "Gespeicherte Events",
+    "menuSignOut": "Abmelden"
   },
   "landing": {
     "metaTitle": "Orte, Events und Community in Deutschland | MerhabaMap",

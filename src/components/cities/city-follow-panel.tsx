@@ -5,11 +5,11 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 
 import { resolveSocialGuardMessage } from "@/lib/social/social-guard-ui";
+import { toggleCityFollow } from "@/server/actions/cities/toggle-city-follow";
 import {
   idleCityFollowActionState,
-  toggleCityFollow,
   type CityFollowActionState,
-} from "@/server/actions/cities/toggle-city-follow";
+} from "@/server/actions/cities/city-follow-action-state";
 import { Button } from "@/components/ui/button";
 import { GuestCtaInsightLink } from "@/components/product-insights/guest-cta-insight-link";
 import { guestAuthSignUpHrefFromSignIn } from "@/lib/auth/guest-auth-links";

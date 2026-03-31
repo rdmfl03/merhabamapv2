@@ -61,6 +61,36 @@ a {
   font: inherit;
 }
 
+/* Pflicht-Attribution bündig an untere rechte Kartenecke (Discovery-Map) */
+.leaflet-container.merhaba-discovery-map .leaflet-bottom.leaflet-right {
+  margin-right: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+.leaflet-container.merhaba-discovery-map .leaflet-bottom.leaflet-right .leaflet-control {
+  margin-right: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+.leaflet-container.merhaba-discovery-map .leaflet-control-attribution {
+  margin: 0 !important;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+  box-sizing: border-box;
+  /* Eine Zeile, flach am unteren Rand */
+  white-space: nowrap !important;
+  word-break: normal !important;
+  line-height: 1.15 !important;
+  padding: 1px 6px 2px 8px !important;
+  text-align: right;
+  max-width: calc(100% - 7rem);
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
 .leaflet-control-attribution {
   background: rgba(255, 255, 255, 0.92) !important;
   border-top-left-radius: 10px;
@@ -87,6 +117,14 @@ a {
     max-width: min(calc(100vw - 3.25rem), 14rem);
     padding: 1px 5px !important;
   }
+
+  .leaflet-container.merhaba-discovery-map .leaflet-control-attribution {
+    white-space: nowrap !important;
+    max-width: calc(100% - 5.5rem);
+    padding: 1px 5px 2px 6px !important;
+    font-size: 0.5625rem;
+    line-height: 1.15 !important;
+  }
 }
 
 .leaflet-control-zoom a {
@@ -94,17 +132,80 @@ a {
 }
 
 .leaflet-popup-content-wrapper {
-  border-radius: 18px !important;
-  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.12) !important;
+  padding: 2px !important;
+  border-radius: 26px !important;
+  border: 1px solid rgba(15, 23, 42, 0.07) !important;
+  background: linear-gradient(
+    155deg,
+    rgba(241, 245, 249, 0.45) 0%,
+    rgba(248, 250, 252, 0.78) 45%,
+    rgba(252, 252, 253, 0.92) 100%
+  ) !important;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  box-shadow:
+    0 3px 5px rgba(15, 23, 42, 0.04),
+    0 14px 32px rgba(15, 23, 42, 0.09),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7) !important;
 }
 
 .leaflet-popup-content {
-  margin: 14px 16px !important;
+  margin: 3px 4px 4px !important;
   min-width: 180px;
 }
 
 .leaflet-popup-tip {
-  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.08) !important;
+  background: rgba(248, 250, 252, 0.94) !important;
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.06) !important;
+}
+
+/* Innenkarte: wirkt hochwertiger als ein flacher weißer Kasten */
+.merhaba-map-popup-surface {
+  border-radius: 22px;
+  padding: 11px 11px 10px;
+  background: linear-gradient(
+    165deg,
+    rgba(255, 255, 255, 0.99) 0%,
+    rgba(252, 252, 253, 0.98) 40%,
+    rgba(248, 250, 252, 0.96) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    inset 0 0 0 1px rgba(15, 23, 42, 0.04);
+}
+
+/* Links erben sonst `color: inherit` → dunkle Schrift auf rotem CTA */
+a.merhaba-map-popup-cta,
+a.merhaba-map-popup-cta:link,
+a.merhaba-map-popup-cta:visited,
+a.merhaba-map-popup-cta:hover,
+button.merhaba-map-popup-cta {
+  color: #ffffff !important;
+  text-decoration: none !important;
+}
+
+.leaflet-popup-close-button {
+  width: 1.75rem !important;
+  height: 1.75rem !important;
+  padding: 0 !important;
+  top: 7px !important;
+  right: 7px !important;
+  border-radius: 999px !important;
+  font-size: 1.15rem !important;
+  line-height: 1.75rem !important;
+  font-weight: 500 !important;
+  color: #64748b !important;
+  background: rgba(255, 255, 255, 0.5) !important;
+  transition:
+    color 0.15s ease,
+    background 0.15s ease;
+}
+
+.leaflet-popup-close-button:hover {
+  color: #0f172a !important;
+  background: rgba(255, 255, 255, 0.85) !important;
 }
 
 .marker-cluster-small,

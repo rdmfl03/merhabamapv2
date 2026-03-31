@@ -17,16 +17,11 @@ import {
 
 import { trackProductInsight } from "@/server/product-insights/track-product-insight";
 
-import { sanitizeReturnPath } from "../places/shared";
-
-export type EventParticipationActionState =
-  | { status: "idle" }
-  | { status: "success" }
-  | { status: "error"; message: string };
-
-export const idleEventParticipationActionState: EventParticipationActionState = {
-  status: "idle",
-};
+import { sanitizeEventReturnPath } from "./shared";
+import {
+  idleEventParticipationActionState,
+  type EventParticipationActionState,
+} from "./event-participation-action-state";
 
 export async function toggleEventParticipation(
   _previousState: EventParticipationActionState = idleEventParticipationActionState,
@@ -46,7 +41,7 @@ export async function toggleEventParticipation(
   }
 
   const session = await auth();
-  const returnPath = sanitizeReturnPath(parsed.data.locale, parsed.data.returnPath);
+  const returnPath = sanitizeEventReturnPath(parsed.data.locale, parsed.data.returnPath);
 
   if (!session?.user?.id) {
     redirect(`/${parsed.data.locale}/auth/signin?next=${encodeURIComponent(returnPath)}`);
@@ -79,30 +74,30 @@ export async function toggleEventParticipation(
         eventId,
       },
     },
-    select: { id: true, status: true },
+    select: { status: true },
   });
 
   const targetInterested = intent === "interested";
   const desiredStatus: EventParticipationStatus = targetInterested ? "INTERESTED" : "GOING";
 
-  if (!current) {
-    await prisma.eventParticipation.create({
-      data: {
+  // Use upsert + deleteMany so concurrent toggles cannot throw (P2002 / P2025).
+  if (current?.status === desiredStatus) {
+    await prisma.eventParticipation.deleteMany({ where: { userId, eventId } });
+    await clearEventParticipationActivities(userId, eventId);
+  } else {
+    await prisma.eventParticipation.upsert({
+      where: {
+        userId_eventId: {
+          userId,
+          eventId,
+        },
+      },
+      create: {
         userId,
         eventId,
         status: desiredStatus,
       },
-    });
-    await setEventParticipationActivity(userId, eventId, desiredStatus);
-  } else if (current.status === desiredStatus) {
-    await prisma.eventParticipation.delete({
-      where: { id: current.id },
-    });
-    await clearEventParticipationActivities(userId, eventId);
-  } else {
-    await prisma.eventParticipation.update({
-      where: { id: current.id },
-      data: { status: desiredStatus },
+      update: { status: desiredStatus },
     });
     await setEventParticipationActivity(userId, eventId, desiredStatus);
   }

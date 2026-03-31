@@ -90,16 +90,23 @@ export function parseEventsFiltersFromSearchParams(
   };
 }
 
+/** Matches Prisma string ids (cuid / cuid2 / UUID / ingest). */
+const eventIdParamSchema = z
+  .string()
+  .trim()
+  .min(1, "event_id_required")
+  .max(128, "event_id_too_long");
+
 export const saveEventSchema = z.object({
   locale: z.enum(routing.locales),
-  eventId: z.string().cuid(),
-  returnPath: z.string().min(1).max(300),
+  eventId: eventIdParamSchema,
+  returnPath: z.string().min(1).max(2000),
 });
 
 export const eventReportSchema = z.object({
   locale: z.enum(routing.locales),
-  eventId: z.string().cuid(),
-  returnPath: z.string().min(1).max(300),
+  eventId: eventIdParamSchema,
+  returnPath: z.string().min(1).max(2000),
   reason: z.enum([
     "INACCURATE_INFORMATION",
     "DUPLICATE",

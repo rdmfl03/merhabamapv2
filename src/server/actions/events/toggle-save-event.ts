@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { Prisma } from "@prisma/client";
 
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
@@ -58,23 +59,29 @@ export async function toggleSaveEvent(formData: FormData) {
 
   let saveAdded = false;
   if (existing) {
-    await prisma.savedEvent.delete({
+    await prisma.savedEvent.deleteMany({
       where: {
-        userId_eventId: {
-          userId: session.user.id,
-          eventId: event.id,
-        },
-      },
-    });
-    saveAdded = false;
-  } else {
-    await prisma.savedEvent.create({
-      data: {
         userId: session.user.id,
         eventId: event.id,
       },
     });
-    saveAdded = true;
+    saveAdded = false;
+  } else {
+    try {
+      await prisma.savedEvent.create({
+        data: {
+          userId: session.user.id,
+          eventId: event.id,
+        },
+      });
+      saveAdded = true;
+    } catch (e) {
+      if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
+        saveAdded = true;
+      } else {
+        throw e;
+      }
+    }
   }
 
   await trackProductInsight({
@@ -90,4 +97,17 @@ export async function toggleSaveEvent(formData: FormData) {
 
   revalidatePath(returnPath);
   revalidatePath(`/${parsed.data.locale}/events/${event.slug}`);
+  revalidatePath(`/${parsed.data.locale}/feed`);
+  revalidatePath(`/${parsed.data.locale}/saved/events`);
+
+  const viewer = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { username: true },
+  });
+  const viewerUsername = viewer?.username?.trim();
+  if (viewerUsername) {
+    revalidatePath(`/${parsed.data.locale}/user/${viewerUsername}`);
+  }
+
+  redirect(returnPath as Parameters<typeof redirect>[0]);
 }

@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Star } from "lucide-react";
+import { createPortal } from "react-dom";
+import { CalendarDays, ChevronRight, Crosshair, Loader2, MapPin, Star } from "lucide-react";
 import L, {
   type DivIcon,
   type LatLngBoundsExpression,
@@ -9,16 +10,9 @@ import L, {
   type LeafletMouseEvent,
 } from "leaflet";
 import { useLeafletContext } from "@react-leaflet/core";
-import {
-  MapContainer,
-  Marker,
-  Popup,
-  ZoomControl,
-  useMap,
-} from "react-leaflet";
+import { MapContainer, Marker, Popup, useMap } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
 
-import { useMapBasemap } from "@/components/maps/map-basemap-context";
 import { MerhabaTileLayer } from "@/components/maps/merhaba-tile-layer";
 import { Link } from "@/i18n/navigation";
 import type { CityMapPoint, MapViewportBounds } from "@/components/cities/city-discovery-map-types";
@@ -26,6 +20,7 @@ import {
   CITY_DISCOVERY_MAP_MIN_ZOOM,
   maxBoundsFromCenterRadiusKm,
 } from "@/lib/cities/city-map-max-bounds";
+import { cn } from "@/lib/utils";
 
 export type GermanyCityClusterMarker = {
   slug: string;
@@ -59,6 +54,10 @@ type CityDiscoveryLeafletMapProps = {
   placePopupRatingCaption: string;
   viewEventLabel: string;
   myLocationLabel: string;
+  /** Beschriftung / aria für den Standort-Button unten rechts. */
+  locateMeLabel: string;
+  onLocateMe?: () => void;
+  locateMeLoading?: boolean;
   onViewportBoundsChange?: (bounds: MapViewportBounds) => void;
   /** When set with empty `points`, map fits these and shows one marker per city (Germany overview). */
   germanyCityClusters?: GermanyCityClusterMarker[];
@@ -190,6 +189,62 @@ function mapPopupDescriptionLine(point: CityMapPoint): string | null {
   return desc || null;
 }
 
+const mapPopupCtaClassName =
+  "merhaba-map-popup-cta inline-flex items-center justify-center gap-1.5 rounded-full bg-gradient-to-b from-[#f01828] to-[#c90814] px-3.5 py-2.5 text-xs font-semibold text-white shadow-[0_2px_8px_rgba(227,10,23,0.35),inset_0_1px_0_rgba(255,255,255,0.22)] ring-1 ring-black/10 transition-[box-shadow,transform,filter] duration-200 hover:brightness-[1.03] hover:shadow-[0_4px_14px_rgba(227,10,23,0.4)] active:scale-[0.98]";
+
+function MapPopupCardAccent({ className }: { className?: string }) {
+  return (
+    <div
+      className={cn(
+        "pointer-events-none mb-3 h-1 w-full rounded-full bg-gradient-to-r from-[#e30a17] via-rose-500 to-amber-500 opacity-[0.92] shadow-[0_1px_6px_rgba(227,10,23,0.25)]",
+        className,
+      )}
+      aria-hidden
+    />
+  );
+}
+
+function GermanyClusterMapPopup({
+  cluster,
+  legendPlaces,
+  legendEvents,
+  revealLabel,
+  onOpenCity,
+}: {
+  cluster: GermanyCityClusterMarker;
+  legendPlaces: string;
+  legendEvents: string;
+  revealLabel: string;
+  onOpenCity: () => void;
+}) {
+  return (
+    <Popup>
+      <div className="merhaba-map-cluster-popup merhaba-map-popup-surface min-w-[15rem] max-w-[min(20rem,calc(100vw-2.5rem))] px-3 py-2.5 text-center">
+        <MapPopupCardAccent className="mb-2" />
+        <h3 className="text-[1rem] font-semibold leading-tight tracking-tight text-slate-900">
+          {cluster.label}
+        </h3>
+        <div className="mt-2 flex flex-nowrap items-stretch justify-center gap-2">
+          <span className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border border-slate-200/90 bg-slate-50/95 px-2.5 py-1 text-[10px] font-semibold leading-tight text-slate-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.85)]">
+            <MapPin className="h-3 w-3 shrink-0 text-[#e30a17]" aria-hidden />
+            <span className="tabular-nums text-slate-900">{cluster.placeCount}</span>
+            <span className="font-medium text-slate-500">{legendPlaces}</span>
+          </span>
+          <span className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border border-slate-200/90 bg-slate-50/95 px-2.5 py-1 text-[10px] font-semibold leading-tight text-slate-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.85)]">
+            <CalendarDays className="h-3 w-3 shrink-0 text-slate-600" aria-hidden />
+            <span className="tabular-nums text-slate-900">{cluster.eventCount}</span>
+            <span className="font-medium text-slate-500">{legendEvents}</span>
+          </span>
+        </div>
+        <button type="button" className={`${mapPopupCtaClassName} mt-4 w-full`} onClick={onOpenCity}>
+          <span>{revealLabel}</span>
+          <ChevronRight className="h-4 w-4 shrink-0 opacity-95" aria-hidden />
+        </button>
+      </div>
+    </Popup>
+  );
+}
+
 function MapEntityPopup({
   point,
   ctaLabel,
@@ -208,37 +263,54 @@ function MapEntityPopup({
       : (point.mapRatingLabel ?? undefined);
     return (
       <Popup>
-        <div className="space-y-1.5 min-w-[12rem]">
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#e30a17]">
-            {point.categoryLabel}
-          </p>
-          <h4 className="text-sm font-semibold text-slate-900">{point.label}</h4>
-          <p className="text-xs font-medium text-slate-500">{addressLine}</p>
-          {point.mapRatingLabel ? (
-            <p
-              className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-xs text-slate-800"
-              aria-label={ratingAria}
+        <div className="merhaba-map-entity-popup merhaba-map-popup-surface min-w-[12rem] max-w-[19rem]">
+          <MapPopupCardAccent />
+          <div className="flex gap-3">
+            <div
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#e30a17]/14 via-rose-500/8 to-transparent text-[#c90814] shadow-inner shadow-white/40 ring-1 ring-[#e30a17]/12"
+              aria-hidden
             >
-              <Star
-                className="h-3.5 w-3.5 shrink-0 fill-amber-500 text-amber-500"
-                aria-hidden
-              />
-              {placeRatingCaption ? (
-                <span className="font-medium text-slate-600">{placeRatingCaption}</span>
+              <MapPin className="h-5 w-5" strokeWidth={2} />
+            </div>
+            <div className="min-w-0 flex-1 space-y-2 pr-1">
+              <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#c90814]">
+                {point.categoryLabel}
+              </p>
+              <h4 className="text-[15px] font-semibold leading-snug tracking-tight text-slate-900">
+                {point.label}
+              </h4>
+              <p className="flex items-start gap-2 text-xs font-medium leading-relaxed text-slate-500">
+                <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" aria-hidden />
+                <span>{addressLine}</span>
+              </p>
+              {point.mapRatingLabel ? (
+                <p
+                  className="inline-flex max-w-full flex-wrap items-center gap-2 rounded-lg border border-amber-200/60 bg-gradient-to-r from-amber-50/90 to-orange-50/50 px-2.5 py-1.5 text-xs text-slate-800 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]"
+                  aria-label={ratingAria}
+                >
+                  <Star
+                    className="h-3.5 w-3.5 shrink-0 fill-amber-400 text-amber-500 drop-shadow-sm"
+                    aria-hidden
+                  />
+                  {placeRatingCaption ? (
+                    <span className="font-medium text-slate-600">{placeRatingCaption}</span>
+                  ) : null}
+                  <span className="font-semibold tabular-nums text-slate-900">{point.mapRatingLabel}</span>
+                </p>
               ) : null}
-              <span className="font-semibold tabular-nums text-slate-900">{point.mapRatingLabel}</span>
-            </p>
-          ) : null}
-          {descriptionLine ? (
-            <p className="text-xs leading-5 text-slate-600">{descriptionLine}</p>
-          ) : null}
-          <Link
-            href={point.href}
-            className="inline-block rounded-full bg-[#e30a17] px-3 py-1.5 text-xs font-semibold"
-            style={{ color: "#ffffff", textDecoration: "none" }}
-          >
-            {ctaLabel}
-          </Link>
+              {descriptionLine ? (
+                <p className="rounded-lg border border-slate-200/70 bg-slate-50/80 px-2.5 py-2 text-xs leading-relaxed text-slate-600 shadow-[inset_0_1px_0_rgba(255,255,255,0.75)]">
+                  {descriptionLine}
+                </p>
+              ) : null}
+            </div>
+          </div>
+          <div className="mt-3">
+            <Link href={point.href} className={mapPopupCtaClassName}>
+              <span>{ctaLabel}</span>
+              <ChevronRight className="h-4 w-4 shrink-0 opacity-95" aria-hidden />
+            </Link>
+          </div>
         </div>
       </Popup>
     );
@@ -246,22 +318,39 @@ function MapEntityPopup({
 
   return (
     <Popup>
-      <div className="space-y-1.5 min-w-[12rem]">
-        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#e30a17]">
-          {point.categoryLabel}
-        </p>
-        <h4 className="text-sm font-semibold text-slate-900">{point.label}</h4>
-        <p className="text-xs font-medium text-slate-500">{point.meta}</p>
-        {descriptionLine ? (
-          <p className="text-xs leading-5 text-slate-600">{descriptionLine}</p>
-        ) : null}
-        <Link
-          href={point.href}
-          className="inline-block rounded-full bg-[#e30a17] px-3 py-1.5 text-xs font-semibold"
-          style={{ color: "#ffffff", textDecoration: "none" }}
-        >
-          {ctaLabel}
-        </Link>
+      <div className="merhaba-map-entity-popup merhaba-map-popup-surface min-w-[12rem] max-w-[19rem]">
+        <MapPopupCardAccent />
+        <div className="flex gap-3">
+          <div
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-slate-700/12 via-slate-600/8 to-transparent text-slate-700 shadow-inner shadow-white/40 ring-1 ring-slate-300/60"
+            aria-hidden
+          >
+            <CalendarDays className="h-5 w-5" strokeWidth={2} />
+          </div>
+          <div className="min-w-0 flex-1 space-y-2 pr-1">
+            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#c90814]">
+              {point.categoryLabel}
+            </p>
+            <h4 className="text-[15px] font-semibold leading-snug tracking-tight text-slate-900">
+              {point.label}
+            </h4>
+            <p className="flex items-start gap-2 text-xs font-medium leading-relaxed text-slate-500">
+              <CalendarDays className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" aria-hidden />
+              <span>{point.meta}</span>
+            </p>
+            {descriptionLine ? (
+              <p className="rounded-lg border border-slate-200/70 bg-slate-50/80 px-2.5 py-2 text-xs leading-relaxed text-slate-600 shadow-[inset_0_1px_0_rgba(255,255,255,0.75)]">
+                {descriptionLine}
+              </p>
+            ) : null}
+          </div>
+        </div>
+        <div className="mt-3">
+          <Link href={point.href} className={mapPopupCtaClassName}>
+            <span>{ctaLabel}</span>
+            <ChevronRight className="h-4 w-4 shrink-0 opacity-95" aria-hidden />
+          </Link>
+        </div>
       </div>
     </Popup>
   );
@@ -363,31 +452,57 @@ function createClusterIcon(kind: "place" | "event", count: number): DivIcon {
 }
 
 function createGermanyCityClusterIcon(cluster: GermanyCityClusterMarker): DivIcon {
-  const w = 120;
-  const h = 52;
+  /** Kompakter Pill-Marker: weniger Überlappung bei vielen Städten (Breite = max. Pill). */
+  const w = 118;
+  const h = 36;
   const safeName = cluster.label
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/"/g, "&quot;");
   return L.divIcon({
-    className: "",
+    className: "merhaba-germany-city-cluster-icon",
     html: `<div style="
-      min-width:${w}px;
-      max-width:200px;
-      padding:8px 12px;
-      border-radius:999px;
-      background:#ffffff;
-      border:2px solid #e30a17;
-      box-shadow:0 12px 28px rgba(17,24,39,0.14);
-      font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
-      text-align:center;
-      cursor:pointer;
+      width:${w}px;
+      height:${h}px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
     ">
-      <div style="font-size:11px;font-weight:700;letter-spacing:0.06em;color:#e30a17;text-transform:uppercase;">${safeName}</div>
-      <div style="margin-top:4px;font-size:12px;font-weight:600;color:#111827;">
-        <span style="color:#e30a17">${cluster.placeCount}</span>
-        <span style="color:#64748b;font-weight:500;margin:0 4px">·</span>
-        <span style="color:#111827">${cluster.eventCount}</span>
+      <div style="
+        box-sizing:border-box;
+        max-width:118px;
+        padding:3px 9px 4px;
+        border-radius:999px;
+        background:linear-gradient(165deg,rgba(255,255,255,0.82) 0%,rgba(241,245,249,0.9) 45%,rgba(248,250,252,0.88) 100%);
+        border:1.5px solid rgba(227,10,23,0.42);
+        box-shadow:
+          0 1px 2px rgba(15,23,42,0.04),
+          0 6px 16px rgba(15,23,42,0.08),
+          inset 0 1px 0 rgba(255,255,255,0.65);
+        -webkit-backdrop-filter:blur(8px);
+        backdrop-filter:blur(8px);
+        font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+        text-align:center;
+        cursor:pointer;
+        -webkit-font-smoothing:antialiased;
+      ">
+        <div style="
+          font-size:9px;
+          font-weight:700;
+          letter-spacing:0.07em;
+          line-height:1.15;
+          color:#c90814;
+          text-transform:uppercase;
+          white-space:nowrap;
+          overflow:hidden;
+          text-overflow:ellipsis;
+          max-width:100px;
+        ">${safeName}</div>
+        <div style="margin-top:2px;font-size:10px;font-weight:600;line-height:1.2;color:#0f172a;">
+          <span style="color:#e30a17;font-variant-numeric:tabular-nums">${cluster.placeCount}</span>
+          <span style="color:#94a3b8;font-weight:600;margin:0 3px;font-size:9px">·</span>
+          <span style="color:#334155;font-variant-numeric:tabular-nums">${cluster.eventCount}</span>
+        </div>
       </div>
     </div>`,
     iconSize: [w, h],
@@ -410,6 +525,90 @@ const userLocationIcon = L.divIcon({
   iconAnchor: [8, 8],
 });
 
+const mapChromeFloating =
+  "border border-slate-200/90 bg-white/95 text-slate-800 shadow-lg backdrop-blur-md";
+
+function DiscoveryMapFloatingControls({
+  onLocateMe,
+  locateMeLoading,
+  locateMeButtonLabel,
+}: {
+  onLocateMe?: () => void;
+  locateMeLoading: boolean;
+  locateMeButtonLabel: string;
+}) {
+  const map = useMap();
+  const [mountNode, setMountNode] = useState<HTMLElement | null>(null);
+
+  useEffect(() => {
+    setMountNode(map.getContainer());
+  }, [map]);
+
+  if (!mountNode) {
+    return null;
+  }
+
+  const segment =
+    "flex h-9 w-full items-center justify-center text-[1.05rem] font-medium leading-none transition-colors hover:bg-slate-50/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-slate-400/35 disabled:pointer-events-none disabled:opacity-55";
+
+  return createPortal(
+    <div
+      className={cn(
+        mapChromeFloating,
+        "pointer-events-auto z-[1100] flex w-10 flex-col overflow-hidden rounded-2xl p-0",
+      )}
+      style={{
+        position: "absolute",
+        /* Über der bündig unten rechts stehenden Attribution */
+        bottom:
+          "calc(2.35rem + env(safe-area-inset-bottom, 0px))",
+        right: "max(0px, env(safe-area-inset-right, 0px))",
+      }}
+    >
+      <button
+        type="button"
+        className={cn(segment, "border-b border-slate-200/80")}
+        aria-label="Zoom in"
+        onClick={() => {
+          map.zoomIn();
+        }}
+      >
+        +
+      </button>
+      <button
+        type="button"
+        className={cn(
+          segment,
+          onLocateMe ? "border-b border-slate-200/80" : undefined,
+        )}
+        aria-label="Zoom out"
+        onClick={() => {
+          map.zoomOut();
+        }}
+      >
+        −
+      </button>
+      {onLocateMe ? (
+        <button
+          type="button"
+          className={segment}
+          onClick={onLocateMe}
+          disabled={locateMeLoading}
+          title={locateMeButtonLabel}
+          aria-label={locateMeButtonLabel}
+        >
+          {locateMeLoading ? (
+            <Loader2 className="h-4 w-4 shrink-0 animate-spin text-slate-700" aria-hidden />
+          ) : (
+            <Crosshair className="h-4 w-4 shrink-0 text-slate-700" aria-hidden />
+          )}
+        </button>
+      ) : null}
+    </div>,
+    mountNode,
+  );
+}
+
 function FitToMarkers({
   points,
   cityCenter,
@@ -417,6 +616,7 @@ function FitToMarkers({
   germanyCityClusters,
   mapLayoutEpoch,
   mapMinZoom,
+  cityScopedDiscovery,
 }: {
   points: CityMapPoint[];
   cityCenter: { latitude: number; longitude: number } | null;
@@ -425,6 +625,7 @@ function FitToMarkers({
   mapLayoutEpoch?: number;
   /** Mindest-Zoom der Karte (fitBounds maxZoom bei 0 Pins darf nicht darunter liegen). */
   mapMinZoom: number;
+  cityScopedDiscovery: boolean;
 }) {
   const map = useMap();
 
@@ -495,12 +696,31 @@ function FitToMarkers({
       ? 8
       : Math.max(8, mapMinZoom);
 
+    const padding = cityScopedDiscovery ? [22, 22] : [40, 40];
+    const maxZoomWithPins = cityScopedDiscovery ? 15 : 14;
+
     map.fitBounds(bounds, {
-      padding: [40, 40],
-      maxZoom: points.length > 0 ? 14 : fitMaxZoomWhenNoPins,
+      padding: padding as [number, number],
+      maxZoom: points.length > 0 ? maxZoomWithPins : fitMaxZoomWhenNoPins,
       animate: false,
     });
-  }, [bounds, map, points.length, germanyCityClusters?.length, mapMinZoom]);
+
+    if (cityScopedDiscovery && points.length > 0 && cityCenter) {
+      queueMicrotask(() => {
+        if (map.getZoom() < 12) {
+          map.setView([cityCenter.latitude, cityCenter.longitude], 12, { animate: false });
+        }
+      });
+    }
+  }, [
+    bounds,
+    map,
+    points.length,
+    germanyCityClusters?.length,
+    mapMinZoom,
+    cityScopedDiscovery,
+    cityCenter,
+  ]);
 
   return null;
 }
@@ -639,22 +859,26 @@ export function CityDiscoveryLeafletMap({
   filtered,
   legendPlaces,
   legendEvents,
-  resultsSummaryUnitLabel,
+  resultsSummaryUnitLabel: _resultsSummaryUnitLabel,
   viewPlaceLabel,
   placePopupRatingCaption,
   viewEventLabel,
   myLocationLabel,
+  locateMeLabel,
   onViewportBoundsChange,
   germanyCityClusters,
   onGermanyCityClusterClick,
   mapLayoutEpoch = 0,
   clusterLoadingSlug,
   clusterLoadingLabel,
-  resultsCitiesUnitLabel,
+  resultsCitiesUnitLabel: _resultsCitiesUnitLabel,
   germanyClusterRevealLabel,
   restrictToCityRadiusKm = null,
+  onLocateMe,
+  locateMeLoading = false,
 }: CityDiscoveryLeafletMapProps) {
-  const basemap = useMapBasemap();
+  const cityScopedDiscovery =
+    restrictToCityRadiusKm != null && restrictToCityRadiusKm > 0 && Boolean(cityCenter);
   /**
    * Erst nach useEffect mounten: vermeidet unter React Strict Mode (Next.js dev) doppelte
    * Leaflet-Initialisierung auf demselben Container („Map container is already initialized“),
@@ -744,11 +968,10 @@ export function CityDiscoveryLeafletMap({
         maxBounds={effectiveMaxBounds}
         maxBoundsViscosity={1}
         zoomControl={false}
-        className="relative z-0 h-full w-full"
+        className={cn("merhaba-discovery-map relative z-0 h-full w-full")}
       >
         <MerhabaTileLayer />
         <SpiderfyMapClickGuard />
-        <ZoomControl position="bottomright" />
         <SyncMapViewConstraints maxBounds={effectiveMaxBounds} minZoom={effectiveMinZoom} />
         <FitToMarkers
           points={points}
@@ -757,6 +980,12 @@ export function CityDiscoveryLeafletMap({
           germanyCityClusters={showGermanyClusters ? germanyCityClusters : undefined}
           mapLayoutEpoch={mapLayoutEpoch}
           mapMinZoom={effectiveMinZoom}
+          cityScopedDiscovery={cityScopedDiscovery}
+        />
+        <DiscoveryMapFloatingControls
+          onLocateMe={onLocateMe}
+          locateMeLoading={locateMeLoading}
+          locateMeButtonLabel={locateMeLabel}
         />
         <ViewportBoundsReporter onBoundsChange={onViewportBoundsChange} />
         <PanToSelected points={points} selectedId={selectedId} />
@@ -769,21 +998,13 @@ export function CityDiscoveryLeafletMap({
                 position={[cluster.latitude, cluster.longitude]}
                 icon={createGermanyCityClusterIcon(cluster)}
               >
-                <Popup>
-                  <div className="min-w-[10rem] space-y-2 text-slate-900">
-                    <p className="text-sm font-semibold">{cluster.label}</p>
-                    <p className="text-xs text-slate-600">
-                      {cluster.placeCount} {legendPlaces} · {cluster.eventCount} {legendEvents}
-                    </p>
-                    <button
-                      type="button"
-                      className="w-full rounded-full bg-[#e30a17] px-3 py-1.5 text-xs font-semibold text-white"
-                      onClick={() => onGermanyCityClusterClick?.(cluster.slug)}
-                    >
-                      {germanyClusterRevealLabel ?? viewPlaceLabel}
-                    </button>
-                  </div>
-                </Popup>
+                <GermanyClusterMapPopup
+                  cluster={cluster}
+                  legendPlaces={legendPlaces}
+                  legendEvents={legendEvents}
+                  revealLabel={germanyClusterRevealLabel ?? viewPlaceLabel}
+                  onOpenCity={() => onGermanyCityClusterClick?.(cluster.slug)}
+                />
               </Marker>
             ))
           : null}
@@ -934,18 +1155,7 @@ export function CityDiscoveryLeafletMap({
         </div>
       ) : null}
 
-      <div className="pointer-events-none absolute left-5 top-5 z-20 flex flex-wrap items-center gap-2">
-        <span className="rounded-full border border-slate-200/90 bg-white/88 px-3 py-1.5 text-xs font-semibold text-foreground shadow-md backdrop-blur-md">
-          {basemap.provider === "maptiler" ? "MapTiler" : "OSM"}
-        </span>
-        <span className="rounded-full border border-slate-200/90 bg-white/88 px-3 py-1.5 text-xs text-muted-foreground shadow-md backdrop-blur-md">
-          {showGermanyClusters && resultsCitiesUnitLabel
-            ? `${germanyCityClusters?.length ?? 0} ${resultsCitiesUnitLabel}`
-            : `${points.length} ${resultsSummaryUnitLabel}`}
-        </span>
-      </div>
-
-      <div className="pointer-events-none absolute bottom-5 left-5 z-20 flex items-center gap-4 rounded-full border border-slate-200/90 bg-white/90 px-4 py-2 text-xs text-slate-700 shadow-lg backdrop-blur-md">
+      <div className="pointer-events-none absolute bottom-5 left-5 z-20 flex max-w-[min(100%-2.5rem,20rem)] flex-wrap items-center gap-3 rounded-2xl border border-slate-200/90 bg-white/95 px-3 py-2.5 text-xs font-medium text-slate-700 shadow-lg backdrop-blur-md">
         <div className="flex items-center gap-2">
           <span
             className="box-border flex size-5 shrink-0 items-center justify-center overflow-visible"
@@ -971,6 +1181,7 @@ export function CityDiscoveryLeafletMap({
           </span>
           <span>{legendPlaces}</span>
         </div>
+        <div className="h-4 w-px shrink-0 bg-slate-200/90" aria-hidden />
         <div className="flex items-center gap-2">
           <span
             className="box-border flex size-5 shrink-0 items-center justify-center overflow-visible"
@@ -1007,17 +1218,6 @@ export function CityDiscoveryLeafletMap({
             </svg>
           </span>
           <span>{legendEvents}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span
-            className="box-border flex size-5 shrink-0 items-center justify-center overflow-visible"
-            aria-hidden
-          >
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="shrink-0">
-              <circle cx="10" cy="10" r="8" fill="#0284c7" stroke="#ffffff" strokeWidth="2" />
-            </svg>
-          </span>
-          <span>{myLocationLabel}</span>
         </div>
       </div>
     </div>

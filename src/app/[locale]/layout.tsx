@@ -1,4 +1,5 @@
-import { setRequestLocale } from "next-intl/server";
+import { NextIntlClientProvider } from "next-intl";
+import { getMessages, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 
 import { auth } from "@/auth";
@@ -27,6 +28,7 @@ export default async function LocaleLayout({
   }
 
   setRequestLocale(locale);
+  const messages = await getMessages();
   let session = null;
 
   try {
@@ -38,12 +40,14 @@ export default async function LocaleLayout({
     Boolean(session?.user?.id) && !session?.user?.onboardingCompletedAt;
 
   return (
-    <OnboardingGuard needsOnboarding={needsOnboarding} locale={locale}>
-      <div className="flex min-h-screen flex-col">
-        <Header />
-        <main className="flex-1 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))]">{children}</main>
-        <Footer />
-      </div>
-    </OnboardingGuard>
+    <NextIntlClientProvider locale={locale} messages={messages}>
+      <OnboardingGuard needsOnboarding={needsOnboarding} locale={locale}>
+        <div className="flex min-h-screen flex-col">
+          <Header />
+          <main className="flex-1 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))]">{children}</main>
+          <Footer />
+        </div>
+      </OnboardingGuard>
+    </NextIntlClientProvider>
   );
 }

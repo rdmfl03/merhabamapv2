@@ -1,5 +1,8 @@
 import { z } from "zod";
 
+/** Matches Prisma `EntityComment.content` and UI copy. */
+export const ENTITY_COMMENT_MAX_LENGTH = 500;
+
 const entityTypeSchema = z.enum(["place", "event"]);
 
 export const createEntityCommentSchema = z.object({
@@ -9,7 +12,7 @@ export const createEntityCommentSchema = z.object({
   entityId: z.string().min(1),
   content: z
     .string()
-    .max(500)
+    .max(ENTITY_COMMENT_MAX_LENGTH)
     .transform((s) => s.trim())
     .pipe(z.string().min(1)),
 });

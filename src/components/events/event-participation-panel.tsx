@@ -7,11 +7,11 @@ import { useTranslations } from "next-intl";
 import type { EventParticipationStatus } from "@prisma/client";
 
 import { resolveSocialGuardMessage } from "@/lib/social/social-guard-ui";
+import { toggleEventParticipation } from "@/server/actions/events/toggle-event-participation-state";
 import {
   idleEventParticipationActionState,
-  toggleEventParticipation,
   type EventParticipationActionState,
-} from "@/server/actions/events/toggle-event-participation-state";
+} from "@/server/actions/events/event-participation-action-state";
 import { Button } from "@/components/ui/button";
 import { GuestCtaInsightLink } from "@/components/product-insights/guest-cta-insight-link";
 import { guestAuthSignUpHrefFromSignIn } from "@/lib/auth/guest-auth-links";

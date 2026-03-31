@@ -79,6 +79,20 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                   : t("summary.noCity")}
               </p>
             </div>
+            {profile.username?.trim() ? (
+              <div className="space-y-2 rounded-2xl border border-border/80 bg-muted/25 px-4 py-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brand">
+                  {t("publicProfileSectionTitle")}
+                </p>
+                <p className="text-xs text-muted-foreground">{t("publicProfileSectionBody")}</p>
+                <Link
+                  href={`/user/${encodeURIComponent(profile.username.trim())}`}
+                  className="inline-block text-sm font-medium text-brand underline-offset-2 hover:underline"
+                >
+                  {t("viewPublicProfile")}
+                </Link>
+              </div>
+            ) : null}
             <div className="space-y-3">
               <p className="text-sm font-medium text-foreground">{t("nextSteps.title")}</p>
               <div className="flex flex-col gap-2">

@@ -13,8 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { GuestCtaInsightLink } from "@/components/product-insights/guest-cta-insight-link";
 import { guestAuthSignUpHrefFromSignIn } from "@/lib/auth/guest-auth-links";
-
-const MAX_LEN = 500;
+import { ENTITY_COMMENT_MAX_LENGTH } from "@/lib/validators/comments";
 
 type EntityCommentFormProps = {
   entityType: "place" | "event";
@@ -85,14 +84,14 @@ export function EntityCommentForm({
       <Textarea
         name="content"
         required
-        maxLength={MAX_LEN}
+        maxLength={ENTITY_COMMENT_MAX_LENGTH}
         rows={3}
         placeholder={labels.placeholder}
         className="min-h-[5.5rem] resize-y rounded-2xl border-border text-sm"
         disabled={pending}
       />
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <span className="text-xs text-muted-foreground">{labels.counter.replace("{max}", String(MAX_LEN))}</span>
+        <span className="text-xs text-muted-foreground">{labels.counter}</span>
         <Button type="submit" size="sm" disabled={pending}>
           {labels.submit}
         </Button>

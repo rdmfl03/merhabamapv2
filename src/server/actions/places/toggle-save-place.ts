@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { Prisma } from "@prisma/client";
 
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
@@ -61,40 +62,48 @@ export async function toggleSavePlace(formData: FormData) {
 
   let saveAdded = false;
   if (existing) {
-    await prisma.savedPlace.delete({
+    await prisma.savedPlace.deleteMany({
       where: {
-        userId_placeId: {
-          userId: session.user.id,
-          placeId: place.id,
-        },
-      },
-    });
-    saveAdded = false;
-  } else {
-    await prisma.savedPlace.create({
-      data: {
         userId: session.user.id,
         placeId: place.id,
       },
     });
-    saveAdded = true;
-
-    const existingSaveActivity = await prisma.activity.findFirst({
-      where: {
-        userId: session.user.id,
-        type: ACTIVITY_TYPE.SAVE_PLACE,
-        entityId: place.id,
-      },
-      select: { id: true },
-    });
-
-    if (!existingSaveActivity) {
-      await insertActivity(prisma, {
-        userId: session.user.id,
-        type: ACTIVITY_TYPE.SAVE_PLACE,
-        entityType: ACTIVITY_ENTITY.place,
-        entityId: place.id,
+    saveAdded = false;
+  } else {
+    try {
+      await prisma.savedPlace.create({
+        data: {
+          userId: session.user.id,
+          placeId: place.id,
+        },
       });
+      saveAdded = true;
+    } catch (e) {
+      if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
+        saveAdded = true;
+      } else {
+        throw e;
+      }
+    }
+
+    if (saveAdded) {
+      const existingSaveActivity = await prisma.activity.findFirst({
+        where: {
+          userId: session.user.id,
+          type: ACTIVITY_TYPE.SAVE_PLACE,
+          entityId: place.id,
+        },
+        select: { id: true },
+      });
+
+      if (!existingSaveActivity) {
+        await insertActivity(prisma, {
+          userId: session.user.id,
+          type: ACTIVITY_TYPE.SAVE_PLACE,
+          entityType: ACTIVITY_ENTITY.place,
+          entityId: place.id,
+        });
+      }
     }
   }
 
@@ -112,6 +121,7 @@ export async function toggleSavePlace(formData: FormData) {
   revalidatePath(returnPath);
   revalidatePath(`/${parsed.data.locale}/places/${place.slug}`);
   revalidatePath(`/${parsed.data.locale}/feed`);
+  revalidatePath(`/${parsed.data.locale}/saved/places`);
 
   const viewer = await prisma.user.findUnique({
     where: { id: session.user.id },

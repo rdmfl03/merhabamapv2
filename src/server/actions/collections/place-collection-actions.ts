@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { Prisma } from "@prisma/client";
 
 import { auth } from "@/auth";
 import {
@@ -24,14 +25,7 @@ import {
   insertPublicCollectionPlaceAddedActivity,
 } from "@/server/social/collection-activities";
 
-export type PlaceCollectionActionState =
-  | { status: "idle" }
-  | { status: "success" }
-  | { status: "error"; message: string };
-
-export const idlePlaceCollectionActionState: PlaceCollectionActionState = {
-  status: "idle",
-};
+import type { PlaceCollectionActionState } from "./place-collection-action-state";
 
 function revalidateCollectionPaths(locale: "de" | "tr", returnPath: string, collectionId?: string) {
   revalidatePath(`/${locale}/collections`);
@@ -251,16 +245,27 @@ export async function addPlaceToCollection(
     return { status: "error", message: itemGuard };
   }
 
-  const item = await prisma.placeCollectionItem.create({
-    data: {
-      collectionId: collection.id,
-      placeId: parsed.data.placeId,
-    },
-    select: { id: true },
-  });
+  let itemId: string;
+  try {
+    const item = await prisma.placeCollectionItem.create({
+      data: {
+        collectionId: collection.id,
+        placeId: parsed.data.placeId,
+      },
+      select: { id: true },
+    });
+    itemId = item.id;
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
+      revalidateCollectionPaths(locale, returnPath, collection.id);
+      await revalidateProfileForUser(userId, locale);
+      return { status: "success" };
+    }
+    throw e;
+  }
 
   if (collection.visibility === "PUBLIC") {
-    await insertPublicCollectionPlaceAddedActivity(userId, item.id);
+    await insertPublicCollectionPlaceAddedActivity(userId, itemId);
   }
 
   revalidateCollectionPaths(locale, returnPath, collection.id);

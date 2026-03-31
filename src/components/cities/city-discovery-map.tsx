@@ -1158,6 +1158,7 @@ export function CityDiscoveryMap({
             placePopupRatingCaption={placePopupRatingCaption}
             viewEventLabel={viewEventLabel}
             myLocationLabel={myLocationLabel}
+            locateMeLabel={locateMeLabel}
             onViewportBoundsChange={handleViewportBounds}
             germanyCityClusters={germanyClusterMarkers}
             onGermanyCityClusterClick={

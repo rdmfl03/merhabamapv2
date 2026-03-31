@@ -9,9 +9,9 @@ import { resolveSocialGuardMessage } from "@/lib/social/social-guard-ui";
 
 import {
   addPlaceToCollection,
-  idlePlaceCollectionActionState,
   removePlaceFromCollection,
 } from "@/server/actions/collections/place-collection-actions";
+import { idlePlaceCollectionActionState } from "@/server/actions/collections/place-collection-action-state";
 import type { PlaceCollectionMembershipRow } from "@/server/queries/collections/get-place-collection-membership-flags";
 
 type PlaceCollectionTogglesProps = {

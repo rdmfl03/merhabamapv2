@@ -19,7 +19,16 @@
     "notificationsAriaUnread": "{count} okunmamış bildirim",
     "save": "Kaydet",
     "saved": "Kaydedildi",
-    "feed": "Aktiviteler"
+    "feed": "Aktiviteler",
+    "accountMenuTitle": "Ayarlar",
+    "accountMenuAria": "Hesap ve ayarlar menüsü",
+    "menuPublicProfile": "Herkese açık profil",
+    "menuPublicProfileSetup": "Kullanıcı adı belirle",
+    "menuSettings": "Ayarlar",
+    "menuCollections": "Listelerim",
+    "menuSavedPlaces": "Kaydedilen mekanlar",
+    "menuSavedEvents": "Kaydedilen etkinlikler",
+    "menuSignOut": "Çıkış yap"
   },
   "landing": {
     "metaTitle": "Almanya'da mekanlar, etkinlikler ve topluluk | MerhabaMap",
