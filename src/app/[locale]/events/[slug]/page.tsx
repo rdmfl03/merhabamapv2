@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { CalendarDays, ExternalLink, Globe, MapPin, Star, Users } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 import { auth } from "@/auth";
 import { EventHeroMedia } from "@/components/events/event-hero-media";
@@ -85,6 +85,11 @@ export default async function EventDetailPage({
 
   const [t, session] = await Promise.all([getTranslations("events"), auth()]);
   const signedInUser = session?.user;
+
+  if (!signedInUser?.id) {
+    redirect(`/${locale}/auth/signin?next=${encodeURIComponent(`/${locale}/events/${slug}`)}`);
+  }
+
   const event = await getEventBySlug({
     slug,
     userId: signedInUser?.id,

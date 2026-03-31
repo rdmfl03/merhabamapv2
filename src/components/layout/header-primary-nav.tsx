@@ -91,7 +91,7 @@ const navShellClass = cn(
   "ring-1 ring-black/[0.04]",
 );
 
-export function HeaderPrimaryNavDesktop() {
+export function HeaderPrimaryNavDesktop({ showFeed = true }: { showFeed?: boolean }) {
   const { t, primaryNavAria, mapOn, placesOn, eventsOn, feedOn } = usePrimaryNavState();
 
   return (
@@ -105,14 +105,22 @@ export function HeaderPrimaryNavDesktop() {
       <PrimaryNavLink href="/events" active={eventsOn}>
         {t("events")}
       </PrimaryNavLink>
-      <PrimaryNavLink href="/feed" active={feedOn}>
-        {t("feed")}
-      </PrimaryNavLink>
+      {showFeed ? (
+        <PrimaryNavLink href="/feed" active={feedOn}>
+          {t("feed")}
+        </PrimaryNavLink>
+      ) : null}
     </nav>
   );
 }
 
-export function HeaderPrimaryNavMobile({ className }: { className?: string }) {
+export function HeaderPrimaryNavMobile({
+  className,
+  showFeed = true,
+}: {
+  className?: string;
+  showFeed?: boolean;
+}) {
   const { t, primaryNavAria, mapOn, placesOn, eventsOn, feedOn } = usePrimaryNavState();
 
   return (
@@ -133,9 +141,11 @@ export function HeaderPrimaryNavMobile({ className }: { className?: string }) {
       <PrimaryNavLink href="/events" active={eventsOn} mobile>
         {t("events")}
       </PrimaryNavLink>
-      <PrimaryNavLink href="/feed" active={feedOn} mobile>
-        {t("feed")}
-      </PrimaryNavLink>
+      {showFeed ? (
+        <PrimaryNavLink href="/feed" active={feedOn} mobile>
+          {t("feed")}
+        </PrimaryNavLink>
+      ) : null}
     </nav>
   );
 }

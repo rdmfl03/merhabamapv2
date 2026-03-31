@@ -1,4 +1,5 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { redirect } from "next/navigation";
 
 import { ActivityFeedItem } from "@/components/social/activity-feed-item";
 import { Link } from "@/i18n/navigation";
@@ -48,6 +49,10 @@ export default async function FeedPage({ params, searchParams }: FeedPageProps) 
 
   const session = await auth();
   const viewerId = session?.user?.id ?? null;
+
+  if (!viewerId) {
+    redirect(`/${locale}/auth/signin?next=${encodeURIComponent(`/${locale}/feed`)}`);
+  }
 
   const [t, tCommon, tGuest, followedCityIds, items, discovery, unreadNotifications] = await Promise.all([
     getTranslations("feed"),
