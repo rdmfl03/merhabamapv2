@@ -10,16 +10,20 @@ import { idleAuthActionState } from "@/server/actions/auth/state";
 
 type SignUpFormProps = {
   locale: "de" | "tr";
+  requireInviteCode?: boolean;
   labels: {
     name: string;
     email: string;
     password: string;
     confirmPassword: string;
+    inviteCode: string;
+    inviteCodeHint: string;
     submit: string;
     success: string;
     validationError: string;
     emailInUse: string;
     passwordMismatch: string;
+    inviteCodeInvalid: string;
     registrationDisabled: string;
     legalAcknowledgementPrefix: string;
     legalAcknowledgementTerms: string;
@@ -37,6 +41,8 @@ function getMessage(message: string | undefined, labels: SignUpFormProps["labels
       return labels.emailInUse;
     case "password_mismatch":
       return labels.passwordMismatch;
+    case "invite_code_invalid":
+      return labels.inviteCodeInvalid;
     case "registration_disabled":
       return labels.registrationDisabled;
     default:
@@ -44,7 +50,7 @@ function getMessage(message: string | undefined, labels: SignUpFormProps["labels
   }
 }
 
-export function SignUpForm({ locale, labels }: SignUpFormProps) {
+export function SignUpForm({ locale, requireInviteCode = false, labels }: SignUpFormProps) {
   const [state, formAction, pending] = useActionState(
     registerUser,
     idleAuthActionState,
@@ -69,6 +75,13 @@ export function SignUpForm({ locale, labels }: SignUpFormProps) {
         <span className="font-medium text-foreground">{labels.confirmPassword}</span>
         <Input type="password" name="confirmPassword" required autoComplete="new-password" />
       </label>
+      {requireInviteCode ? (
+        <label className="block space-y-2 text-sm">
+          <span className="font-medium text-foreground">{labels.inviteCode}</span>
+          <Input type="text" name="inviteCode" required autoComplete="off" />
+          <p className="text-xs leading-5 text-muted-foreground">{labels.inviteCodeHint}</p>
+        </label>
+      ) : null}
 
       {state.status !== "idle" ? (
         <p className={`text-sm ${state.status === "success" ? "text-green-700" : "text-brand"}`}>

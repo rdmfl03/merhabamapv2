@@ -58,6 +58,31 @@ export function isUserRegistrationEnabled() {
     : readBooleanEnv("AUTH_ALLOW_SIGNUP", true);
 }
 
+export function normalizeSignupInviteCode(value: string | null | undefined) {
+  return value?.trim().toUpperCase() ?? "";
+}
+
+export function getSignupInviteCodes() {
+  return (process.env.AUTH_SIGNUP_INVITE_CODES ?? "")
+    .split(/[\s,]+/)
+    .map((value) => normalizeSignupInviteCode(value))
+    .filter(Boolean);
+}
+
+export function isInviteOnlyRegistrationEnabled() {
+  return getSignupInviteCodes().length > 0;
+}
+
+export function isSignupInviteCodeValid(value: string | null | undefined) {
+  const normalizedValue = normalizeSignupInviteCode(value);
+
+  if (!normalizedValue) {
+    return false;
+  }
+
+  return getSignupInviteCodes().includes(normalizedValue);
+}
+
 export const authConfig = {
   adapter: PrismaAdapter(prisma) as Adapter,
   session: {
