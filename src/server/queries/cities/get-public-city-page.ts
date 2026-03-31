@@ -164,9 +164,9 @@ export async function getPublicCityPage(citySlug: string, userId?: string) {
       placeCount,
       eventCount,
       featuredPlaces: featuredPlacesFull.map((place) => publicPlaceRecordForFlight(place, false)),
-      mapPlaces: rankedPlaces.map((place) => publicPlaceRecordForFlight(place, false)),
+      mapPlaces: [],
       upcomingEvents: upcomingEvents.map((event) => publicEventRecordForFlight(event, false)),
-      mapEvents: rankedEvents.map((event) => publicEventRecordForFlight(event, false)),
+      mapEvents: [],
     };
   }
 
@@ -174,14 +174,14 @@ export async function getPublicCityPage(citySlug: string, userId?: string) {
     prisma.savedPlace.findMany({
       where: {
         userId,
-        placeId: { in: mapPlacesLite.map((place) => place.id) },
+        placeId: { in: featuredPlacesFull.map((place) => place.id) },
       },
       select: { placeId: true },
     }),
     prisma.savedEvent.findMany({
       where: {
         userId,
-        eventId: { in: mapEvents.map((event) => event.id) },
+        eventId: { in: upcomingEvents.map((event) => event.id) },
       },
       select: { eventId: true },
     }),
@@ -198,19 +198,15 @@ export async function getPublicCityPage(citySlug: string, userId?: string) {
     featuredPlaces: featuredPlacesFull.map((place) =>
       publicPlaceRecordForFlight(place, savedPlaceIds.has(place.id)),
     ),
-    mapPlaces: rankedPlaces.map((place) =>
-      publicPlaceRecordForFlight(place, savedPlaceIds.has(place.id)),
-    ),
+    mapPlaces: [],
     upcomingEvents: upcomingEvents.map((event) =>
       publicEventRecordForFlight(event, savedEventIds.has(event.id)),
     ),
-    mapEvents: rankedEvents.map((event) =>
-      publicEventRecordForFlight(event, savedEventIds.has(event.id)),
-    ),
+    mapEvents: [],
   };
 }
 
-export async function getDiscoveryMapPinsForCitySlug(citySlug: string, userId?: string) {
+export async function getDiscoveryMapPinsForCitySlug(citySlug: string, _userId?: string) {
   const city = await prisma.city.findUnique({
     where: { slug: citySlug },
     select: { id: true },
@@ -240,43 +236,12 @@ export async function getDiscoveryMapPinsForCitySlug(citySlug: string, userId?: 
     }),
   ]);
 
-  const rankedPlaces = rankCityPlaces(mapPlaces);
-  const rankedEvents = rankCityEvents(mapEvents);
-
-  if (!userId) {
-    return {
-      places: rankedPlaces.map((place) => publicPlaceRecordForFlight(place, false)),
-      events: rankedEvents.map((event) => publicEventRecordForFlight(event, false)),
-    };
-  }
-
-  const [savedPlaces, savedEvents] = await prisma.$transaction([
-    prisma.savedPlace.findMany({
-      where: {
-        userId,
-        placeId: { in: rankedPlaces.map((place) => place.id) },
-      },
-      select: { placeId: true },
-    }),
-    prisma.savedEvent.findMany({
-      where: {
-        userId,
-        eventId: { in: rankedEvents.map((event) => event.id) },
-      },
-      select: { eventId: true },
-    }),
-  ]);
-
-  const savedPlaceIds = new Set(savedPlaces.map((entry) => entry.placeId));
-  const savedEventIds = new Set(savedEvents.map((entry) => entry.eventId));
+  const rankedPlaces = rankCityPlaces(mapPlaces).slice(0, CITY_MAP_PLACE_MARKER_LIMIT);
+  const rankedEvents = rankCityEvents(mapEvents).slice(0, CITY_MAP_EVENT_MARKER_LIMIT);
 
   return {
-    places: rankedPlaces.map((place) =>
-      publicPlaceRecordForFlight(place, savedPlaceIds.has(place.id)),
-    ),
-    events: rankedEvents.map((event) =>
-      publicEventRecordForFlight(event, savedEventIds.has(event.id)),
-    ),
+    places: rankedPlaces.map((place) => publicPlaceRecordForFlight(place, false)),
+    events: rankedEvents.map((event) => publicEventRecordForFlight(event, false)),
   };
 }
 
@@ -291,25 +256,7 @@ export async function getPublicGermanyDiscoveryPage(userId?: string) {
     },
   });
 
-  const [
-    rawFeaturedPlaces,
-    rawFeaturedEvents,
-    placeCount,
-    eventCount,
-    germanyMapClustersResult,
-  ] = await Promise.all([
-    prisma.place.findMany({
-      where: wherePlace,
-      orderBy: [{ verificationStatus: "desc" }, { createdAt: "desc" }],
-      take: GERMANY_FEATURED_SAMPLE,
-      select: publicPlaceSelectWithAiDiscoveryMap,
-    }),
-    prisma.event.findMany({
-      where: whereEvent,
-      orderBy: { startsAt: "asc" },
-      take: GERMANY_FEATURED_SAMPLE,
-      select: publicEventSelectWithAi,
-    }),
+  const [placeCount, eventCount, germanyMapClustersResult] = await Promise.all([
     prisma.place.count({ where: wherePlace }),
     prisma.event.count({
       where: buildPublicEventWhere({
@@ -322,52 +269,7 @@ export async function getPublicGermanyDiscoveryPage(userId?: string) {
 
   const germanyMapClusters = germanyMapClustersResult;
 
-  const rankedFeaturedPlaces = rankCityPlaces(rawFeaturedPlaces);
-  const rankedFeaturedEvents = rankCityEvents(rawFeaturedEvents);
-  const featuredPlacesRankedLite = rankedFeaturedPlaces.slice(0, 3) as PublicPlaceRecordWithAiDiscoveryMap[];
-  const upcomingEventsRanked = rankedFeaturedEvents.slice(0, 3);
-
-  const featuredPlacesFull = await loadFeaturedPlacesFull(featuredPlacesRankedLite);
-
   const city = { ...GERMANY_MAP_VIRTUAL_CITY };
-
-  if (!userId) {
-    return {
-      city,
-      cityCenter: GERMANY_DISCOVERY_CENTER,
-      placeCount,
-      eventCount,
-      germanyMapClusters,
-      featuredPlaces: featuredPlacesFull.map((place) =>
-        publicPlaceRecordForFlight(place, false),
-      ),
-      mapPlaces: [],
-      upcomingEvents: upcomingEventsRanked.map((event) =>
-        publicEventRecordForFlight(event, false),
-      ),
-      mapEvents: [],
-    };
-  }
-
-  const [savedPlaces, savedEvents] = await prisma.$transaction([
-    prisma.savedPlace.findMany({
-      where: {
-        userId,
-        placeId: { in: featuredPlacesFull.map((place) => place.id) },
-      },
-      select: { placeId: true },
-    }),
-    prisma.savedEvent.findMany({
-      where: {
-        userId,
-        eventId: { in: upcomingEventsRanked.map((event) => event.id) },
-      },
-      select: { eventId: true },
-    }),
-  ]);
-
-  const savedPlaceIds = new Set(savedPlaces.map((entry) => entry.placeId));
-  const savedEventIds = new Set(savedEvents.map((entry) => entry.eventId));
 
   return {
     city,
@@ -375,13 +277,9 @@ export async function getPublicGermanyDiscoveryPage(userId?: string) {
     placeCount,
     eventCount,
     germanyMapClusters,
-    featuredPlaces: featuredPlacesFull.map((place) =>
-      publicPlaceRecordForFlight(place, savedPlaceIds.has(place.id)),
-    ),
+    featuredPlaces: [],
     mapPlaces: [],
-    upcomingEvents: upcomingEventsRanked.map((event) =>
-      publicEventRecordForFlight(event, savedEventIds.has(event.id)),
-    ),
+    upcomingEvents: [],
     mapEvents: [],
   };
 }
