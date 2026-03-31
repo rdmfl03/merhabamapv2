@@ -10,23 +10,23 @@ import {
 } from "react";
 
 import {
-  MAPTILER_ATTRIBUTION,
   OSM_ATTRIBUTION,
   OSM_TILE_URL,
-  PASTEL_PROXY_TILE_URL,
+  STADIA_ATTRIBUTION,
+  STADIA_PROXY_TILE_URL,
   type MapTileProvider,
 } from "@/lib/map-config";
 
 export type MapBasemapValue = {
-  /** True when server has MAPTILER_API_KEY; client never sees the key. */
-  pastelEnabled: boolean;
+  /** True when server has STADIA_API_KEY; client never sees the key. */
+  hostedBasemapEnabled: boolean;
   provider: MapTileProvider;
   tileUrl: string;
   attribution: string;
 };
 
 const defaultBasemap: MapBasemapValue = {
-  pastelEnabled: false,
+  hostedBasemapEnabled: false,
   provider: "osm",
   tileUrl: OSM_TILE_URL,
   attribution: OSM_ATTRIBUTION,
@@ -36,23 +36,23 @@ const MapBasemapContext = createContext<MapBasemapValue>(defaultBasemap);
 
 type MapBasemapProviderProps = {
   children: ReactNode;
-  /** From server layout when `MAPTILER_API_KEY` is set — avoids an initial OSM flash before `/api/map/basemap` responds. */
-  initialPastelEnabled?: boolean;
+  /** From server layout when `STADIA_API_KEY` is set — avoids an initial OSM flash before `/api/map/basemap` responds. */
+  initialHostedBasemapEnabled?: boolean;
 };
 
 export function MapBasemapProvider({
   children,
-  initialPastelEnabled = false,
+  initialHostedBasemapEnabled = false,
 }: MapBasemapProviderProps) {
-  const [pastelEnabled, setPastelEnabled] = useState(initialPastelEnabled);
+  const [hostedBasemapEnabled, setHostedBasemapEnabled] = useState(initialHostedBasemapEnabled);
 
   useEffect(() => {
     let cancelled = false;
     fetch("/api/map/basemap", { cache: "no-store" })
-      .then((res) => (res.ok ? res.json() : { pastelEnabled: false }))
-      .then((data: { pastelEnabled?: boolean }) => {
-        if (!cancelled && typeof data.pastelEnabled === "boolean") {
-          setPastelEnabled(data.pastelEnabled);
+      .then((res) => (res.ok ? res.json() : { basemapEnabled: false }))
+      .then((data: { basemapEnabled?: boolean }) => {
+        if (!cancelled && typeof data.basemapEnabled === "boolean") {
+          setHostedBasemapEnabled(data.basemapEnabled);
         }
       })
       .catch(() => {});
@@ -62,17 +62,17 @@ export function MapBasemapProvider({
   }, []);
 
   const value = useMemo((): MapBasemapValue => {
-    if (!pastelEnabled) {
+    if (!hostedBasemapEnabled) {
       return defaultBasemap;
     }
 
     return {
-      pastelEnabled: true,
-      provider: "maptiler",
-      tileUrl: PASTEL_PROXY_TILE_URL,
-      attribution: MAPTILER_ATTRIBUTION,
+      hostedBasemapEnabled: true,
+      provider: "stadiamaps",
+      tileUrl: STADIA_PROXY_TILE_URL,
+      attribution: STADIA_ATTRIBUTION,
     };
-  }, [pastelEnabled]);
+  }, [hostedBasemapEnabled]);
 
   return <MapBasemapContext.Provider value={value}>{children}</MapBasemapContext.Provider>;
 }

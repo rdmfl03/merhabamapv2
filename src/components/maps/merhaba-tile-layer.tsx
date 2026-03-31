@@ -18,15 +18,14 @@ function SuppressLeafletAttributionPrefix() {
 }
 
 /**
- * MapTiler „Pastel“ via same-origin /api/map-tiles when `MAPTILER_API_KEY` is set;
+ * Stadia raster tiles via same-origin /api/map-tiles when `STADIA_API_KEY` is set;
  * otherwise OpenStreetMap. Key never ships to the browser.
- * No silent fallback to OSM when Pastel is configured — keeps style consistent (fix key/upstream instead).
  */
 export function MerhabaTileLayer() {
   const basemap = useMapBasemap();
 
-  const url = basemap.pastelEnabled ? basemap.tileUrl : OSM_TILE_URL;
-  const attribution = basemap.pastelEnabled ? basemap.attribution : OSM_ATTRIBUTION;
+  const url = basemap.hostedBasemapEnabled ? basemap.tileUrl : OSM_TILE_URL;
+  const attribution = basemap.hostedBasemapEnabled ? basemap.attribution : OSM_ATTRIBUTION;
 
   return (
     <>

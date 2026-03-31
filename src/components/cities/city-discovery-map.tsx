@@ -2,14 +2,13 @@
 
 import dynamic from "next/dynamic";
 import type { Route } from "next";
+import type { EventCategory } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import type { Dispatch, ErrorInfo, ReactNode, SetStateAction } from "react";
 import { Component, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   CalendarDays,
   ChevronDown,
-  Crosshair,
-  LocateFixed,
   MapPin,
   Search,
   Star,
@@ -17,12 +16,22 @@ import {
 
 import type { CityMapPoint, MapViewportBounds } from "@/components/cities/city-discovery-map-types";
 import { Link } from "@/i18n/navigation";
-import { formatEventDateRange, getEventCategoryLabelKey } from "@/lib/events";
+import {
+  getEventImageFallbackKey,
+  getPlaceImageFallbackKey,
+  type CategoryFallbackVisualKey,
+} from "@/lib/category-fallback-visual";
+import {
+  formatEventDateRange,
+  getEventCategoryLabelKey,
+  resolveEventImage,
+} from "@/lib/events";
 import {
   computeMapScore,
   getLocalizedPlaceCategoryLabel,
   getPlaceDisplayRatingSummary,
   getLocalizedText,
+  resolvePlaceImage,
 } from "@/lib/places";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -73,6 +82,16 @@ type CityPlacePoint = {
   displayRatingCount?: number | null;
   ratingSourceCount?: number | null;
   verificationStatus: string;
+  images?: string[] | null;
+  primaryImageAsset?: {
+    assetUrl: string;
+  } | null;
+  fallbackImageAsset?: {
+    assetUrl: string;
+  } | null;
+  mediaAssets?: Array<{
+    assetUrl: string;
+  }> | null;
 };
 
 /** Eine Zeile für Karte/Liste: Straße + PLZ Ort, ohne doppelte PLZ wenn schon in der Straßenzeile. */
@@ -125,19 +144,33 @@ type CityEventPoint = {
   descriptionTr: string | null;
   startsAt: Date | string;
   endsAt: Date | string | null;
+  imageUrl?: string | null;
+  primaryImageAsset?: {
+    assetUrl: string;
+  } | null;
+  fallbackImageAsset?: {
+    assetUrl: string;
+  } | null;
+  mediaAssets?: Array<{
+    assetUrl: string;
+  }> | null;
 };
 
 const EMPTY_EFFECTIVE_PLACES: CityPlacePoint[] = [];
 const EMPTY_EFFECTIVE_EVENTS: CityEventPoint[] = [];
 
-const DISCOVERY_MAP_FRAME_CLASS =
-  "relative isolate z-0 h-[36rem] overflow-hidden rounded-[1.9rem] border border-border/70 bg-[#f5f6f8] lg:h-[42rem]";
+function getDiscoveryMapFrameClass(isGermanyNationalMap: boolean) {
+  return isGermanyNationalMap
+    ? "relative isolate z-0 h-[44rem] overflow-hidden rounded-[1.9rem] border border-border/70 bg-[#f5f6f8] lg:h-[58rem] xl:h-[64rem]"
+    : "relative isolate z-0 h-[36rem] overflow-hidden rounded-[1.9rem] border border-border/70 bg-[#f5f6f8] lg:h-[42rem]";
+}
 
 type DiscoveryMapLeafletErrorBoundaryProps = {
   children: ReactNode;
   title: string;
   description: string;
   retryLabel: string;
+  frameClassName: string;
 };
 
 type DiscoveryMapLeafletErrorBoundaryState = {
@@ -161,7 +194,7 @@ class DiscoveryMapLeafletErrorBoundary extends Component<
   render() {
     if (this.state.error) {
       return (
-        <div className={DISCOVERY_MAP_FRAME_CLASS}>
+        <div className={this.props.frameClassName}>
           <div className="flex h-full flex-col items-center justify-center gap-3 px-6 text-center">
             <p className="text-sm font-semibold text-foreground">{this.props.title}</p>
             <p className="max-w-md text-sm text-muted-foreground">{this.props.description}</p>
@@ -224,6 +257,7 @@ type CityDiscoveryMapProps = {
   categoryLabels: Record<string, string>;
   places: CityPlacePoint[];
   events: CityEventPoint[];
+  isGermanyNationalMap?: boolean;
   /** When set (national map), map shows city clusters until one is opened. */
   germanyMapClusters?: GermanyMapCluster[] | null;
   germanyClusterHint?: string;
@@ -242,6 +276,8 @@ type NormalizedPoint =
       kind: "place";
       label: string;
       href: string;
+      imageUrl: string | null;
+      fallbackVisualKey: CategoryFallbackVisualKey;
       description: string;
       latitude: number;
       longitude: number;
@@ -259,6 +295,8 @@ type NormalizedPoint =
       kind: "event";
       label: string;
       href: string;
+      imageUrl: string | null;
+      fallbackVisualKey: CategoryFallbackVisualKey;
       description: string;
       latitude: number;
       longitude: number;
@@ -548,6 +586,7 @@ export function CityDiscoveryMap({
   categoryLabels,
   places,
   events,
+  isGermanyNationalMap = false,
   germanyMapClusters,
   germanyClusterHint = "",
   germanyBackToOverview = "",
@@ -559,6 +598,7 @@ export function CityDiscoveryMap({
   mapLoadErrorRetry,
 }: CityDiscoveryMapProps) {
   const router = useRouter();
+  const frameClassName = getDiscoveryMapFrameClass(isGermanyNationalMap);
   const [cityPickerValue, setCityPickerValue] = useState(selectedCitySlug);
   const [typeFilter, setTypeFilter] = useState<"all" | "place" | "event">("all");
   const [selectedCategoryKeys, setSelectedCategoryKeys] = useState<string[]>([]);
@@ -673,6 +713,9 @@ export function CityDiscoveryMap({
         const rating = getPlaceDisplayRatingSummary(
           place as unknown as Parameters<typeof getPlaceDisplayRatingSummary>[0],
         );
+        const resolvedImage = resolvePlaceImage(
+          place as unknown as Parameters<typeof resolvePlaceImage>[0],
+        );
         const ratingLocale = locale === "tr" ? "tr-TR" : "de-DE";
         const v = rating?.value;
         const mapRatingLabel =
@@ -687,6 +730,8 @@ export function CityDiscoveryMap({
           kind: "place" as const,
           label: place.name,
           href: `/places/${place.slug}`,
+          imageUrl: resolvedImage?.url ?? null,
+          fallbackVisualKey: getPlaceImageFallbackKey(place),
           description: getLocalizedText(
             { de: place.descriptionDe, tr: place.descriptionTr },
             locale,
@@ -716,6 +761,11 @@ export function CityDiscoveryMap({
         kind: "event" as const,
         label: event.title,
         href: `/events/${event.slug}`,
+        imageUrl:
+          resolveEventImage(
+            event as unknown as Parameters<typeof resolveEventImage>[0],
+          )?.url ?? null,
+        fallbackVisualKey: getEventImageFallbackKey(event.category as EventCategory),
         description: getLocalizedText(
           { de: event.descriptionDe, tr: event.descriptionTr },
           locale,
@@ -890,7 +940,7 @@ export function CityDiscoveryMap({
 
               return Number(b.id === selectedId) - Number(a.id === selectedId);
             })
-            .slice(0, 10)
+            .slice(0, 5)
         : [],
     [effectivePlaces, listSource, selectedId, userLocation],
   );
@@ -907,7 +957,7 @@ export function CityDiscoveryMap({
         ? [...listSource]
             .filter((point) => point.kind === "event")
             .sort((a, b) => Number(b.id === selectedId) - Number(a.id === selectedId))
-            .slice(0, 10)
+            .slice(0, 5)
         : [],
     [listSource, selectedId],
   );
@@ -970,11 +1020,13 @@ export function CityDiscoveryMap({
       <div className="p-5 sm:p-6">
         <div className="mb-5 flex flex-wrap items-start justify-between gap-4">
           <div className="max-w-xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">
-              {cityName}
-            </p>
+            {isGermanyNationalMap ? (
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">
+                {cityName}
+              </p>
+            ) : null}
             <h2 className="mt-1 font-display text-2xl text-foreground sm:text-[2rem]">
-              {title}
+              {isGermanyNationalMap ? title : cityName}
             </h2>
             <p className="mt-2 max-w-xl text-sm leading-6 text-muted-foreground">
               {description}
@@ -995,7 +1047,10 @@ export function CityDiscoveryMap({
           <select
             value={cityPickerValue}
             onChange={(event) => handleCityPickerChange(event.target.value)}
-            className="h-11 min-w-[10rem] flex-1 basis-[min(100%,14rem)] rounded-2xl border border-border bg-white px-3 text-sm text-foreground shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className={cn(
+              "h-11 rounded-2xl border border-border bg-white px-3 text-sm text-foreground shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              isGermanyNationalMap ? "w-full max-w-md" : "w-full max-w-[14rem]",
+            )}
             aria-label={cityPickerLabel}
           >
             <option value="">{cityPickerAllLabel}</option>
@@ -1005,115 +1060,113 @@ export function CityDiscoveryMap({
               </option>
             ))}
           </select>
-          <div className="relative min-w-0 flex-1 basis-[min(100%,22rem)]">
-            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder={searchPlaceholder}
-              className="pl-11"
-            />
-          </div>
-
-          {categoryOptions.length > 0 ? (
-            <div
-              ref={categoryDropdownRef}
-              className="relative min-w-[10rem] flex-1 basis-[min(100%,14rem)]"
-            >
-              <button
-                type="button"
-                id="discovery-category-dropdown-trigger"
-                aria-expanded={categoryMenuOpen}
-                aria-haspopup="listbox"
-                aria-label={categoriesFilterLabel}
-                onClick={() => setCategoryMenuOpen((open) => !open)}
-                className="flex h-11 w-full items-center justify-between gap-2 rounded-2xl border border-border bg-white px-4 text-left text-sm text-foreground shadow-sm outline-none transition hover:bg-white/95 focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                <span className="min-w-0 truncate">{categoryTriggerLabel}</span>
-                <ChevronDown
-                  className={cn(
-                    "h-4 w-4 shrink-0 text-muted-foreground transition-transform",
-                    categoryMenuOpen && "rotate-180",
-                  )}
-                  aria-hidden
+          {!isGermanyNationalMap ? (
+            <>
+              <div className="relative min-w-0 flex-1 basis-[min(100%,22rem)]">
+                <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  placeholder={searchPlaceholder}
+                  className="pl-11"
                 />
-              </button>
-              {categoryMenuOpen ? (
-                <div
-                  className="absolute left-0 right-0 z-50 mt-1 max-h-64 overflow-y-auto rounded-2xl border border-border bg-white p-3 shadow-lg"
-                  role="listbox"
-                  aria-labelledby="discovery-category-dropdown-trigger"
-                  aria-multiselectable="true"
-                >
-                  <p className="mb-2 text-xs text-muted-foreground">{categoriesFilterHint}</p>
-                  <div className="flex flex-col gap-1">
-                    {categoryOptions.map((category) => {
-                      const checked = selectedCategoryKeys.includes(category.key);
-                      return (
-                        <label
-                          key={category.key}
-                          className="flex cursor-pointer items-center gap-2 rounded-xl px-2 py-2 text-sm text-foreground hover:bg-muted/60 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring"
-                        >
-                          <input
-                            type="checkbox"
-                            checked={checked}
-                            onChange={() => toggleCategoryKey(category.key)}
-                            className="h-4 w-4 shrink-0 rounded border-border text-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                          />
-                          <span>{category.label}</span>
-                        </label>
-                      );
-                    })}
-                  </div>
-                </div>
-              ) : null}
-            </div>
+              </div>
+            </>
           ) : null}
-
-          <Button
-            type="button"
-            variant="outline"
-            className="h-11 shrink-0 px-4"
-            onClick={resetFilters}
-            disabled={!hasActiveFilters}
-          >
-            {resetFiltersLabel}
-          </Button>
         </div>
 
-        <div className="mb-5 flex flex-wrap gap-2">
-          {[
-            { key: "all", label: allLabel },
-            { key: "place", label: placesOnlyLabel },
-            { key: "event", label: eventsOnlyLabel },
-          ].map((option) => (
-            <Button
-              key={option.key}
-              type="button"
-              variant={typeFilter === option.key ? "default" : "outline"}
-              size="sm"
-              onClick={() =>
-                setTypeFilter(option.key as "all" | "place" | "event")
-              }
-            >
-              {option.label}
-            </Button>
-            ))}
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={handleLocateMe}
-            disabled={locationState === "loading"}
-          >
-            {locationState === "loading" ? (
-              <LocateFixed className="mr-2 h-4 w-4 animate-pulse" />
-            ) : (
-              <Crosshair className="mr-2 h-4 w-4" />
-            )}
-            {locationState === "loading" ? locatingLabel : locateMeLabel}
-          </Button>
-        </div>
+        {!isGermanyNationalMap ? (
+          <div className="mb-5 rounded-[1.5rem] border border-border/70 bg-white/72 p-3 shadow-sm">
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="relative min-w-[12rem] flex-1 basis-[min(100%,16rem)]">
+                {categoryOptions.length > 0 ? (
+                  <div
+                    ref={categoryDropdownRef}
+                    className="relative"
+                  >
+                    <button
+                      type="button"
+                      id="discovery-category-dropdown-trigger"
+                      aria-expanded={categoryMenuOpen}
+                      aria-haspopup="listbox"
+                      aria-label={categoriesFilterLabel}
+                      onClick={() => setCategoryMenuOpen((open) => !open)}
+                      className="flex h-11 w-full items-center justify-between gap-2 rounded-2xl border border-border bg-white px-4 text-left text-sm text-foreground shadow-sm outline-none transition hover:bg-white/95 focus-visible:ring-2 focus-visible:ring-ring"
+                    >
+                      <span className="min-w-0 truncate">{categoryTriggerLabel}</span>
+                      <ChevronDown
+                        className={cn(
+                          "h-4 w-4 shrink-0 text-muted-foreground transition-transform",
+                          categoryMenuOpen && "rotate-180",
+                        )}
+                        aria-hidden
+                      />
+                    </button>
+                    {categoryMenuOpen ? (
+                      <div
+                        className="absolute left-0 right-0 z-50 mt-1 max-h-64 overflow-y-auto rounded-2xl border border-border bg-white p-3 shadow-lg"
+                        role="listbox"
+                        aria-labelledby="discovery-category-dropdown-trigger"
+                        aria-multiselectable="true"
+                      >
+                        <p className="mb-2 text-xs text-muted-foreground">{categoriesFilterHint}</p>
+                        <div className="flex flex-col gap-1">
+                          {categoryOptions.map((category) => {
+                            const checked = selectedCategoryKeys.includes(category.key);
+                            return (
+                              <label
+                                key={category.key}
+                                className="flex cursor-pointer items-center gap-2 rounded-xl px-2 py-2 text-sm text-foreground hover:bg-muted/60 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring"
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={checked}
+                                  onChange={() => toggleCategoryKey(category.key)}
+                                  className="h-4 w-4 shrink-0 rounded border-border text-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                                />
+                                <span>{category.label}</span>
+                              </label>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ) : null}
+                  </div>
+                ) : null}
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { key: "all", label: allLabel },
+                  { key: "place", label: placesOnlyLabel },
+                  { key: "event", label: eventsOnlyLabel },
+                ].map((option) => (
+                  <Button
+                    key={option.key}
+                    type="button"
+                    variant={typeFilter === option.key ? "default" : "outline"}
+                    size="sm"
+                    onClick={() =>
+                      setTypeFilter(option.key as "all" | "place" | "event")
+                    }
+                  >
+                    {option.label}
+                  </Button>
+                ))}
+              </div>
+
+              <Button
+                type="button"
+                variant="outline"
+                className="h-11 shrink-0 px-4"
+                onClick={resetFilters}
+                disabled={!hasActiveFilters}
+              >
+                {resetFiltersLabel}
+              </Button>
+            </div>
+          </div>
+        ) : null}
 
         {locationState === "unavailable" ? (
           <p className="mb-4 text-sm text-muted-foreground">
@@ -1121,23 +1174,11 @@ export function CityDiscoveryMap({
           </p>
         ) : null}
 
-        {selectedCitySlug && germanyBackToOverview ? (
-          <div className="mb-4">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => router.push(`/${locale}/map` as Route)}
-            >
-              {germanyBackToOverview}
-            </Button>
-          </div>
-        ) : null}
-
         <DiscoveryMapLeafletErrorBoundary
           title={mapLoadErrorTitle}
           description={mapLoadErrorBody}
           retryLabel={mapLoadErrorRetry}
+          frameClassName={frameClassName}
         >
           <CityDiscoveryInteractiveMap
             points={mapPoints}
@@ -1159,6 +1200,9 @@ export function CityDiscoveryMap({
             viewEventLabel={viewEventLabel}
             myLocationLabel={myLocationLabel}
             locateMeLabel={locateMeLabel}
+            isGermanyNationalMap={isGermanyNationalMap}
+            onLocateMe={handleLocateMe}
+            locateMeLoading={locationState === "loading"}
             onViewportBoundsChange={handleViewportBounds}
             germanyCityClusters={germanyClusterMarkers}
             onGermanyCityClusterClick={

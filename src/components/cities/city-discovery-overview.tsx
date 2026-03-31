@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { Children, type ReactNode } from "react";
 
 import { CityDiscoveryMap } from "@/components/cities/city-discovery-map";
 import { EventCard } from "@/components/events/event-card";
@@ -142,30 +142,55 @@ export function CityDiscoveryOverview({
   const showFeaturedBelowMap = !isGermanyNationalMap;
 
   return (
-    <div className="mx-auto max-w-6xl space-y-10 px-4 py-10 sm:py-12">
-      <section className="space-y-6">
-        <div className="space-y-4">
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand">
-            {labels.eyebrow}
-          </p>
-          <h1 className="font-display text-4xl text-foreground sm:text-5xl">
-            {labels.title}
-          </h1>
-          <p className="max-w-3xl text-base leading-7 text-muted-foreground">
-            {labels.description}
-          </p>
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <Button asChild>
-              <Link href={placesListHref}>{labels.placesCta}</Link>
-            </Button>
-            <Button variant="outline" asChild>
-              <Link href={eventsListHref}>{labels.eventsCta}</Link>
-            </Button>
-            <Button variant="outline" asChild>
-              <Link href="/auth/signup">{labels.signUpCta}</Link>
-            </Button>
+    <div className="mx-auto max-w-6xl space-y-8 px-4 py-8 sm:space-y-10 sm:py-10">
+      <section className="space-y-5">
+        <div className="rounded-[2rem] border border-border/60 bg-white/55 px-5 py-5 shadow-[0_16px_50px_rgba(15,23,42,0.05)] backdrop-blur-sm sm:px-7 sm:py-6">
+          <div className="max-w-3xl space-y-3">
+              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand">
+                {labels.eyebrow}
+              </p>
+              <h1 className="font-display text-4xl text-foreground sm:text-[3.4rem] sm:leading-none">
+                {labels.title}
+              </h1>
+              <p className="max-w-2xl text-base leading-7 text-muted-foreground sm:text-[1.05rem]">
+                {labels.description}
+              </p>
           </div>
-          {cityFollowSlot ? <div className="pt-1">{cityFollowSlot}</div> : null}
+
+          {isGermanyNationalMap ? (
+            <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+              <Button asChild>
+                <Link href={placesListHref}>{labels.placesCta}</Link>
+              </Button>
+              <Button variant="outline" asChild>
+                <Link href={eventsListHref}>{labels.eventsCta}</Link>
+              </Button>
+              {!isAuthenticated ? (
+                <Link
+                  href="/auth/signup"
+                  className="text-sm font-medium text-muted-foreground transition hover:text-foreground"
+                >
+                  {labels.signUpCta}
+                </Link>
+              ) : null}
+            </div>
+          ) : (
+            <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+              <div className="flex flex-wrap items-center gap-3">
+                {Children.toArray([
+                  cityFollowSlot,
+                  labels.germanyBackToOverview ? (
+                    <Link
+                      href="/map"
+                      className="text-sm font-medium text-muted-foreground transition hover:text-foreground"
+                    >
+                      {labels.germanyBackToOverview}
+                    </Link>
+                  ) : null,
+                ])}
+              </div>
+            </div>
+          )}
         </div>
 
         <CityDiscoveryMap
@@ -208,6 +233,7 @@ export function CityDiscoveryOverview({
           categoryLabels={labels.eventCategoryLabels}
           places={mapPlaces}
           events={mapEvents}
+          isGermanyNationalMap={isGermanyNationalMap}
           germanyMapClusters={germanyMapClusters}
           germanyClusterHint={labels.germanyClusterHint}
           germanyBackToOverview={labels.germanyBackToOverview}
