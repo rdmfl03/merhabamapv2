@@ -1,16 +1,16 @@
 import { NextResponse } from "next/server";
 
-import { isMapTilerConfigured } from "@/lib/maptiler-server";
+import { isStadiaConfigured } from "@/lib/stadia-server";
 
 export const dynamic = "force-dynamic";
 
 /**
- * Liefert nur ein Boolean — kein API-Key. Client setzt Pastel-Basemap nach Mount,
- * damit Netlify-Runtime-Secrets zuverlässig greifen (ohne Build-Zeit-Freeze im Layout).
+ * Liefert nur ein Boolean — kein API-Key.
+ * Client aktiviert die gehostete Basemap nach Mount, damit Runtime-Secrets sauber greifen.
  */
 export async function GET() {
   return NextResponse.json(
-    { pastelEnabled: isMapTilerConfigured() },
+    { basemapEnabled: isStadiaConfigured() },
     {
       headers: {
         "Cache-Control": "no-store",

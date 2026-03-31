@@ -4,7 +4,7 @@ import { getLocale } from "next-intl/server";
 import "@/app/globals.css";
 import { MapBasemapProvider } from "@/components/maps/map-basemap-context";
 import { appConfig } from "@/lib/app-config";
-import { isMapTilerConfigured } from "@/lib/maptiler-server";
+import { isStadiaConfigured } from "@/lib/stadia-server";
 
 function getMetadataBase() {
   const value = process.env.APP_URL?.trim();
@@ -46,12 +46,12 @@ export default async function RootLayout({
 }>) {
   /** Sprach-Attribut: Cookie/Middleware; Client-Übersetzungen kommen aus `app/[locale]/layout.tsx`. */
   const locale = await getLocale();
-  const mapTilerPastelAvailable = isMapTilerConfigured();
+  const hostedBasemapAvailable = isStadiaConfigured();
 
   return (
     <html lang={locale} suppressHydrationWarning>
       <body className="antialiased">
-        <MapBasemapProvider initialPastelEnabled={mapTilerPastelAvailable}>
+        <MapBasemapProvider initialHostedBasemapEnabled={hostedBasemapAvailable}>
           {children}
         </MapBasemapProvider>
       </body>

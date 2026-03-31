@@ -1,11 +1,8 @@
 import { NextResponse } from "next/server";
 
-import {
-  getMapTilerApiKeyForRequest,
-  getMapTilerUpstreamFetchHeaders,
-} from "@/lib/maptiler-server";
+import { getStadiaApiKeyForRequest } from "@/lib/stadia-server";
 
-const MAPTILER_PASTEL = "https://api.maptiler.com/maps/pastel" as const;
+const STADIA_ALIDADE_SMOOTH = "https://tiles.stadiamaps.com/tiles/alidade_smooth" as const;
 
 function parseTileIndex(raw: string) {
   const cleaned = raw.replace(/\.png$/i, "");
@@ -20,7 +17,7 @@ export async function GET(
   _request: Request,
   context: { params: Promise<{ z: string; x: string; y: string }> },
 ) {
-  const key = getMapTilerApiKeyForRequest();
+  const key = getStadiaApiKeyForRequest();
   if (!key) {
     return new NextResponse("Map tiles not configured", { status: 503 });
   }
@@ -39,11 +36,8 @@ export async function GET(
     return new NextResponse("Tile out of range", { status: 400 });
   }
 
-  const upstream = `${MAPTILER_PASTEL}/${z}/${x}/${y}.png?key=${encodeURIComponent(key)}`;
-  const upstreamRes = await fetch(upstream, {
-    cache: "no-store",
-    headers: getMapTilerUpstreamFetchHeaders(),
-  });
+  const upstream = `${STADIA_ALIDADE_SMOOTH}/${z}/${x}/${y}.png?api_key=${encodeURIComponent(key)}`;
+  const upstreamRes = await fetch(upstream, { cache: "no-store" });
 
   if (!upstreamRes.ok) {
     return new NextResponse("Upstream tile error", { status: upstreamRes.status });

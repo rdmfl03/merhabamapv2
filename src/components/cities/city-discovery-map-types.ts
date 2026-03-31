@@ -1,3 +1,5 @@
+import type { CategoryFallbackVisualKey } from "@/lib/category-fallback-visual";
+
 export type MapViewportBounds = {
   south: number;
   west: number;
@@ -10,6 +12,8 @@ export type CityMapPoint = {
   kind: "place" | "event";
   label: string;
   href: string;
+  imageUrl?: string | null;
+  fallbackVisualKey?: CategoryFallbackVisualKey;
   description: string;
   latitude: number;
   longitude: number;

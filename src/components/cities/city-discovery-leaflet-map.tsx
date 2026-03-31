@@ -56,6 +56,7 @@ type CityDiscoveryLeafletMapProps = {
   myLocationLabel: string;
   /** Beschriftung / aria für den Standort-Button unten rechts. */
   locateMeLabel: string;
+  isGermanyNationalMap?: boolean;
   onLocateMe?: () => void;
   locateMeLoading?: boolean;
   onViewportBoundsChange?: (bounds: MapViewportBounds) => void;
@@ -75,16 +76,16 @@ type CityDiscoveryLeafletMapProps = {
 const DEFAULT_CENTER: LatLngExpression = [51.1657, 10.4515];
 
 /**
- * Pan- und Zoom-Rahmen: Deutschland mit moderatem Rand zu Nachbarregionen.
- * Verhindert Herauszoomen bis Weltkarte/Nordpol; Produktfokus bleibt D-A-CH + Mitteleuropa-Kern.
+ * Pan- und Zoom-Rahmen: Deutschland mit kleinem Sicherheitsrand.
+ * Verhindert weites Herauszoomen; Fokus bleibt klar auf Deutschland.
  */
 const DISCOVERY_MAP_MAX_BOUNDS: LatLngBoundsExpression = [
-  [45.35, 4.95],
-  [55.5, 17.1],
+  [47.05, 5.15],
+  [55.25, 15.7],
 ];
 
-/** Unterhalb dieses Zooms wird die Karte zu weit (z. B. ganze Nordhalbkugel). */
-const DISCOVERY_MAP_MIN_ZOOM = 5;
+/** Unterhalb dieses Zooms wird die Deutschland-Ansicht zu weit. */
+const DISCOVERY_MAP_MIN_ZOOM = 5.6;
 
 /**
  * Unspiderfy nur bei Klick auf die Basemap, nicht auf Pins/Lines/UI.
@@ -185,24 +186,21 @@ function stopPinClickFromClosingSpiderfy(e: LeafletMouseEvent) {
 }
 
 function mapPopupDescriptionLine(point: CityMapPoint): string | null {
-  const desc = point.description.trim();
+  const desc = point.description
+    .replace(/&#10;|&#13;|&#xa;|&#x0d;/gi, " ")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;/gi, "'")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/\s+/g, " ")
+    .trim();
   return desc || null;
 }
 
 const mapPopupCtaClassName =
-  "merhaba-map-popup-cta inline-flex items-center justify-center gap-1.5 rounded-full bg-gradient-to-b from-[#f01828] to-[#c90814] px-3.5 py-2.5 text-xs font-semibold text-white shadow-[0_2px_8px_rgba(227,10,23,0.35),inset_0_1px_0_rgba(255,255,255,0.22)] ring-1 ring-black/10 transition-[box-shadow,transform,filter] duration-200 hover:brightness-[1.03] hover:shadow-[0_4px_14px_rgba(227,10,23,0.4)] active:scale-[0.98]";
-
-function MapPopupCardAccent({ className }: { className?: string }) {
-  return (
-    <div
-      className={cn(
-        "pointer-events-none mb-3 h-1 w-full rounded-full bg-gradient-to-r from-[#e30a17] via-rose-500 to-amber-500 opacity-[0.92] shadow-[0_1px_6px_rgba(227,10,23,0.25)]",
-        className,
-      )}
-      aria-hidden
-    />
-  );
-}
+  "merhaba-map-popup-cta inline-flex items-center justify-center gap-1.5 rounded-full bg-[#e30a17] px-3 py-2 text-xs font-semibold text-white shadow-[0_6px_14px_rgba(227,10,23,0.18)] transition-[transform,background-color,box-shadow] duration-200 hover:bg-[#cc0915] hover:shadow-[0_8px_18px_rgba(227,10,23,0.24)] active:scale-[0.98]";
 
 function GermanyClusterMapPopup({
   cluster,
@@ -219,24 +217,23 @@ function GermanyClusterMapPopup({
 }) {
   return (
     <Popup>
-      <div className="merhaba-map-cluster-popup merhaba-map-popup-surface min-w-[15rem] max-w-[min(20rem,calc(100vw-2.5rem))] px-3 py-2.5 text-center">
-        <MapPopupCardAccent className="mb-2" />
-        <h3 className="text-[1rem] font-semibold leading-tight tracking-tight text-slate-900">
+      <div className="merhaba-map-cluster-popup min-w-[12.5rem] max-w-[min(16rem,calc(100vw-2.5rem))] rounded-[1.25rem] border border-white/85 bg-white/95 px-3 py-3 text-center shadow-[0_14px_38px_rgba(15,23,42,0.14)] backdrop-blur-md">
+        <h3 className="text-[1.05rem] font-semibold leading-tight tracking-tight text-slate-900">
           {cluster.label}
         </h3>
-        <div className="mt-2 flex flex-nowrap items-stretch justify-center gap-2">
-          <span className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border border-slate-200/90 bg-slate-50/95 px-2.5 py-1 text-[10px] font-semibold leading-tight text-slate-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.85)]">
+        <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
+          <span className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-semibold leading-tight text-slate-700">
             <MapPin className="h-3 w-3 shrink-0 text-[#e30a17]" aria-hidden />
             <span className="tabular-nums text-slate-900">{cluster.placeCount}</span>
             <span className="font-medium text-slate-500">{legendPlaces}</span>
           </span>
-          <span className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border border-slate-200/90 bg-slate-50/95 px-2.5 py-1 text-[10px] font-semibold leading-tight text-slate-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.85)]">
+          <span className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-semibold leading-tight text-slate-700">
             <CalendarDays className="h-3 w-3 shrink-0 text-slate-600" aria-hidden />
             <span className="tabular-nums text-slate-900">{cluster.eventCount}</span>
             <span className="font-medium text-slate-500">{legendEvents}</span>
           </span>
         </div>
-        <button type="button" className={`${mapPopupCtaClassName} mt-4 w-full`} onClick={onOpenCity}>
+        <button type="button" className={`${mapPopupCtaClassName} mt-3 w-full`} onClick={onOpenCity}>
           <span>{revealLabel}</span>
           <ChevronRight className="h-4 w-4 shrink-0 opacity-95" aria-hidden />
         </button>
@@ -255,6 +252,10 @@ function MapEntityPopup({
   placeRatingCaption?: string;
 }) {
   const descriptionLine = mapPopupDescriptionLine(point);
+  const teaserLine =
+    descriptionLine && descriptionLine.length > 88
+      ? `${descriptionLine.slice(0, 85).trimEnd()}...`
+      : descriptionLine;
 
   if (point.kind === "place") {
     const addressLine = point.mapAddressLine?.trim() || point.meta;
@@ -263,53 +264,46 @@ function MapEntityPopup({
       : (point.mapRatingLabel ?? undefined);
     return (
       <Popup>
-        <div className="merhaba-map-entity-popup merhaba-map-popup-surface min-w-[12rem] max-w-[19rem]">
-          <MapPopupCardAccent />
-          <div className="flex gap-3">
-            <div
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#e30a17]/14 via-rose-500/8 to-transparent text-[#c90814] shadow-inner shadow-white/40 ring-1 ring-[#e30a17]/12"
-              aria-hidden
-            >
-              <MapPin className="h-5 w-5" strokeWidth={2} />
-            </div>
-            <div className="min-w-0 flex-1 space-y-2 pr-1">
-              <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#c90814]">
+        <div className="merhaba-map-entity-popup merhaba-map-popup-surface min-w-[11.5rem] max-w-[16rem]">
+          <div className="space-y-3">
+            <div className="space-y-2">
+              <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#c90814]">
                 {point.categoryLabel}
               </p>
-              <h4 className="text-[15px] font-semibold leading-snug tracking-tight text-slate-900">
+              <h4 className="text-[0.98rem] font-semibold leading-tight tracking-tight text-slate-950">
                 {point.label}
               </h4>
-              <p className="flex items-start gap-2 text-xs font-medium leading-relaxed text-slate-500">
+              <p className="flex items-start gap-2 text-[12px] leading-5 text-slate-600">
                 <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" aria-hidden />
                 <span>{addressLine}</span>
               </p>
-              {point.mapRatingLabel ? (
-                <p
-                  className="inline-flex max-w-full flex-wrap items-center gap-2 rounded-lg border border-amber-200/60 bg-gradient-to-r from-amber-50/90 to-orange-50/50 px-2.5 py-1.5 text-xs text-slate-800 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]"
-                  aria-label={ratingAria}
-                >
-                  <Star
-                    className="h-3.5 w-3.5 shrink-0 fill-amber-400 text-amber-500 drop-shadow-sm"
-                    aria-hidden
-                  />
-                  {placeRatingCaption ? (
-                    <span className="font-medium text-slate-600">{placeRatingCaption}</span>
-                  ) : null}
-                  <span className="font-semibold tabular-nums text-slate-900">{point.mapRatingLabel}</span>
-                </p>
-              ) : null}
-              {descriptionLine ? (
-                <p className="rounded-lg border border-slate-200/70 bg-slate-50/80 px-2.5 py-2 text-xs leading-relaxed text-slate-600 shadow-[inset_0_1px_0_rgba(255,255,255,0.75)]">
-                  {descriptionLine}
-                </p>
-              ) : null}
             </div>
-          </div>
-          <div className="mt-3">
-            <Link href={point.href} className={mapPopupCtaClassName}>
-              <span>{ctaLabel}</span>
-              <ChevronRight className="h-4 w-4 shrink-0 opacity-95" aria-hidden />
-            </Link>
+
+            {point.mapRatingLabel ? (
+              <p
+                className="inline-flex max-w-full flex-wrap items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50/80 px-2.5 py-1 text-[11px] text-slate-700"
+                aria-label={ratingAria}
+              >
+                <Star className="h-3.5 w-3.5 shrink-0 fill-amber-400 text-amber-500" aria-hidden />
+                {placeRatingCaption ? (
+                  <span className="font-medium text-slate-600">{placeRatingCaption}</span>
+                ) : null}
+                <span className="font-semibold tabular-nums text-slate-900">{point.mapRatingLabel}</span>
+              </p>
+            ) : null}
+
+            {teaserLine ? (
+              <p className="line-clamp-3 text-[12px] leading-5 text-slate-600">
+                {teaserLine}
+              </p>
+            ) : null}
+
+            <div className="pt-0.5">
+              <Link href={point.href} className={mapPopupCtaClassName}>
+                <span>{ctaLabel}</span>
+                <ChevronRight className="h-4 w-4 shrink-0 opacity-95" aria-hidden />
+              </Link>
+            </div>
           </div>
         </div>
       </Popup>
@@ -318,38 +312,33 @@ function MapEntityPopup({
 
   return (
     <Popup>
-      <div className="merhaba-map-entity-popup merhaba-map-popup-surface min-w-[12rem] max-w-[19rem]">
-        <MapPopupCardAccent />
-        <div className="flex gap-3">
-          <div
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-slate-700/12 via-slate-600/8 to-transparent text-slate-700 shadow-inner shadow-white/40 ring-1 ring-slate-300/60"
-            aria-hidden
-          >
-            <CalendarDays className="h-5 w-5" strokeWidth={2} />
-          </div>
-          <div className="min-w-0 flex-1 space-y-2 pr-1">
-            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#c90814]">
+      <div className="merhaba-map-entity-popup merhaba-map-popup-surface min-w-[11.5rem] max-w-[16rem]">
+        <div className="space-y-3">
+          <div className="space-y-2">
+            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#c90814]">
               {point.categoryLabel}
             </p>
-            <h4 className="text-[15px] font-semibold leading-snug tracking-tight text-slate-900">
+            <h4 className="text-[0.98rem] font-semibold leading-tight tracking-tight text-slate-950">
               {point.label}
             </h4>
-            <p className="flex items-start gap-2 text-xs font-medium leading-relaxed text-slate-500">
+            <p className="flex items-start gap-2 text-[12px] leading-5 text-slate-600">
               <CalendarDays className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" aria-hidden />
               <span>{point.meta}</span>
             </p>
-            {descriptionLine ? (
-              <p className="rounded-lg border border-slate-200/70 bg-slate-50/80 px-2.5 py-2 text-xs leading-relaxed text-slate-600 shadow-[inset_0_1px_0_rgba(255,255,255,0.75)]">
-                {descriptionLine}
-              </p>
-            ) : null}
           </div>
-        </div>
-        <div className="mt-3">
-          <Link href={point.href} className={mapPopupCtaClassName}>
-            <span>{ctaLabel}</span>
-            <ChevronRight className="h-4 w-4 shrink-0 opacity-95" aria-hidden />
-          </Link>
+
+          {teaserLine ? (
+            <p className="line-clamp-3 text-[12px] leading-5 text-slate-600">
+              {teaserLine}
+            </p>
+          ) : null}
+
+          <div className="pt-0.5">
+            <Link href={point.href} className={mapPopupCtaClassName}>
+              <span>{ctaLabel}</span>
+              <ChevronRight className="h-4 w-4 shrink-0 opacity-95" aria-hidden />
+            </Link>
+          </div>
         </div>
       </div>
     </Popup>
@@ -451,62 +440,107 @@ function createClusterIcon(kind: "place" | "event", count: number): DivIcon {
   });
 }
 
-function createGermanyCityClusterIcon(cluster: GermanyCityClusterMarker): DivIcon {
-  /** Kompakter Pill-Marker: weniger Überlappung bei vielen Städten (Breite = max. Pill). */
-  const w = 118;
-  const h = 36;
-  const safeName = cluster.label
+function escapeClusterLabel(value: string): string {
+  return value
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/"/g, "&quot;");
+}
+
+function createGermanyCityClusterIcon(cluster: GermanyCityClusterMarker): DivIcon {
+  const placeDigits = String(cluster.placeCount).length;
+  const bubbleSize = Math.max(40, Math.min(50, 36 + placeDigits * 4));
+  const labelWidth = Math.max(bubbleSize + 8, cluster.label.length * 7 + 18);
+  const safeName = escapeClusterLabel(cluster.label);
+  const eventBadge =
+    cluster.eventCount > 0
+      ? `<div style="
+          position:absolute;
+          top:-2px;
+          right:-2px;
+          min-width:18px;
+          height:18px;
+          padding:0 5px;
+          border-radius:999px;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          background:#0f172a;
+          color:#ffffff;
+          border:2px solid rgba(255,255,255,0.95);
+          box-shadow:0 5px 12px rgba(15,23,42,0.18);
+          font-size:9px;
+          font-weight:700;
+          line-height:1;
+          font-variant-numeric:tabular-nums;
+        ">${cluster.eventCount}</div>`
+      : "";
+
   return L.divIcon({
     className: "merhaba-germany-city-cluster-icon",
     html: `<div style="
-      width:${w}px;
-      height:${h}px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
+      position:relative;
+      width:${labelWidth}px;
+      height:${bubbleSize + 28}px;
+      font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+      -webkit-font-smoothing:antialiased;
+      cursor:pointer;
     ">
       <div style="
-        box-sizing:border-box;
-        max-width:118px;
-        padding:3px 9px 4px;
+        position:absolute;
+        left:50%;
+        top:0;
+        width:${bubbleSize}px;
+        height:${bubbleSize}px;
+        transform:translateX(-50%);
         border-radius:999px;
-        background:linear-gradient(165deg,rgba(255,255,255,0.82) 0%,rgba(241,245,249,0.9) 45%,rgba(248,250,252,0.88) 100%);
-        border:1.5px solid rgba(227,10,23,0.42);
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        background:radial-gradient(circle at 30% 28%, rgba(255,255,255,0.98) 0%, rgba(255,248,248,0.98) 30%, rgba(255,237,239,0.96) 100%);
+        border:2px solid rgba(227,10,23,0.34);
         box-shadow:
-          0 1px 2px rgba(15,23,42,0.04),
-          0 6px 16px rgba(15,23,42,0.08),
-          inset 0 1px 0 rgba(255,255,255,0.65);
-        -webkit-backdrop-filter:blur(8px);
+          0 8px 18px rgba(15,23,42,0.1),
+          0 2px 4px rgba(227,10,23,0.06),
+          inset 0 1px 0 rgba(255,255,255,0.9);
+      ">
+        <span style="
+          color:#d31622;
+          font-size:${placeDigits >= 4 ? 13 : 15}px;
+          font-weight:800;
+          line-height:1;
+          font-variant-numeric:tabular-nums;
+          letter-spacing:-0.02em;
+        ">${cluster.placeCount}</span>
+        ${eventBadge}
+      </div>
+      <div style="
+        position:absolute;
+        left:50%;
+        top:${bubbleSize - 2}px;
+        transform:translateX(-50%);
+        width:${labelWidth}px;
+        padding:6px 9px 5px;
+        border-radius:999px;
+        background:rgba(255,255,255,0.96);
+        border:1px solid rgba(227,10,23,0.12);
+        box-shadow:0 4px 12px rgba(15,23,42,0.07);
         backdrop-filter:blur(8px);
-        font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
-        text-align:center;
-        cursor:pointer;
-        -webkit-font-smoothing:antialiased;
       ">
         <div style="
+          color:#b91c1c;
           font-size:9px;
-          font-weight:700;
-          letter-spacing:0.07em;
-          line-height:1.15;
-          color:#c90814;
+          font-weight:800;
+          line-height:1.1;
+          letter-spacing:0.05em;
           text-transform:uppercase;
           white-space:nowrap;
-          overflow:hidden;
-          text-overflow:ellipsis;
-          max-width:100px;
+          text-align:center;
         ">${safeName}</div>
-        <div style="margin-top:2px;font-size:10px;font-weight:600;line-height:1.2;color:#0f172a;">
-          <span style="color:#e30a17;font-variant-numeric:tabular-nums">${cluster.placeCount}</span>
-          <span style="color:#94a3b8;font-weight:600;margin:0 3px;font-size:9px">·</span>
-          <span style="color:#334155;font-variant-numeric:tabular-nums">${cluster.eventCount}</span>
-        </div>
       </div>
     </div>`,
-    iconSize: [w, h],
-    iconAnchor: [w / 2, h / 2],
+    iconSize: [labelWidth, bubbleSize + 28],
+    iconAnchor: [labelWidth / 2, bubbleSize / 2],
   });
 }
 
@@ -561,8 +595,8 @@ function DiscoveryMapFloatingControls({
         position: "absolute",
         /* Über der bündig unten rechts stehenden Attribution */
         bottom:
-          "calc(2.35rem + env(safe-area-inset-bottom, 0px))",
-        right: "max(0px, env(safe-area-inset-right, 0px))",
+          "max(1.4rem, calc(1.4rem + env(safe-area-inset-bottom, 0px)))",
+        right: "max(1.8rem, calc(1.8rem + env(safe-area-inset-right, 0px)))",
       }}
     >
       <button
@@ -693,10 +727,10 @@ function FitToMarkers({
     }
 
     const fitMaxZoomWhenNoPins = germanyCityClusters?.length
-      ? 8
+      ? 7.4
       : Math.max(8, mapMinZoom);
 
-    const padding = cityScopedDiscovery ? [22, 22] : [40, 40];
+    const padding = cityScopedDiscovery ? [22, 22] : [24, 28];
     const maxZoomWithPins = cityScopedDiscovery ? 15 : 14;
 
     map.fitBounds(bounds, {
@@ -865,6 +899,7 @@ export function CityDiscoveryLeafletMap({
   viewEventLabel,
   myLocationLabel,
   locateMeLabel,
+  isGermanyNationalMap = false,
   onViewportBoundsChange,
   germanyCityClusters,
   onGermanyCityClusterClick,
@@ -949,8 +984,9 @@ export function CityDiscoveryLeafletMap({
     return DISCOVERY_MAP_MIN_ZOOM;
   }, [showGermanyClusters, restrictToCityRadiusKm, cityCenter]);
 
-  const frameClassName =
-    "relative isolate z-0 h-[36rem] overflow-hidden rounded-[1.9rem] border border-border/70 bg-[#f5f6f8] lg:h-[42rem]";
+  const frameClassName = isGermanyNationalMap
+    ? "relative isolate z-0 h-[44rem] overflow-hidden rounded-[1.9rem] border border-border/70 bg-[#f5f6f8] lg:h-[58rem] xl:h-[64rem]"
+    : "relative isolate z-0 h-[36rem] overflow-hidden rounded-[1.9rem] border border-border/70 bg-[#f5f6f8] lg:h-[42rem]";
 
   if (!isMapReady) {
     return (
@@ -969,7 +1005,10 @@ export function CityDiscoveryLeafletMap({
         maxBounds={effectiveMaxBounds}
         maxBoundsViscosity={1}
         zoomControl={false}
-        className={cn("merhaba-discovery-map relative z-0 h-full w-full")}
+        className={cn(
+          "merhaba-discovery-map relative z-0 h-full w-full",
+          isGermanyNationalMap && "merhaba-discovery-map--national",
+        )}
       >
         <MerhabaTileLayer />
         <SpiderfyMapClickGuard />

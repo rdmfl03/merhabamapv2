@@ -54,8 +54,8 @@ const envSchema = z
     S3_ACCESS_KEY_ID: optionalStringSchema,
     S3_SECRET_ACCESS_KEY: optionalStringSchema,
 
-    /** Server-only; MapTiler via /api/map-tiles proxy — same idea as RESEND_API_KEY (never NEXT_PUBLIC_*). */
-    MAPTILER_API_KEY: optionalStringSchema,
+    /** Server-only; Stadia via /api/map-tiles proxy — never NEXT_PUBLIC_*. */
+    STADIA_API_KEY: optionalStringSchema,
     NEXT_PUBLIC_ENABLE_DEV_DEMO_UI: booleanStringSchema.default("false"),
   })
   .superRefine((value, ctx) => {
