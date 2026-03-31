@@ -143,7 +143,7 @@ export async function CityBrowsePage({
                 )}
                 categoryLabel={getLocalizedPlaceCategoryLabel(place.category, locale)}
                 categoryHref={
-                  data.eligibleCategoryIdsForBrowse.has(place.category.id)
+                  data.eligibleCategoryIdsForBrowse.includes(place.category.id)
                     ? `/categories/${encodeURIComponent(place.category.slug)}`
                     : undefined
                 }

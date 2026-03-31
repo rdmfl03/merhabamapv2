@@ -148,7 +148,7 @@ export default async function PlacesPage({
   const browseEligibleCategoryIds =
     places.length > 0
       ? await getCategoryIdsEligibleForBrowse([...new Set(places.map((p) => p.category.id))])
-      : new Set<string>();
+      : [];
 
   const imageAttributionLabels = {
     license: t("imageAttribution.license"),
@@ -440,7 +440,7 @@ export default async function PlacesPage({
                       getLocalizedPlaceCategoryLabel(place.category, locale)
                     }
                     categoryHref={
-                      browseEligibleCategoryIds.has(place.category.id)
+                      browseEligibleCategoryIds.includes(place.category.id)
                         ? `/categories/${encodeURIComponent(place.category.slug)}`
                         : undefined
                     }

@@ -50,7 +50,7 @@ export async function PublicSearchPage({
   const browseEligibleCategoryIds =
     result && result.places.length > 0
       ? await getCategoryIdsEligibleForBrowse([...new Set(result.places.map((p) => p.category.id))])
-      : new Set<string>();
+      : [];
 
   const hasQuery = initialQ.trim().length >= 2;
   const showResults = hasQuery && result != null;
@@ -155,7 +155,7 @@ export async function PublicSearchPage({
                     )}
                     categoryLabel={getLocalizedPlaceCategoryLabel(place.category, locale)}
                     categoryHref={
-                      browseEligibleCategoryIds.has(place.category.id)
+                      browseEligibleCategoryIds.includes(place.category.id)
                         ? `/categories/${encodeURIComponent(place.category.slug)}`
                         : undefined
                     }

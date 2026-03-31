@@ -885,6 +885,7 @@ export function CityDiscoveryLeafletMap({
    * die oft als zwei Next-Issues / Console-Errors auftaucht.
    */
   const [isMapReady, setIsMapReady] = useState(false);
+  const [hoveredGermanyClusterSlug, setHoveredGermanyClusterSlug] = useState<string | null>(null);
   useEffect(() => {
     setIsMapReady(true);
   }, []);
@@ -997,6 +998,21 @@ export function CityDiscoveryLeafletMap({
                 key={`cluster-${cluster.slug}`}
                 position={[cluster.latitude, cluster.longitude]}
                 icon={createGermanyCityClusterIcon(cluster)}
+                zIndexOffset={hoveredGermanyClusterSlug === cluster.slug ? 1000 : 0}
+                eventHandlers={{
+                  mouseover: () => setHoveredGermanyClusterSlug(cluster.slug),
+                  mouseout: () => {
+                    setHoveredGermanyClusterSlug((current) =>
+                      current === cluster.slug ? null : current,
+                    );
+                  },
+                  popupopen: () => setHoveredGermanyClusterSlug(cluster.slug),
+                  popupclose: () => {
+                    setHoveredGermanyClusterSlug((current) =>
+                      current === cluster.slug ? null : current,
+                    );
+                  },
+                }}
               >
                 <GermanyClusterMapPopup
                   cluster={cluster}

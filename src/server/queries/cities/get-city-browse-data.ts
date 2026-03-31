@@ -167,7 +167,7 @@ export async function getCityBrowseData(args: {
   const [eligibleCategoryIdsForBrowse, savedPlaces, savedEvents] = await Promise.all([
     categoryIdsForEligibility.length > 0
       ? getCategoryIdsEligibleForBrowse(categoryIdsForEligibility)
-      : Promise.resolve(new Set<string>()),
+      : Promise.resolve([]),
     needSaved && rankedPlaces.length > 0
       ? prisma.savedPlace.findMany({
           where: {

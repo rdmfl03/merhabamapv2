@@ -111,7 +111,9 @@ export default async function PlaceDetailPage({
         : Promise.resolve([]),
       hasCreatorEntityContributionForPlace(place.id),
       getPlaceDetailSocialContext(place.id),
-      getCategoryIdsEligibleForBrowse([place.category.id]).then((set) => set.has(place.category.id)),
+      getCategoryIdsEligibleForBrowse([place.category.id]).then((ids) =>
+        ids.includes(place.category.id),
+      ),
     ]);
 
   const description = getLocalizedText(
