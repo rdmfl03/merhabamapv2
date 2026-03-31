@@ -242,9 +242,10 @@ function normalizeCity(value: string | null | undefined) {
 const CITY_GUESS_PATTERNS: Partial<Record<PilotCitySlug, RegExp>> = {
   berlin: /(^|[^a-z])berlin([^a-z]|$)/,
   koeln: /(^|[^a-z])(koeln|koln|cologne)([^a-z]|$)/,
+  essen: /(^|[^a-z])essen([^a-z]|$)/,
   dortmund: /(^|[^a-z])dortmund([^a-z]|$)/,
   duisburg: /(^|[^a-z])duisburg([^a-z]|$)/,
-  duesseldorf: /(^|[^a-z])(duesseldorf|dusseldorf)([^a-z]|$)/,
+  duesseldorf: /(^|[^a-z])(duesseldorf|dusseldorf|düsseldorf)([^a-z]|$)/,
 };
 
 export function deriveRawEventCityGuessFromText(value: string | null | undefined) {

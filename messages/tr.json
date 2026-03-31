@@ -1477,6 +1477,8 @@
     "title": "Mekan ve etkinlik ara",
     "description": "Yalnızca yayınlanmış mekanlar ve yaklaşan etkinliklerde basit metin araması. Profiller veya listeler aranmaz.",
     "headerLabel": "Arama",
+    "headerToggleOpen": "Aramayı aç",
+    "headerToggleClose": "Aramayı kapat",
     "headerPlaceholder": "Mekan veya etkinlik …",
     "headerSubmit": "Ara",
     "form": {
@@ -1616,7 +1618,9 @@
     },
     "activity": {
       "title": "Senin alanın",
+      "lead": "Profil, hesap, listeler ve daha fazlası — tek yerde.",
       "profile": "Herkese açık profil",
+      "profileSetup": "Kullanıcı adı belirle",
       "settings": "Hesap ve ayarlar",
       "collections": "Listelerim",
       "savedPlaces": "Kaydedilen mekanlar",

@@ -1468,6 +1468,8 @@
     "title": "Orte und Events durchsuchen",
     "description": "Einfache Textsuche nur in veröffentlichten Orten und kommenden Events. Es werden keine Nutzerprofile oder Listen durchsucht.",
     "headerLabel": "Suche",
+    "headerToggleOpen": "Suche öffnen",
+    "headerToggleClose": "Suche schließen",
     "headerPlaceholder": "Ort oder Event …",
     "headerSubmit": "Suchen",
     "form": {
@@ -1607,7 +1609,9 @@
     },
     "activity": {
       "title": "Dein Bereich",
+      "lead": "Profil, Konto, Listen und mehr — alles an einem Ort.",
       "profile": "Öffentliches Profil",
+      "profileSetup": "Nutzername für öffentliches Profil",
       "settings": "Konto & Einstellungen",
       "collections": "Meine Listen",
       "savedPlaces": "Gespeicherte Orte",

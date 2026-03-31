@@ -39,6 +39,14 @@ export async function getDiscoveryMapCityOptions(): Promise<DiscoveryMapCityOpti
       cityIds.add(row.cityId);
     }
 
+    const pilotCityRows = await prisma.city.findMany({
+      where: { isPilot: true, countryCode: "DE" },
+      select: { id: true },
+    });
+    for (const row of pilotCityRows) {
+      cityIds.add(row.id);
+    }
+
     if (cityIds.size === 0) {
       return [];
     }
