@@ -449,19 +449,18 @@ function escapeClusterLabel(value: string): string {
 
 function createGermanyCityClusterIcon(cluster: GermanyCityClusterMarker): DivIcon {
   const placeDigits = String(cluster.placeCount).length;
-  const bubbleSize = Math.max(40, Math.min(50, 36 + placeDigits * 4));
-  const labelWidth = Math.max(bubbleSize + 8, cluster.label.length * 7 + 18);
+  const pinWidth = Math.max(48, Math.min(58, 44 + placeDigits * 3));
+  const pinHeight = Math.round(pinWidth * 1.22);
+  const labelWidth = Math.max(pinWidth + 8, cluster.label.length * 7 + 18);
   const safeName = escapeClusterLabel(cluster.label);
   const eventBadge =
     cluster.eventCount > 0
       ? `<div style="
           position:absolute;
-          top:-2px;
-          right:-2px;
-          min-width:18px;
-          height:18px;
-          padding:0 5px;
-          border-radius:999px;
+          top:-4px;
+          right:-4px;
+          width:20px;
+          height:20px;
           display:flex;
           align-items:center;
           justify-content:center;
@@ -473,7 +472,10 @@ function createGermanyCityClusterIcon(cluster: GermanyCityClusterMarker): DivIco
           font-weight:700;
           line-height:1;
           font-variant-numeric:tabular-nums;
-        ">${cluster.eventCount}</div>`
+          transform:rotate(45deg);
+          border-radius:4px;
+          z-index:8;
+        "><span style="transform:rotate(-45deg); display:block; position:relative; z-index:9;">${cluster.eventCount}</span></div>`
       : "";
 
   return L.divIcon({
@@ -481,7 +483,7 @@ function createGermanyCityClusterIcon(cluster: GermanyCityClusterMarker): DivIco
     html: `<div style="
       position:relative;
       width:${labelWidth}px;
-      height:${bubbleSize + 28}px;
+      height:${pinHeight + 28}px;
       font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
       -webkit-font-smoothing:antialiased;
       cursor:pointer;
@@ -490,34 +492,55 @@ function createGermanyCityClusterIcon(cluster: GermanyCityClusterMarker): DivIco
         position:absolute;
         left:50%;
         top:0;
-        width:${bubbleSize}px;
-        height:${bubbleSize}px;
+        width:${pinWidth}px;
+        height:${pinHeight}px;
         transform:translateX(-50%);
-        border-radius:999px;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        background:radial-gradient(circle at 30% 28%, rgba(255,255,255,0.98) 0%, rgba(255,248,248,0.98) 30%, rgba(255,237,239,0.96) 100%);
-        border:2px solid rgba(227,10,23,0.34);
-        box-shadow:
-          0 8px 18px rgba(15,23,42,0.1),
-          0 2px 4px rgba(227,10,23,0.06),
-          inset 0 1px 0 rgba(255,255,255,0.9);
+        filter:drop-shadow(0 10px 18px rgba(15,23,42,0.12));
+        z-index:2;
       ">
-        <span style="
-          color:#d31622;
-          font-size:${placeDigits >= 4 ? 13 : 15}px;
-          font-weight:800;
-          line-height:1;
-          font-variant-numeric:tabular-nums;
-          letter-spacing:-0.02em;
-        ">${cluster.placeCount}</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="${pinWidth}" height="${pinHeight}" viewBox="0 0 56 68" fill="none" aria-hidden="true" style="display:block; position:absolute; inset:0; z-index:1;">
+          <path d="M28 4C16.2 4 6.5 13.3 6.5 25c0 15.7 17.1 31.8 20 34.1.8.7 2.1.7 2.9 0 2.9-2.3 20-18.4 20-34.1C49.5 13.3 39.8 4 28 4Z" fill="url(#merhaba-germany-cluster-pin-fill)" stroke="#f1a3aa" stroke-width="2"/>
+          <defs>
+            <radialGradient id="merhaba-germany-cluster-pin-fill" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(18 16) rotate(55) scale(46 44)">
+              <stop stop-color="#ffffff"/>
+              <stop offset="0.38" stop-color="#fff8f8"/>
+              <stop offset="1" stop-color="#ffedef"/>
+            </radialGradient>
+          </defs>
+        </svg>
+        <div style="
+          position:relative;
+          z-index:4;
+          width:100%;
+          height:100%;
+          display:flex;
+          align-items:flex-start;
+          justify-content:center;
+          padding-top:18px;
+          pointer-events:none;
+        ">
+          <span style="
+            display:inline-flex;
+            align-items:center;
+            padding:0 2px;
+            color:#d31622;
+            font-size:${placeDigits >= 4 ? 12 : 14}px;
+            font-weight:800;
+            line-height:1;
+            font-variant-numeric:tabular-nums;
+            letter-spacing:-0.02em;
+            text-shadow:0 1px 0 rgba(255,255,255,0.7);
+            justify-content:center;
+          ">
+            <span>${cluster.placeCount}</span>
+          </span>
+        </div>
         ${eventBadge}
       </div>
       <div style="
         position:absolute;
         left:50%;
-        top:${bubbleSize - 2}px;
+        top:${pinHeight - 6}px;
         transform:translateX(-50%);
         width:${labelWidth}px;
         padding:6px 9px 5px;
@@ -539,8 +562,8 @@ function createGermanyCityClusterIcon(cluster: GermanyCityClusterMarker): DivIco
         ">${safeName}</div>
       </div>
     </div>`,
-    iconSize: [labelWidth, bubbleSize + 28],
-    iconAnchor: [labelWidth / 2, bubbleSize / 2],
+    iconSize: [labelWidth, pinHeight + 28],
+    iconAnchor: [labelWidth / 2, pinHeight - 4],
   });
 }
 
@@ -651,6 +674,7 @@ function FitToMarkers({
   mapLayoutEpoch,
   mapMinZoom,
   cityScopedDiscovery,
+  selectedId,
 }: {
   points: CityMapPoint[];
   cityCenter: { latitude: number; longitude: number } | null;
@@ -660,6 +684,7 @@ function FitToMarkers({
   /** Mindest-Zoom der Karte (fitBounds maxZoom bei 0 Pins darf nicht darunter liegen). */
   mapMinZoom: number;
   cityScopedDiscovery: boolean;
+  selectedId: string | null;
 }) {
   const map = useMap();
 
@@ -726,6 +751,11 @@ function FitToMarkers({
       return;
     }
 
+    if (cityScopedDiscovery && cityCenter && !selectedId && !userLocation) {
+      map.setView([cityCenter.latitude, cityCenter.longitude], 12, { animate: false });
+      return;
+    }
+
     const fitMaxZoomWhenNoPins = germanyCityClusters?.length
       ? 7.4
       : Math.max(8, mapMinZoom);
@@ -742,7 +772,9 @@ function FitToMarkers({
     if (cityScopedDiscovery && points.length > 0 && cityCenter) {
       queueMicrotask(() => {
         if (map.getZoom() < 12) {
-          map.setView([cityCenter.latitude, cityCenter.longitude], 12, { animate: false });
+          map.setView([cityCenter.latitude, cityCenter.longitude], 12, {
+            animate: false,
+          });
         }
       });
     }
@@ -754,6 +786,8 @@ function FitToMarkers({
     mapMinZoom,
     cityScopedDiscovery,
     cityCenter,
+    userLocation,
+    selectedId,
   ]);
 
   return null;
@@ -1021,6 +1055,7 @@ export function CityDiscoveryLeafletMap({
           mapLayoutEpoch={mapLayoutEpoch}
           mapMinZoom={effectiveMinZoom}
           cityScopedDiscovery={cityScopedDiscovery}
+          selectedId={selectedId}
         />
         <DiscoveryMapFloatingControls
           onLocateMe={onLocateMe}
