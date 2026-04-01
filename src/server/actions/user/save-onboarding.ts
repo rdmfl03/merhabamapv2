@@ -52,6 +52,7 @@ export async function saveOnboarding(
   revalidatePath(`/${parsed.data.locale}`);
   revalidatePath(`/${parsed.data.locale}/profile`);
   revalidatePath(`/${parsed.data.preferredLocale}/home`);
+  revalidatePath(`/${parsed.data.preferredLocale}/feed`);
 
-  redirect(`/${parsed.data.preferredLocale}/home`);
+  redirect(`/${parsed.data.preferredLocale}/feed`);
 }

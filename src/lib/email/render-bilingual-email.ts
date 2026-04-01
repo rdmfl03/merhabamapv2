@@ -1,6 +1,8 @@
 import "server-only";
 
-type EmailSection = {
+import { env } from "@/lib/env";
+
+export type EmailSection = {
   title: string;
   paragraphs: string[];
   ctaLabel?: string;
@@ -8,10 +10,10 @@ type EmailSection = {
   secondaryLines?: string[];
 };
 
-type RenderBilingualEmailOptions = {
+type RenderLocalizedEmailOptions = {
   previewText: string;
-  tr: EmailSection;
-  de: EmailSection;
+  locale: "de" | "tr";
+  section: EmailSection;
 };
 
 function escapeHtml(value: string) {
@@ -25,26 +27,46 @@ function escapeHtml(value: string) {
 
 function renderSectionHtml(label: string, section: EmailSection) {
   const paragraphs = section.paragraphs
-    .map((paragraph) => `<p style="margin:0 0 14px;color:#3f3f46;line-height:1.7;">${escapeHtml(paragraph)}</p>`)
+    .map(
+      (paragraph) =>
+        `<p style="margin:0 0 14px;color:#475467;font-size:16px;line-height:1.75;">${escapeHtml(paragraph)}</p>`,
+    )
     .join("");
 
   const secondary = (section.secondaryLines ?? [])
-    .map((line) => `<p style="margin:0 0 10px;color:#71717a;font-size:13px;line-height:1.6;">${escapeHtml(line)}</p>`)
+    .map(
+      (line) =>
+        `<p style="margin:0 0 10px;color:#667085;font-size:13px;line-height:1.7;">${escapeHtml(line)}</p>`,
+    )
     .join("");
 
   const cta =
     section.ctaLabel && section.ctaUrl
-      ? `<p style="margin:24px 0 0;"><a href="${escapeHtml(section.ctaUrl)}" style="display:inline-block;border-radius:999px;background:#cf2129;color:#ffffff;text-decoration:none;padding:12px 22px;font-weight:600;">${escapeHtml(section.ctaLabel)}</a></p>`
+      ? `
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:24px 0 0;">
+          <tr>
+            <td align="center" bgcolor="#cf2129" style="background:#cf2129;border-radius:999px;">
+              <a href="${escapeHtml(section.ctaUrl)}" style="display:inline-block;padding:14px 24px;border-radius:999px;color:#ffffff;text-decoration:none;font-size:15px;font-weight:700;letter-spacing:0.01em;">
+                ${escapeHtml(section.ctaLabel)}
+              </a>
+            </td>
+          </tr>
+        </table>
+      `
       : "";
 
   return `
-    <section style="padding:28px 0;">
-      <p style="margin:0 0 12px;color:#cf2129;font-size:12px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;">${escapeHtml(label)}</p>
-      <h2 style="margin:0 0 16px;color:#18181b;font-size:24px;line-height:1.25;">${escapeHtml(section.title)}</h2>
-      ${paragraphs}
-      ${cta}
-      ${secondary}
-    </section>
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border:1px solid #e7ebf3;border-radius:20px;background:#ffffff;">
+      <tr>
+        <td style="padding:24px;">
+          <p style="margin:0 0 12px;color:#cf2129;font-size:12px;font-weight:800;letter-spacing:0.22em;text-transform:uppercase;">${escapeHtml(label)}</p>
+          <h2 style="margin:0 0 16px;color:#111827;font-size:28px;line-height:1.2;font-weight:800;">${escapeHtml(section.title)}</h2>
+          ${paragraphs}
+          ${cta}
+          ${secondary ? `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-top:18px;"><tr><td style="padding-top:18px;border-top:1px solid #f0f2f7;">${secondary}</td></tr></table>` : ""}
+        </td>
+      </tr>
+    </table>
   `;
 }
 
@@ -68,15 +90,25 @@ function renderSectionText(label: string, section: EmailSection) {
   return base.join("\n");
 }
 
-export function renderBilingualEmail({
+export function renderLocalizedEmail({
   previewText,
-  tr,
-  de,
-}: RenderBilingualEmailOptions) {
-  const brandSubtitle =
-    "Türkiye ile Almanya arasında mekanlar, etkinlikler ve yerel güven sinyalleri. / Orte, Events und lokale Vertrauenssignale zwischen der Türkei und Deutschland.";
+  locale,
+  section,
+}: RenderLocalizedEmailOptions) {
+  const isTurkish = locale === "tr";
+  const brandSubtitle = isTurkish
+    ? "Almanya'daki turk mekanlari ve etkinlikleri."
+    : "Turkische Orte und Events in Deutschland.";
   const footerNotice =
-    "MerhabaMap işlem e-postası. Bu mesaj hesap veya platform etkinliği nedeniyle gönderildi. / MerhabaMap Transaktions-E-Mail. Diese Nachricht wurde wegen einer Konto- oder Plattformaktivität gesendet.";
+    isTurkish
+      ? "Bu MerhabaMap islem e-postasi, hesap veya platform etkinligi nedeniyle gonderildi."
+      : "Diese MerhabaMap Transaktions-E-Mail wurde wegen einer Konto- oder Plattformaktivitat gesendet.";
+  const whyTitle = isTurkish
+    ? "Bu e-postayi neden aldiniz"
+    : "Warum du diese E-Mail bekommst";
+  const replyToLabel = isTurkish ? "Yanit adresi" : "Reply-To";
+  const sectionLabel = isTurkish ? "Turkce" : "Deutsch";
+  const brandName = "MerhabaMap";
   const html = `
     <!DOCTYPE html>
     <html lang="tr">
@@ -85,27 +117,87 @@ export function renderBilingualEmail({
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>MerhabaMap</title>
       </head>
-      <body style="margin:0;padding:0;background:#f4f4f5;font-family:Arial,Helvetica,sans-serif;">
+      <body style="margin:0;padding:0;background:#f4f4f6;font-family:Arial,Helvetica,sans-serif;">
         <div style="display:none;overflow:hidden;line-height:1px;opacity:0;max-height:0;max-width:0;">
           ${escapeHtml(previewText)}
         </div>
-        <div style="margin:0 auto;max-width:640px;padding:32px 16px;">
-          <div style="overflow:hidden;border:1px solid #e4e4e7;border-radius:28px;background:#ffffff;box-shadow:0 18px 50px rgba(15,23,42,0.08);">
-            <header style="padding:28px 28px 24px;background:linear-gradient(180deg,#fff6f6 0%,#ffffff 100%);border-bottom:1px solid #f1f1f3;">
-              <p style="margin:0;color:#cf2129;font-size:13px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;">MerhabaMap</p>
-              <p style="margin:10px 0 0;color:#52525b;font-size:14px;line-height:1.7;">${escapeHtml(brandSubtitle)}</p>
-            </header>
-            <main style="padding:0 28px;">
-              ${renderSectionHtml("Türkçe", tr)}
-              <div style="height:1px;background:#e4e4e7;"></div>
-              ${renderSectionHtml("Deutsch", de)}
-            </main>
-            <footer style="padding:22px 28px 28px;color:#71717a;font-size:12px;line-height:1.7;border-top:1px solid #f1f1f3;background:#fafafa;">
-              <p style="margin:0 0 10px;">${escapeHtml(footerNotice)}</p>
-              <p style="margin:0;">Reply-To: info@merhabamap.com</p>
-            </footer>
-          </div>
-        </div>
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="width:100%;background:#f4f4f6;margin:0;padding:0;">
+          <tr>
+            <td align="center" style="padding:28px 14px 40px;">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="640" style="width:100%;max-width:640px;border:1px solid #e8ebf2;border-radius:24px;background:#ffffff;">
+                <tr>
+                  <td style="padding:24px 24px 20px;background:#fff9f8;border-bottom:1px solid #eef1f6;">
+                    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+                      <tr>
+                        <td valign="middle" style="width:60px;">
+                          <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                            <tr>
+                              <td align="center" valign="middle" width="44" height="44" style="width:44px;height:44px;background:#e30a17;border-radius:14px;color:#ffffff;font-size:24px;font-weight:800;line-height:44px;text-align:center;">
+                                <span style="display:inline-block;color:#ffffff;font-size:24px;font-weight:800;line-height:44px;">M</span>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                        <td valign="middle">
+                          <p style="margin:0;color:#111827;font-size:15px;font-weight:800;">${brandName}</p>
+                          <p style="margin:6px 0 0;color:#667085;font-size:14px;line-height:1.6;">${escapeHtml(brandSubtitle)}</p>
+                        </td>
+                        <td valign="middle" align="right">
+                          <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                            <tr>
+                              <td align="center" valign="middle" style="padding:8px 14px;border-radius:999px;background:${isTurkish ? "#cf2129" : "#ffffff"};border:1px solid ${isTurkish ? "#cf2129" : "#d9dee8"};">
+                                <span style="color:${isTurkish ? "#ffffff" : "#111827"};font-size:12px;font-weight:700;">${isTurkish ? "TR" : "DE"}</span>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:24px;">
+                    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:18px;border:1px solid #edf0f5;border-radius:16px;background:#fafbfc;">
+                      <tr>
+                        <td style="padding:16px 18px;">
+                          <p style="margin:0;color:#475467;font-size:14px;line-height:1.7;">${escapeHtml(previewText)}</p>
+                        </td>
+                      </tr>
+                    </table>
+                    ${renderSectionHtml(sectionLabel, section)}
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:0 24px 24px;">
+                    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border:1px solid #e8edf5;border-radius:18px;background:#fbfcfe;">
+                      <tr>
+                        <td style="padding:18px 20px;">
+                          <p style="margin:0 0 8px;color:#111827;font-size:13px;font-weight:700;">${escapeHtml(whyTitle)}</p>
+                          <p style="margin:0;color:#667085;font-size:13px;line-height:1.7;">${escapeHtml(footerNotice)}</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:18px 24px 24px;border-top:1px solid #eef1f6;background:#fcfcfd;">
+                    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+                      <tr>
+                        <td valign="top">
+                          <p style="margin:0 0 6px;color:#111827;font-size:12px;font-weight:700;">${brandName}</p>
+                          <p style="margin:0;color:#667085;font-size:12px;line-height:1.7;">${escapeHtml(replyToLabel)}: info@merhabamap.com</p>
+                        </td>
+                        <td valign="top" align="right">
+                          <p style="margin:0;color:#98a2b3;font-size:12px;line-height:1.7;">auth@merhabamap.com</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
       </body>
     </html>
   `;
@@ -114,11 +206,9 @@ export function renderBilingualEmail({
     "MerhabaMap",
     brandSubtitle,
     "",
-    renderSectionText("Türkçe", tr),
-    "---",
-    renderSectionText("Deutsch", de),
+    renderSectionText(sectionLabel, section),
     footerNotice,
-    "Reply-To: info@merhabamap.com",
+    `${replyToLabel}: info@merhabamap.com`,
   ].join("\n");
 
   return { html, text };
