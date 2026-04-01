@@ -6,7 +6,7 @@
   },
   "common": {
     "brandName": "MerhabaMap",
-    "taglineShort": "Türkische Orte und Events",
+    "taglineShort": "The Home for Turkish Communities",
     "cities": "Karte",
     "places": "Orte",
     "events": "Events",
@@ -32,40 +32,73 @@
   },
   "landing": {
     "metaTitle": "Orte, Events und Community in Deutschland | MerhabaMap",
-    "metaDescription": "Entdecke relevante Orte, Veranstaltungen und lokale Treffpunkte – übersichtlich auf der Karte, filterbar nach deiner Stadt.",
+    "metaDescription": "Entdecke Orte, Events und Community mit türkischem Bezug in Deutschland – lokal, zweisprachig und direkt auf der Karte.",
     "eyebrow": "Entdecken, was vor Ort zählt",
-    "title": "Entdecke Orte, Events und Community, die zu deinem Alltag passen.",
-    "subtitle": "Alles auf einen Blick: von Cafés und Restaurants bis zu Veranstaltungen und Treffpunkten in deiner Nähe – auf Deutsch und Türkisch, mit lokalem Bezug.",
+    "claim": "The Home for Turkish Communities",
+    "title": "Entdecke Orte, Events und Community mit türkischem Bezug.",
+    "subtitle": "Finde Orte, Events und Community mit türkischem Bezug in Deutschland – auf Deutsch und Türkisch, mit klarem lokalem Fokus und ohne unnötige Umwege.",
     "explorePlaces": "Orte entdecken",
     "browseEvents": "Events entdecken",
     "heroMapCta": "Orte und Events auf der Karte entdecken",
     "heroTrust": {
       "title": "Gut zu wissen",
-      "curated": "Eine Karte statt endlose Listen – du siehst, was wo liegt.",
-      "cityFirst": "Karte öffnen, Stadt wählen: konkrete Orte und Events in deiner Umgebung.",
-      "reportable": "Du kannst melden, Inhaber können ihre Orte beanspruchen – fair und von Anfang an klar geregelt."
+      "curated": "Eine Karte statt endloser Listen – du siehst direkt, was wo liegt.",
+      "cityFirst": "Stadt wählen, Karte öffnen: konkrete Orte und Events mit klarem Bezug zu Deutschland.",
+      "reportable": "Einträge sind nachvollziehbar, meldbar und mit klaren Regeln eingebunden."
+    },
+    "activity": {
+      "title": "Was du hier findest",
+      "description": "Ein klarer Überblick über Orte, Events und Community mit türkischem Bezug in Deutschland.",
+      "items": {
+        "everyday": {
+          "title": "Orte für den Alltag",
+          "description": "Restaurants, Cafés, Supermärkte, Moscheen und Services mit klarem lokalem Bezug.",
+          "signal": "Orte"
+        },
+        "events": {
+          "title": "Events & Veranstaltungen",
+          "description": "Konzerte, Treffen und Termine, die für Menschen mit türkischem Bezug relevant sein können.",
+          "signal": "Events"
+        },
+        "community": {
+          "title": "Community & Treffpunkte",
+          "description": "Orte, Themen und öffentliche Einträge, die die lokale Szene sichtbarer machen.",
+          "signal": "Community"
+        },
+        "map": {
+          "title": "Alles auf einer Karte",
+          "description": "Städte wählen, filtern und direkt sehen, was relevant ist — ohne lange Listen.",
+          "signal": "Karte"
+        }
+      }
     },
     "cards": {
       "places": {
         "eyebrow": "Orte",
         "title": "Orte, die im Alltag helfen",
-        "description": "Restaurants, Cafés, Supermärkte, Moscheen und Services – übersichtlich zusammengeführt, damit du schneller findest, was du suchst."
+        "description": "Restaurants, Cafés, Supermärkte, Moscheen und Services – übersichtlich gebündelt, damit du schneller findest, was du suchst.",
+        "communityLine": "Sorgfältig gebündelt für Orientierung im Alltag",
+        "signal": "Übersichtlich gebündelt"
       },
       "events": {
         "eyebrow": "Events",
         "title": "Veranstaltungen mit lokalem Bezug",
-        "description": "Treffen, Abende und Termine dort, wo sie für dich und die Community vor Ort Sinn ergeben – nicht irgendwo im Netz."
+        "description": "Treffen, Abende und Termine dort, wo sie für dich und die Community vor Ort relevant sind – nicht irgendwo im Netz.",
+        "communityLine": "Klar eingeordnet für Menschen und Community mit türkischem Bezug",
+        "signal": "Klar eingeordnet"
       },
       "map": {
         "eyebrow": "Karte",
         "title": "Eine Karte für Orte und Events",
-        "description": "Orte und Events teilen sich eine Karte; du filterst nach Stadt und siehst, was wo relevant ist."
+        "description": "Orte und Events teilen sich eine Karte; du filterst nach Stadt und siehst direkt, was vor Ort relevant ist.",
+        "communityLine": "Ein gemeinsamer Überblick für Orte, Events und Community",
+        "signal": "Nach Stadt filterbar"
       }
     },
     "pilotSection": {
       "eyebrow": "Deine Stadt",
       "title": "Beginne dort, wo Community im Alltag sichtbar wird.",
-      "description": "Wähle deine Stadt und entdecke Orte und Events mit lokalem Bezug. MerhabaMap wächst als vertrauenswürdiges Netzwerk für die Community.",
+      "description": "Wähle deine Stadt und entdecke Orte, Events und Treffpunkte mit türkischem Bezug in Deutschland – lokal, praktisch und alltagsnah.",
       "cta": "Karte öffnen",
       "placesLabel": "Orte",
       "eventsLabel": "Events"
@@ -85,14 +118,14 @@
         },
         "three": {
           "title": "Speichern und wiederkommen",
-          "description": "Mit Konto sicherst du dir Favoriten und stimmst Stadt, Sprache und Interessen auf dich ab."
+          "description": "Mit Konto sicherst du dir Favoriten und behältst Stadt, Sprache und deine Einstellungen leichter im Blick."
         }
       }
     },
     "trust": {
       "eyebrow": "Vertrauen",
       "title": "Sorgfalt statt großer Versprechen",
-      "description": "Wir sagen nur, was Daten, Moderation und Produkt tragen: nachvollziehbare Inhalte, klare Regeln und die Möglichkeit, Fehler zu korrigieren.",
+      "description": "Wir zeigen nur, was Daten, Moderation und Produkt tragen: nachvollziehbare Inhalte, klare Regeln und die Möglichkeit, Fehler zu korrigieren.",
       "items": {
         "quality": {
           "title": "Sorgfältig gepflegte öffentliche Einträge",
@@ -111,7 +144,8 @@
     "cta": {
       "eyebrow": "Loslegen",
       "title": "Erst stöbern – anmelden, wenn es dir zusagt.",
-      "description": "Ohne Konto nutzbar. Registrierung hilft beim Speichern, bei persönlichen Einstellungen und wenn du in deiner Stadt mitwirken möchtest.",
+      "description": "Auch ohne Konto nutzbar. Mit Registrierung kannst du speichern, Einstellungen verwalten und später leichter wiederkommen.",
+      "communityNote": "Alles an einem Ort – klar, lokal und zweisprachig.",
       "primary": "Zu den Orten",
       "secondary": "Zu den Events",
       "tertiary": "Konto erstellen"
@@ -1291,8 +1325,8 @@
   },
   "footer": {
     "navAriaLabel": "Fußzeilen-Navigation",
-    "tagline": "Discovery-Plattform für türkische Orte und Events in Deutschland.",
-    "essentialNotice": "MerhabaMap setzt technisch notwendige Session- und Anmelde-Cookies, bei Sprachwahl ein Cookie für die Locale sowie lokalen Speicher für gespeicherte Orte ein; es sind keine optionalen Marketing- oder Werbetracker im Frontend eingebunden.",
+    "tagline": "Discovery-Plattform für Orte, Events und Community mit türkischem Bezug in Deutschland.",
+    "essentialNotice": "MerhabaMap nutzt technisch notwendige Session- und Anmelde-Cookies, bei der Sprachwahl ein Locale-Cookie sowie lokalen Browser-Speicher für gespeicherte Orte. Optionale Marketing- oder Werbetracker sind im Frontend nicht eingebunden.",
     "copyright": "© MerhabaMap. Alle Rechte vorbehalten."
   },
   "legal": {

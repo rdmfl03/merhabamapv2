@@ -16,6 +16,12 @@ type RenderLocalizedEmailOptions = {
   section: EmailSection;
 };
 
+type RenderBilingualEmailOptions = {
+  previewText: string;
+  tr: EmailSection;
+  de: EmailSection;
+};
+
 function escapeHtml(value: string) {
   return value
     .replaceAll("&", "&amp;")
@@ -209,6 +215,125 @@ export function renderLocalizedEmail({
     renderSectionText(sectionLabel, section),
     footerNotice,
     `${replyToLabel}: info@merhabamap.com`,
+  ].join("\n");
+
+  return { html, text };
+}
+
+export function renderBilingualEmail({
+  previewText,
+  tr,
+  de,
+}: RenderBilingualEmailOptions) {
+  const brandName = "MerhabaMap";
+  const brandSubtitle =
+    "Orte, Events und Community mit türkischem Bezug in Deutschland.";
+  const footerNotice =
+    "MerhabaMap Transaktions-E-Mail. Diese Nachricht wurde wegen einer Konto- oder Plattformaktivität gesendet. / MerhabaMap işlem e-postası. Bu mesaj hesap veya platform etkinliği nedeniyle gönderildi.";
+
+  const html = `
+    <!DOCTYPE html>
+    <html lang="de">
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>MerhabaMap</title>
+      </head>
+      <body style="margin:0;padding:0;background:#f4f4f6;font-family:Arial,Helvetica,sans-serif;">
+        <div style="display:none;overflow:hidden;line-height:1px;opacity:0;max-height:0;max-width:0;">
+          ${escapeHtml(previewText)}
+        </div>
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="width:100%;background:#f4f4f6;margin:0;padding:0;">
+          <tr>
+            <td align="center" style="padding:28px 14px 40px;">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="640" style="width:100%;max-width:640px;border:1px solid #e8ebf2;border-radius:24px;background:#ffffff;">
+                <tr>
+                  <td style="padding:24px 24px 20px;background:#fff9f8;border-bottom:1px solid #eef1f6;">
+                    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+                      <tr>
+                        <td valign="middle" style="width:60px;">
+                          <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                            <tr>
+                              <td align="center" valign="middle" width="44" height="44" style="width:44px;height:44px;background:#e30a17;border-radius:14px;color:#ffffff;font-size:24px;font-weight:800;line-height:44px;text-align:center;">
+                                <span style="display:inline-block;color:#ffffff;font-size:24px;font-weight:800;line-height:44px;">M</span>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                        <td valign="middle">
+                          <p style="margin:0;color:#111827;font-size:15px;font-weight:800;">${brandName}</p>
+                          <p style="margin:6px 0 0;color:#667085;font-size:14px;line-height:1.6;">${escapeHtml(brandSubtitle)}</p>
+                        </td>
+                        <td valign="middle" align="right">
+                          <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                            <tr>
+                              <td align="center" valign="middle" style="padding:8px 14px;border-radius:999px;background:#ffffff;border:1px solid #d9dee8;">
+                                <span style="color:#111827;font-size:12px;font-weight:700;">DE / TR</span>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:24px;">
+                    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:18px;border:1px solid #edf0f5;border-radius:16px;background:#fafbfc;">
+                      <tr>
+                        <td style="padding:16px 18px;">
+                          <p style="margin:0;color:#475467;font-size:14px;line-height:1.7;">${escapeHtml(previewText)}</p>
+                        </td>
+                      </tr>
+                    </table>
+                    ${renderSectionHtml("Türkçe", tr)}
+                    <div style="height:14px;"></div>
+                    ${renderSectionHtml("Deutsch", de)}
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:0 24px 24px;">
+                    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border:1px solid #e8edf5;border-radius:18px;background:#fbfcfe;">
+                      <tr>
+                        <td style="padding:18px 20px;">
+                          <p style="margin:0 0 8px;color:#111827;font-size:13px;font-weight:700;">Warum du diese E-Mail bekommst / Bu e-postayı neden aldınız</p>
+                          <p style="margin:0;color:#667085;font-size:13px;line-height:1.7;">${escapeHtml(footerNotice)}</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:18px 24px 24px;border-top:1px solid #eef1f6;background:#fcfcfd;">
+                    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+                      <tr>
+                        <td valign="top">
+                          <p style="margin:0 0 6px;color:#111827;font-size:12px;font-weight:700;">${brandName}</p>
+                          <p style="margin:0;color:#667085;font-size:12px;line-height:1.7;">Reply-To: info@merhabamap.com</p>
+                        </td>
+                        <td valign="top" align="right">
+                          <p style="margin:0;color:#98a2b3;font-size:12px;line-height:1.7;">auth@merhabamap.com</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+    </html>
+  `;
+
+  const text = [
+    brandName,
+    brandSubtitle,
+    "",
+    renderSectionText("Türkçe", tr),
+    renderSectionText("Deutsch", de),
+    footerNotice,
+    "Reply-To: info@merhabamap.com",
   ].join("\n");
 
   return { html, text };
