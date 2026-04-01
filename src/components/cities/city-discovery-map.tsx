@@ -2,10 +2,9 @@
 
 import dynamic from "next/dynamic";
 import type { Route } from "next";
-import type { EventCategory } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import type { Dispatch, ErrorInfo, ReactNode, SetStateAction } from "react";
-import { Component, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Component, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import {
   CalendarDays,
   ChevronDown,
@@ -17,21 +16,14 @@ import {
 import type { CityMapPoint, MapViewportBounds } from "@/components/cities/city-discovery-map-types";
 import { Link } from "@/i18n/navigation";
 import {
-  getEventImageFallbackKey,
-  getPlaceImageFallbackKey,
-  type CategoryFallbackVisualKey,
-} from "@/lib/category-fallback-visual";
-import {
   formatEventDateRange,
   getEventCategoryLabelKey,
-  resolveEventImage,
 } from "@/lib/events";
 import {
   computeMapScore,
   getLocalizedPlaceCategoryLabel,
   getPlaceDisplayRatingSummary,
   getLocalizedText,
-  resolvePlaceImage,
 } from "@/lib/places";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,6 +31,10 @@ import { getLocalizedCityDisplayName } from "@/lib/cities/city-display-name";
 import { CITY_DISCOVERY_MAP_RADIUS_KM } from "@/lib/cities/city-map-max-bounds";
 import type { GermanyMapCluster } from "@/lib/cities/germany-map-cluster";
 import type { DiscoveryMapCityOption } from "@/server/queries/cities/get-discovery-map-cities";
+import type {
+  PublicDiscoveryMapEventRecord,
+  PublicDiscoveryMapPlaceRecord,
+} from "@/server/queries/cities/get-public-city-page";
 import { cn } from "@/lib/utils";
 
 const VIEWPORT_BOUNDS_EPS = 1e-6;
@@ -59,40 +55,7 @@ function viewportBoundsAlmostEqual(
 }
 
 type CityPlacePoint = {
-  id: string;
-  slug: string;
-  name: string;
-  latitude: number | null;
-  longitude: number | null;
-  category: {
-    slug: string;
-    nameDe: string;
-    nameTr: string;
-  };
-  city: {
-    slug: string;
-    nameDe: string;
-    nameTr: string;
-  };
-  descriptionDe: string | null;
-  descriptionTr: string | null;
-  addressLine1?: string | null;
-  postalCode?: string | null;
-  displayRatingValue?: number | string | { toString(): string } | null;
-  displayRatingCount?: number | null;
-  ratingSourceCount?: number | null;
-  verificationStatus: string;
-  images?: string[] | null;
-  primaryImageAsset?: {
-    assetUrl: string;
-  } | null;
-  fallbackImageAsset?: {
-    assetUrl: string;
-  } | null;
-  mediaAssets?: Array<{
-    assetUrl: string;
-  }> | null;
-};
+} & PublicDiscoveryMapPlaceRecord;
 
 /** Eine Zeile für Karte/Liste: Straße + PLZ Ort, ohne doppelte PLZ wenn schon in der Straßenzeile. */
 function formatMapPlaceAddressLine(
@@ -129,31 +92,11 @@ function formatMapPlaceAddressLine(
 }
 
 type CityEventPoint = {
-  id: string;
-  slug: string;
-  title: string;
-  latitude: number | null;
-  longitude: number | null;
-  category: string;
-  city: {
-    slug: string;
-    nameDe: string;
-    nameTr: string;
-  };
-  descriptionDe: string | null;
-  descriptionTr: string | null;
-  startsAt: Date | string;
-  endsAt: Date | string | null;
-  imageUrl?: string | null;
-  primaryImageAsset?: {
-    assetUrl: string;
-  } | null;
-  fallbackImageAsset?: {
-    assetUrl: string;
-  } | null;
-  mediaAssets?: Array<{
-    assetUrl: string;
-  }> | null;
+} & PublicDiscoveryMapEventRecord;
+
+type DiscoveryMapPinsResponse = {
+  places: PublicDiscoveryMapPlaceRecord[];
+  events: PublicDiscoveryMapEventRecord[];
 };
 
 const EMPTY_EFFECTIVE_PLACES: CityPlacePoint[] = [];
@@ -276,14 +219,13 @@ type NormalizedPoint =
       kind: "place";
       label: string;
       href: string;
-      imageUrl: string | null;
-      fallbackVisualKey: CategoryFallbackVisualKey;
       description: string;
       latitude: number;
       longitude: number;
       categoryKey: string;
       categoryLabel: string;
       meta: string;
+      searchHaystack: string;
       mapAddressLine: string | null;
       mapRatingValue: number | null;
       mapRatingLabel: string | null;
@@ -295,14 +237,13 @@ type NormalizedPoint =
       kind: "event";
       label: string;
       href: string;
-      imageUrl: string | null;
-      fallbackVisualKey: CategoryFallbackVisualKey;
       description: string;
       latitude: number;
       longitude: number;
       categoryKey: string;
       categoryLabel: string;
       meta: string;
+      searchHaystack: string;
       tone: "dark";
     };
 
@@ -615,18 +556,32 @@ export function CityDiscoveryMap({
   const [viewportBounds, setViewportBounds] = useState<MapViewportBounds | null>(null);
   const [clusterLoadingSlug, setClusterLoadingSlug] = useState<string | null>(null);
   const [categoryMenuOpen, setCategoryMenuOpen] = useState(false);
+  const [loadedPins, setLoadedPins] = useState<DiscoveryMapPinsResponse | null>(() =>
+    selectedCitySlug
+      ? null
+      : {
+          places,
+          events,
+        },
+  );
   const categoryDropdownRef = useRef<HTMLDivElement>(null);
 
   const isGermanyClusterMode =
     germanyMapClusters != null && selectedCitySlug === "";
+  const isCityPinsLoading = !isGermanyClusterMode && selectedCitySlug.length > 0 && loadedPins == null;
+  const deferredQuery = useDeferredValue(query);
+  const deferredTypeFilter = useDeferredValue(typeFilter);
+  const deferredSelectedCategoryKeys = useDeferredValue(selectedCategoryKeys);
+  const resolvedPlaces = loadedPins?.places ?? places;
+  const resolvedEvents = loadedPins?.events ?? events;
   /** Deutschland-Übersicht: nur Cluster, keine Einzelpins (Server liefert hier leere map-Arrays). */
   const effectivePlaces = useMemo(
-    () => (isGermanyClusterMode ? EMPTY_EFFECTIVE_PLACES : places),
-    [isGermanyClusterMode, places],
+    () => (isGermanyClusterMode ? EMPTY_EFFECTIVE_PLACES : resolvedPlaces),
+    [isGermanyClusterMode, resolvedPlaces],
   );
   const effectiveEvents = useMemo(
-    () => (isGermanyClusterMode ? EMPTY_EFFECTIVE_EVENTS : events),
-    [isGermanyClusterMode, events],
+    () => (isGermanyClusterMode ? EMPTY_EFFECTIVE_EVENTS : resolvedEvents),
+    [isGermanyClusterMode, resolvedEvents],
   );
 
   const handleViewportBounds = useCallback((bounds: MapViewportBounds) => {
@@ -645,6 +600,46 @@ export function CityDiscoveryMap({
     setHoveredId(null);
     setCategoryMenuOpen(false);
   }, [selectedCitySlug]);
+
+  useEffect(() => {
+    if (!selectedCitySlug) {
+      setLoadedPins({
+        places,
+        events,
+      });
+      return;
+    }
+
+    const controller = new AbortController();
+    setLoadedPins(null);
+
+    fetch(`/api/discovery/map-pins?city=${encodeURIComponent(selectedCitySlug)}`, {
+      signal: controller.signal,
+      cache: "no-store",
+    })
+      .then(async (response) => {
+        if (!response.ok) {
+          throw new Error(`Failed to load discovery map pins for ${selectedCitySlug}`);
+        }
+        const payload = (await response.json()) as DiscoveryMapPinsResponse;
+        setLoadedPins({
+          places: Array.isArray(payload.places) ? payload.places : [],
+          events: Array.isArray(payload.events) ? payload.events : [],
+        });
+      })
+      .catch((error: unknown) => {
+        if (controller.signal.aborted) {
+          return;
+        }
+        console.error("[CityDiscoveryMap] failed to load map pins:", error);
+        setLoadedPins({
+          places,
+          events,
+        });
+      });
+
+    return () => controller.abort();
+  }, [events, places, selectedCitySlug]);
 
   useEffect(() => {
     if (!categoryMenuOpen) {
@@ -713,9 +708,6 @@ export function CityDiscoveryMap({
         const rating = getPlaceDisplayRatingSummary(
           place as unknown as Parameters<typeof getPlaceDisplayRatingSummary>[0],
         );
-        const resolvedImage = resolvePlaceImage(
-          place as unknown as Parameters<typeof resolvePlaceImage>[0],
-        );
         const ratingLocale = locale === "tr" ? "tr-TR" : "de-DE";
         const v = rating?.value;
         const mapRatingLabel =
@@ -725,24 +717,29 @@ export function CityDiscoveryMap({
                 maximumFractionDigits: 1,
               })} / 5`
             : null;
+        const description = getLocalizedText(
+          { de: place.descriptionDe, tr: place.descriptionTr },
+          locale,
+          "",
+        );
+        const categoryLabel = getLocalizedPlaceCategoryLabel(place.category, locale);
+        const meta = getLocalizedCityDisplayName(locale, place.city);
+        const mapAddressLine = formatMapPlaceAddressLine(locale, place);
         return {
           id: `place-${place.id}`,
           kind: "place" as const,
           label: place.name,
           href: `/places/${place.slug}`,
-          imageUrl: resolvedImage?.url ?? null,
-          fallbackVisualKey: getPlaceImageFallbackKey(place),
-          description: getLocalizedText(
-            { de: place.descriptionDe, tr: place.descriptionTr },
-            locale,
-            "",
-          ),
+          description,
           latitude: place.latitude as number,
           longitude: place.longitude as number,
           categoryKey: place.category.slug,
-          categoryLabel: getLocalizedPlaceCategoryLabel(place.category, locale),
-          meta: getLocalizedCityDisplayName(locale, place.city),
-          mapAddressLine: formatMapPlaceAddressLine(locale, place),
+          categoryLabel,
+          meta,
+          searchHaystack:
+            `${place.name} ${description} ${categoryLabel} ${meta} ${mapAddressLine ?? ""}`
+              .toLowerCase(),
+          mapAddressLine,
           mapRatingValue: rating?.value ?? null,
           mapRatingLabel,
           mapRatingReviewCount:
@@ -756,34 +753,34 @@ export function CityDiscoveryMap({
         (event) =>
           typeof event.latitude === "number" && typeof event.longitude === "number",
       )
-      .map((event) => ({
-        id: `event-${event.id}`,
-        kind: "event" as const,
-        label: event.title,
-        href: `/events/${event.slug}`,
-        imageUrl:
-          resolveEventImage(
-            event as unknown as Parameters<typeof resolveEventImage>[0],
-          )?.url ?? null,
-        fallbackVisualKey: getEventImageFallbackKey(event.category as EventCategory),
-        description: getLocalizedText(
+      .map((event) => {
+        const description = getLocalizedText(
           { de: event.descriptionDe, tr: event.descriptionTr },
           locale,
           "",
-        ),
-        latitude: event.latitude as number,
-        longitude: event.longitude as number,
-        categoryKey: getEventCategoryLabelKey(event.category as never),
-        categoryLabel:
-          categoryLabels[getEventCategoryLabelKey(event.category as never)] ??
-          event.category,
-        meta: formatEventDateRange(
+        );
+        const categoryKey = getEventCategoryLabelKey(event.category as never);
+        const categoryLabel = categoryLabels[categoryKey] ?? event.category;
+        const meta = formatEventDateRange(
           locale,
           new Date(event.startsAt),
           event.endsAt != null ? new Date(event.endsAt) : null,
-        ),
-        tone: "dark" as const,
-      }));
+        );
+        return {
+          id: `event-${event.id}`,
+          kind: "event" as const,
+          label: event.title,
+          href: `/events/${event.slug}`,
+          description,
+          latitude: event.latitude as number,
+          longitude: event.longitude as number,
+          categoryKey,
+          categoryLabel,
+          meta,
+          searchHaystack: `${event.title} ${description} ${categoryLabel} ${meta}`.toLowerCase(),
+          tone: "dark" as const,
+        };
+      });
 
     return [...normalizedPlaces, ...normalizedEvents];
   }, [categoryLabels, effectiveEvents, effectivePlaces, locale]);
@@ -838,17 +835,22 @@ export function CityDiscoveryMap({
     selectedCategoryKeys,
   ]);
 
+  const deferredSelectedCategoryKeySet = useMemo(
+    () => new Set(deferredSelectedCategoryKeys),
+    [deferredSelectedCategoryKeys],
+  );
+
   const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
+    const q = deferredQuery.trim().toLowerCase();
 
     return normalized.filter((point) => {
-      if (typeFilter !== "all" && point.kind !== typeFilter) {
+      if (deferredTypeFilter !== "all" && point.kind !== deferredTypeFilter) {
         return false;
       }
 
       if (
-        selectedCategoryKeys.length > 0 &&
-        !selectedCategoryKeys.includes(point.categoryKey)
+        deferredSelectedCategoryKeySet.size > 0 &&
+        !deferredSelectedCategoryKeySet.has(point.categoryKey)
       ) {
         return false;
       }
@@ -857,13 +859,9 @@ export function CityDiscoveryMap({
         return true;
       }
 
-      const locationHaystack =
-        point.kind === "place" && point.mapAddressLine ? ` ${point.mapAddressLine}` : "";
-      const haystack =
-        `${point.label} ${point.description} ${point.categoryLabel} ${point.meta}${locationHaystack}`.toLowerCase();
-      return haystack.includes(q);
+      return point.searchHaystack.includes(q);
     });
-  }, [normalized, query, selectedCategoryKeys, typeFilter]);
+  }, [deferredQuery, deferredSelectedCategoryKeySet, deferredTypeFilter, normalized]);
 
   const inViewFiltered = useMemo(() => {
     if (!viewportBounds) {
@@ -915,15 +913,42 @@ export function CityDiscoveryMap({
     setHoveredId((current) => (current === id ? null : current));
   }, []);
   const listSource = viewportBounds ? inViewFiltered : null;
+  const placeLookupByPointId = useMemo(
+    () =>
+      new Map<string, CityPlacePoint>(
+        effectivePlaces.map((place) => [`place-${place.id}`, place] as const),
+      ),
+    [effectivePlaces],
+  );
+  const listBuckets = useMemo(() => {
+    if (!listSource) {
+      return {
+        places: [] as NormalizedPoint[],
+        events: [] as NormalizedPoint[],
+      };
+    }
+
+    const places: NormalizedPoint[] = [];
+    const events: NormalizedPoint[] = [];
+
+    for (const point of listSource) {
+      if (point.kind === "place") {
+        places.push(point);
+      } else {
+        events.push(point);
+      }
+    }
+
+    return { places, events };
+  }, [listSource]);
 
   const filteredPlaces = useMemo(
     () =>
-      listSource
-        ? [...listSource]
-            .filter((point) => point.kind === "place")
+      listBuckets.places.length > 0
+        ? [...listBuckets.places]
             .sort((a, b) => {
-              const placeA = effectivePlaces.find((place) => `place-${place.id}` === a.id);
-              const placeB = effectivePlaces.find((place) => `place-${place.id}` === b.id);
+              const placeA = placeLookupByPointId.get(a.id);
+              const placeB = placeLookupByPointId.get(b.id);
 
               const scoreDiff =
                 computeMapScore(
@@ -942,7 +967,7 @@ export function CityDiscoveryMap({
             })
             .slice(0, 5)
         : [],
-    [effectivePlaces, listSource, selectedId, userLocation],
+    [listBuckets.places, placeLookupByPointId, selectedId, userLocation],
   );
 
   const listHintWhenNoPins =
@@ -953,21 +978,20 @@ export function CityDiscoveryMap({
       : null;
   const filteredEvents = useMemo(
     () =>
-      listSource
-        ? [...listSource]
-            .filter((point) => point.kind === "event")
+      listBuckets.events.length > 0
+        ? [...listBuckets.events]
             .sort((a, b) => Number(b.id === selectedId) - Number(a.id === selectedId))
             .slice(0, 5)
         : [],
-    [listSource, selectedId],
+    [listBuckets.events, selectedId],
   );
   const totalFilteredPlaces = useMemo(
-    () => (listSource ? listSource.filter((point) => point.kind === "place").length : 0),
-    [listSource],
+    () => listBuckets.places.length,
+    [listBuckets.places],
   );
   const totalFilteredEvents = useMemo(
-    () => (listSource ? listSource.filter((point) => point.kind === "event").length : 0),
-    [listSource],
+    () => listBuckets.events.length,
+    [listBuckets.events],
   );
   const listCount = listSource?.length ?? 0;
 
@@ -1224,7 +1248,9 @@ export function CityDiscoveryMap({
             <div className="mb-4 flex items-center justify-between">
               <h3 className="font-display text-xl text-foreground">{resultsTitle}</h3>
               <p className="text-sm text-muted-foreground">
-                {viewportBounds ? (
+                {isCityPinsLoading ? (
+                  <span className="text-muted-foreground/80">…</span>
+                ) : viewportBounds ? (
                   <>
                     {listCount} {resultsSummaryUnitLabel}
                   </>
@@ -1244,7 +1270,7 @@ export function CityDiscoveryMap({
               filtered={filtered}
               listCount={listCount}
               hasActiveFilters={hasActiveFilters}
-              listHintWhenNoPins={listHintWhenNoPins}
+              listHintWhenNoPins={isCityPinsLoading ? awaitingMapViewport : listHintWhenNoPins}
               awaitingMapViewport={awaitingMapViewport}
               empty={empty}
               noResults={noResults}

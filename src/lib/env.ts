@@ -30,6 +30,7 @@ const envSchema = z
     AUTH_ENABLE_PASSWORD_LOGIN: booleanStringSchema.default("true"),
     AUTH_DEMO_CREDENTIALS_ENABLED: booleanStringSchema.default("false"),
     AUTH_ALLOW_CREDENTIALS_MOCK: booleanStringSchema.default("false"),
+    AUTH_SIGNUP_INVITE_CODES: optionalStringSchema,
 
     APP_NAME: z.string().min(1).default("MerhabaMap"),
     APP_URL: z.string().url(),

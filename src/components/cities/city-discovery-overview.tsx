@@ -12,6 +12,10 @@ import { getLocalizedCityDisplayName } from "@/lib/cities/city-display-name";
 import type { GermanyMapCluster } from "@/lib/cities/germany-map-cluster";
 import { getEventCategoryLabelKey, getLocalizedEventText } from "@/lib/events";
 import { getLocalizedPlaceCategoryLabel, getLocalizedText } from "@/lib/places";
+import type {
+  PublicDiscoveryMapEventRecord,
+  PublicDiscoveryMapPlaceRecord,
+} from "@/server/queries/cities/get-public-city-page";
 import type { PublicEventRecord } from "@/server/queries/events/shared";
 import type { PublicPlaceRecord } from "@/server/queries/places/shared";
 import type { DiscoveryMapCityOption } from "@/server/queries/cities/get-discovery-map-cities";
@@ -45,9 +49,9 @@ type CityDiscoveryOverviewProps = {
   placeCount: number;
   eventCount: number;
   featuredPlaces: CityPlaceCardRecord[];
-  mapPlaces: CityPlaceCardRecord[];
+  mapPlaces: PublicDiscoveryMapPlaceRecord[];
   upcomingEvents: CityEventCardRecord[];
-  mapEvents: CityEventCardRecord[];
+  mapEvents: PublicDiscoveryMapEventRecord[];
   isAuthenticated: boolean;
   germanyMapClusters?: GermanyMapCluster[] | null;
   /** Nur bei konkreter Stadt (?city=…): Stadt folgen / entfolgen */

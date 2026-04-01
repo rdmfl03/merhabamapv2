@@ -22,6 +22,7 @@ export const registrationSchema = z
     locale: z.enum(routing.locales),
     name: trimmedOptionalString.pipe(z.string().max(120).optional()),
     email: z.string().trim().email().max(320),
+    inviteCode: trimmedOptionalString.pipe(z.string().max(64).optional()),
     password: passwordSchema,
     confirmPassword: z.string().min(10).max(128),
   })

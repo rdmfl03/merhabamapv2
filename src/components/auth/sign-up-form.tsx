@@ -10,9 +10,12 @@ import { idleAuthActionState } from "@/server/actions/auth/state";
 
 type SignUpFormProps = {
   locale: "de" | "tr";
+  requireInviteCode?: boolean;
   labels: {
     name: string;
     email: string;
+    inviteCode: string;
+    inviteCodeHint: string;
     password: string;
     confirmPassword: string;
     submit: string;
@@ -20,6 +23,7 @@ type SignUpFormProps = {
     validationError: string;
     emailInUse: string;
     passwordMismatch: string;
+    inviteCodeInvalid: string;
     registrationDisabled: string;
     legalAcknowledgementPrefix: string;
     legalAcknowledgementTerms: string;
@@ -37,6 +41,8 @@ function getMessage(message: string | undefined, labels: SignUpFormProps["labels
       return labels.emailInUse;
     case "password_mismatch":
       return labels.passwordMismatch;
+    case "invite_code_invalid":
+      return labels.inviteCodeInvalid;
     case "registration_disabled":
       return labels.registrationDisabled;
     default:
@@ -44,7 +50,7 @@ function getMessage(message: string | undefined, labels: SignUpFormProps["labels
   }
 }
 
-export function SignUpForm({ locale, labels }: SignUpFormProps) {
+export function SignUpForm({ locale, labels, requireInviteCode = false }: SignUpFormProps) {
   const [state, formAction, pending] = useActionState(
     registerUser,
     idleAuthActionState,
@@ -61,6 +67,13 @@ export function SignUpForm({ locale, labels }: SignUpFormProps) {
         <span className="font-medium text-foreground">{labels.email}</span>
         <Input type="email" name="email" required autoComplete="email" />
       </label>
+      {requireInviteCode ? (
+        <label className="block space-y-2 text-sm">
+          <span className="font-medium text-foreground">{labels.inviteCode}</span>
+          <Input type="text" name="inviteCode" required autoComplete="off" spellCheck={false} />
+          <span className="text-xs leading-5 text-muted-foreground">{labels.inviteCodeHint}</span>
+        </label>
+      ) : null}
       <label className="block space-y-2 text-sm">
         <span className="font-medium text-foreground">{labels.password}</span>
         <Input type="password" name="password" required autoComplete="new-password" />

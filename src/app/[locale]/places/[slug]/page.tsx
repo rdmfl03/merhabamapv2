@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Globe, MapPin, Phone, Star } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 import { auth } from "@/auth";
 import { PlaceClaimForm } from "@/components/places/place-claim-form";
@@ -87,6 +87,11 @@ export default async function PlaceDetailPage({
     auth(),
   ]);
   const signedInUser = session?.user;
+
+  if (!signedInUser?.id) {
+    redirect(`/${locale}/auth/signin?next=${encodeURIComponent(`/${locale}/places/${slug}`)}`);
+  }
+
   const place = await getPlaceBySlug({
     slug,
     userId: signedInUser?.id,

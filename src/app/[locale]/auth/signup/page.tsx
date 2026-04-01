@@ -4,7 +4,10 @@ import { SignUpForm } from "@/components/auth/sign-up-form";
 import { EssentialServicesNotice } from "@/components/legal/essential-services-notice";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "@/i18n/navigation";
-import { isUserRegistrationEnabled } from "@/lib/auth/config";
+import {
+  isInviteOnlyRegistrationEnabled,
+  isUserRegistrationEnabled,
+} from "@/lib/auth/config";
 import { isAppLocale } from "@/i18n/routing";
 import { notFound } from "next/navigation";
 
@@ -37,6 +40,8 @@ export default async function SignUpPage({ params, searchParams }: SignUpPagePro
     getTranslations({ locale, namespace: "legal" }),
   ]);
   const registrationEnabled = isUserRegistrationEnabled();
+  const inviteOnlyEnabled = isInviteOnlyRegistrationEnabled();
+  const canRegister = registrationEnabled || inviteOnlyEnabled;
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-12">
@@ -53,12 +58,15 @@ export default async function SignUpPage({ params, searchParams }: SignUpPagePro
               </p>
             </div>
 
-            {registrationEnabled ? (
+            {canRegister ? (
               <SignUpForm
                 locale={locale}
+                requireInviteCode={inviteOnlyEnabled}
                 labels={{
                   name: t("nameLabel"),
                   email: t("emailLabel"),
+                  inviteCode: t("inviteCodeLabel"),
+                  inviteCodeHint: t("inviteCodeHint"),
                   password: t("passwordLabel"),
                   confirmPassword: t("confirmPasswordLabel"),
                   submit: t("signUpButton"),
@@ -66,6 +74,7 @@ export default async function SignUpPage({ params, searchParams }: SignUpPagePro
                   validationError: t("signUpError"),
                   emailInUse: t("signUpEmailInUse"),
                   passwordMismatch: t("passwordMismatch"),
+                  inviteCodeInvalid: t("inviteCodeInvalid"),
                   registrationDisabled: t("signUpDisabledMessage"),
                   legalAcknowledgementPrefix: t("legalAcknowledgementPrefix"),
                   legalAcknowledgementTerms: legal("navigation.terms"),

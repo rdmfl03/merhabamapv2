@@ -840,8 +840,10 @@ function SyncMapViewConstraints({
 
 function ViewportBoundsReporter({
   onBoundsChange,
+  onZoomChange,
 }: {
   onBoundsChange?: (bounds: MapViewportBounds) => void;
+  onZoomChange?: (zoom: number) => void;
 }) {
   const map = useMap();
 
@@ -864,6 +866,7 @@ function ViewportBoundsReporter({
       queueMicrotask(() => {
         if (!cancelled) {
           onBoundsChange(next);
+          onZoomChange?.(map.getZoom());
         }
       });
     };
@@ -876,9 +879,36 @@ function ViewportBoundsReporter({
       map.off("moveend", report);
       map.off("zoomend", report);
     };
-  }, [map, onBoundsChange]);
+  }, [map, onBoundsChange, onZoomChange]);
 
   return null;
+}
+
+function expandViewportBounds(
+  bounds: MapViewportBounds,
+  factor = 0.18,
+): MapViewportBounds {
+  const latPad = (bounds.north - bounds.south) * factor;
+  const lngPad = (bounds.east - bounds.west) * factor;
+  return {
+    south: bounds.south - latPad,
+    west: bounds.west - lngPad,
+    north: bounds.north + latPad,
+    east: bounds.east + lngPad,
+  };
+}
+
+function markerRenderLimitsForZoom(zoom: number | null) {
+  if (zoom == null || zoom < 12) {
+    return { places: 320, events: 60 };
+  }
+  if (zoom < 13) {
+    return { places: 650, events: 90 };
+  }
+  if (zoom < 14) {
+    return { places: 1200, events: 120 };
+  }
+  return { places: Number.POSITIVE_INFINITY, events: Number.POSITIVE_INFINITY };
 }
 
 export function CityDiscoveryLeafletMap({
@@ -921,9 +951,50 @@ export function CityDiscoveryLeafletMap({
    */
   const [isMapReady, setIsMapReady] = useState(false);
   const [hoveredGermanyClusterSlug, setHoveredGermanyClusterSlug] = useState<string | null>(null);
+  const [renderBounds, setRenderBounds] = useState<MapViewportBounds | null>(null);
+  const [renderZoom, setRenderZoom] = useState<number | null>(null);
   useEffect(() => {
     setIsMapReady(true);
   }, []);
+
+  const renderedPoints = useMemo(() => {
+    if (!cityScopedDiscovery || !renderBounds) {
+      return points;
+    }
+
+    const expandedBounds = expandViewportBounds(renderBounds);
+    const visiblePlaces = points.filter(
+      (point) =>
+        point.kind === "place" &&
+        point.latitude >= expandedBounds.south &&
+        point.latitude <= expandedBounds.north &&
+        point.longitude >= expandedBounds.west &&
+        point.longitude <= expandedBounds.east,
+    );
+    const visibleEvents = points.filter(
+      (point) =>
+        point.kind === "event" &&
+        point.latitude >= expandedBounds.south &&
+        point.latitude <= expandedBounds.north &&
+        point.longitude >= expandedBounds.west &&
+        point.longitude <= expandedBounds.east,
+    );
+
+    const limits = markerRenderLimitsForZoom(renderZoom);
+    const next = [
+      ...visiblePlaces.slice(0, limits.places),
+      ...visibleEvents.slice(0, limits.events),
+    ];
+
+    if (selectedId && !next.some((point) => point.id === selectedId)) {
+      const selectedPoint = points.find((point) => point.id === selectedId);
+      if (selectedPoint) {
+        next.push(selectedPoint);
+      }
+    }
+
+    return next;
+  }, [cityScopedDiscovery, points, renderBounds, renderZoom, selectedId]);
 
   /**
    * Stabile DivIcon-Referenzen: sonst erzeugt jedes Re-Render (z. B. Listen-Hover) neue Icons,
@@ -932,14 +1003,14 @@ export function CityDiscoveryLeafletMap({
    */
   const markerIcons = useMemo(() => {
     const m = new Map<string, DivIcon>();
-    for (const p of points) {
+    for (const p of renderedPoints) {
       m.set(p.id, createMarkerIcon(p.kind, selectedId === p.id));
     }
     return m;
-  }, [points, selectedId]);
+  }, [renderedPoints, selectedId]);
 
-  const placePoints = points.filter((point) => point.kind === "place");
-  const eventPoints = points.filter((point) => point.kind === "event");
+  const placePoints = renderedPoints.filter((point) => point.kind === "place");
+  const eventPoints = renderedPoints.filter((point) => point.kind === "event");
   const shouldClusterPlaces = placePoints.length > 1;
   const shouldClusterEvents = eventPoints.length > 1;
 
@@ -1027,7 +1098,13 @@ export function CityDiscoveryLeafletMap({
           locateMeLoading={locateMeLoading}
           locateMeButtonLabel={locateMeLabel}
         />
-        <ViewportBoundsReporter onBoundsChange={onViewportBoundsChange} />
+        <ViewportBoundsReporter
+          onBoundsChange={(bounds) => {
+            setRenderBounds(bounds);
+            onViewportBoundsChange?.(bounds);
+          }}
+          onZoomChange={setRenderZoom}
+        />
         <PanToSelected points={points} selectedId={selectedId} />
         <PanToUserLocation userLocation={userLocation} />
 

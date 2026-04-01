@@ -90,13 +90,16 @@ export async function Header() {
           <div className="flex w-full min-w-0 flex-col gap-2 md:w-auto md:flex-row md:items-center md:justify-end md:gap-3">
             <div className="hidden md:flex md:flex-nowrap md:items-center md:justify-end md:gap-3">
               <HeaderSearch />
-              <HeaderPrimaryNavDesktop />
+              <HeaderPrimaryNavDesktop showFeed={Boolean(session?.user)} />
               <LanguageSwitcher />
               {authButtons}
             </div>
             <div className="flex w-full min-w-0 items-center justify-between gap-2 md:hidden">
               <HeaderSearch />
-              <HeaderPrimaryNavMobile className="min-w-0 flex-1 justify-start" />
+              <HeaderPrimaryNavMobile
+                className="min-w-0 flex-1 justify-start"
+                showFeed={Boolean(session?.user)}
+              />
               {authButtons}
             </div>
           </div>
