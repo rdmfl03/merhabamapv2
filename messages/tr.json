@@ -209,7 +209,7 @@
     "interestsTitle": "İlgi alanları",
     "interestsDescription": "İlgi alanları esnek tutulur; katı bir profil modeli zorunlu değil.",
     "submit": "MerhabaMap'e devam et",
-    "afterSubmitHint": "Kaydettikten sonra başlangıç sayfasına gidersin. Orada haritadan şehrini takip edebilir, yerel akışa bakabilir ve ilk mekan ya da etkinliği kaydedebilirsin — hepsi isteğe bağlı.",
+    "afterSubmitHint": "Kaydettikten sonra doğrudan akışa gidersin. Orada haritadan şehrini takip edebilir, yerel akışı kullanabilir ve ilk mekan ya da etkinliği kaydedebilirsin — hepsi isteğe bağlı.",
     "success": "Tercihlerin kaydedildi.",
     "error": "Tercihler kaydedilemedi.",
     "existingSelections": "Kayıtlı ilgi alanları",
