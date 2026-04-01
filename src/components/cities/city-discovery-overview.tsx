@@ -1,6 +1,6 @@
 "use client";
 
-import { Children, type ReactNode } from "react";
+import type { ReactNode } from "react";
 
 import { CityDiscoveryMap } from "@/components/cities/city-discovery-map";
 import { EventCard } from "@/components/events/event-card";
@@ -177,17 +177,15 @@ export function CityDiscoveryOverview({
           ) : (
             <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
               <div className="flex flex-wrap items-center gap-3">
-                {Children.toArray([
-                  cityFollowSlot,
-                  labels.germanyBackToOverview ? (
-                    <Link
-                      href="/map"
-                      className="text-sm font-medium text-muted-foreground transition hover:text-foreground"
-                    >
-                      {labels.germanyBackToOverview}
-                    </Link>
-                  ) : null,
-                ])}
+                {cityFollowSlot}
+                {labels.germanyBackToOverview ? (
+                  <Link
+                    href="/map"
+                    className="text-sm font-medium text-muted-foreground transition hover:text-foreground"
+                  >
+                    {labels.germanyBackToOverview}
+                  </Link>
+                ) : null}
               </div>
             </div>
           )}

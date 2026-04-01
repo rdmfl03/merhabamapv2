@@ -156,6 +156,11 @@ type CityEventPoint = {
   }> | null;
 };
 
+type DiscoveryMapPinsResponse = {
+  places: CityPlacePoint[];
+  events: CityEventPoint[];
+};
+
 const EMPTY_EFFECTIVE_PLACES: CityPlacePoint[] = [];
 const EMPTY_EFFECTIVE_EVENTS: CityEventPoint[] = [];
 
@@ -615,18 +620,29 @@ export function CityDiscoveryMap({
   const [viewportBounds, setViewportBounds] = useState<MapViewportBounds | null>(null);
   const [clusterLoadingSlug, setClusterLoadingSlug] = useState<string | null>(null);
   const [categoryMenuOpen, setCategoryMenuOpen] = useState(false);
+  const [loadedPins, setLoadedPins] = useState<DiscoveryMapPinsResponse | null>(
+    selectedCitySlug
+      ? null
+      : {
+          places,
+          events,
+        },
+  );
   const categoryDropdownRef = useRef<HTMLDivElement>(null);
 
   const isGermanyClusterMode =
     germanyMapClusters != null && selectedCitySlug === "";
+  const isCityPinsLoading = !isGermanyClusterMode && selectedCitySlug.length > 0 && loadedPins == null;
+  const resolvedPlaces = loadedPins?.places ?? places;
+  const resolvedEvents = loadedPins?.events ?? events;
   /** Deutschland-Übersicht: nur Cluster, keine Einzelpins (Server liefert hier leere map-Arrays). */
   const effectivePlaces = useMemo(
-    () => (isGermanyClusterMode ? EMPTY_EFFECTIVE_PLACES : places),
-    [isGermanyClusterMode, places],
+    () => (isGermanyClusterMode ? EMPTY_EFFECTIVE_PLACES : resolvedPlaces),
+    [isGermanyClusterMode, resolvedPlaces],
   );
   const effectiveEvents = useMemo(
-    () => (isGermanyClusterMode ? EMPTY_EFFECTIVE_EVENTS : events),
-    [isGermanyClusterMode, events],
+    () => (isGermanyClusterMode ? EMPTY_EFFECTIVE_EVENTS : resolvedEvents),
+    [isGermanyClusterMode, resolvedEvents],
   );
 
   const handleViewportBounds = useCallback((bounds: MapViewportBounds) => {
@@ -645,6 +661,63 @@ export function CityDiscoveryMap({
     setHoveredId(null);
     setCategoryMenuOpen(false);
   }, [selectedCitySlug]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    if (!selectedCitySlug) {
+      setLoadedPins({
+        places,
+        events,
+      });
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    setLoadedPins(null);
+
+    const controller = new AbortController();
+
+    void fetch(`/api/discovery/map-pins?city=${encodeURIComponent(selectedCitySlug)}`, {
+      cache: "no-store",
+      signal: controller.signal,
+    })
+      .then(async (response) => {
+        if (!response.ok) {
+          throw new Error(`Failed to load discovery map pins for ${selectedCitySlug}`);
+        }
+        return (await response.json()) as DiscoveryMapPinsResponse;
+      })
+      .then((data) => {
+        if (!cancelled) {
+          setLoadedPins({
+            places: Array.isArray(data.places) ? data.places : [],
+            events: Array.isArray(data.events) ? data.events : [],
+          });
+        }
+      })
+      .catch((error: unknown) => {
+        if (
+          cancelled ||
+          (error instanceof DOMException && error.name === "AbortError")
+        ) {
+          return;
+        }
+        console.error("[CityDiscoveryMap] Failed to load city pins:", error);
+        if (!cancelled) {
+          setLoadedPins({
+            places,
+            events,
+          });
+        }
+      });
+
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
+  }, [events, places, selectedCitySlug]);
 
   useEffect(() => {
     if (!categoryMenuOpen) {
@@ -1190,7 +1263,7 @@ export function CityDiscoveryMap({
             emptyLabel={empty}
             noResultsLabel={noResults}
             filtered={Boolean(
-              query || selectedCategoryKeys.length > 0 || typeFilter !== "all",
+              query || selectedCategoryKeys.length > 0 || typeFilter !== "all" || isCityPinsLoading,
             )}
             legendPlaces={legendPlaces}
             legendEvents={legendEvents}
@@ -1229,7 +1302,9 @@ export function CityDiscoveryMap({
                     {listCount} {resultsSummaryUnitLabel}
                   </>
                 ) : (
-                  <span className="text-muted-foreground/80">—</span>
+                  <span className="text-muted-foreground/80">
+                    {isCityPinsLoading ? "…" : "—"}
+                  </span>
                 )}
               </p>
             </div>
