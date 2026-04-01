@@ -51,22 +51,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })),
   );
 
-  const now = new Date();
+  try {
+    const now = new Date();
 
-  const [places, events, publicCollections, browseCities, browseCategories] = await Promise.all([
-    prisma.place.findMany({
+    const places = await prisma.place.findMany({
       where: buildPublicPlaceWhere(),
       select: { slug: true, updatedAt: true },
-    }),
-    prisma.event.findMany({
+    });
+    const events = await prisma.event.findMany({
       where: buildPublicEventWhere(),
       select: { slug: true, updatedAt: true },
-    }),
-    prisma.placeCollection.findMany({
+    });
+    const publicCollections = await prisma.placeCollection.findMany({
       where: { visibility: "PUBLIC" },
       select: { id: true, updatedAt: true },
-    }),
-    prisma.city.findMany({
+    });
+    const browseCities = await prisma.city.findMany({
       where: {
         OR: [
           { places: { some: publicPlaceVisibilityWhere } },
@@ -74,59 +74,62 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         ],
       },
       select: { slug: true },
-    }),
-    listPublicCategoryBrowseSummaries(),
-  ]);
+    });
+    const browseCategories = await listPublicCategoryBrowseSummaries();
 
-  const placeEntries: MetadataRoute.Sitemap = locales.flatMap((locale) =>
-    places.map((p) => ({
-      url: `${appUrl}/${locale}/places/${p.slug}`,
-      lastModified: p.updatedAt,
-      changeFrequency: "weekly" as const,
-      priority: 0.75,
-    })),
-  );
+    const placeEntries: MetadataRoute.Sitemap = locales.flatMap((locale) =>
+      places.map((p) => ({
+        url: `${appUrl}/${locale}/places/${p.slug}`,
+        lastModified: p.updatedAt,
+        changeFrequency: "weekly" as const,
+        priority: 0.75,
+      })),
+    );
 
-  const eventEntries: MetadataRoute.Sitemap = locales.flatMap((locale) =>
-    events.map((e) => ({
-      url: `${appUrl}/${locale}/events/${e.slug}`,
-      lastModified: e.updatedAt,
-      changeFrequency: "weekly" as const,
-      priority: 0.75,
-    })),
-  );
+    const eventEntries: MetadataRoute.Sitemap = locales.flatMap((locale) =>
+      events.map((e) => ({
+        url: `${appUrl}/${locale}/events/${e.slug}`,
+        lastModified: e.updatedAt,
+        changeFrequency: "weekly" as const,
+        priority: 0.75,
+      })),
+    );
 
-  const collectionEntries: MetadataRoute.Sitemap = locales.flatMap((locale) =>
-    publicCollections.map((c) => ({
-      url: `${appUrl}/${locale}/collections/${c.id}`,
-      lastModified: c.updatedAt,
-      changeFrequency: "monthly" as const,
-      priority: 0.55,
-    })),
-  );
+    const collectionEntries: MetadataRoute.Sitemap = locales.flatMap((locale) =>
+      publicCollections.map((c) => ({
+        url: `${appUrl}/${locale}/collections/${c.id}`,
+        lastModified: c.updatedAt,
+        changeFrequency: "monthly" as const,
+        priority: 0.55,
+      })),
+    );
 
-  const cityBrowseEntries: MetadataRoute.Sitemap = locales.flatMap((locale) =>
-    browseCities.map((c) => ({
-      url: `${appUrl}/${locale}/cities/${c.slug}`,
-      changeFrequency: "weekly" as const,
-      priority: 0.72,
-    })),
-  );
+    const cityBrowseEntries: MetadataRoute.Sitemap = locales.flatMap((locale) =>
+      browseCities.map((c) => ({
+        url: `${appUrl}/${locale}/cities/${c.slug}`,
+        changeFrequency: "weekly" as const,
+        priority: 0.72,
+      })),
+    );
 
-  const categoryBrowseEntries: MetadataRoute.Sitemap = locales.flatMap((locale) =>
-    browseCategories.map((c) => ({
-      url: `${appUrl}/${locale}/categories/${c.slug}`,
-      changeFrequency: "weekly" as const,
-      priority: 0.68,
-    })),
-  );
+    const categoryBrowseEntries: MetadataRoute.Sitemap = locales.flatMap((locale) =>
+      browseCategories.map((c) => ({
+        url: `${appUrl}/${locale}/categories/${c.slug}`,
+        changeFrequency: "weekly" as const,
+        priority: 0.68,
+      })),
+    );
 
-  return [
-    ...staticEntries,
-    ...cityBrowseEntries,
-    ...categoryBrowseEntries,
-    ...placeEntries,
-    ...eventEntries,
-    ...collectionEntries,
-  ];
+    return [
+      ...staticEntries,
+      ...cityBrowseEntries,
+      ...categoryBrowseEntries,
+      ...placeEntries,
+      ...eventEntries,
+      ...collectionEntries,
+    ];
+  } catch (error) {
+    console.error("Failed to build dynamic sitemap entries", error);
+    return staticEntries;
+  }
 }

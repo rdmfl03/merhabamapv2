@@ -1,7 +1,7 @@
 import { GERMANY_DISCOVERY_CENTER, resolveDiscoveryCityCenter } from "@/lib/cities/discovery-city-center";
 import type { GermanyMapCluster } from "@/lib/cities/germany-map-cluster";
 import { prisma } from "@/lib/prisma";
-import { getGermanyMapClusters } from "@/server/queries/cities/get-germany-map-clusters";
+import { getGermanyMapClustersSummary } from "@/server/queries/cities/get-germany-map-clusters";
 import { computeCategoryAdjustedScore, getPlaceScoreRatingCount } from "@/lib/places";
 import { compareByAiRanking } from "@/server/queries/ai-shared";
 import {
@@ -32,9 +32,6 @@ const CITY_MAP_PLACE_FETCH_LIMIT = 2500;
 const CITY_MAP_PLACE_MARKER_LIMIT = 2500;
 const CITY_MAP_EVENT_FETCH_LIMIT = 120;
 const CITY_MAP_EVENT_MARKER_LIMIT = 60;
-
-/** Sample size for national homepage featured cards (not map pins). */
-const GERMANY_FEATURED_SAMPLE = 96;
 
 async function loadFeaturedPlacesFull(
   rankedLiteTop: PublicPlaceRecordWithAiDiscoveryMap[],
@@ -150,8 +147,6 @@ export async function getPublicCityPage(citySlug: string, userId?: string) {
 
   const rankedPlacesAll = rankCityPlaces(mapPlacesLite);
   const rankedEventsAll = rankCityEvents(mapEvents);
-  const rankedPlaces = rankedPlacesAll.slice(0, CITY_MAP_PLACE_MARKER_LIMIT);
-  const rankedEvents = rankedEventsAll.slice(0, CITY_MAP_EVENT_MARKER_LIMIT);
   const featuredLiteTop = rankedPlacesAll.slice(0, 3) as PublicPlaceRecordWithAiDiscoveryMap[];
   const upcomingEvents = rankedEventsAll.slice(0, 3);
 
@@ -246,28 +241,18 @@ export async function getDiscoveryMapPinsForCitySlug(citySlug: string, _userId?:
 }
 
 export async function getPublicGermanyDiscoveryPage(userId?: string) {
-  const wherePlace = buildPublicPlaceWhere({
-    city: { countryCode: "DE" },
-  });
-  const whereEvent = buildPublicEventWhere({
-    city: { countryCode: "DE" },
-    startsAt: {
-      gte: new Date(),
-    },
-  });
+  let placeCount = 0;
+  let eventCount = 0;
+  let germanyMapClusters: GermanyMapCluster[] = [];
 
-  const [placeCount, eventCount, germanyMapClustersResult] = await Promise.all([
-    prisma.place.count({ where: wherePlace }),
-    prisma.event.count({
-      where: buildPublicEventWhere({
-        city: { countryCode: "DE" },
-        startsAt: { gte: new Date() },
-      }),
-    }),
-    getGermanyMapClusters().catch((): GermanyMapCluster[] => []),
-  ]);
-
-  const germanyMapClusters = germanyMapClustersResult;
+  try {
+    const summary = await getGermanyMapClustersSummary();
+    placeCount = summary.placeCount;
+    eventCount = summary.eventCount;
+    germanyMapClusters = summary.clusters;
+  } catch (error) {
+    console.error("Failed to load Germany discovery summary", error);
+  }
 
   const city = { ...GERMANY_MAP_VIRTUAL_CITY };
 
