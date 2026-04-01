@@ -111,6 +111,7 @@ export async function submitPlaceClaim(
 
   await sendClaimSubmittedEmail({
     to: parsed.data.claimantEmail,
+    locale: parsed.data.locale,
     placeName: place.name,
   });
 

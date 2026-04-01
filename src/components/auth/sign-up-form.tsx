@@ -1,10 +1,11 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link } from "@/i18n/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { registerUser } from "@/server/actions/auth/register-user";
 import { idleAuthActionState } from "@/server/actions/auth/state";
 
@@ -14,6 +15,7 @@ type SignUpFormProps = {
   labels: {
     name: string;
     email: string;
+    language: string;
     password: string;
     confirmPassword: string;
     inviteCode: string;
@@ -51,10 +53,18 @@ function getMessage(message: string | undefined, labels: SignUpFormProps["labels
 }
 
 export function SignUpForm({ locale, requireInviteCode = false, labels }: SignUpFormProps) {
+  const router = useRouter();
   const [state, formAction, pending] = useActionState(
     registerUser,
     idleAuthActionState,
   );
+  const [email, setEmail] = useState("");
+
+  useEffect(() => {
+    if (state.status === "success" && email.trim()) {
+      router.replace(`/auth/verify-email?email=${encodeURIComponent(email.trim())}&created=1`);
+    }
+  }, [email, router, state.status]);
 
   return (
     <form action={formAction} className="space-y-4 rounded-3xl border border-border bg-white p-6 shadow-soft">
@@ -65,7 +75,25 @@ export function SignUpForm({ locale, requireInviteCode = false, labels }: SignUp
       </label>
       <label className="block space-y-2 text-sm">
         <span className="font-medium text-foreground">{labels.email}</span>
-        <Input type="email" name="email" required autoComplete="email" />
+        <Input
+          type="email"
+          name="email"
+          required
+          autoComplete="email"
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+        />
+      </label>
+      <label className="block space-y-2 text-sm">
+        <span className="font-medium text-foreground">{labels.language}</span>
+        <select
+          name="preferredLocale"
+          defaultValue={locale}
+          className="flex h-11 w-full rounded-2xl border border-border bg-white px-4 py-2 text-sm text-foreground shadow-sm outline-none transition focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <option value="de">Deutsch</option>
+          <option value="tr">Türkçe</option>
+        </select>
       </label>
       <label className="block space-y-2 text-sm">
         <span className="font-medium text-foreground">{labels.password}</span>

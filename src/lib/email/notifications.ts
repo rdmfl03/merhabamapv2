@@ -21,7 +21,10 @@ export async function sendVerificationEmail(args: {
   const verificationUrl = buildAbsoluteUrl(
     `/${args.locale}/auth/verify?token=${encodeURIComponent(args.token)}`,
   );
-  const template = buildVerifyEmailTemplate({ verificationUrl });
+  const template = buildVerifyEmailTemplate({
+    locale: args.locale,
+    verificationUrl,
+  });
 
   return sendEmailSafely({
     template: "verify-email",
@@ -40,7 +43,10 @@ export async function sendPasswordResetEmail(args: {
   const resetUrl = buildAbsoluteUrl(
     `/${args.locale}/auth/reset-password?token=${encodeURIComponent(args.token)}`,
   );
-  const template = buildPasswordResetTemplate({ resetUrl });
+  const template = buildPasswordResetTemplate({
+    locale: args.locale,
+    resetUrl,
+  });
 
   return sendEmailSafely({
     template: "password-reset",
@@ -53,9 +59,13 @@ export async function sendPasswordResetEmail(args: {
 
 export async function sendClaimSubmittedEmail(args: {
   to: string;
+  locale: "de" | "tr";
   placeName: string;
 }) {
-  const template = buildClaimSubmittedTemplate({ placeName: args.placeName });
+  const template = buildClaimSubmittedTemplate({
+    locale: args.locale,
+    placeName: args.placeName,
+  });
 
   return sendEmailSafely({
     template: "claim-submitted",
@@ -68,10 +78,12 @@ export async function sendClaimSubmittedEmail(args: {
 
 export async function sendClaimReviewedEmail(args: {
   to: string;
+  locale: "de" | "tr";
   placeName: string;
   approved: boolean;
 }) {
   const template = buildClaimReviewedTemplate({
+    locale: args.locale,
     placeName: args.placeName,
     approved: args.approved,
   });
@@ -87,9 +99,13 @@ export async function sendClaimReviewedEmail(args: {
 
 export async function sendReportReceivedEmail(args: {
   to: string;
+  locale: "de" | "tr";
   targetLabel: string;
 }) {
-  const template = buildReportReceivedTemplate({ targetLabel: args.targetLabel });
+  const template = buildReportReceivedTemplate({
+    locale: args.locale,
+    targetLabel: args.targetLabel,
+  });
 
   return sendEmailSafely({
     template: "report-received",

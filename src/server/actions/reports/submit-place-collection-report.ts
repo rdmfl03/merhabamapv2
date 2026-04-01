@@ -73,6 +73,7 @@ export async function submitPlaceCollectionReport(
   if (session.user.email) {
     await sendReportReceivedEmail({
       to: session.user.email,
+      locale,
       targetLabel: `Liste: ${collection.title}`,
     });
   }

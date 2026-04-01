@@ -38,6 +38,11 @@ export async function updateClaimStatus(
       placeId: true,
       userId: true,
       claimantEmail: true,
+      user: {
+        select: {
+          preferredLocale: true,
+        },
+      },
       place: {
         select: {
           name: true,
@@ -143,6 +148,7 @@ export async function updateClaimStatus(
 
   await sendClaimReviewedEmail({
     to: claim.claimantEmail,
+    locale: claim.user?.preferredLocale ?? parsed.data.locale,
     placeName: claim.place.name,
     approved: parsed.data.nextStatus === "APPROVED",
   });

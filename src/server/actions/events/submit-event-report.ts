@@ -84,6 +84,7 @@ export async function submitEventReport(
   if (session.user.email) {
     await sendReportReceivedEmail({
       to: session.user.email,
+      locale: parsed.data.locale,
       targetLabel: event.title,
     });
   }

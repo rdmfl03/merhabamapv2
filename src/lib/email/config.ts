@@ -3,7 +3,7 @@ import "server-only";
 import { env, isDevelopmentLike } from "@/lib/env";
 
 export const emailConfig = {
-  from: "noreply@merhabamap.com",
+  from: "MerhabaMap Auth <auth@merhabamap.com>",
   replyTo: "info@merhabamap.com",
 };
 

@@ -89,6 +89,7 @@ export async function submitPlaceReport(
   if (session.user.email) {
     await sendReportReceivedEmail({
       to: session.user.email,
+      locale: parsed.data.locale,
       targetLabel: place.name,
     });
   }

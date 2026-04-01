@@ -20,6 +20,7 @@ export const passwordSchema = z
 export const registrationSchema = z
   .object({
     locale: z.enum(routing.locales),
+    preferredLocale: z.enum(routing.locales),
     name: trimmedOptionalString.pipe(z.string().max(120).optional()),
     email: z.string().trim().email().max(320),
     password: passwordSchema,

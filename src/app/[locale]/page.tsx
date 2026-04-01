@@ -39,8 +39,18 @@ export default async function LandingPage({ params }: LandingPageProps) {
     session = null;
   }
 
+  const preferredLocale = session?.user?.preferredLocale ?? locale;
+
+  if (session?.user?.id && preferredLocale !== locale) {
+    if (session.user.onboardingCompletedAt) {
+      redirect(`/${preferredLocale}/home`);
+    }
+
+    redirect(`/${preferredLocale}`);
+  }
+
   if (session?.user?.id && session.user.onboardingCompletedAt) {
-    redirect(`/${locale}/home`);
+    redirect(`/${preferredLocale}/home`);
   }
 
   const t = await getTranslations("landing");

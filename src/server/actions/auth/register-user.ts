@@ -30,6 +30,7 @@ export async function registerUser(
 
   const parsed = registrationSchema.safeParse({
     locale: formData.get("locale"),
+    preferredLocale: formData.get("preferredLocale"),
     name: formData.get("name"),
     email: formData.get("email"),
     password: formData.get("password"),
@@ -69,7 +70,7 @@ export async function registerUser(
       email: parsed.data.email,
       hashedPassword: hashPassword(parsed.data.password),
       name: parsed.data.name,
-      preferredLocale: parsed.data.locale,
+      preferredLocale: parsed.data.preferredLocale,
     },
     select: {
       id: true,
@@ -81,7 +82,7 @@ export async function registerUser(
     await createAndSendEmailVerification({
       userId: user.id,
       email: user.email,
-      locale: parsed.data.locale,
+      locale: parsed.data.preferredLocale,
     });
   }
 

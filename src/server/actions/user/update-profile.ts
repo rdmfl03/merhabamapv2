@@ -1,7 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
 
+import { LOCALE_COOKIE_NAME } from "@/i18n/locale";
 import { prisma } from "@/lib/prisma";
 import { stringifyUserInterests } from "@/lib/user-preferences";
 import { profileUpdateSchema } from "@/lib/validators/user";
@@ -57,6 +59,13 @@ export async function updateProfile(
       onboardingCityId: parsed.data.cityId,
       interestsJson: stringifyUserInterests(parsed.data.interests),
     },
+  });
+
+  const cookieStore = await cookies();
+  cookieStore.set(LOCALE_COOKIE_NAME, parsed.data.preferredLocale, {
+    path: "/",
+    sameSite: "lax",
+    httpOnly: false,
   });
 
   revalidatePath(`/${parsed.data.locale}/profile`);

@@ -1,11 +1,13 @@
 "use server";
 
 import type { Route } from "next";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { signIn } from "@/auth";
 import { getSafeNextPath } from "@/lib/auth/safe-redirects";
 import { prisma } from "@/lib/prisma";
+import { LOCALE_COOKIE_NAME } from "@/i18n/locale";
 
 export async function signInWithEmail(formData: FormData) {
   const email = String(formData.get("email") ?? "");
@@ -31,6 +33,7 @@ export async function signInWithEmail(formData: FormData) {
     const user = await prisma.user.findUnique({
       where: { email },
       select: {
+        preferredLocale: true,
         onboardingCompletedAt: true,
         onboardingCity: {
           select: {
@@ -40,9 +43,19 @@ export async function signInWithEmail(formData: FormData) {
       },
     });
 
+    const targetLocale = user?.preferredLocale ?? locale;
+    const cookieStore = await cookies();
+    cookieStore.set(LOCALE_COOKIE_NAME, targetLocale, {
+      path: "/",
+      sameSite: "lax",
+      httpOnly: false,
+    });
+
     if (user?.onboardingCompletedAt) {
-      redirect(`/${locale}/home` as Route);
+      redirect(`/${targetLocale}/home` as Route);
     }
+
+    redirect(`/${targetLocale}` as Route);
   }
 
   redirect(next as Route);

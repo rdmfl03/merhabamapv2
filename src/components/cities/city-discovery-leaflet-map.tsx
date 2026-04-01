@@ -451,14 +451,15 @@ function createGermanyCityClusterIcon(cluster: GermanyCityClusterMarker): DivIco
   const placeDigits = String(cluster.placeCount).length;
   const pinWidth = Math.max(48, Math.min(58, 44 + placeDigits * 3));
   const pinHeight = Math.round(pinWidth * 1.22);
-  const labelWidth = Math.max(pinWidth + 8, cluster.label.length * 7 + 18);
+  const labelWidth = Math.max(pinWidth + 4, cluster.label.length * 6.4 + 16);
+  const totalHeight = pinHeight + 24;
   const safeName = escapeClusterLabel(cluster.label);
   const eventBadge =
     cluster.eventCount > 0
       ? `<div style="
           position:absolute;
-          top:-4px;
-          right:-4px;
+          top:-6px;
+          right:-6px;
           width:20px;
           height:20px;
           display:flex;
@@ -482,21 +483,22 @@ function createGermanyCityClusterIcon(cluster: GermanyCityClusterMarker): DivIco
     className: "merhaba-germany-city-cluster-icon",
     html: `<div style="
       position:relative;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
       width:${labelWidth}px;
-      height:${pinHeight + 28}px;
+      height:${totalHeight}px;
       font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
       -webkit-font-smoothing:antialiased;
       cursor:pointer;
     ">
       <div style="
-        position:absolute;
-        left:50%;
-        top:0;
+        position:relative;
         width:${pinWidth}px;
         height:${pinHeight}px;
-        transform:translateX(-50%);
         filter:drop-shadow(0 10px 18px rgba(15,23,42,0.12));
         z-index:2;
+        flex:0 0 auto;
       ">
         <svg xmlns="http://www.w3.org/2000/svg" width="${pinWidth}" height="${pinHeight}" viewBox="0 0 56 68" fill="none" aria-hidden="true" style="display:block; position:absolute; inset:0; z-index:1;">
           <path d="M28 4C16.2 4 6.5 13.3 6.5 25c0 15.7 17.1 31.8 20 34.1.8.7 2.1.7 2.9 0 2.9-2.3 20-18.4 20-34.1C49.5 13.3 39.8 4 28 4Z" fill="url(#merhaba-germany-cluster-pin-fill)" stroke="#f1a3aa" stroke-width="2"/>
@@ -538,12 +540,10 @@ function createGermanyCityClusterIcon(cluster: GermanyCityClusterMarker): DivIco
         ${eventBadge}
       </div>
       <div style="
-        position:absolute;
-        left:50%;
-        top:${pinHeight - 6}px;
-        transform:translateX(-50%);
+        position:relative;
+        margin-top:-8px;
         width:${labelWidth}px;
-        padding:6px 9px 5px;
+        padding:5px 8px 4px;
         border-radius:999px;
         background:rgba(255,255,255,0.96);
         border:1px solid rgba(227,10,23,0.12);
@@ -555,14 +555,14 @@ function createGermanyCityClusterIcon(cluster: GermanyCityClusterMarker): DivIco
           font-size:9px;
           font-weight:800;
           line-height:1.1;
-          letter-spacing:0.05em;
+          letter-spacing:0.04em;
           text-transform:uppercase;
           white-space:nowrap;
           text-align:center;
         ">${safeName}</div>
       </div>
     </div>`,
-    iconSize: [labelWidth, pinHeight + 28],
+    iconSize: [labelWidth, totalHeight],
     iconAnchor: [labelWidth / 2, pinHeight - 4],
   });
 }

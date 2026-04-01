@@ -76,6 +76,7 @@ export async function submitEntityCommentReport(
   if (session.user.email) {
     await sendReportReceivedEmail({
       to: session.user.email,
+      locale,
       targetLabel: `Kommentar: ${preview}`,
     });
   }
