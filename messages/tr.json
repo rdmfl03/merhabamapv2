@@ -6,7 +6,7 @@
   },
   "common": {
     "brandName": "MerhabaMap",
-    "taglineShort": "Türk mekanları ve etkinlikleri",
+    "taglineShort": "The Home for Turkish Communities",
     "cities": "Harita",
     "places": "Mekanlar",
     "events": "Etkinlikler",
@@ -32,40 +32,73 @@
   },
   "landing": {
     "metaTitle": "Almanya'da mekanlar, etkinlikler ve topluluk | MerhabaMap",
-    "metaDescription": "Şehrinde ilgili mekanları, etkinlikleri ve buluşma noktalarını keşfet – haritada net bir bakışla, şehir filtresiyle.",
+    "metaDescription": "Almanya'da Türkiye ile bağı olan mekanları, etkinlikleri ve topluluğu keşfet – yerel, iki dilli ve harita odaklı.",
     "eyebrow": "Yerelde önemli olanı keşfet",
-    "title": "Günlük hayatına uygun mekanları, etkinlikleri ve topluluğu bul.",
-    "subtitle": "Kafeden restorana, etkinlikten buluşma noktalarına kadar hepsi bir arada – Almanca ve Türkçe, yerel bağlamla.",
+    "claim": "The Home for Turkish Communities",
+    "title": "Türkiye ile bağı olan mekanları, etkinlikleri ve topluluğu keşfet.",
+    "subtitle": "Almanya'da Türkiye ile bağı olan mekanları, etkinlikleri ve topluluğu bul – Almanca ve Türkçe, net bir yerel odak ve gereksiz karmaşa olmadan.",
     "explorePlaces": "Mekanları keşfet",
     "browseEvents": "Etkinlikleri keşfet",
     "heroMapCta": "Mekanları ve etkinlikleri haritada keşfet",
     "heroTrust": {
       "title": "Bilmen iyi olur",
-      "curated": "Uzun listeler yerine harita – nerede ne var, bir bakışta.",
-      "cityFirst": "Haritayı aç, şehrini seç: çevrendeki somut mekanlar ve etkinlikler.",
-      "reportable": "Bildirim gönderebilir, işletme sahipleri mekanlarını talep edebilir – kurallar baştan net."
+      "curated": "Uzun listeler yerine tek harita – neyin nerede olduğunu doğrudan görürsün.",
+      "cityFirst": "Şehrini seç, haritayı aç: Almanya odağında mekanlar ve etkinlikler doğrudan görünür.",
+      "reportable": "Kayıtlar izlenebilir, bildirilebilir ve net kurallarla yer alır."
+    },
+    "activity": {
+      "title": "Burada ne bulursun",
+      "description": "Almanya'da Türkiye ile bağı olan mekanlar, etkinlikler ve topluluk için net bir genel bakış.",
+      "items": {
+        "everyday": {
+          "title": "Günlük hayat için mekanlar",
+          "description": "Restoranlar, kafeler, marketler, camiler ve hizmetler; net bir yerel bağlamla bir arada.",
+          "signal": "Mekanlar"
+        },
+        "events": {
+          "title": "Etkinlikler ve buluşmalar",
+          "description": "Türkiye ile bağı olan insanlar için anlamlı olabilecek konserler, buluşmalar ve tarihler.",
+          "signal": "Etkinlikler"
+        },
+        "community": {
+          "title": "Topluluk ve buluşma noktaları",
+          "description": "Yerel sahneyi daha görünür kılan mekanlar, konular ve herkese açık kayıtlar.",
+          "signal": "Topluluk"
+        },
+        "map": {
+          "title": "Hepsi tek haritada",
+          "description": "Şehir seç, filtrele ve neyin ilgili olduğunu doğrudan gör — uzun listeler olmadan.",
+          "signal": "Harita"
+        }
+      }
     },
     "cards": {
       "places": {
         "eyebrow": "Mekanlar",
         "title": "Günlük hayatta işine yarayan yerler",
-        "description": "Restoran, kafe, market, cami ve hizmetler – aradığını daha çabuk bulman için düzenli bir arayüzde."
+        "description": "Restoranlar, kafeler, marketler, camiler ve hizmetler – aradığını daha hızlı bulman için düzenli biçimde bir arada.",
+        "communityLine": "Günlük yaşamda yön bulmayı kolaylaştıracak şekilde özenle bir araya getirilir",
+        "signal": "Düzenli ve net"
       },
       "events": {
         "eyebrow": "Etkinlikler",
-        "title": "Yerel bağlı etkinlikler",
-        "description": "Buluşmalar, akşamlar ve tarihler; senin ve çevrendeki topluluk için gerçekten yerinde anlam taşıdığı yerde."
+        "title": "Yerel bağlamı olan etkinlikler",
+        "description": "Buluşmalar, akşamlar ve tarihler; senin ve bulunduğun yerdeki topluluk için gerçekten anlamlı olan yerde – internetin herhangi bir köşesinde değil.",
+        "communityLine": "Türkiye ile bağı olan insanlar ve topluluk için daha anlaşılır bir çerçeve sunar",
+        "signal": "Açık biçimde düzenlenmiş"
       },
       "map": {
         "eyebrow": "Harita",
         "title": "Mekanlar ve etkinlikler için tek harita",
-        "description": "Mekanlar ve etkinlikler aynı haritada; şehre göre süz, nerede neyin ilgili olduğunu gör."
+        "description": "Mekanlar ve etkinlikler aynı haritada; şehre göre süz ve bulunduğun yerde neyin ilgili olduğunu doğrudan gör.",
+        "communityLine": "Mekanlar, etkinlikler ve topluluk için ortak bir genel bakış sunar",
+        "signal": "Şehre göre filtrelenebilir"
       }
     },
     "pilotSection": {
       "eyebrow": "Şehrin",
       "title": "Topluluğun günlük hayatta görünür olduğu yerden başla.",
-      "description": "Şehrini seç ve yerel bağlamı olan mekanları ve etkinlikleri keşfet. MerhabaMap topluluk için güvenilir bir keşif ağı olarak büyür.",
+      "description": "Şehrini seç ve Almanya'da Türkiye ile bağı olan mekanları, etkinlikleri ve buluşma noktalarını keşfet – yerel, pratik ve gündelik hayata yakın.",
       "cta": "Haritayı aç",
       "placesLabel": "Mekanlar",
       "eventsLabel": "Etkinlikler"
@@ -85,14 +118,14 @@
         },
         "three": {
           "title": "Kaydet, sonra dön",
-          "description": "Hesabınla favorileri saklar, şehir, dil ve ilgi alanlarını kendine göre ayarlarsın."
+          "description": "Hesabınla favorilerini saklar, şehir, dil ve ayarlarını daha kolay takip edersin."
         }
       }
     },
     "trust": {
       "eyebrow": "Güven",
-      "title": "Özen, abartısız vaat",
-      "description": "Sadece veri, moderasyon ve ürünün karşılayabildiğini söylüyoruz: anlaşılır içerik, net kurallar ve düzeltme imkânı.",
+      "title": "Büyük vaatler yerine özen",
+      "description": "Yalnızca veri, moderasyon ve ürünün gerçekten taşıyabildiğini gösteriyoruz: izlenebilir içerikler, net kurallar ve hataları düzeltme imkânı.",
       "items": {
         "quality": {
           "title": "Özenle yayımlanan herkese açık kayıtlar",
@@ -111,7 +144,8 @@
     "cta": {
       "eyebrow": "Başla",
       "title": "Önce göz at – uyarsa kayıt ol.",
-      "description": "Hesapsız da kullanılabilir. Kayıt; kaydetmek, kişisel ayarlar ve şehrinde katkıda bulunmak için işine yarar.",
+      "description": "Hesapsız da kullanılabilir. Kayıt olduğunda kaydedebilir, ayarlarını yönetebilir ve daha sonra daha kolay geri dönebilirsin.",
+      "communityNote": "Her şey tek yerde; açık, yerel ve iki dilli.",
       "primary": "Mekanlara git",
       "secondary": "Etkinliklere git",
       "tertiary": "Hesap oluştur"
@@ -1314,8 +1348,8 @@
   },
   "footer": {
     "navAriaLabel": "Alt bilgi gezintisi",
-    "tagline": "Almanya'daki Türk mekanları ve etkinlikleri için keşif platformu.",
-    "essentialNotice": "MerhabaMap teknik olarak gerekli oturum ve giriş çerezlerini, dil seçiminde bir yerel ayar çerezini ve kayıtlı mekânlar için yerel depolamayı kullanır; isteğe bağlı pazarlama veya reklam izleyicileri ön yüzde yer almaz.",
+    "tagline": "Almanya'da Türkiye ile bağı olan mekanlar, etkinlikler ve topluluk için keşif platformu.",
+    "essentialNotice": "MerhabaMap teknik olarak gerekli oturum ve giriş çerezlerini, dil seçimi için bir yerel ayar çerezini ve kaydedilen mekanlar için tarayıcı yerel depolamasını kullanır. İsteğe bağlı pazarlama veya reklam izleyicileri ön yüzde yer almaz.",
     "copyright": "© MerhabaMap. Tüm hakları saklıdır."
   },
   "legal": {

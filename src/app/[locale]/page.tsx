@@ -61,6 +61,7 @@ export default async function LandingPage({ params }: LandingPageProps) {
 
       <PublicHero
         eyebrow={t("eyebrow")}
+        claim={t("claim")}
         title={t("title")}
         description={t("subtitle")}
         mapCta={t("heroMapCta")}
@@ -74,6 +75,8 @@ export default async function LandingPage({ params }: LandingPageProps) {
           eyebrow: t(`cards.${key}.eyebrow`),
           title: t(`cards.${key}.title`),
           description: t(`cards.${key}.description`),
+          communityLine: t(`cards.${key}.communityLine`),
+          signal: t(`cards.${key}.signal`),
         }))}
       />
 
@@ -102,6 +105,7 @@ export default async function LandingPage({ params }: LandingPageProps) {
         eyebrow={t("cta.eyebrow")}
         title={t("cta.title")}
         description={t("cta.description")}
+        communityNote={t("cta.communityNote")}
         primaryCta={t("cta.primary")}
         secondaryCta={t("cta.secondary")}
         tertiaryCta={t("cta.tertiary")}

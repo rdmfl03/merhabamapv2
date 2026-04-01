@@ -35,51 +35,60 @@ export function Footer({
   termsLabel,
   communityRulesLabel,
 }: FooterProps) {
-
   return (
-    <footer className="border-t border-border bg-white">
-      <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8 pb-[max(2rem,calc(2rem+env(safe-area-inset-bottom,0px)))] text-sm text-muted-foreground">
-        <div>
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-brand shadow-sm ring-1 ring-black/10 md:ring-border/70">
-              <Image
-                src="/logo-pin.svg"
-                alt="MerhabaMap logo"
-                width={40}
-                height={40}
-                className="h-full w-full object-cover object-center"
-              />
+    <footer className="border-t border-border bg-[linear-gradient(180deg,#ffffff_0%,#fafbfc_100%)]">
+      <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-8 pb-[max(2rem,calc(2rem+env(safe-area-inset-bottom,0px)))] text-sm text-muted-foreground sm:py-10">
+        <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr]">
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-brand shadow-sm ring-1 ring-black/10 md:ring-border/70">
+                <Image
+                  src="/logo-pin.svg"
+                  alt="MerhabaMap logo"
+                  width={44}
+                  height={44}
+                  className="h-full w-full object-cover object-center"
+                />
+              </div>
+              <div className="space-y-0.5">
+                <p className="text-base font-semibold text-foreground">MerhabaMap</p>
+                <p className="text-sm font-medium text-foreground/78">{tagline}</p>
+              </div>
             </div>
-            <div>
-              <p className="text-base font-semibold text-foreground">MerhabaMap</p>
-              <p>{tagline}</p>
+            <p className="max-w-2xl text-xs leading-6 text-muted-foreground">
+              {essentialNotice}
+            </p>
+          </div>
+          <div className="grid gap-6 sm:grid-cols-2">
+            <div className="space-y-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-foreground/65">
+                {navAriaLabel}
+              </p>
+              <nav className="flex flex-col gap-2.5 text-sm" aria-label={navAriaLabel}>
+                <Link href="/map">{citiesLabel}</Link>
+                <Link href="/places">{placesLabel}</Link>
+                <Link href="/events">{eventsLabel}</Link>
+                <Link href="/auth/signup">{signUpLabel}</Link>
+              </nav>
+            </div>
+            <div className="space-y-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-foreground/65">
+                Rechtliches
+              </p>
+              <div className="grid gap-2.5 text-sm">
+                <Link href="/impressum">{impressumLabel}</Link>
+                <Link href="/privacy">{privacyLabel}</Link>
+                <Link href="/contact">{contactLabel}</Link>
+                <Link href="/cookies">{cookiesLabel}</Link>
+                <Link href="/terms">{termsLabel}</Link>
+                <Link href="/community-rules">{communityRulesLabel}</Link>
+              </div>
             </div>
           </div>
         </div>
-        <nav
-          className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm"
-          aria-label={navAriaLabel}
-        >
-          <Link href="/map">{citiesLabel}</Link>
-          <span className="text-border" aria-hidden>
-            ·
-          </span>
-          <Link href="/places">{placesLabel}</Link>
-          <Link href="/events">{eventsLabel}</Link>
-          <Link href="/auth/signup">{signUpLabel}</Link>
-        </nav>
-        <div className="flex flex-wrap gap-4 text-sm">
-          <Link href="/impressum">{impressumLabel}</Link>
-          <Link href="/privacy">{privacyLabel}</Link>
-          <Link href="/contact">{contactLabel}</Link>
-          <Link href="/cookies">{cookiesLabel}</Link>
-          <Link href="/terms">{termsLabel}</Link>
-          <Link href="/community-rules">{communityRulesLabel}</Link>
+        <div className="border-t border-border/70 pt-4">
+          <p>{copyright}</p>
         </div>
-        <p className="text-xs leading-6 text-muted-foreground">
-          {essentialNotice}
-        </p>
-        <p>{copyright}</p>
       </div>
     </footer>
   );
