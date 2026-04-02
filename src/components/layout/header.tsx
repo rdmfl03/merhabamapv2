@@ -4,7 +4,6 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { auth } from "@/auth";
 import { HeaderAccountMenu } from "@/components/layout/header-account-menu";
 import { HeaderNotificationsLink } from "@/components/layout/header-notifications-link";
-import { HeaderSearch } from "@/components/layout/header-search";
 import {
   HeaderPrimaryNavDesktop,
   HeaderPrimaryNavMobile,
@@ -89,13 +88,11 @@ export async function Header() {
 
           <div className="flex w-full min-w-0 flex-col gap-2 md:w-auto md:flex-row md:items-center md:justify-end md:gap-3">
             <div className="hidden md:flex md:flex-nowrap md:items-center md:justify-end md:gap-3">
-              <HeaderSearch />
               <HeaderPrimaryNavDesktop showFeed={Boolean(session?.user)} />
               <LanguageSwitcher />
               {authButtons}
             </div>
             <div className="flex w-full min-w-0 items-center justify-between gap-2 md:hidden">
-              <HeaderSearch />
               <HeaderPrimaryNavMobile
                 className="min-w-0 flex-1 justify-start"
                 showFeed={Boolean(session?.user)}

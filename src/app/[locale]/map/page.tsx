@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { auth } from "@/auth";
 import { CityDiscoveryOverview } from "@/components/cities/city-discovery-overview";
 import { CityFollowPanel } from "@/components/cities/city-follow-panel";
+import { ForceDocumentNavigation } from "@/components/cities/force-document-navigation";
 import { JsonLd } from "@/components/seo/json-ld";
 import { getLocalizedCityDisplayName } from "@/lib/cities/city-display-name";
 import type { GermanyMapCluster } from "@/lib/cities/germany-map-cluster";
@@ -125,6 +126,7 @@ export default async function DiscoveryMapPage({ params, searchParams }: MapPage
 
   return (
     <>
+      <ForceDocumentNavigation />
       <JsonLd
         data={buildCityCollectionSchema({
           locale,
