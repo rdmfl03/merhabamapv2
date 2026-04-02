@@ -1,40 +1,15 @@
 import Image from "next/image";
+import { getTranslations } from "next-intl/server";
 
 import { Link } from "@/i18n/navigation";
 
-type FooterProps = {
-  tagline: string;
-  navAriaLabel: string;
-  essentialNotice: string;
-  copyright: string;
-  citiesLabel: string;
-  placesLabel: string;
-  eventsLabel: string;
-  signUpLabel: string;
-  impressumLabel: string;
-  privacyLabel: string;
-  contactLabel: string;
-  cookiesLabel: string;
-  termsLabel: string;
-  communityRulesLabel: string;
-};
+export async function Footer() {
+  const [t, common, legal] = await Promise.all([
+    getTranslations("footer"),
+    getTranslations("common"),
+    getTranslations("legal"),
+  ]);
 
-export function Footer({
-  tagline,
-  navAriaLabel,
-  essentialNotice,
-  copyright,
-  citiesLabel,
-  placesLabel,
-  eventsLabel,
-  signUpLabel,
-  impressumLabel,
-  privacyLabel,
-  contactLabel,
-  cookiesLabel,
-  termsLabel,
-  communityRulesLabel,
-}: FooterProps) {
   return (
     <footer className="border-t border-border bg-[linear-gradient(180deg,#ffffff_0%,#fafbfc_100%)]">
       <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-8 pb-[max(2rem,calc(2rem+env(safe-area-inset-bottom,0px)))] text-sm text-muted-foreground sm:py-10">
@@ -52,42 +27,47 @@ export function Footer({
               </div>
               <div className="space-y-0.5">
                 <p className="text-base font-semibold text-foreground">MerhabaMap</p>
-                <p className="text-sm font-medium text-foreground/78">{tagline}</p>
+                <p className="text-sm font-medium tracking-[0.005em] text-foreground/74">
+                  {common("taglineShort")}
+                </p>
               </div>
             </div>
-            <p className="max-w-2xl text-xs leading-6 text-muted-foreground">
-              {essentialNotice}
+            <p className="max-w-lg text-sm leading-6 text-muted-foreground">
+              {t("tagline")}
+            </p>
+            <p className="max-w-2xl text-[0.82rem] leading-6 text-muted-foreground">
+              {t("essentialNotice")}
             </p>
           </div>
           <div className="grid gap-6 sm:grid-cols-2">
             <div className="space-y-3">
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-foreground/65">
-                {navAriaLabel}
+              <p className="text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-foreground/62">
+                {t("navAriaLabel")}
               </p>
-              <nav className="flex flex-col gap-2.5 text-sm" aria-label={navAriaLabel}>
-                <Link href="/map">{citiesLabel}</Link>
-                <Link href="/places">{placesLabel}</Link>
-                <Link href="/events">{eventsLabel}</Link>
-                <Link href="/auth/signup">{signUpLabel}</Link>
+              <nav className="flex flex-col gap-2.5 text-sm" aria-label={t("navAriaLabel")}>
+                <Link href="/map">{common("cities")}</Link>
+                <Link href="/places">{common("places")}</Link>
+                <Link href="/events">{common("events")}</Link>
+                <Link href="/auth/signup">{common("signUp")}</Link>
               </nav>
             </div>
             <div className="space-y-3">
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-foreground/65">
-                Rechtliches
+              <p className="text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-foreground/62">
+                {legal("eyebrow")}
               </p>
               <div className="grid gap-2.5 text-sm">
-                <Link href="/impressum">{impressumLabel}</Link>
-                <Link href="/privacy">{privacyLabel}</Link>
-                <Link href="/contact">{contactLabel}</Link>
-                <Link href="/cookies">{cookiesLabel}</Link>
-                <Link href="/terms">{termsLabel}</Link>
-                <Link href="/community-rules">{communityRulesLabel}</Link>
+                <Link href="/impressum">{legal("navigation.impressum")}</Link>
+                <Link href="/privacy">{legal("navigation.privacy")}</Link>
+                <Link href="/contact">{legal("navigation.contact")}</Link>
+                <Link href="/cookies">{legal("navigation.cookies")}</Link>
+                <Link href="/terms">{legal("navigation.terms")}</Link>
+                <Link href="/community-rules">{legal("navigation.communityRules")}</Link>
               </div>
             </div>
           </div>
         </div>
         <div className="border-t border-border/70 pt-4">
-          <p>{copyright}</p>
+          <p>{t("copyright")}</p>
         </div>
       </div>
     </footer>

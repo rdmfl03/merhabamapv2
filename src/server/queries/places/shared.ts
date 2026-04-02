@@ -214,6 +214,44 @@ export const publicPlaceSelectWithAiDiscoveryMap = Prisma.validator<Prisma.Place
   createdAt: true,
 });
 
+/**
+ * Minimaler Select nur für City-Map-Pins/API.
+ * Kein Telefon, keine Website, keine Medien-/Image-Felder, keine Hours.
+ */
+export const publicPlaceSelectWithAiMapPin = Prisma.validator<Prisma.PlaceSelect>()({
+  id: true,
+  slug: true,
+  name: true,
+  descriptionDe: true,
+  descriptionTr: true,
+  addressLine1: true,
+  postalCode: true,
+  latitude: true,
+  longitude: true,
+  displayRatingValue: true,
+  displayRatingCount: true,
+  ratingSourceCount: true,
+  verificationStatus: true,
+  aiReviewStatus: true,
+  aiConfidenceScore: true,
+  createdAt: true,
+  city: {
+    select: {
+      slug: true,
+      nameDe: true,
+      nameTr: true,
+    },
+  },
+  category: {
+    select: {
+      slug: true,
+      nameDe: true,
+      nameTr: true,
+      icon: true,
+    },
+  },
+});
+
 export type PublicPlaceRecord = Prisma.PlaceGetPayload<{
   select: typeof publicPlaceSelect;
 }>;
@@ -228,6 +266,10 @@ export type PublicPlaceRecordWithAi = Prisma.PlaceGetPayload<{
 
 export type PublicPlaceRecordWithAiDiscoveryMap = Prisma.PlaceGetPayload<{
   select: typeof publicPlaceSelectWithAiDiscoveryMap;
+}>;
+
+export type PublicPlaceRecordWithAiMapPin = Prisma.PlaceGetPayload<{
+  select: typeof publicPlaceSelectWithAiMapPin;
 }>;
 
 /** Strippt AI-Felder und macht `displayRatingValue` Flight-/JSON-tauglich (kein Prisma.Decimal). */

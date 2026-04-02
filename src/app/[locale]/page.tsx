@@ -4,7 +4,6 @@ import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
 import { PublicCtaSection } from "@/components/marketing/public-cta-section";
-import { HowItWorksSection } from "@/components/marketing/how-it-works-section";
 import { PublicHero } from "@/components/marketing/public-hero";
 import { TrustSection } from "@/components/marketing/trust-section";
 import { JsonLd } from "@/components/seo/json-ld";
@@ -64,31 +63,35 @@ export default async function LandingPage({ params }: LandingPageProps) {
         claim={t("claim")}
         title={t("title")}
         description={t("subtitle")}
-        mapCta={t("heroMapCta")}
         trustTitle={t("heroTrust.title")}
         trustPoints={[
           t("heroTrust.curated"),
           t("heroTrust.cityFirst"),
           t("heroTrust.reportable"),
         ]}
-        pillars={["places", "events", "map"].map((key) => ({
-          eyebrow: t(`cards.${key}.eyebrow`),
-          title: t(`cards.${key}.title`),
-          description: t(`cards.${key}.description`),
-          communityLine: t(`cards.${key}.communityLine`),
-          signal: t(`cards.${key}.signal`),
-        }))}
-      />
-
-      <HowItWorksSection
-        eyebrow={t("howItWorks.eyebrow")}
-        title={t("howItWorks.title")}
-        description={t("howItWorks.description")}
-        steps={["one", "two", "three"].map((stepKey, index) => ({
-          step: String(index + 1),
-          title: t(`howItWorks.steps.${stepKey}.title`),
-          description: t(`howItWorks.steps.${stepKey}.description`),
-        }))}
+        pillars={[
+          {
+            eyebrow: t("cards.places.eyebrow"),
+            title: t("cards.places.title"),
+            description: t("cards.places.description"),
+            ctaLabel: t("explorePlaces"),
+            href: "/places",
+          },
+          {
+            eyebrow: t("cards.events.eyebrow"),
+            title: t("cards.events.title"),
+            description: t("cards.events.description"),
+            ctaLabel: t("browseEvents"),
+            href: "/events",
+          },
+          {
+            eyebrow: t("cards.map.eyebrow"),
+            title: t("cards.map.title"),
+            description: t("cards.map.description"),
+            ctaLabel: t("openMap"),
+            href: "/map",
+          },
+        ]}
       />
 
       <TrustSection

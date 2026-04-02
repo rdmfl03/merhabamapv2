@@ -74,11 +74,11 @@ function PrimaryNavLink({
       className={cn(
         "inline-flex items-center justify-center whitespace-nowrap transition-all duration-200",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/35 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-        mobile ? "min-h-8 px-2.5 py-1.5 text-xs" : "min-h-9 px-3.5 py-2 text-sm sm:px-4",
-        "rounded-full tracking-wide",
+        mobile ? "min-h-8 px-2.5 py-1.5 text-xs" : "min-h-9 px-4 py-2 text-sm sm:px-4.5",
+        "rounded-full tracking-[0.01em]",
         active
-          ? "bg-background font-bold text-brand shadow-sm ring-1 ring-border/65"
-          : "font-medium text-muted-foreground hover:bg-background/80 hover:text-foreground",
+          ? "bg-background font-semibold text-brand shadow-[0_8px_18px_-12px_rgba(15,23,42,0.22)] ring-1 ring-border/80"
+          : "font-medium text-foreground/72 hover:bg-background/88 hover:text-foreground",
       )}
     >
       {children}
@@ -87,8 +87,8 @@ function PrimaryNavLink({
 }
 
 const navShellClass = cn(
-  "items-center gap-1 rounded-full border border-border/70 bg-muted/40 p-1 shadow-sm backdrop-blur-sm",
-  "ring-1 ring-black/[0.04]",
+  "items-center gap-1 rounded-full border border-border/80 bg-[linear-gradient(180deg,rgba(248,250,252,0.95)_0%,rgba(255,255,255,0.92)_100%)] p-1 shadow-[0_12px_28px_-18px_rgba(15,23,42,0.2)] backdrop-blur-sm",
+  "ring-1 ring-black/[0.05]",
 );
 
 export function HeaderPrimaryNavDesktop({ showFeed = true }: { showFeed?: boolean }) {
@@ -96,14 +96,14 @@ export function HeaderPrimaryNavDesktop({ showFeed = true }: { showFeed?: boolea
 
   return (
     <nav className={cn("hidden md:flex", navShellClass)} aria-label={primaryNavAria}>
-      <PrimaryNavLink href="/map" active={mapOn}>
-        {t("cities")}
-      </PrimaryNavLink>
       <PrimaryNavLink href="/places" active={placesOn}>
         {t("places")}
       </PrimaryNavLink>
       <PrimaryNavLink href="/events" active={eventsOn}>
         {t("events")}
+      </PrimaryNavLink>
+      <PrimaryNavLink href="/map" active={mapOn}>
+        {t("cities")}
       </PrimaryNavLink>
       {showFeed ? (
         <PrimaryNavLink href="/feed" active={feedOn}>
@@ -132,14 +132,14 @@ export function HeaderPrimaryNavMobile({
       )}
       aria-label={primaryNavAria}
     >
-      <PrimaryNavLink href="/map" active={mapOn} mobile>
-        {t("cities")}
-      </PrimaryNavLink>
       <PrimaryNavLink href="/places" active={placesOn} mobile>
         {t("places")}
       </PrimaryNavLink>
       <PrimaryNavLink href="/events" active={eventsOn} mobile>
         {t("events")}
+      </PrimaryNavLink>
+      <PrimaryNavLink href="/map" active={mapOn} mobile>
+        {t("cities")}
       </PrimaryNavLink>
       {showFeed ? (
         <PrimaryNavLink href="/feed" active={feedOn} mobile>

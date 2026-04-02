@@ -39,6 +39,7 @@
     "subtitle": "Finde Orte, Events und Community mit türkischem Bezug in Deutschland – auf Deutsch und Türkisch, mit klarem lokalem Fokus und ohne unnötige Umwege.",
     "explorePlaces": "Orte entdecken",
     "browseEvents": "Events entdecken",
+    "openMap": "Karte öffnen",
     "heroMapCta": "Orte und Events auf der Karte entdecken",
     "heroTrust": {
       "title": "Gut zu wissen",
@@ -46,53 +47,21 @@
       "cityFirst": "Stadt wählen, Karte öffnen: konkrete Orte und Events mit klarem Bezug zu Deutschland.",
       "reportable": "Einträge sind nachvollziehbar, meldbar und mit klaren Regeln eingebunden."
     },
-    "activity": {
-      "title": "Was du hier findest",
-      "description": "Ein klarer Überblick über Orte, Events und Community mit türkischem Bezug in Deutschland.",
-      "items": {
-        "everyday": {
-          "title": "Orte für den Alltag",
-          "description": "Restaurants, Cafés, Supermärkte, Moscheen und Services mit klarem lokalem Bezug.",
-          "signal": "Orte"
-        },
-        "events": {
-          "title": "Events & Veranstaltungen",
-          "description": "Konzerte, Treffen und Termine, die für Menschen mit türkischem Bezug relevant sein können.",
-          "signal": "Events"
-        },
-        "community": {
-          "title": "Community & Treffpunkte",
-          "description": "Orte, Themen und öffentliche Einträge, die die lokale Szene sichtbarer machen.",
-          "signal": "Community"
-        },
-        "map": {
-          "title": "Alles auf einer Karte",
-          "description": "Städte wählen, filtern und direkt sehen, was relevant ist — ohne lange Listen.",
-          "signal": "Karte"
-        }
-      }
-    },
     "cards": {
       "places": {
         "eyebrow": "Orte",
         "title": "Orte, die im Alltag helfen",
-        "description": "Restaurants, Cafés, Supermärkte, Moscheen und Services – übersichtlich gebündelt, damit du schneller findest, was du suchst.",
-        "communityLine": "Sorgfältig gebündelt für Orientierung im Alltag",
-        "signal": "Übersichtlich gebündelt"
+        "description": "Restaurants, Cafés, Supermärkte, Moscheen und Services – übersichtlich gebündelt, damit du schneller findest, was du suchst."
       },
       "events": {
         "eyebrow": "Events",
         "title": "Veranstaltungen mit lokalem Bezug",
-        "description": "Treffen, Abende und Termine dort, wo sie für dich und die Community vor Ort relevant sind – nicht irgendwo im Netz.",
-        "communityLine": "Klar eingeordnet für Menschen und Community mit türkischem Bezug",
-        "signal": "Klar eingeordnet"
+        "description": "Treffen, Abende und Termine dort, wo sie für dich und die Community vor Ort relevant sind – nicht irgendwo im Netz."
       },
       "map": {
         "eyebrow": "Karte",
         "title": "Eine Karte für Orte und Events",
-        "description": "Orte und Events teilen sich eine Karte; du filterst nach Stadt und siehst direkt, was vor Ort relevant ist.",
-        "communityLine": "Ein gemeinsamer Überblick für Orte, Events und Community",
-        "signal": "Nach Stadt filterbar"
+        "description": "Orte und Events teilen sich eine Karte; du filterst nach Stadt und siehst direkt, was vor Ort relevant ist."
       }
     },
     "pilotSection": {

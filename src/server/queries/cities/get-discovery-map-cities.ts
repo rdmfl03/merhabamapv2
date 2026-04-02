@@ -1,3 +1,5 @@
+import { unstable_cache } from "next/cache";
+
 import { prisma } from "@/lib/prisma";
 import { resolveDiscoveryCityCenter } from "@/lib/cities/discovery-city-center";
 import { buildPublicEventWhere } from "@/server/queries/events/shared";
@@ -11,7 +13,7 @@ export type DiscoveryMapCityOption = {
   longitude: number;
 };
 
-export async function getDiscoveryMapCityOptions(): Promise<DiscoveryMapCityOption[]> {
+async function getDiscoveryMapCityOptionsUncached(): Promise<DiscoveryMapCityOption[]> {
   try {
     const [placeRows, eventRows] = await Promise.all([
       prisma.place.findMany({
@@ -84,4 +86,14 @@ export async function getDiscoveryMapCityOptions(): Promise<DiscoveryMapCityOpti
   } catch {
     return [];
   }
+}
+
+const getDiscoveryMapCityOptionsCached = unstable_cache(
+  getDiscoveryMapCityOptionsUncached,
+  ["discovery:map-city-options"],
+  { revalidate: 300 },
+);
+
+export async function getDiscoveryMapCityOptions(): Promise<DiscoveryMapCityOption[]> {
+  return getDiscoveryMapCityOptionsCached();
 }

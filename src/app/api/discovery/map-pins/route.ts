@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 
-import { auth } from "@/auth";
 import { getDiscoveryMapPinsForCitySlug } from "@/server/queries/cities/get-public-city-page";
 
 export async function GET(request: Request) {
@@ -12,18 +11,15 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Invalid city parameter" }, { status: 400 });
   }
 
-  let session = null;
-  try {
-    session = await auth();
-  } catch {
-    session = null;
-  }
-
-  const data = await getDiscoveryMapPinsForCitySlug(citySlug, session?.user?.id);
+  const data = await getDiscoveryMapPinsForCitySlug(citySlug);
 
   if (!data) {
     return NextResponse.json({ error: "City not found" }, { status: 404 });
   }
 
-  return NextResponse.json(data);
+  return NextResponse.json(data, {
+    headers: {
+      "Cache-Control": "public, s-maxage=300, stale-while-revalidate=86400",
+    },
+  });
 }
