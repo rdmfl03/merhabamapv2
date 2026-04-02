@@ -1,10 +1,12 @@
+import { unstable_cache } from "next/cache";
+
 import { resolveDiscoveryCityCenter } from "@/lib/cities/discovery-city-center";
 import type { GermanyMapCluster } from "@/lib/cities/germany-map-cluster";
 import { prisma } from "@/lib/prisma";
 import { buildPublicEventWhere } from "@/server/queries/events/shared";
 import { buildPublicPlaceWhere } from "@/server/queries/places/shared";
 
-export async function getGermanyMapClusters(): Promise<GermanyMapCluster[]> {
+async function getGermanyMapClustersUncached(): Promise<GermanyMapCluster[]> {
   const wherePlace = buildPublicPlaceWhere({
     city: { countryCode: "DE" },
   });
@@ -80,4 +82,14 @@ export async function getGermanyMapClusters(): Promise<GermanyMapCluster[]> {
         Math.abs(row.latitude) <= 90 &&
         Math.abs(row.longitude) <= 180,
     );
+}
+
+const getGermanyMapClustersCached = unstable_cache(
+  getGermanyMapClustersUncached,
+  ["discovery:germany-map-clusters"],
+  { revalidate: 300 },
+);
+
+export async function getGermanyMapClusters(): Promise<GermanyMapCluster[]> {
+  return getGermanyMapClustersCached();
 }

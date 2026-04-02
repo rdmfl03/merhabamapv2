@@ -27,21 +27,21 @@ export async function Footer() {
               </div>
               <div className="space-y-0.5">
                 <p className="text-base font-semibold text-foreground">MerhabaMap</p>
-                <p className="text-sm font-medium text-foreground/78">
+                <p className="text-sm font-medium tracking-[0.005em] text-foreground/74">
                   {common("taglineShort")}
                 </p>
               </div>
             </div>
-            <p className="max-w-xl text-sm leading-6 text-muted-foreground">
+            <p className="max-w-lg text-sm leading-6 text-muted-foreground">
               {t("tagline")}
             </p>
-            <p className="max-w-2xl text-xs leading-6 text-muted-foreground">
+            <p className="max-w-2xl text-[0.82rem] leading-6 text-muted-foreground">
               {t("essentialNotice")}
             </p>
           </div>
           <div className="grid gap-6 sm:grid-cols-2">
             <div className="space-y-3">
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-foreground/65">
+              <p className="text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-foreground/62">
                 {t("navAriaLabel")}
               </p>
               <nav className="flex flex-col gap-2.5 text-sm" aria-label={t("navAriaLabel")}>
@@ -52,7 +52,7 @@ export async function Footer() {
               </nav>
             </div>
             <div className="space-y-3">
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-foreground/65">
+              <p className="text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-foreground/62">
                 {legal("eyebrow")}
               </p>
               <div className="grid gap-2.5 text-sm">

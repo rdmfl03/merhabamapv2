@@ -32,6 +32,26 @@ const defaultBasemap: MapBasemapValue = {
   attribution: OSM_ATTRIBUTION,
 };
 
+function getCanonicalMapApiOrigin() {
+  if (typeof window === "undefined") {
+    return "";
+  }
+
+  const { protocol, hostname, port, origin } = window.location;
+
+  if (hostname === "localhost" || hostname === "127.0.0.1") {
+    return origin;
+  }
+
+  const canonicalHostname = hostname.replace(/^www\./, "");
+  if (canonicalHostname === hostname) {
+    return origin;
+  }
+
+  const normalizedPort = port ? `:${port}` : "";
+  return `${protocol}//${canonicalHostname}${normalizedPort}`;
+}
+
 const MapBasemapContext = createContext<MapBasemapValue>(defaultBasemap);
 
 type MapBasemapProviderProps = {
@@ -66,10 +86,14 @@ export function MapBasemapProvider({
       return defaultBasemap;
     }
 
+    const canonicalOrigin = getCanonicalMapApiOrigin();
+
     return {
       hostedBasemapEnabled: true,
       provider: "stadiamaps",
-      tileUrl: STADIA_PROXY_TILE_URL,
+      tileUrl: canonicalOrigin
+        ? `${canonicalOrigin}${STADIA_PROXY_TILE_URL}`
+        : STADIA_PROXY_TILE_URL,
       attribution: STADIA_ATTRIBUTION,
     };
   }, [hostedBasemapEnabled]);

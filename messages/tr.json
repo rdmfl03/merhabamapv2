@@ -39,6 +39,7 @@
     "subtitle": "Almanya'da Türkiye ile bağı olan mekanları, etkinlikleri ve topluluğu bul – Almanca ve Türkçe, net bir yerel odak ve gereksiz karmaşa olmadan.",
     "explorePlaces": "Mekanları keşfet",
     "browseEvents": "Etkinlikleri keşfet",
+    "openMap": "Haritayı aç",
     "heroMapCta": "Mekanları ve etkinlikleri haritada keşfet",
     "heroTrust": {
       "title": "Bilmen iyi olur",
@@ -46,53 +47,21 @@
       "cityFirst": "Şehrini seç, haritayı aç: Almanya odağında mekanlar ve etkinlikler doğrudan görünür.",
       "reportable": "Kayıtlar izlenebilir, bildirilebilir ve net kurallarla yer alır."
     },
-    "activity": {
-      "title": "Burada ne bulursun",
-      "description": "Almanya'da Türkiye ile bağı olan mekanlar, etkinlikler ve topluluk için net bir genel bakış.",
-      "items": {
-        "everyday": {
-          "title": "Günlük hayat için mekanlar",
-          "description": "Restoranlar, kafeler, marketler, camiler ve hizmetler; net bir yerel bağlamla bir arada.",
-          "signal": "Mekanlar"
-        },
-        "events": {
-          "title": "Etkinlikler ve buluşmalar",
-          "description": "Türkiye ile bağı olan insanlar için anlamlı olabilecek konserler, buluşmalar ve tarihler.",
-          "signal": "Etkinlikler"
-        },
-        "community": {
-          "title": "Topluluk ve buluşma noktaları",
-          "description": "Yerel sahneyi daha görünür kılan mekanlar, konular ve herkese açık kayıtlar.",
-          "signal": "Topluluk"
-        },
-        "map": {
-          "title": "Hepsi tek haritada",
-          "description": "Şehir seç, filtrele ve neyin ilgili olduğunu doğrudan gör — uzun listeler olmadan.",
-          "signal": "Harita"
-        }
-      }
-    },
     "cards": {
       "places": {
         "eyebrow": "Mekanlar",
         "title": "Günlük hayatta işine yarayan yerler",
-        "description": "Restoranlar, kafeler, marketler, camiler ve hizmetler – aradığını daha hızlı bulman için düzenli biçimde bir arada.",
-        "communityLine": "Günlük yaşamda yön bulmayı kolaylaştıracak şekilde özenle bir araya getirilir",
-        "signal": "Düzenli ve net"
+        "description": "Restoranlar, kafeler, marketler, camiler ve hizmetler – aradığını daha hızlı bulman için düzenli biçimde bir arada."
       },
       "events": {
         "eyebrow": "Etkinlikler",
         "title": "Yerel bağlamı olan etkinlikler",
-        "description": "Buluşmalar, akşamlar ve tarihler; senin ve bulunduğun yerdeki topluluk için gerçekten anlamlı olan yerde – internetin herhangi bir köşesinde değil.",
-        "communityLine": "Türkiye ile bağı olan insanlar ve topluluk için daha anlaşılır bir çerçeve sunar",
-        "signal": "Açık biçimde düzenlenmiş"
+        "description": "Buluşmalar, akşamlar ve tarihler; senin ve bulunduğun yerdeki topluluk için gerçekten anlamlı olan yerde – internetin herhangi bir köşesinde değil."
       },
       "map": {
         "eyebrow": "Harita",
         "title": "Mekanlar ve etkinlikler için tek harita",
-        "description": "Mekanlar ve etkinlikler aynı haritada; şehre göre süz ve bulunduğun yerde neyin ilgili olduğunu doğrudan gör.",
-        "communityLine": "Mekanlar, etkinlikler ve topluluk için ortak bir genel bakış sunar",
-        "signal": "Şehre göre filtrelenebilir"
+        "description": "Mekanlar ve etkinlikler aynı haritada; şehre göre süz ve bulunduğun yerde neyin ilgili olduğunu doğrudan gör."
       }
     },
     "pilotSection": {

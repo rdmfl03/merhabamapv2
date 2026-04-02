@@ -106,6 +106,26 @@ export const publicEventSelectWithAi = Prisma.validator<Prisma.EventSelect>()({
   createdAt: true,
 });
 
+/**
+ * Minimaler Select nur für City-Map-Pins/API.
+ * Keine Venue-/Image-/URL-Zusatzfelder, nur das, was Marker, Popup und Liste brauchen.
+ */
+export const publicEventSelectWithAiMapPin = Prisma.validator<Prisma.EventSelect>()({
+  id: true,
+  slug: true,
+  title: true,
+  descriptionDe: true,
+  descriptionTr: true,
+  category: true,
+  latitude: true,
+  longitude: true,
+  startsAt: true,
+  endsAt: true,
+  aiReviewStatus: true,
+  aiConfidenceScore: true,
+  createdAt: true,
+});
+
 export type PublicEventRecord = Prisma.EventGetPayload<{
   select: typeof publicEventSelect;
 }>;
@@ -116,6 +136,10 @@ export type PublicEventDetailRecord = Prisma.EventGetPayload<{
 
 export type PublicEventRecordWithAi = Prisma.EventGetPayload<{
   select: typeof publicEventSelectWithAi;
+}>;
+
+export type PublicEventRecordWithAiMapPin = Prisma.EventGetPayload<{
+  select: typeof publicEventSelectWithAiMapPin;
 }>;
 
 /** Strippt AI-Felder; `venuePlace.displayRatingValue` als Zahl (kein Prisma.Decimal) für RSC/JSON. */
