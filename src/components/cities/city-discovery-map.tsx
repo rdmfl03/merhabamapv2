@@ -2,7 +2,6 @@
 
 import dynamic from "next/dynamic";
 import type { Route } from "next";
-import { useRouter } from "next/navigation";
 import type { Dispatch, ErrorInfo, ReactNode, SetStateAction } from "react";
 import { Component, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -538,7 +537,6 @@ export function CityDiscoveryMap({
   mapLoadErrorBody,
   mapLoadErrorRetry,
 }: CityDiscoveryMapProps) {
-  const router = useRouter();
   const frameClassName = getDiscoveryMapFrameClass(isGermanyNationalMap);
   const [cityPickerValue, setCityPickerValue] = useState(selectedCitySlug);
   const [typeFilter, setTypeFilter] = useState<"all" | "place" | "event">("all");
@@ -556,6 +554,7 @@ export function CityDiscoveryMap({
   const [viewportBounds, setViewportBounds] = useState<MapViewportBounds | null>(null);
   const [clusterLoadingSlug, setClusterLoadingSlug] = useState<string | null>(null);
   const [categoryMenuOpen, setCategoryMenuOpen] = useState(false);
+  const pinsCacheRef = useRef<Map<string, DiscoveryMapPinsResponse>>(new Map());
   const [loadedPins, setLoadedPins] = useState<DiscoveryMapPinsResponse | null>(() =>
     selectedCitySlug
       ? null
@@ -611,21 +610,29 @@ export function CityDiscoveryMap({
     }
 
     const controller = new AbortController();
+    const cachedPins = pinsCacheRef.current.get(selectedCitySlug);
+    if (cachedPins) {
+      setLoadedPins(cachedPins);
+      return () => controller.abort();
+    }
+
     setLoadedPins(null);
 
     fetch(`/api/discovery/map-pins?city=${encodeURIComponent(selectedCitySlug)}`, {
       signal: controller.signal,
-      cache: "no-store",
+      cache: "force-cache",
     })
       .then(async (response) => {
         if (!response.ok) {
           throw new Error(`Failed to load discovery map pins for ${selectedCitySlug}`);
         }
         const payload = (await response.json()) as DiscoveryMapPinsResponse;
-        setLoadedPins({
+        const nextPins = {
           places: Array.isArray(payload.places) ? payload.places : [],
           events: Array.isArray(payload.events) ? payload.events : [],
-        });
+        };
+        pinsCacheRef.current.set(selectedCitySlug, nextPins);
+        setLoadedPins(nextPins);
       })
       .catch((error: unknown) => {
         if (controller.signal.aborted) {
@@ -685,17 +692,11 @@ export function CityDiscoveryMap({
   }, [germanyMapClusters, isGermanyClusterMode, locale]);
 
   const handleGermanyClusterClick = useCallback(
-    async (slug: string) => {
+    (slug: string) => {
       setClusterLoadingSlug(slug);
-      try {
-        await router.push(
-          `/${locale}/map?city=${encodeURIComponent(slug)}` as Route,
-        );
-      } finally {
-        setClusterLoadingSlug(null);
-      }
+      window.location.assign(`/${locale}/map?city=${encodeURIComponent(slug)}`);
     },
-    [locale, router],
+    [locale],
   );
 
   const normalized = useMemo<NormalizedPoint[]>(() => {
@@ -1036,7 +1037,7 @@ export function CityDiscoveryMap({
     const path = slug
       ? `/${locale}/map?city=${encodeURIComponent(slug)}`
       : `/${locale}/map`;
-    router.push(path as Route);
+    window.location.assign(path);
   }
 
   return (

@@ -447,33 +447,40 @@ function escapeClusterLabel(value: string): string {
     .replace(/"/g, "&quot;");
 }
 
-function createGermanyCityClusterIcon(cluster: GermanyCityClusterMarker): DivIcon {
+function createGermanyCityClusterIcon(
+  cluster: GermanyCityClusterMarker,
+  active = false,
+): DivIcon {
   const placeDigits = String(cluster.placeCount).length;
-  const bubbleSize = Math.max(40, Math.min(50, 36 + placeDigits * 4));
-  const labelWidth = Math.max(bubbleSize + 8, cluster.label.length * 7 + 18);
+  const pinWidth = Math.max(50, Math.min(58, 44 + placeDigits * 3));
+  const pinHeight = Math.round(pinWidth * 1.18);
+  const labelWidth = Math.max(pinWidth + 10, cluster.label.length * 7 + 22);
   const safeName = escapeClusterLabel(cluster.label);
   const eventBadge =
     cluster.eventCount > 0
       ? `<div style="
           position:absolute;
-          top:-2px;
-          right:-2px;
-          min-width:18px;
-          height:18px;
-          padding:0 5px;
-          border-radius:999px;
+          top:-3px;
+          right:-7px;
+          width:24px;
+          height:24px;
           display:flex;
           align-items:center;
           justify-content:center;
+          transform:rotate(45deg);
           background:#0f172a;
           color:#ffffff;
-          border:2px solid rgba(255,255,255,0.95);
-          box-shadow:0 5px 12px rgba(15,23,42,0.18);
-          font-size:9px;
+          border:2px solid rgba(255,255,255,0.98);
+          box-shadow:${active ? "0 8px 18px rgba(15,23,42,0.24)" : "0 5px 12px rgba(15,23,42,0.18)"};
+          z-index:6;
+        "><span style="
+          display:block;
+          transform:rotate(-45deg);
+          font-size:10px;
           font-weight:700;
           line-height:1;
           font-variant-numeric:tabular-nums;
-        ">${cluster.eventCount}</div>`
+        ">${cluster.eventCount}</span></div>`
       : "";
 
   return L.divIcon({
@@ -481,51 +488,57 @@ function createGermanyCityClusterIcon(cluster: GermanyCityClusterMarker): DivIco
     html: `<div style="
       position:relative;
       width:${labelWidth}px;
-      height:${bubbleSize + 28}px;
+      height:${pinHeight + 30}px;
       font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
       -webkit-font-smoothing:antialiased;
       cursor:pointer;
+      transform:${active ? "translateY(-1px)" : "translateY(0)"};
+      overflow:visible;
     ">
       <div style="
         position:absolute;
         left:50%;
         top:0;
-        width:${bubbleSize}px;
-        height:${bubbleSize}px;
+        width:${pinWidth}px;
+        height:${pinHeight}px;
         transform:translateX(-50%);
-        border-radius:999px;
         display:flex;
         align-items:center;
         justify-content:center;
-        background:radial-gradient(circle at 30% 28%, rgba(255,255,255,0.98) 0%, rgba(255,248,248,0.98) 30%, rgba(255,237,239,0.96) 100%);
-        border:2px solid rgba(227,10,23,0.34);
-        box-shadow:
-          0 8px 18px rgba(15,23,42,0.1),
-          0 2px 4px rgba(227,10,23,0.06),
-          inset 0 1px 0 rgba(255,255,255,0.9);
+        filter:${active ? "drop-shadow(0 12px 22px rgba(227,10,23,0.24))" : "drop-shadow(0 10px 18px rgba(227,10,23,0.16))"};
+        overflow:visible;
+        z-index:1;
       ">
-        <span style="
-          color:#d31622;
-          font-size:${placeDigits >= 4 ? 13 : 15}px;
-          font-weight:800;
-          line-height:1;
-          font-variant-numeric:tabular-nums;
-          letter-spacing:-0.02em;
-        ">${cluster.placeCount}</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="${pinWidth}" height="${pinHeight}" viewBox="0 0 46 56" fill="none" aria-hidden="true" style="position:relative; z-index:1; overflow:visible;">
+          <path d="M23 4C13.6 4 6 11.5 6 20.8c0 12.5 13.8 25.4 16 27.2.6.6 1.6.6 2.2 0C26.2 46.2 40 33.3 40 20.8 40 11.5 32.4 4 23 4Z"
+            fill="url(#cluster-pin-fill-${cluster.slug})"
+            stroke="${active ? "rgba(227,10,23,0.55)" : "rgba(227,10,23,0.32)"}"
+            stroke-width="2.5"/>
+          <circle cx="23" cy="21" r="11" fill="rgba(255,255,255,0.96)"/>
+          <text x="23" y="26" text-anchor="middle" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="${placeDigits >= 4 ? 12 : 14}" font-weight="800" fill="#d31622" letter-spacing="-0.02em">${cluster.placeCount}</text>
+          <defs>
+            <radialGradient id="cluster-pin-fill-${cluster.slug}" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(17 14) rotate(55) scale(34 31)">
+              <stop stop-color="rgba(255,255,255,0.99)"/>
+              <stop offset="0.44" stop-color="rgba(255,246,247,0.98)"/>
+              <stop offset="1" stop-color="${active ? "rgba(255,229,232,0.98)" : "rgba(255,240,242,0.97)"}"/>
+            </radialGradient>
+          </defs>
+        </svg>
         ${eventBadge}
       </div>
       <div style="
         position:absolute;
         left:50%;
-        top:${bubbleSize - 2}px;
+        top:${pinHeight - 2}px;
         transform:translateX(-50%);
         width:${labelWidth}px;
         padding:6px 9px 5px;
         border-radius:999px;
         background:rgba(255,255,255,0.96);
-        border:1px solid rgba(227,10,23,0.12);
-        box-shadow:0 4px 12px rgba(15,23,42,0.07);
+        border:1px solid ${active ? "rgba(227,10,23,0.2)" : "rgba(227,10,23,0.12)"};
+        box-shadow:${active ? "0 8px 18px rgba(15,23,42,0.12)" : "0 4px 12px rgba(15,23,42,0.07)"};
         backdrop-filter:blur(8px);
+        z-index:2;
       ">
         <div style="
           color:#b91c1c;
@@ -539,8 +552,8 @@ function createGermanyCityClusterIcon(cluster: GermanyCityClusterMarker): DivIco
         ">${safeName}</div>
       </div>
     </div>`,
-    iconSize: [labelWidth, bubbleSize + 28],
-    iconAnchor: [labelWidth / 2, bubbleSize / 2],
+    iconSize: [labelWidth, pinHeight + 30],
+    iconAnchor: [labelWidth / 2, pinHeight / 2],
   });
 }
 
@@ -791,8 +804,7 @@ function PanToSelected({
     }
 
     map.panTo([lat, lng], {
-      animate: true,
-      duration: 0.35,
+      animate: false,
     });
   }, [activeTarget, map]);
 
@@ -811,10 +823,13 @@ function PanToUserLocation({
       return;
     }
 
-    map.flyTo([userLocation.latitude, userLocation.longitude], Math.max(map.getZoom(), 13), {
-      animate: true,
-      duration: 0.5,
-    });
+    map.setView(
+      [userLocation.latitude, userLocation.longitude],
+      Math.max(map.getZoom(), 13),
+      {
+        animate: false,
+      },
+    );
   }, [map, userLocation]);
 
   return null;
@@ -996,6 +1011,15 @@ export function CityDiscoveryLeafletMap({
     return next;
   }, [cityScopedDiscovery, points, renderBounds, renderZoom, selectedId]);
 
+  const placePoints = useMemo(
+    () => renderedPoints.filter((point) => point.kind === "place"),
+    [renderedPoints],
+  );
+  const eventPoints = useMemo(
+    () => renderedPoints.filter((point) => point.kind === "event"),
+    [renderedPoints],
+  );
+
   /**
    * Stabile DivIcon-Referenzen: sonst erzeugt jedes Re-Render (z. B. Listen-Hover) neue Icons,
    * react-leaflet aktualisiert alle Marker → MarkerCluster bricht Spiderfy ab (Pins nicht klickbar).
@@ -1008,9 +1032,6 @@ export function CityDiscoveryLeafletMap({
     }
     return m;
   }, [renderedPoints, selectedId]);
-
-  const placePoints = renderedPoints.filter((point) => point.kind === "place");
-  const eventPoints = renderedPoints.filter((point) => point.kind === "event");
   const shouldClusterPlaces = placePoints.length > 1;
   const shouldClusterEvents = eventPoints.length > 1;
 
@@ -1018,6 +1039,21 @@ export function CityDiscoveryLeafletMap({
     points.length === 0 &&
     Boolean(germanyCityClusters?.length) &&
     Boolean(onGermanyCityClusterClick);
+
+  const germanyClusterIcons = useMemo(() => {
+    if (!showGermanyClusters || !germanyCityClusters?.length) {
+      return new Map<string, DivIcon>();
+    }
+
+    const icons = new Map<string, DivIcon>();
+    for (const cluster of germanyCityClusters) {
+      icons.set(
+        cluster.slug,
+        createGermanyCityClusterIcon(cluster, hoveredGermanyClusterSlug === cluster.slug),
+      );
+    }
+    return icons;
+  }, [germanyCityClusters, hoveredGermanyClusterSlug, showGermanyClusters]);
 
   const effectiveMaxBounds = useMemo<LatLngBoundsExpression>(() => {
     if (showGermanyClusters) {
@@ -1075,6 +1111,10 @@ export function CityDiscoveryLeafletMap({
         minZoom={effectiveMinZoom}
         maxBounds={effectiveMaxBounds}
         maxBoundsViscosity={1}
+        zoomAnimation={false}
+        fadeAnimation={false}
+        markerZoomAnimation={false}
+        inertia={false}
         zoomControl={false}
         className={cn(
           "merhaba-discovery-map relative z-0 h-full w-full",
@@ -1113,9 +1153,13 @@ export function CityDiscoveryLeafletMap({
               <Marker
                 key={`cluster-${cluster.slug}`}
                 position={[cluster.latitude, cluster.longitude]}
-                icon={createGermanyCityClusterIcon(cluster)}
+                icon={
+                  germanyClusterIcons.get(cluster.slug) ??
+                  createGermanyCityClusterIcon(cluster, hoveredGermanyClusterSlug === cluster.slug)
+                }
                 zIndexOffset={hoveredGermanyClusterSlug === cluster.slug ? 1000 : 0}
                 eventHandlers={{
+                  click: () => onGermanyCityClusterClick?.(cluster.slug),
                   mouseover: () => setHoveredGermanyClusterSlug(cluster.slug),
                   mouseout: () => {
                     setHoveredGermanyClusterSlug((current) =>
@@ -1129,21 +1173,15 @@ export function CityDiscoveryLeafletMap({
                     );
                   },
                 }}
-              >
-                <GermanyClusterMapPopup
-                  cluster={cluster}
-                  legendPlaces={legendPlaces}
-                  legendEvents={legendEvents}
-                  revealLabel={germanyClusterRevealLabel ?? viewPlaceLabel}
-                  onOpenCity={() => onGermanyCityClusterClick?.(cluster.slug)}
-                />
-              </Marker>
+              />
             ))
           : null}
 
         {/* Ohne chunkedLoading: leaflet.markercluster ruft in addLayers vor jedem Chunk _unspiderfy() auf. */}
         {shouldClusterPlaces ? (
           <MarkerClusterGroup
+            animate={false}
+            animateAddingMarkers={false}
             showCoverageOnHover={false}
             spiderfyOnMaxZoom
             spiderfyDistanceMultiplier={1.25}
@@ -1208,6 +1246,8 @@ export function CityDiscoveryLeafletMap({
 
         {shouldClusterEvents ? (
           <MarkerClusterGroup
+            animate={false}
+            animateAddingMarkers={false}
             showCoverageOnHover={false}
             spiderfyOnMaxZoom
             spiderfyDistanceMultiplier={1.25}

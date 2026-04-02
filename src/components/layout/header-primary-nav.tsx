@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { useLocale, useMessages, useTranslations } from "next-intl";
 
 import { Link, usePathname } from "@/i18n/navigation";
+import { buildLocalizedPath } from "@/i18n/locale";
 import { cn } from "@/lib/utils";
 
 /** Used when `messages.*.json` is missing `common.primaryNavAria` (e.g. stale cache / old deploy). */
@@ -61,26 +62,39 @@ function PrimaryNavLink({
   active,
   children,
   mobile,
+  forceDocumentNavigation = false,
 }: {
   href: string;
   active: boolean;
   children: ReactNode;
   mobile?: boolean;
+  forceDocumentNavigation?: boolean;
 }) {
+  const locale = useLocale();
+  const className = cn(
+    "inline-flex items-center justify-center whitespace-nowrap transition-all duration-200",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/35 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+    mobile ? "min-h-8 px-2.5 py-1.5 text-xs" : "min-h-9 px-4 py-2 text-sm sm:px-4.5",
+    "rounded-full tracking-[0.01em]",
+    active
+      ? "bg-background font-semibold text-brand shadow-[0_8px_18px_-12px_rgba(15,23,42,0.22)] ring-1 ring-border/80"
+      : "font-medium text-foreground/72 hover:bg-background/88 hover:text-foreground",
+  );
+
+  if (forceDocumentNavigation) {
+    return (
+      <a
+        href={buildLocalizedPath(locale === "tr" ? "tr" : "de", href)}
+        aria-current={active ? "page" : undefined}
+        className={className}
+      >
+        {children}
+      </a>
+    );
+  }
+
   return (
-    <Link
-      href={href}
-      aria-current={active ? "page" : undefined}
-      className={cn(
-        "inline-flex items-center justify-center whitespace-nowrap transition-all duration-200",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/35 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-        mobile ? "min-h-8 px-2.5 py-1.5 text-xs" : "min-h-9 px-4 py-2 text-sm sm:px-4.5",
-        "rounded-full tracking-[0.01em]",
-        active
-          ? "bg-background font-semibold text-brand shadow-[0_8px_18px_-12px_rgba(15,23,42,0.22)] ring-1 ring-border/80"
-          : "font-medium text-foreground/72 hover:bg-background/88 hover:text-foreground",
-      )}
-    >
+    <Link href={href} aria-current={active ? "page" : undefined} className={className}>
       {children}
     </Link>
   );
@@ -97,20 +111,22 @@ export function HeaderPrimaryNavDesktop({
   showFeed?: boolean;
 } = {}) {
   const { t, primaryNavAria, mapOn, placesOn, eventsOn, feedOn } = usePrimaryNavState();
+  const pathname = usePathname() ?? "/";
+  const forceDocumentNavigation = isMapActive(pathname);
 
   return (
     <nav className={cn("hidden md:flex", navShellClass)} aria-label={primaryNavAria}>
-      <PrimaryNavLink href="/places" active={placesOn}>
+      <PrimaryNavLink href="/places" active={placesOn} forceDocumentNavigation={forceDocumentNavigation}>
         {t("places")}
       </PrimaryNavLink>
-      <PrimaryNavLink href="/events" active={eventsOn}>
+      <PrimaryNavLink href="/events" active={eventsOn} forceDocumentNavigation={forceDocumentNavigation}>
         {t("events")}
       </PrimaryNavLink>
-      <PrimaryNavLink href="/map" active={mapOn}>
+      <PrimaryNavLink href="/map" active={mapOn} forceDocumentNavigation={forceDocumentNavigation}>
         {t("cities")}
       </PrimaryNavLink>
       {showFeed ? (
-        <PrimaryNavLink href="/feed" active={feedOn}>
+        <PrimaryNavLink href="/feed" active={feedOn} forceDocumentNavigation={forceDocumentNavigation}>
           {t("feed")}
         </PrimaryNavLink>
       ) : null}
@@ -126,6 +142,8 @@ export function HeaderPrimaryNavMobile({
   showFeed?: boolean;
 }) {
   const { t, primaryNavAria, mapOn, placesOn, eventsOn, feedOn } = usePrimaryNavState();
+  const pathname = usePathname() ?? "/";
+  const forceDocumentNavigation = isMapActive(pathname);
 
   return (
     <nav
@@ -136,17 +154,17 @@ export function HeaderPrimaryNavMobile({
       )}
       aria-label={primaryNavAria}
     >
-      <PrimaryNavLink href="/places" active={placesOn} mobile>
+      <PrimaryNavLink href="/places" active={placesOn} mobile forceDocumentNavigation={forceDocumentNavigation}>
         {t("places")}
       </PrimaryNavLink>
-      <PrimaryNavLink href="/events" active={eventsOn} mobile>
+      <PrimaryNavLink href="/events" active={eventsOn} mobile forceDocumentNavigation={forceDocumentNavigation}>
         {t("events")}
       </PrimaryNavLink>
-      <PrimaryNavLink href="/map" active={mapOn} mobile>
+      <PrimaryNavLink href="/map" active={mapOn} mobile forceDocumentNavigation={forceDocumentNavigation}>
         {t("cities")}
       </PrimaryNavLink>
       {showFeed ? (
-        <PrimaryNavLink href="/feed" active={feedOn} mobile>
+        <PrimaryNavLink href="/feed" active={feedOn} mobile forceDocumentNavigation={forceDocumentNavigation}>
           {t("feed")}
         </PrimaryNavLink>
       ) : null}
