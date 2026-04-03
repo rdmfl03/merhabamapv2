@@ -236,7 +236,6 @@ export function CityDiscoveryOverview({
           germanyClusterHint={labels.germanyClusterHint}
           germanyBackToOverview={labels.germanyBackToOverview}
           germanyClusterRevealLabel={labels.germanyClusterRevealLabel}
-          germanyLoadingCity={labels.germanyLoadingCity}
           resultsCitiesUnit={labels.resultsCitiesUnit}
           mapLoadErrorTitle={labels.mapLoadErrorTitle}
           mapLoadErrorBody={labels.mapLoadErrorBody}

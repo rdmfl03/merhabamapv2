@@ -34,8 +34,12 @@ export const metadata: Metadata = {
   description: appConfig.description,
   metadataBase: getMetadataBase(),
   icons: {
-    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
-    apple: [{ url: "/icon.svg", type: "image/svg+xml" }],
+    icon: [
+      { url: "/favicon.ico", type: "image/x-icon" },
+      { url: "/logo-pin.png", type: "image/png" },
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+    apple: [{ url: "/logo-pin.png", type: "image/png" }],
   },
 };
 

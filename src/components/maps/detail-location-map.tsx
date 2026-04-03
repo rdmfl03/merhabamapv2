@@ -54,8 +54,7 @@ export function DetailLocationMap({
     ? `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`
     : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
 
-  const mapSourceLabel =
-    basemap.provider === "stadiamaps" ? "Stadia Maps / OpenStreetMap" : "OpenStreetMap";
+  const mapSourceLabel = "Stadia Maps";
 
   return (
     <Card className="overflow-hidden">

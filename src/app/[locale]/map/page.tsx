@@ -164,21 +164,23 @@ export default async function DiscoveryMapPage({ params, searchParams }: MapPage
         germanyMapClusters={germanyMapClusters}
         cityFollowSlot={
           !isNational ? (
-            <CityFollowPanel
-              cityId={pageData.city.id}
-              locale={locale}
-              returnPath={mapReturnPath}
-              isFollowing={followingCity}
-              isAuthenticated={Boolean(userId)}
-              signInHref={`/${locale}/auth/signin?next=${encodeURIComponent(mapReturnPath)}`}
-              labels={{
-                follow: t("cityFollow.follow"),
-                unfollow: t("cityFollow.unfollow"),
-                signIn: t("cityFollow.signIn"),
-                signUp: t("cityFollow.signUp"),
-                signInHint: t("cityFollow.signInHint"),
-              }}
-            />
+            <div key="city-follow-slot">
+              <CityFollowPanel
+                cityId={pageData.city.id}
+                locale={locale}
+                returnPath={mapReturnPath}
+                isFollowing={followingCity}
+                isAuthenticated={Boolean(userId)}
+                signInHref={`/${locale}/auth/signin?next=${encodeURIComponent(mapReturnPath)}`}
+                labels={{
+                  follow: t("cityFollow.follow"),
+                  unfollow: t("cityFollow.unfollow"),
+                  signIn: t("cityFollow.signIn"),
+                  signUp: t("cityFollow.signUp"),
+                  signInHint: t("cityFollow.signInHint"),
+                }}
+              />
+            </div>
           ) : undefined
         }
         labels={{

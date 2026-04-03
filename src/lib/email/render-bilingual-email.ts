@@ -22,6 +22,10 @@ type RenderBilingualEmailOptions = {
   de: EmailSection;
 };
 
+function getEmailLogoUrl() {
+  return new URL("/logo-pin.png", env.APP_URL).toString();
+}
+
 function escapeHtml(value: string) {
   return value
     .replaceAll("&", "&amp;")
@@ -115,6 +119,7 @@ export function renderLocalizedEmail({
   const replyToLabel = isTurkish ? "Yanit adresi" : "Reply-To";
   const sectionLabel = isTurkish ? "Turkce" : "Deutsch";
   const brandName = "MerhabaMap";
+  const logoUrl = getEmailLogoUrl();
   const html = `
     <!DOCTYPE html>
     <html lang="tr">
@@ -136,13 +141,13 @@ export function renderLocalizedEmail({
                     <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
                       <tr>
                         <td valign="middle" style="width:60px;">
-                          <table role="presentation" cellpadding="0" cellspacing="0" border="0">
-                            <tr>
-                              <td align="center" valign="middle" width="44" height="44" style="width:44px;height:44px;background:#e30a17;border-radius:14px;color:#ffffff;font-size:24px;font-weight:800;line-height:44px;text-align:center;">
-                                <span style="display:inline-block;color:#ffffff;font-size:24px;font-weight:800;line-height:44px;">M</span>
-                              </td>
-                            </tr>
-                          </table>
+                          <img
+                            src="${escapeHtml(logoUrl)}"
+                            alt="${escapeHtml(brandName)}"
+                            width="52"
+                            height="52"
+                            style="display:block;width:52px;height:52px;margin:-4px;border-radius:16px;"
+                          />
                         </td>
                         <td valign="middle">
                           <p style="margin:0;color:#111827;font-size:15px;font-weight:800;">${brandName}</p>
@@ -226,6 +231,7 @@ export function renderBilingualEmail({
   de,
 }: RenderBilingualEmailOptions) {
   const brandName = "MerhabaMap";
+  const logoUrl = getEmailLogoUrl();
   const brandSubtitle =
     "Orte, Events und Community mit türkischem Bezug in Deutschland.";
   const footerNotice =
@@ -252,13 +258,13 @@ export function renderBilingualEmail({
                     <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
                       <tr>
                         <td valign="middle" style="width:60px;">
-                          <table role="presentation" cellpadding="0" cellspacing="0" border="0">
-                            <tr>
-                              <td align="center" valign="middle" width="44" height="44" style="width:44px;height:44px;background:#e30a17;border-radius:14px;color:#ffffff;font-size:24px;font-weight:800;line-height:44px;text-align:center;">
-                                <span style="display:inline-block;color:#ffffff;font-size:24px;font-weight:800;line-height:44px;">M</span>
-                              </td>
-                            </tr>
-                          </table>
+                          <img
+                            src="${escapeHtml(logoUrl)}"
+                            alt="${escapeHtml(brandName)}"
+                            width="52"
+                            height="52"
+                            style="display:block;width:52px;height:52px;margin:-4px;border-radius:16px;"
+                          />
                         </td>
                         <td valign="middle">
                           <p style="margin:0;color:#111827;font-size:15px;font-weight:800;">${brandName}</p>
