@@ -10,8 +10,6 @@ import {
 } from "react";
 
 import {
-  OSM_ATTRIBUTION,
-  OSM_TILE_URL,
   STADIA_ATTRIBUTION,
   STADIA_PROXY_TILE_URL,
   type MapTileProvider,
@@ -27,9 +25,9 @@ export type MapBasemapValue = {
 
 const defaultBasemap: MapBasemapValue = {
   hostedBasemapEnabled: false,
-  provider: "osm",
-  tileUrl: OSM_TILE_URL,
-  attribution: OSM_ATTRIBUTION,
+  provider: "stadiamaps",
+  tileUrl: STADIA_PROXY_TILE_URL,
+  attribution: STADIA_ATTRIBUTION,
 };
 
 function getCanonicalMapApiOrigin() {
@@ -56,7 +54,7 @@ const MapBasemapContext = createContext<MapBasemapValue>(defaultBasemap);
 
 type MapBasemapProviderProps = {
   children: ReactNode;
-  /** From server layout when `STADIA_API_KEY` is set — avoids an initial OSM flash before `/api/map/basemap` responds. */
+  /** From server layout when `STADIA_API_KEY` is set. */
   initialHostedBasemapEnabled?: boolean;
 };
 
@@ -82,14 +80,10 @@ export function MapBasemapProvider({
   }, []);
 
   const value = useMemo((): MapBasemapValue => {
-    if (!hostedBasemapEnabled) {
-      return defaultBasemap;
-    }
-
     const canonicalOrigin = getCanonicalMapApiOrigin();
 
     return {
-      hostedBasemapEnabled: true,
+      hostedBasemapEnabled,
       provider: "stadiamaps",
       tileUrl: canonicalOrigin
         ? `${canonicalOrigin}${STADIA_PROXY_TILE_URL}`

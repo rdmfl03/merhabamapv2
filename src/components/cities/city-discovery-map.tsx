@@ -205,7 +205,6 @@ type CityDiscoveryMapProps = {
   germanyClusterHint?: string;
   germanyBackToOverview?: string;
   germanyClusterRevealLabel?: string;
-  germanyLoadingCity?: string;
   resultsCitiesUnit?: string;
   mapLoadErrorTitle: string;
   mapLoadErrorBody: string;
@@ -531,7 +530,6 @@ export function CityDiscoveryMap({
   germanyClusterHint = "",
   germanyBackToOverview = "",
   germanyClusterRevealLabel = "",
-  germanyLoadingCity = "",
   resultsCitiesUnit = "",
   mapLoadErrorTitle,
   mapLoadErrorBody,
@@ -552,7 +550,6 @@ export function CityDiscoveryMap({
     "idle" | "loading" | "unavailable"
   >("idle");
   const [viewportBounds, setViewportBounds] = useState<MapViewportBounds | null>(null);
-  const [clusterLoadingSlug, setClusterLoadingSlug] = useState<string | null>(null);
   const [categoryMenuOpen, setCategoryMenuOpen] = useState(false);
   const pinsCacheRef = useRef<Map<string, DiscoveryMapPinsResponse>>(new Map());
   const [loadedPins, setLoadedPins] = useState<DiscoveryMapPinsResponse | null>(() =>
@@ -671,12 +668,6 @@ export function CityDiscoveryMap({
     };
   }, [categoryMenuOpen]);
 
-  useEffect(() => {
-    if (selectedCitySlug) {
-      setClusterLoadingSlug(null);
-    }
-  }, [selectedCitySlug]);
-
   const germanyClusterMarkers = useMemo(() => {
     if (!isGermanyClusterMode || !germanyMapClusters?.length) {
       return undefined;
@@ -693,7 +684,6 @@ export function CityDiscoveryMap({
 
   const handleGermanyClusterClick = useCallback(
     (slug: string) => {
-      setClusterLoadingSlug(slug);
       window.location.assign(`/${locale}/map?city=${encodeURIComponent(slug)}`);
     },
     [locale],
@@ -1033,7 +1023,6 @@ export function CityDiscoveryMap({
   }
 
   function handleCityPickerChange(slug: string) {
-    setCityPickerValue(slug);
     const path = slug
       ? `/${locale}/map?city=${encodeURIComponent(slug)}`
       : `/${locale}/map`;
@@ -1234,8 +1223,6 @@ export function CityDiscoveryMap({
               isGermanyClusterMode ? handleGermanyClusterClick : undefined
             }
             mapLayoutEpoch={0}
-            clusterLoadingSlug={clusterLoadingSlug}
-            clusterLoadingLabel={germanyLoadingCity}
             resultsCitiesUnitLabel={resultsCitiesUnit}
             germanyClusterRevealLabel={germanyClusterRevealLabel}
             restrictToCityRadiusKm={

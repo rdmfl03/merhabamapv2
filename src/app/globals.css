@@ -93,7 +93,7 @@ a {
 .leaflet-control-attribution {
   background: rgba(255, 255, 255, 0.92) !important;
   border-top-left-radius: 10px;
-  /* Pflicht-Attribution (OSM/MapTiler) bleibt lesbar; kompakter als Leaflet-Default */
+  /* Pflicht-Attribution bleibt lesbar; kompakter als Leaflet-Default */
   font-size: 0.625rem;
   line-height: 1.25;
   max-width: min(100%, 16rem);
@@ -130,6 +130,15 @@ a {
   color: #111827;
 }
 
+.leaflet-container.merhaba-discovery-map .leaflet-marker-pane,
+.leaflet-container.merhaba-discovery-map .leaflet-shadow-pane {
+  z-index: 600 !important;
+}
+
+.leaflet-container.merhaba-discovery-map .leaflet-popup-pane {
+  z-index: 850 !important;
+}
+
 .leaflet-popup-content-wrapper {
   padding: 2px !important;
   border-radius: 22px !important;
@@ -160,6 +169,35 @@ a {
   box-shadow:
     0 1px 2px rgba(15, 23, 42, 0.03),
     inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+.merhaba-map-entity-popup {
+  position: relative;
+  border-radius: 26px;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  background:
+    radial-gradient(circle at top right, rgba(227, 10, 23, 0.05), transparent 38%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.99) 0%, rgba(255, 255, 255, 0.965) 100%);
+  box-shadow:
+    0 24px 50px rgba(15, 23, 42, 0.12),
+    0 8px 18px rgba(15, 23, 42, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+  overflow: hidden;
+}
+
+.merhaba-map-entity-popup::before {
+  content: "";
+  position: absolute;
+  left: 20px;
+  top: 0;
+  width: 72px;
+  height: 4px;
+  border-bottom-left-radius: 999px;
+  border-bottom-right-radius: 999px;
+  background: linear-gradient(90deg, #e30a17 0%, #ff3b30 100%);
+  opacity: 0.95;
 }
 
 /* Links erben sonst `color: inherit` → dunkle Schrift auf rotem CTA */
