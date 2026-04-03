@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { CalendarDays, ChevronRight, Crosshair, Loader2, MapPin, Star } from "lucide-react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { CalendarDays, ChevronRight, Loader2, LocateFixed, MapPin, Star } from "lucide-react";
 import type { LatLngBoundsExpression, Map as LeafletMap } from "leaflet";
 
 import type { CityMapPoint, MapViewportBounds } from "@/components/cities/city-discovery-map-types";
@@ -31,10 +31,6 @@ type CityDiscoveryLeafletMapProps = {
   selectedId: string | null;
   onHoverChange: (id: string | null) => void;
   onSelectChange: (id: string | null) => void;
-  userLocation: {
-    latitude: number;
-    longitude: number;
-  } | null;
   emptyLabel: string;
   noResultsLabel: string;
   filtered: boolean;
@@ -44,11 +40,10 @@ type CityDiscoveryLeafletMapProps = {
   viewPlaceLabel: string;
   placePopupRatingCaption: string;
   viewEventLabel: string;
-  myLocationLabel: string;
   locateMeLabel: string;
+  locatingLabel: string;
+  myLocationLabel: string;
   isGermanyNationalMap?: boolean;
-  onLocateMe?: () => void;
-  locateMeLoading?: boolean;
   onViewportBoundsChange?: (bounds: MapViewportBounds) => void;
   germanyCityClusters?: GermanyCityClusterMarker[];
   onGermanyCityClusterClick?: (slug: string) => void;
@@ -104,6 +99,12 @@ const DISCOVERY_MAP_MAX_BOUNDS: LatLngBoundsExpression = [
 ];
 const DISCOVERY_MAP_MIN_ZOOM = 5.6;
 const GERMANY_MAP_LOCKED_MIN_ZOOM = 7.2;
+
+type UserLocationPoint = {
+  latitude: number;
+  longitude: number;
+  accuracy: number | null;
+};
 
 function mapPopupDescriptionLine(point: CityMapPoint): string | null {
   const desc = point.description
@@ -663,15 +664,10 @@ function spiderfyClusterPoints(
 function computeFitBounds(args: {
   points: CityMapPoint[];
   cityCenter: { latitude: number; longitude: number } | null;
-  userLocation: { latitude: number; longitude: number } | null;
   germanyCityClusters?: GermanyCityClusterMarker[];
 }): LatLngBoundsExpression | null {
-  const { points, cityCenter, userLocation, germanyCityClusters } = args;
+  const { points, cityCenter, germanyCityClusters } = args;
   const coords = points.map((point) => [point.latitude, point.longitude] as [number, number]);
-
-  if (userLocation) {
-    coords.push([userLocation.latitude, userLocation.longitude]);
-  }
 
   if (coords.length === 0 && germanyCityClusters?.length) {
     return germanyCityClusters.map((c) => [c.latitude, c.longitude] as [number, number]);
@@ -704,6 +700,22 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
 }
 
+function pointInBounds(lat: number, lng: number, bounds: MapViewportBounds): boolean {
+  return lat >= bounds.south && lat <= bounds.north && lng >= bounds.west && lng <= bounds.east;
+}
+
+function boundsExpressionToViewportBounds(
+  bounds: LatLngBoundsExpression,
+): MapViewportBounds {
+  const [a, b] = bounds as [[number, number], [number, number]];
+  return {
+    south: Math.min(a[0], b[0]),
+    west: Math.min(a[1], b[1]),
+    north: Math.max(a[0], b[0]),
+    east: Math.max(a[1], b[1]),
+  };
+}
+
 function computePopupOverlayPosition(args: {
   anchor: { x: number; y: number } | null;
   mapSize: { width: number; height: number } | null;
@@ -711,8 +723,19 @@ function computePopupOverlayPosition(args: {
   cardHeight: number;
   gap?: number;
   inset?: number;
+  aboveAnchorOffsetY?: number;
+  belowAnchorOffsetY?: number;
 }) {
-  const { anchor, mapSize, cardWidth, cardHeight, gap = 18, inset = 20 } = args;
+  const {
+    anchor,
+    mapSize,
+    cardWidth,
+    cardHeight,
+    gap = 18,
+    inset = 20,
+    aboveAnchorOffsetY = 0,
+    belowAnchorOffsetY = 0,
+  } = args;
   if (!anchor || !mapSize) {
     return {
       left: inset,
@@ -725,9 +748,11 @@ function computePopupOverlayPosition(args: {
   const width = Math.min(cardWidth, maxWidth);
   const left = clamp(anchor.x - width / 2, inset, Math.max(inset, mapSize.width - width - inset));
 
-  const aboveTop = anchor.y - cardHeight - gap;
+  const aboveAnchorY = anchor.y + aboveAnchorOffsetY;
+  const belowAnchorY = anchor.y + belowAnchorOffsetY;
+  const aboveTop = aboveAnchorY - cardHeight - gap;
   const canFitAbove = aboveTop >= inset;
-  const belowTop = anchor.y + gap;
+  const belowTop = belowAnchorY + gap;
   const top = canFitAbove
     ? aboveTop
     : clamp(belowTop, inset, Math.max(inset, mapSize.height - cardHeight - inset));
@@ -746,7 +771,6 @@ export function CityDiscoveryLeafletMap({
   selectedId,
   onHoverChange,
   onSelectChange,
-  userLocation,
   emptyLabel,
   noResultsLabel,
   filtered,
@@ -756,8 +780,9 @@ export function CityDiscoveryLeafletMap({
   viewPlaceLabel,
   placePopupRatingCaption,
   viewEventLabel,
-  myLocationLabel,
   locateMeLabel,
+  locatingLabel,
+  myLocationLabel,
   isGermanyNationalMap = false,
   onViewportBoundsChange,
   germanyCityClusters,
@@ -766,19 +791,21 @@ export function CityDiscoveryLeafletMap({
   resultsCitiesUnitLabel: _resultsCitiesUnitLabel,
   germanyClusterRevealLabel,
   restrictToCityRadiusKm = null,
-  onLocateMe,
-  locateMeLoading = false,
 }: CityDiscoveryLeafletMapProps) {
   const mapHostRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<LeafletMap | null>(null);
   const germanyPopupRef = useRef<HTMLDivElement | null>(null);
   const pointPopupRef = useRef<HTMLDivElement | null>(null);
+  const locationWatchIdRef = useRef<number | null>(null);
   const [isMapReady, setIsMapReady] = useState(false);
   const [renderBounds, setRenderBounds] = useState<MapViewportBounds | null>(null);
   const [renderZoom, setRenderZoom] = useState<number | null>(null);
   const [viewVersion, setViewVersion] = useState(0);
   const [activeGermanyClusterSlug, setActiveGermanyClusterSlug] = useState<string | null>(null);
   const [spiderfiedCityClusterKey, setSpiderfiedCityClusterKey] = useState<string | null>(null);
+  const [pointPopupMeasuredHeight, setPointPopupMeasuredHeight] = useState<number | null>(null);
+  const [userLocation, setUserLocation] = useState<UserLocationPoint | null>(null);
+  const [locateMeLoading, setLocateMeLoading] = useState(false);
 
   const cityScopedDiscovery =
     restrictToCityRadiusKm != null && restrictToCityRadiusKm > 0 && Boolean(cityCenter);
@@ -917,6 +944,121 @@ export function CityDiscoveryLeafletMap({
     return DISCOVERY_MAP_MIN_ZOOM;
   }, [showGermanyClusters, restrictToCityRadiusKm, cityCenter]);
 
+  const allowedLocationBounds = useMemo(
+    () => boundsExpressionToViewportBounds(effectiveMaxBounds),
+    [effectiveMaxBounds],
+  );
+
+  const clearLocationWatch = useCallback(() => {
+    if (
+      locationWatchIdRef.current != null &&
+      typeof navigator !== "undefined" &&
+      "geolocation" in navigator
+    ) {
+      navigator.geolocation.clearWatch(locationWatchIdRef.current);
+    }
+    locationWatchIdRef.current = null;
+  }, []);
+
+  const applyLocationPosition = useCallback(
+    (position: GeolocationPosition, centerMap: boolean) => {
+      const map = mapRef.current;
+      const nextLocation: UserLocationPoint = {
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude,
+        accuracy:
+          typeof position.coords.accuracy === "number"
+            ? position.coords.accuracy
+            : null,
+      };
+
+      if (
+        !pointInBounds(
+          nextLocation.latitude,
+          nextLocation.longitude,
+          allowedLocationBounds,
+        )
+      ) {
+        setLocateMeLoading(false);
+        setUserLocation(null);
+        return;
+      }
+
+      setUserLocation(nextLocation);
+      setLocateMeLoading(false);
+
+      if (!map || !centerMap) {
+        return;
+      }
+
+      const targetZoom = showGermanyClusters
+        ? Math.max(map.getZoom(), 11)
+        : Math.max(map.getZoom(), 13);
+
+      map.setView([nextLocation.latitude, nextLocation.longitude], targetZoom, {
+        animate: false,
+      });
+      map.panInsideBounds(effectiveMaxBounds, { animate: false });
+    },
+    [allowedLocationBounds, effectiveMaxBounds, showGermanyClusters],
+  );
+
+  const handleLocateMe = useCallback(() => {
+    if (
+      typeof navigator === "undefined" ||
+      !("geolocation" in navigator) ||
+      !mapRef.current
+    ) {
+      return;
+    }
+
+    setLocateMeLoading(true);
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        applyLocationPosition(position, true);
+        if (locationWatchIdRef.current == null) {
+          locationWatchIdRef.current = navigator.geolocation.watchPosition(
+            (nextPosition) => {
+              applyLocationPosition(nextPosition, false);
+            },
+            () => {
+              // Keep the last known valid location visible; no UI error state for now.
+            },
+            {
+              enableHighAccuracy: true,
+              maximumAge: 0,
+              timeout: 15000,
+            },
+          );
+        }
+      },
+      () => {
+        setLocateMeLoading(false);
+      },
+      {
+        enableHighAccuracy: true,
+        maximumAge: 0,
+        timeout: 15000,
+      },
+    );
+  }, [applyLocationPosition]);
+
+  useEffect(() => {
+    return () => {
+      clearLocationWatch();
+    };
+  }, [clearLocationWatch]);
+
+  useEffect(() => {
+    if (
+      userLocation &&
+      !pointInBounds(userLocation.latitude, userLocation.longitude, allowedLocationBounds)
+    ) {
+      setUserLocation(null);
+    }
+  }, [allowedLocationBounds, userLocation]);
+
   useEffect(() => {
     const map = mapRef.current;
     if (!map) {
@@ -982,8 +1124,6 @@ export function CityDiscoveryLeafletMap({
       .join("|");
   }, [germanyCityClusters]);
   const cityCenterKey = cityCenter ? `${cityCenter.latitude},${cityCenter.longitude}` : "";
-  const userLocationKey = userLocation ? `${userLocation.latitude},${userLocation.longitude}` : "";
-
   useEffect(() => {
     const map = mapRef.current;
     if (!map) {
@@ -991,11 +1131,10 @@ export function CityDiscoveryLeafletMap({
     }
     const lockViewportToAllowedBounds = showGermanyClusters || cityScopedDiscovery;
     const bounds = lockViewportToAllowedBounds
-      ? effectiveMaxBounds
-      : computeFitBounds({
+        ? effectiveMaxBounds
+        : computeFitBounds({
           points,
           cityCenter,
-          userLocation,
           germanyCityClusters: showGermanyClusters ? germanyCityClusters : undefined,
         });
 
@@ -1043,7 +1182,7 @@ export function CityDiscoveryLeafletMap({
       queueMicrotask(() => {
         if (showGermanyClusters) {
           map.panInsideBounds(effectiveMaxBounds, { animate: false });
-          map.setMinZoom(Math.max(map.getZoom(), lockedMinZoom));
+          map.setMinZoom(lockedMinZoom);
         } else {
           map.panInsideBounds(effectiveMaxBounds, { animate: false });
           map.setMinZoom(Math.max(map.getZoom(), lockedMinZoom));
@@ -1054,7 +1193,6 @@ export function CityDiscoveryLeafletMap({
     pointsFingerprint,
     clusterFingerprint,
     cityCenterKey,
-    userLocationKey,
     mapLayoutEpoch,
     cityScopedDiscovery,
     effectiveMinZoom,
@@ -1062,24 +1200,10 @@ export function CityDiscoveryLeafletMap({
     showGermanyClusters,
     points,
     cityCenter,
-    userLocation,
     effectiveMaxBounds,
     showGermanyClusters,
     isMapReady,
   ]);
-
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !userLocation) {
-      return;
-    }
-    map.setView(
-      [userLocation.latitude, userLocation.longitude],
-      Math.max(map.getZoom(), 13),
-      { animate: false },
-    );
-    map.panInsideBounds(effectiveMaxBounds, { animate: false });
-  }, [userLocationKey, userLocation, effectiveMaxBounds, isMapReady]);
 
   const renderedPoints = useMemo(() => {
     if (!cityScopedDiscovery || !renderBounds) {
@@ -1142,6 +1266,14 @@ export function CityDiscoveryLeafletMap({
     }));
   }, [renderedPoints, showGermanyClusters, viewVersion]);
 
+  const projectedUserLocation = useMemo(() => {
+    const map = mapRef.current;
+    if (!map || !userLocation) {
+      return null;
+    }
+    return map.latLngToContainerPoint([userLocation.latitude, userLocation.longitude]);
+  }, [userLocation, viewVersion]);
+
   const cityDisplayItems = useMemo(
     () => clusterProjectedPoints(projectedPoints, renderZoom, selectedId),
     [projectedPoints, renderZoom, selectedId],
@@ -1159,14 +1291,6 @@ export function CityDiscoveryLeafletMap({
       return spiderfyClusterPoints(item);
     });
   }, [cityDisplayItems, spiderfiedCityClusterKey]);
-
-  const userLocationPoint = useMemo(() => {
-    const map = mapRef.current;
-    if (!map || !userLocation) {
-      return null;
-    }
-    return map.latLngToContainerPoint([userLocation.latitude, userLocation.longitude]);
-  }, [userLocationKey, userLocation, viewVersion]);
 
   const activeGermanyCluster = useMemo(
     () =>
@@ -1216,16 +1340,39 @@ export function CityDiscoveryLeafletMap({
 
             return {
               x: selectedItem.screen.x,
-              // Event markers are centered on their position, while place pins already anchor at the tip.
-              y:
-                selectedItem.point.kind === "event"
-                  ? selectedItem.screen.y - 16
-                  : selectedItem.screen.y,
+              y: selectedItem.screen.y,
             };
           })()
         : null,
     [renderableCityItems, selectedId],
   );
+
+  useLayoutEffect(() => {
+    if (!selectedPoint || !pointPopupRef.current) {
+      setPointPopupMeasuredHeight(null);
+      return;
+    }
+
+    const node = pointPopupRef.current;
+
+    const measure = () => {
+      const nextHeight = Math.round(node.getBoundingClientRect().height);
+      setPointPopupMeasuredHeight((current) =>
+        current != null && Math.abs(current - nextHeight) <= 1 ? current : nextHeight,
+      );
+    };
+
+    measure();
+
+    const observer = new ResizeObserver(() => {
+      measure();
+    });
+    observer.observe(node);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [selectedPoint, mapViewportSize?.width]);
 
   const germanyClusterPopupPosition = useMemo(
     () =>
@@ -1245,10 +1392,19 @@ export function CityDiscoveryLeafletMap({
         anchor: selectedPointAnchor,
         mapSize: mapViewportSize,
         cardWidth: 352,
-        cardHeight: 292,
-        gap: 5,
+        cardHeight:
+          pointPopupMeasuredHeight ??
+          (selectedPoint?.kind === "event" ? 236 : 268),
+        gap: 7,
+        aboveAnchorOffsetY:
+          selectedPoint?.kind === "event"
+            ? -16
+            : selectedPoint?.kind === "place"
+              ? -34
+              : 0,
+        belowAnchorOffsetY: selectedPoint?.kind === "event" ? 16 : 0,
       }),
-    [selectedPointAnchor, mapViewportSize],
+    [selectedPoint, selectedPointAnchor, mapViewportSize, pointPopupMeasuredHeight],
   );
 
   const frameClassName = isGermanyNationalMap
@@ -1323,7 +1479,7 @@ export function CityDiscoveryLeafletMap({
             type="button"
             className={cn(
               "flex h-9 w-full items-center justify-center text-[1.05rem] font-medium leading-none transition-colors hover:bg-slate-50/90",
-              onLocateMe ? "border-b border-slate-200/80" : undefined,
+              "border-b border-slate-200/80",
             )}
             aria-label="Zoom out"
             onClick={() => {
@@ -1337,23 +1493,49 @@ export function CityDiscoveryLeafletMap({
           >
             −
           </button>
-          {onLocateMe ? (
-            <button
-              type="button"
-              className="flex h-9 w-full items-center justify-center text-[1.05rem] font-medium leading-none transition-colors hover:bg-slate-50/90 disabled:pointer-events-none disabled:opacity-55"
-              onClick={onLocateMe}
-              disabled={locateMeLoading}
-              title={locateMeLabel}
-              aria-label={locateMeLabel}
-            >
-              {locateMeLoading ? (
-                <Loader2 className="h-4 w-4 shrink-0 animate-spin text-slate-700" aria-hidden />
-              ) : (
-                <Crosshair className="h-4 w-4 shrink-0 text-slate-700" aria-hidden />
-              )}
-            </button>
-          ) : null}
+          <button
+            type="button"
+            className="flex h-10 w-full items-center justify-center text-slate-700 transition-colors hover:bg-slate-50/90"
+            aria-label={locateMeLoading ? locatingLabel : locateMeLabel}
+            title={locateMeLoading ? locatingLabel : locateMeLabel}
+            onClick={handleLocateMe}
+          >
+            {locateMeLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+            ) : (
+              <LocateFixed className="h-4 w-4" aria-hidden />
+            )}
+          </button>
         </div>
+
+        {projectedUserLocation ? (
+          <div
+            className="pointer-events-none absolute inset-0 z-[979]"
+            aria-label={myLocationLabel}
+            role="img"
+          >
+            <div
+              className="pointer-events-none absolute"
+              style={{
+                left: projectedUserLocation.x,
+                top: projectedUserLocation.y,
+                transform: "translate(-50%, -50%)",
+              }}
+            >
+              <span className="merhaba-location-marker block">
+                <span className="merhaba-location-marker__pulse" aria-hidden />
+                <span
+                  className="merhaba-location-marker__pulse merhaba-location-marker__pulse--delayed"
+                  aria-hidden
+                />
+                <span className="merhaba-location-marker__glow" aria-hidden />
+                <span className="merhaba-location-marker__dot" aria-hidden>
+                  <span className="merhaba-location-marker__core" aria-hidden />
+                </span>
+              </span>
+            </div>
+          </div>
+        ) : null}
 
         {showGermanyClusters ? (
           <div className="pointer-events-none absolute inset-0 z-[950]">
@@ -1484,19 +1666,6 @@ export function CityDiscoveryLeafletMap({
           </div>
         )}
 
-        {userLocationPoint ? (
-          <div
-            className="pointer-events-none absolute z-[970] -translate-x-1/2 -translate-y-1/2"
-            style={{ left: userLocationPoint.x, top: userLocationPoint.y }}
-            aria-label={myLocationLabel}
-          >
-            <span
-              className="block h-4 w-4 rounded-full border-2 border-white bg-sky-600 shadow-[0_0_0_7px_rgba(2,132,199,0.16)]"
-              aria-hidden
-            />
-          </div>
-        ) : null}
-
         {points.length === 0 && !showGermanyClusters ? (
           <div className="pointer-events-none absolute inset-x-6 bottom-6 rounded-2xl bg-white/94 px-4 py-3 text-sm text-muted-foreground shadow-sm">
             {filtered ? noResultsLabel : emptyLabel}
@@ -1590,7 +1759,7 @@ export function CityDiscoveryLeafletMap({
                 className="absolute h-4 w-4 rotate-45 border border-slate-200/80 bg-white shadow-[0_8px_24px_rgba(15,23,42,0.08)]"
                 style={{
                   left: (pointPopupPosition.arrowLeft ?? pointPopupPosition.width / 2) - 8,
-                  [pointPopupPosition.placement === "above" ? "bottom" : "top"]: -8,
+                  [pointPopupPosition.placement === "above" ? "bottom" : "top"]: -7,
                 }}
               />
               <MapEntityCard

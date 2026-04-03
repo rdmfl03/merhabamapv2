@@ -87,7 +87,6 @@ type CityDiscoveryOverviewProps = {
     viewEvent: string;
     locateMe: string;
     locating: string;
-    locationUnavailable: string;
     myLocation: string;
     legendPlaces: string;
     legendEvents: string;
@@ -230,7 +229,6 @@ export function CityDiscoveryOverview({
           viewEventLabel={labels.viewEvent}
           locateMeLabel={labels.locateMe}
           locatingLabel={labels.locating}
-          locationUnavailableLabel={labels.locationUnavailable}
           myLocationLabel={labels.myLocation}
           categoryLabels={labels.eventCategoryLabels}
           places={mapPlaces}
