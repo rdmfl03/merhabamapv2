@@ -105,7 +105,11 @@ const navShellClass = cn(
   "ring-1 ring-black/[0.05]",
 );
 
-export function HeaderPrimaryNavDesktop({ showFeed = true }: { showFeed?: boolean }) {
+export function HeaderPrimaryNavDesktop({
+  showFeed = true,
+}: {
+  showFeed?: boolean;
+} = {}) {
   const { t, primaryNavAria, mapOn, placesOn, eventsOn, feedOn } = usePrimaryNavState();
   const pathname = usePathname() ?? "/";
   const forceDocumentNavigation = isMapActive(pathname);

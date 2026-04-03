@@ -20,12 +20,11 @@ export const passwordSchema = z
 export const registrationSchema = z
   .object({
     locale: z.enum(routing.locales),
-    preferredLocale: z.enum(routing.locales),
     name: trimmedOptionalString.pipe(z.string().max(120).optional()),
     email: z.string().trim().email().max(320),
+    inviteCode: trimmedOptionalString.pipe(z.string().max(64).optional()),
     password: passwordSchema,
     confirmPassword: z.string().min(10).max(128),
-    inviteCode: trimmedOptionalString.pipe(z.string().max(64).optional()),
   })
   .refine((value) => value.password === value.confirmPassword, {
     message: "password_mismatch",

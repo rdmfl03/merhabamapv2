@@ -1,11 +1,10 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link } from "@/i18n/navigation";
-import { useRouter } from "@/i18n/navigation";
 import { registerUser } from "@/server/actions/auth/register-user";
 import { idleAuthActionState } from "@/server/actions/auth/state";
 
@@ -15,11 +14,10 @@ type SignUpFormProps = {
   labels: {
     name: string;
     email: string;
-    language: string;
-    password: string;
-    confirmPassword: string;
     inviteCode: string;
     inviteCodeHint: string;
+    password: string;
+    confirmPassword: string;
     submit: string;
     success: string;
     validationError: string;
@@ -52,19 +50,11 @@ function getMessage(message: string | undefined, labels: SignUpFormProps["labels
   }
 }
 
-export function SignUpForm({ locale, requireInviteCode = false, labels }: SignUpFormProps) {
-  const router = useRouter();
+export function SignUpForm({ locale, labels, requireInviteCode = false }: SignUpFormProps) {
   const [state, formAction, pending] = useActionState(
     registerUser,
     idleAuthActionState,
   );
-  const [email, setEmail] = useState("");
-
-  useEffect(() => {
-    if (state.status === "success" && email.trim()) {
-      router.replace(`/auth/verify-email?email=${encodeURIComponent(email.trim())}&created=1`);
-    }
-  }, [email, router, state.status]);
 
   return (
     <form action={formAction} className="space-y-4 rounded-3xl border border-border bg-white p-6 shadow-soft">
@@ -75,26 +65,15 @@ export function SignUpForm({ locale, requireInviteCode = false, labels }: SignUp
       </label>
       <label className="block space-y-2 text-sm">
         <span className="font-medium text-foreground">{labels.email}</span>
-        <Input
-          type="email"
-          name="email"
-          required
-          autoComplete="email"
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-        />
+        <Input type="email" name="email" required autoComplete="email" />
       </label>
-      <label className="block space-y-2 text-sm">
-        <span className="font-medium text-foreground">{labels.language}</span>
-        <select
-          name="preferredLocale"
-          defaultValue={locale}
-          className="flex h-11 w-full rounded-2xl border border-border bg-white px-4 py-2 text-sm text-foreground shadow-sm outline-none transition focus-visible:ring-2 focus-visible:ring-ring"
-        >
-          <option value="de">Deutsch</option>
-          <option value="tr">Türkçe</option>
-        </select>
-      </label>
+      {requireInviteCode ? (
+        <label className="block space-y-2 text-sm">
+          <span className="font-medium text-foreground">{labels.inviteCode}</span>
+          <Input type="text" name="inviteCode" required autoComplete="off" spellCheck={false} />
+          <span className="text-xs leading-5 text-muted-foreground">{labels.inviteCodeHint}</span>
+        </label>
+      ) : null}
       <label className="block space-y-2 text-sm">
         <span className="font-medium text-foreground">{labels.password}</span>
         <Input type="password" name="password" required autoComplete="new-password" />
@@ -103,13 +82,6 @@ export function SignUpForm({ locale, requireInviteCode = false, labels }: SignUp
         <span className="font-medium text-foreground">{labels.confirmPassword}</span>
         <Input type="password" name="confirmPassword" required autoComplete="new-password" />
       </label>
-      {requireInviteCode ? (
-        <label className="block space-y-2 text-sm">
-          <span className="font-medium text-foreground">{labels.inviteCode}</span>
-          <Input type="text" name="inviteCode" required autoComplete="off" />
-          <p className="text-xs leading-5 text-muted-foreground">{labels.inviteCodeHint}</p>
-        </label>
-      ) : null}
 
       {state.status !== "idle" ? (
         <p className={`text-sm ${state.status === "success" ? "text-green-700" : "text-brand"}`}>

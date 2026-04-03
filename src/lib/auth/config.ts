@@ -59,11 +59,16 @@ export function isUserRegistrationEnabled() {
 }
 
 export function normalizeSignupInviteCode(value: string | null | undefined) {
-  return value?.trim().toUpperCase() ?? "";
+  return (value ?? "")
+    .trim()
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, "");
 }
 
 export function getSignupInviteCodes() {
-  return (process.env.AUTH_SIGNUP_INVITE_CODES ?? "")
+  const raw = process.env.AUTH_SIGNUP_INVITE_CODES ?? "";
+
+  return raw
     .split(/[\s,]+/)
     .map((value) => normalizeSignupInviteCode(value))
     .filter(Boolean);
@@ -74,13 +79,12 @@ export function isInviteOnlyRegistrationEnabled() {
 }
 
 export function isSignupInviteCodeValid(value: string | null | undefined) {
-  const normalizedValue = normalizeSignupInviteCode(value);
-
-  if (!normalizedValue) {
+  const normalized = normalizeSignupInviteCode(value);
+  if (!normalized) {
     return false;
   }
 
-  return getSignupInviteCodes().includes(normalizedValue);
+  return getSignupInviteCodes().includes(normalized);
 }
 
 export const authConfig = {

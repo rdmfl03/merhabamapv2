@@ -15,7 +15,6 @@ import { getUnreadNotificationCount } from "@/server/queries/notifications/get-u
 
 import type { Metadata } from "next";
 
-import { guestAuthSignInHref, guestAuthSignUpHref } from "@/lib/auth/guest-auth-links";
 import { robotsNoIndex } from "@/lib/seo/robots-meta";
 import { trackProductInsight } from "@/server/product-insights/track-product-insight";
 
@@ -49,24 +48,19 @@ export default async function FeedPage({ params, searchParams }: FeedPageProps) 
 
   const session = await auth();
   const viewerId = session?.user?.id ?? null;
+  const feedReturnPath = `/${locale}/feed${mode === "local" ? "?mode=local" : ""}`;
 
   if (!viewerId) {
-    redirect(`/${locale}/auth/signin?next=${encodeURIComponent(`/${locale}/feed`)}`);
+    redirect(`/${locale}/auth/signin?next=${encodeURIComponent(feedReturnPath)}`);
   }
 
-  const [t, tCommon, tGuest, followedCityIds, items, discovery, unreadNotifications] = await Promise.all([
+  const [t, followedCityIds, items, discovery, unreadNotifications] = await Promise.all([
     getTranslations("feed"),
-    getTranslations("common"),
-    getTranslations("guestConversion"),
-    viewerId ? getFollowedCityIdsForUser(viewerId) : Promise.resolve([]),
+    getFollowedCityIdsForUser(viewerId),
     getFeedActivities(viewerId, { locale, mode }),
     getFeedDiscoveryBundle({ locale, mode, viewerUserId: viewerId }),
-    viewerId ? getUnreadNotificationCount(viewerId) : Promise.resolve(0),
+    getUnreadNotificationCount(viewerId),
   ]);
-
-  const feedReturnPath = `/${locale}/feed${mode === "local" ? "?mode=local" : ""}`;
-  const guestSignInHref = guestAuthSignInHref(locale, feedReturnPath);
-  const guestSignUpHref = guestAuthSignUpHref(locale, feedReturnPath);
 
   const hasFollowedCitiesForLocal = followedCityIds.length > 0;
 
@@ -82,31 +76,10 @@ export default async function FeedPage({ params, searchParams }: FeedPageProps) 
   const subtitle =
     mode === "local"
       ? t("subtitleLocal")
-      : viewerId
-        ? t("subtitlePersonalized")
-        : t("metaDescription");
+      : t("subtitlePersonalized");
 
   const renderEmpty = () => {
     if (mode === "local") {
-      if (!viewerId) {
-        return (
-          <div className="rounded-2xl border border-dashed border-border/80 bg-muted/30 px-6 py-10 text-center">
-            <p className="text-sm font-medium text-foreground">{t("emptyLocal")}</p>
-            <p className="mt-2 text-xs text-muted-foreground">{t("emptyLocalGuestHint")}</p>
-            <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-              <Button variant="default" asChild>
-                <Link href="/map">{t("emptyLocalCtaMap")}</Link>
-              </Button>
-              <Button variant="outline" asChild>
-                <Link href={guestSignInHref}>{tCommon("signIn")}</Link>
-              </Button>
-              <Button variant="ghost" size="sm" className="text-muted-foreground" asChild>
-                <Link href={guestSignUpHref}>{tGuest("signUp")}</Link>
-              </Button>
-            </div>
-          </div>
-        );
-      }
       if (!hasFollowedCitiesForLocal) {
         return (
           <div className="rounded-2xl border border-dashed border-border/80 bg-muted/30 px-6 py-10 text-center">
@@ -141,20 +114,9 @@ export default async function FeedPage({ params, searchParams }: FeedPageProps) 
           <Button variant="default" asChild>
             <Link href="/places">{t("emptyCtaPlaces")}</Link>
           </Button>
-          {viewerId ? (
-            <Button variant="outline" asChild>
-              <Link href="/">{t("emptyCtaFollow")}</Link>
-            </Button>
-          ) : (
-            <>
-              <Button variant="outline" asChild>
-                <Link href={guestSignInHref}>{tCommon("signIn")}</Link>
-              </Button>
-              <Button variant="ghost" size="sm" className="text-muted-foreground" asChild>
-                <Link href={guestSignUpHref}>{tGuest("signUp")}</Link>
-              </Button>
-            </>
-          )}
+          <Button variant="outline" asChild>
+            <Link href="/">{t("emptyCtaFollow")}</Link>
+          </Button>
         </div>
       </div>
     );
@@ -199,13 +161,11 @@ export default async function FeedPage({ params, searchParams }: FeedPageProps) 
           </Link>
         </div>
 
-        {viewerId ? (
-          <FeedReturnHints
-            mode={mode}
-            hasFollowedCities={followedCityIds.length > 0}
-            unreadNotifications={unreadNotifications}
-          />
-        ) : null}
+        <FeedReturnHints
+          mode={mode}
+          hasFollowedCities={followedCityIds.length > 0}
+          unreadNotifications={unreadNotifications}
+        />
       </div>
 
       {items.length === 0 ? (

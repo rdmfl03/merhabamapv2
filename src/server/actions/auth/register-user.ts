@@ -18,10 +18,10 @@ export async function registerUser(
 ): Promise<AuthActionState> {
   void _previousState;
 
-  const registrationEnabled = isUserRegistrationEnabled();
-  const inviteOnlyEnabled = isInviteOnlyRegistrationEnabled();
+  const registrationOpen = isUserRegistrationEnabled();
+  const inviteMode = isInviteOnlyRegistrationEnabled();
 
-  if (!registrationEnabled && !inviteOnlyEnabled) {
+  if (!registrationOpen && !inviteMode) {
     return {
       status: "error",
       message: "registration_disabled",
@@ -30,12 +30,11 @@ export async function registerUser(
 
   const parsed = registrationSchema.safeParse({
     locale: formData.get("locale"),
-    preferredLocale: formData.get("preferredLocale"),
     name: formData.get("name"),
     email: formData.get("email"),
+    inviteCode: formData.get("inviteCode"),
     password: formData.get("password"),
     confirmPassword: formData.get("confirmPassword"),
-    inviteCode: formData.get("inviteCode"),
   });
 
   if (!parsed.success) {
@@ -46,7 +45,7 @@ export async function registerUser(
     };
   }
 
-  if (inviteOnlyEnabled && !isSignupInviteCodeValid(parsed.data.inviteCode)) {
+  if (inviteMode && !isSignupInviteCodeValid(parsed.data.inviteCode)) {
     return {
       status: "error",
       message: "invite_code_invalid",
@@ -70,7 +69,7 @@ export async function registerUser(
       email: parsed.data.email,
       hashedPassword: hashPassword(parsed.data.password),
       name: parsed.data.name,
-      preferredLocale: parsed.data.preferredLocale,
+      preferredLocale: parsed.data.locale,
     },
     select: {
       id: true,
@@ -82,7 +81,7 @@ export async function registerUser(
     await createAndSendEmailVerification({
       userId: user.id,
       email: user.email,
-      locale: parsed.data.preferredLocale,
+      locale: parsed.data.locale,
     });
   }
 

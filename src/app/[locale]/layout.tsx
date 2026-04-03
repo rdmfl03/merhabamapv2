@@ -1,5 +1,5 @@
 import { NextIntlClientProvider } from "next-intl";
-import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
+import { getMessages, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 
 import { auth } from "@/auth";
@@ -28,12 +28,7 @@ export default async function LocaleLayout({
   }
 
   setRequestLocale(locale);
-  const [messages, footerT, commonT, legalT] = await Promise.all([
-    getMessages(),
-    getTranslations("footer"),
-    getTranslations("common"),
-    getTranslations("legal"),
-  ]);
+  const messages = await getMessages();
   let session = null;
 
   try {
@@ -50,22 +45,7 @@ export default async function LocaleLayout({
         <div className="flex min-h-screen flex-col">
           <Header />
           <main className="flex-1 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))]">{children}</main>
-          <Footer
-            tagline={footerT("tagline")}
-            navAriaLabel={footerT("navAriaLabel")}
-            essentialNotice={footerT("essentialNotice")}
-            copyright={footerT("copyright")}
-            citiesLabel={commonT("cities")}
-            placesLabel={commonT("places")}
-            eventsLabel={commonT("events")}
-            signUpLabel={commonT("signUp")}
-            impressumLabel={legalT("navigation.impressum")}
-            privacyLabel={legalT("navigation.privacy")}
-            contactLabel={legalT("navigation.contact")}
-            cookiesLabel={legalT("navigation.cookies")}
-            termsLabel={legalT("navigation.terms")}
-            communityRulesLabel={legalT("navigation.communityRules")}
-          />
+          <Footer />
         </div>
       </OnboardingGuard>
     </NextIntlClientProvider>
