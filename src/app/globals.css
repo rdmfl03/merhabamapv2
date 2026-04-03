@@ -200,6 +200,66 @@ a {
   opacity: 0.95;
 }
 
+@keyframes merhaba-location-pulse {
+  0% {
+    transform: scale(0.55);
+    opacity: 0.72;
+  }
+  70% {
+    transform: scale(1.9);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.9);
+    opacity: 0;
+  }
+}
+
+.merhaba-location-marker {
+  position: relative;
+  display: block;
+  width: 30px;
+  height: 30px;
+}
+
+.merhaba-location-marker__pulse,
+.merhaba-location-marker__glow,
+.merhaba-location-marker__dot,
+.merhaba-location-marker__core {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+}
+
+.merhaba-location-marker__pulse {
+  background: rgba(20, 184, 166, 0.24);
+  animation: merhaba-location-pulse 2.4s ease-out infinite;
+}
+
+.merhaba-location-marker__pulse--delayed {
+  animation-delay: 1.2s;
+}
+
+.merhaba-location-marker__glow {
+  inset: 6px;
+  background: rgba(20, 184, 166, 0.34);
+  filter: blur(8px);
+}
+
+.merhaba-location-marker__dot {
+  inset: 6px;
+  border: 2px solid rgba(255, 255, 255, 0.95);
+  background: linear-gradient(180deg, #5eead4 0%, #14b8a6 100%);
+  box-shadow:
+    0 10px 18px rgba(13, 148, 136, 0.28),
+    0 0 0 1px rgba(15, 23, 42, 0.04);
+}
+
+.merhaba-location-marker__core {
+  inset: 5px;
+  background: rgba(255, 255, 255, 0.98);
+}
+
 /* Links erben sonst `color: inherit` → dunkle Schrift auf rotem CTA */
 a.merhaba-map-popup-cta,
 a.merhaba-map-popup-cta:link,

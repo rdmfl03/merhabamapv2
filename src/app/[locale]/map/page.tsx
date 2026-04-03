@@ -214,7 +214,6 @@ export default async function DiscoveryMapPage({ params, searchParams }: MapPage
           viewEvent: t("map.viewEvent"),
           locateMe: t("map.locateMe"),
           locating: t("map.locating"),
-          locationUnavailable: t("map.locationUnavailable"),
           myLocation: t("map.myLocation"),
           legendPlaces: t("map.legendPlaces"),
           legendEvents: t("map.legendEvents"),

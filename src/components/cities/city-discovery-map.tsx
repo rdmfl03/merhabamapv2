@@ -194,7 +194,6 @@ type CityDiscoveryMapProps = {
   viewEventLabel: string;
   locateMeLabel: string;
   locatingLabel: string;
-  locationUnavailableLabel: string;
   myLocationLabel: string;
   categoryLabels: Record<string, string>;
   places: CityPlacePoint[];
@@ -520,7 +519,6 @@ export function CityDiscoveryMap({
   viewEventLabel,
   locateMeLabel,
   locatingLabel,
-  locationUnavailableLabel,
   myLocationLabel,
   categoryLabels,
   places,
@@ -542,13 +540,6 @@ export function CityDiscoveryMap({
   const [query, setQuery] = useState("");
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [userLocation, setUserLocation] = useState<{
-    latitude: number;
-    longitude: number;
-  } | null>(null);
-  const [locationState, setLocationState] = useState<
-    "idle" | "loading" | "unavailable"
-  >("idle");
   const [viewportBounds, setViewportBounds] = useState<MapViewportBounds | null>(null);
   const [categoryMenuOpen, setCategoryMenuOpen] = useState(false);
   const pinsCacheRef = useRef<Map<string, DiscoveryMapPinsResponse>>(new Map());
@@ -941,14 +932,14 @@ export function CityDiscoveryMap({
               const placeA = placeLookupByPointId.get(a.id);
               const placeB = placeLookupByPointId.get(b.id);
 
-              const scoreDiff =
+                const scoreDiff =
                 computeMapScore(
                   (placeB ?? {}) as Parameters<typeof computeMapScore>[0],
-                  userLocation,
+                  null,
                 ) -
                 computeMapScore(
                   (placeA ?? {}) as Parameters<typeof computeMapScore>[0],
-                  userLocation,
+                  null,
                 );
               if (scoreDiff !== 0) {
                 return scoreDiff;
@@ -958,7 +949,7 @@ export function CityDiscoveryMap({
             })
             .slice(0, 5)
         : [],
-    [listBuckets.places, placeLookupByPointId, selectedId, userLocation],
+    [listBuckets.places, placeLookupByPointId, selectedId],
   );
 
   const listHintWhenNoPins =
@@ -985,33 +976,6 @@ export function CityDiscoveryMap({
     [listBuckets.events],
   );
   const listCount = listSource?.length ?? 0;
-
-  function handleLocateMe() {
-    if (!navigator.geolocation) {
-      setLocationState("unavailable");
-      return;
-    }
-
-    setLocationState("loading");
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setUserLocation({
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-        });
-        setLocationState("idle");
-      },
-      () => {
-        setLocationState("unavailable");
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 120000,
-      },
-    );
-  }
 
   function resetFilters() {
     setQuery("");
@@ -1182,12 +1146,6 @@ export function CityDiscoveryMap({
           </div>
         ) : null}
 
-        {locationState === "unavailable" ? (
-          <p className="mb-4 text-sm text-muted-foreground">
-            {locationUnavailableLabel}
-          </p>
-        ) : null}
-
         <DiscoveryMapLeafletErrorBoundary
           title={mapLoadErrorTitle}
           description={mapLoadErrorBody}
@@ -1200,7 +1158,6 @@ export function CityDiscoveryMap({
             selectedId={selectedId}
             onHoverChange={setHoveredId}
             onSelectChange={setSelectedId}
-            userLocation={userLocation}
             emptyLabel={empty}
             noResultsLabel={noResults}
             filtered={Boolean(
@@ -1212,11 +1169,10 @@ export function CityDiscoveryMap({
             viewPlaceLabel={viewPlaceLabel}
             placePopupRatingCaption={placePopupRatingCaption}
             viewEventLabel={viewEventLabel}
-            myLocationLabel={myLocationLabel}
             locateMeLabel={locateMeLabel}
+            locatingLabel={locatingLabel}
+            myLocationLabel={myLocationLabel}
             isGermanyNationalMap={isGermanyNationalMap}
-            onLocateMe={handleLocateMe}
-            locateMeLoading={locationState === "loading"}
             onViewportBoundsChange={handleViewportBounds}
             germanyCityClusters={germanyClusterMarkers}
             onGermanyCityClusterClick={
