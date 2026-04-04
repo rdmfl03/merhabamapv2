@@ -23,6 +23,8 @@ import {
 
 import type { CityMapPoint, MapViewportBounds } from "@/components/cities/city-discovery-map-types";
 import { Link } from "@/i18n/navigation";
+import type { CategoryFallbackVisualKey } from "@/lib/category-fallback-visual";
+import { getEventImageFallbackKey, getPlaceImageFallbackKey } from "@/lib/category-fallback-visual";
 import {
   formatEventDateRange,
   getEventCategoryLabelKey,
@@ -109,6 +111,13 @@ type CityEventPoint = {
 type DiscoveryMapPinsResponse = {
   places: PublicDiscoveryMapPlaceRecord[];
   events: PublicDiscoveryMapEventRecord[];
+};
+
+/** Bump when pin JSON shape changes so `pinsCacheRef` does not reuse stale entries (e.g. missing `coverImageUrl`). */
+const DISCOVERY_MAP_PINS_PAYLOAD_VERSION = 2;
+
+type DiscoveryMapPinsCacheEntry = DiscoveryMapPinsResponse & {
+  version: number;
 };
 
 const EMPTY_EFFECTIVE_PLACES: CityPlacePoint[] = [];
@@ -240,6 +249,8 @@ type NormalizedPoint =
       mapRatingValue: number | null;
       mapRatingLabel: string | null;
       mapRatingReviewCount: number | null;
+      coverImageUrl: string | null;
+      fallbackVisualKey: CategoryFallbackVisualKey;
       tone: "brand";
     }
   | {
@@ -254,6 +265,8 @@ type NormalizedPoint =
       categoryLabel: string;
       meta: string;
       searchHaystack: string;
+      coverImageUrl: string | null;
+      fallbackVisualKey: CategoryFallbackVisualKey;
       tone: "dark";
     };
 
@@ -572,7 +585,7 @@ export function CityDiscoveryMap({
   const [viewportBounds, setViewportBounds] = useState<MapViewportBounds | null>(null);
   const [categoryMenuOpen, setCategoryMenuOpen] = useState(false);
   const appliedUrlFocusRef = useRef<string | null>(null);
-  const pinsCacheRef = useRef<Map<string, DiscoveryMapPinsResponse>>(new Map());
+  const pinsCacheRef = useRef<Map<string, DiscoveryMapPinsCacheEntry>>(new Map());
   const [loadedPins, setLoadedPins] = useState<DiscoveryMapPinsResponse | null>(() =>
     selectedCitySlug
       ? null
@@ -630,8 +643,14 @@ export function CityDiscoveryMap({
 
     const controller = new AbortController();
     const cachedPins = pinsCacheRef.current.get(selectedCitySlug);
-    if (cachedPins) {
-      setLoadedPins(cachedPins);
+    if (
+      cachedPins &&
+      cachedPins.version === DISCOVERY_MAP_PINS_PAYLOAD_VERSION
+    ) {
+      setLoadedPins({
+        places: cachedPins.places,
+        events: cachedPins.events,
+      });
       return () => controller.abort();
     }
 
@@ -639,19 +658,23 @@ export function CityDiscoveryMap({
 
     fetch(`/api/discovery/map-pins?city=${encodeURIComponent(selectedCitySlug)}`, {
       signal: controller.signal,
-      cache: "force-cache",
+      cache: "no-store",
     })
       .then(async (response) => {
         if (!response.ok) {
           throw new Error(`Failed to load discovery map pins for ${selectedCitySlug}`);
         }
         const payload = (await response.json()) as DiscoveryMapPinsResponse;
-        const nextPins = {
+        const nextPins: DiscoveryMapPinsCacheEntry = {
+          version: DISCOVERY_MAP_PINS_PAYLOAD_VERSION,
           places: Array.isArray(payload.places) ? payload.places : [],
           events: Array.isArray(payload.events) ? payload.events : [],
         };
         pinsCacheRef.current.set(selectedCitySlug, nextPins);
-        setLoadedPins(nextPins);
+        setLoadedPins({
+          places: nextPins.places,
+          events: nextPins.events,
+        });
       })
       .catch((error: unknown) => {
         if (controller.signal.aborted) {
@@ -757,6 +780,8 @@ export function CityDiscoveryMap({
           mapRatingLabel,
           mapRatingReviewCount:
             rating != null && rating.count > 0 ? rating.count : null,
+          coverImageUrl: place.coverImageUrl ?? null,
+          fallbackVisualKey: getPlaceImageFallbackKey(place),
           tone: "brand" as const,
         };
       });
@@ -791,6 +816,8 @@ export function CityDiscoveryMap({
           categoryLabel,
           meta,
           searchHaystack: `${event.title} ${description} ${categoryLabel} ${meta}`.toLowerCase(),
+          coverImageUrl: event.coverImageUrl ?? null,
+          fallbackVisualKey: getEventImageFallbackKey(event.category),
           tone: "dark" as const,
         };
       });
@@ -928,6 +955,8 @@ export function CityDiscoveryMap({
         longitude: point.longitude,
         categoryLabel: point.categoryLabel,
         meta: point.meta,
+        imageUrl: point.coverImageUrl,
+        fallbackVisualKey: point.fallbackVisualKey,
       };
       if (point.kind !== "place") {
         return base;
