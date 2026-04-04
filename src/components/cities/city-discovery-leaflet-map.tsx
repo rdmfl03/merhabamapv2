@@ -98,7 +98,8 @@ const DISCOVERY_MAP_MAX_BOUNDS: LatLngBoundsExpression = [
   [55.25, 15.7],
 ];
 const DISCOVERY_MAP_MIN_ZOOM = 5.6;
-const GERMANY_MAP_LOCKED_MIN_ZOOM = 7.2;
+/** Germany cluster overview only: between DISCOVERY_MAP_MIN_ZOOM (too wide) and ~7.2 (too tight). */
+const GERMANY_CLUSTER_OVERVIEW_MIN_ZOOM = 6.47;
 
 type UserLocationPoint = {
   latitude: number;
@@ -1069,7 +1070,7 @@ export function CityDiscoveryLeafletMap({
     const lockedMinZoom =
       showGermanyClusters || cityScopedDiscovery
         ? Math.max(
-            showGermanyClusters ? GERMANY_MAP_LOCKED_MIN_ZOOM : effectiveMinZoom,
+            showGermanyClusters ? GERMANY_CLUSTER_OVERVIEW_MIN_ZOOM : effectiveMinZoom,
             map.getBoundsZoom(effectiveMaxBounds, false),
           )
         : effectiveMinZoom;
@@ -1079,27 +1080,6 @@ export function CityDiscoveryLeafletMap({
     }
     map.panInsideBounds(effectiveMaxBounds, { animate: false });
   }, [effectiveMaxBounds, effectiveMinZoom, showGermanyClusters, cityScopedDiscovery, isMapReady]);
-
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !showGermanyClusters) {
-      return;
-    }
-
-    const enforceNationalZoomFloor = () => {
-      if (map.getZoom() < GERMANY_MAP_LOCKED_MIN_ZOOM) {
-        map.setView(DEFAULT_CENTER, GERMANY_MAP_LOCKED_MIN_ZOOM, { animate: false });
-      }
-    };
-
-    map.on("zoomend", enforceNationalZoomFloor);
-    map.on("moveend", enforceNationalZoomFloor);
-
-    return () => {
-      map.off("zoomend", enforceNationalZoomFloor);
-      map.off("moveend", enforceNationalZoomFloor);
-    };
-  }, [showGermanyClusters, isMapReady]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -1144,13 +1124,13 @@ export function CityDiscoveryLeafletMap({
     }
 
     const padding = showGermanyClusters
-      ? [12, 18]
+      ? [14, 17]
       : cityScopedDiscovery
         ? [22, 22]
         : [24, 28];
     const lockedMinZoom = lockViewportToAllowedBounds
       ? Math.max(
-          showGermanyClusters ? GERMANY_MAP_LOCKED_MIN_ZOOM : effectiveMinZoom,
+          showGermanyClusters ? GERMANY_CLUSTER_OVERVIEW_MIN_ZOOM : effectiveMinZoom,
           map.getBoundsZoom(effectiveMaxBounds, false),
         )
       : effectiveMinZoom;
@@ -1412,7 +1392,7 @@ export function CityDiscoveryLeafletMap({
     : "relative isolate z-0 h-[36rem] overflow-hidden rounded-[1.9rem] border border-border/70 bg-[#f5f6f8] lg:h-[42rem]";
 
   const effectiveZoomOutFloor =
-    showGermanyClusters ? GERMANY_MAP_LOCKED_MIN_ZOOM : effectiveMinZoom;
+    showGermanyClusters ? GERMANY_CLUSTER_OVERVIEW_MIN_ZOOM : effectiveMinZoom;
 
   useEffect(() => {
     if (!activeGermanyCluster && !selectedPoint) {
