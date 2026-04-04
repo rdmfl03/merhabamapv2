@@ -1,4 +1,7 @@
-import { CalendarDays, MapPin } from "lucide-react";
+"use client";
+
+import { CalendarDays, Map, MapPin } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { EventCoverImage } from "@/components/events/event-cover-image";
 import { EventSaveButton } from "@/components/events/event-save-button";
@@ -13,6 +16,7 @@ import {
   formatEventDayBadge,
   resolveEventImage,
 } from "@/lib/events";
+import { buildDiscoveryMapPathForEvent, buildDiscoveryMapPathForPlace } from "@/lib/discovery-map-deep-link";
 import { resolvePlaceImage } from "@/lib/places";
 import type { ListedEvent } from "@/server/queries/events/list-events";
 import type { ListedPlace } from "@/server/queries/places/list-places";
@@ -50,7 +54,9 @@ export function ProfileSavedPlaceListRow({
   signInHref: string;
   labels: PlaceRowLabels;
 }) {
+  const tPlaces = useTranslations("places");
   const image = resolvePlaceImage(place);
+  const mapCitySlug = place.city.slug?.trim() ?? "";
 
   return (
     <li className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-stretch sm:gap-4">
@@ -92,6 +98,22 @@ export function ProfileSavedPlaceListRow({
           <p className="line-clamp-2 text-sm text-muted-foreground">{description}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          {mapCitySlug ? (
+            <Button
+              size="sm"
+              variant="default"
+              className="border-0 bg-cyan-600 px-2.5 text-white shadow-sm hover:bg-cyan-700 focus-visible:ring-cyan-500"
+              asChild
+            >
+              <Link
+                href={buildDiscoveryMapPathForPlace(mapCitySlug, place.id)}
+                aria-label={tPlaces("card.showOnMap")}
+                title={tPlaces("card.showOnMap")}
+              >
+                <Map className="h-4 w-4" aria-hidden />
+              </Link>
+            </Button>
+          ) : null}
           <PlaceSaveButton
             placeId={place.id}
             locale={locale}
@@ -146,7 +168,9 @@ export function ProfileSavedEventListRow({
   participationLabel?: string;
   labels: EventRowLabels;
 }) {
+  const tEvents = useTranslations("events");
   const image = resolveEventImage(event);
+  const mapCitySlug = event.city.slug?.trim() ?? "";
 
   return (
     <li className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-stretch sm:gap-4">
@@ -192,6 +216,22 @@ export function ProfileSavedEventListRow({
           <p className="line-clamp-2 text-sm text-muted-foreground">{description}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          {mapCitySlug ? (
+            <Button
+              size="sm"
+              variant="default"
+              className="border-0 bg-cyan-600 px-2.5 text-white shadow-sm hover:bg-cyan-700 focus-visible:ring-cyan-500"
+              asChild
+            >
+              <Link
+                href={buildDiscoveryMapPathForEvent(mapCitySlug, event.id)}
+                aria-label={tEvents("card.showOnMap")}
+                title={tEvents("card.showOnMap")}
+              >
+                <Map className="h-4 w-4" aria-hidden />
+              </Link>
+            </Button>
+          ) : null}
           <EventSaveButton
             eventId={event.id}
             locale={locale}

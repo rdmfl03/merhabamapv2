@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { Suspense, type ReactNode } from "react";
 
 import { CityDiscoveryMap } from "@/components/cities/city-discovery-map";
 import { EventCard } from "@/components/events/event-card";
@@ -194,55 +194,67 @@ export function CityDiscoveryOverview({
           )}
         </div>
 
-        <CityDiscoveryMap
-          locale={locale}
-          cityName={city.name}
-          cityCenter={city.center}
-          title={labels.mapTitle}
-          description={labels.mapDescription}
-          placeCount={placeCount}
-          eventCount={eventCount}
-          mapCityOptions={mapCityOptions}
-          selectedCitySlug={selectedMapCitySlug ?? ""}
-          cityPickerLabel={labels.cityPickerLabel}
-          cityPickerAllLabel={labels.cityPickerAll}
-          legendPlaces={labels.legendPlaces}
-          legendEvents={labels.legendEvents}
-          empty={labels.mapEmpty}
-          noResults={labels.noResults}
-          noResultsInViewport={labels.noResultsInViewport}
-          awaitingMapViewport={labels.awaitingMapViewport}
-          searchPlaceholder={labels.searchPlaceholder}
-          allLabel={labels.allResults}
-          placesOnlyLabel={labels.placesOnly}
-          eventsOnlyLabel={labels.eventsOnly}
-          categoriesFilterLabel={labels.categoriesFilterLabel}
-          categoriesFilterHint={labels.categoriesFilterHint}
-          categoriesDropdownAll={labels.categoriesDropdownAll}
-          categoriesDropdownMultiple={labels.categoriesDropdownMultiple}
-          resetFiltersLabel={labels.resetFilters}
-          resultsTitle={labels.resultsTitle}
-          listRatingReviewsSuffix={labels.listRatingReviewsSuffix}
-          resultsSummaryUnitLabel={labels.resultsSummaryUnit}
-          viewPlaceLabel={labels.viewPlace}
-          placePopupRatingUnavailableAria={labels.popupPlaceRatingUnavailableAria}
-          viewEventLabel={labels.viewEvent}
-          locateMeLabel={labels.locateMe}
-          locatingLabel={labels.locating}
-          myLocationLabel={labels.myLocation}
-          categoryLabels={labels.eventCategoryLabels}
-          places={mapPlaces}
-          events={mapEvents}
-          isGermanyNationalMap={isGermanyNationalMap}
-          germanyMapClusters={germanyMapClusters}
-          germanyClusterHint={labels.germanyClusterHint}
-          germanyBackToOverview={labels.germanyBackToOverview}
-          germanyClusterRevealLabel={labels.germanyClusterRevealLabel}
-          resultsCitiesUnit={labels.resultsCitiesUnit}
-          mapLoadErrorTitle={labels.mapLoadErrorTitle}
-          mapLoadErrorBody={labels.mapLoadErrorBody}
-          mapLoadErrorRetry={labels.mapLoadErrorRetry}
-        />
+        <Suspense
+          fallback={
+            <div
+              className={
+                isGermanyNationalMap
+                  ? "h-[44rem] animate-pulse rounded-[1.9rem] border border-border/70 bg-muted/50 lg:h-[58rem] xl:h-[64rem]"
+                  : "h-[36rem] animate-pulse rounded-[1.9rem] border border-border/70 bg-muted/50 lg:h-[42rem]"
+              }
+            />
+          }
+        >
+          <CityDiscoveryMap
+            locale={locale}
+            cityName={city.name}
+            cityCenter={city.center}
+            title={labels.mapTitle}
+            description={labels.mapDescription}
+            placeCount={placeCount}
+            eventCount={eventCount}
+            mapCityOptions={mapCityOptions}
+            selectedCitySlug={selectedMapCitySlug ?? ""}
+            cityPickerLabel={labels.cityPickerLabel}
+            cityPickerAllLabel={labels.cityPickerAll}
+            legendPlaces={labels.legendPlaces}
+            legendEvents={labels.legendEvents}
+            empty={labels.mapEmpty}
+            noResults={labels.noResults}
+            noResultsInViewport={labels.noResultsInViewport}
+            awaitingMapViewport={labels.awaitingMapViewport}
+            searchPlaceholder={labels.searchPlaceholder}
+            allLabel={labels.allResults}
+            placesOnlyLabel={labels.placesOnly}
+            eventsOnlyLabel={labels.eventsOnly}
+            categoriesFilterLabel={labels.categoriesFilterLabel}
+            categoriesFilterHint={labels.categoriesFilterHint}
+            categoriesDropdownAll={labels.categoriesDropdownAll}
+            categoriesDropdownMultiple={labels.categoriesDropdownMultiple}
+            resetFiltersLabel={labels.resetFilters}
+            resultsTitle={labels.resultsTitle}
+            listRatingReviewsSuffix={labels.listRatingReviewsSuffix}
+            resultsSummaryUnitLabel={labels.resultsSummaryUnit}
+            viewPlaceLabel={labels.viewPlace}
+            placePopupRatingUnavailableAria={labels.popupPlaceRatingUnavailableAria}
+            viewEventLabel={labels.viewEvent}
+            locateMeLabel={labels.locateMe}
+            locatingLabel={labels.locating}
+            myLocationLabel={labels.myLocation}
+            categoryLabels={labels.eventCategoryLabels}
+            places={mapPlaces}
+            events={mapEvents}
+            isGermanyNationalMap={isGermanyNationalMap}
+            germanyMapClusters={germanyMapClusters}
+            germanyClusterHint={labels.germanyClusterHint}
+            germanyBackToOverview={labels.germanyBackToOverview}
+            germanyClusterRevealLabel={labels.germanyClusterRevealLabel}
+            resultsCitiesUnit={labels.resultsCitiesUnit}
+            mapLoadErrorTitle={labels.mapLoadErrorTitle}
+            mapLoadErrorBody={labels.mapLoadErrorBody}
+            mapLoadErrorRetry={labels.mapLoadErrorRetry}
+          />
+        </Suspense>
       </section>
 
       {showFeaturedBelowMap ? (

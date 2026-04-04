@@ -52,6 +52,8 @@ type CityDiscoveryLeafletMapProps = {
   resultsCitiesUnitLabel?: string;
   germanyClusterRevealLabel?: string;
   restrictToCityRadiusKm?: number | null;
+  /** Incremented when the map should pan to `selectedId` (e.g. deep link from a listing card). */
+  selectionFocusNonce?: number;
 };
 
 type ProjectedPoint = {
@@ -817,6 +819,7 @@ export function CityDiscoveryLeafletMap({
   resultsCitiesUnitLabel: _resultsCitiesUnitLabel,
   germanyClusterRevealLabel,
   restrictToCityRadiusKm = null,
+  selectionFocusNonce = 0,
 }: CityDiscoveryLeafletMapProps) {
   const mapHostRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<LeafletMap | null>(null);
@@ -974,6 +977,39 @@ export function CityDiscoveryLeafletMap({
     () => boundsExpressionToViewportBounds(effectiveMaxBounds),
     [effectiveMaxBounds],
   );
+
+  const selectionPanNonceSeenRef = useRef(0);
+
+  useEffect(() => {
+    if (!selectionFocusNonce || selectionFocusNonce === selectionPanNonceSeenRef.current) {
+      return;
+    }
+    if (!isMapReady || showGermanyClusters || !selectedId) {
+      return;
+    }
+    const point = points.find((p) => p.id === selectedId);
+    if (!point) {
+      return;
+    }
+    const map = mapRef.current;
+    if (!map) {
+      return;
+    }
+    selectionPanNonceSeenRef.current = selectionFocusNonce;
+    const targetZoom = Math.max(map.getZoom() ?? 12, point.kind === "event" ? 14 : 13);
+    queueMicrotask(() => {
+      map.setView([point.latitude, point.longitude], targetZoom, { animate: true });
+      map.panInsideBounds(effectiveMaxBounds, { animate: true });
+      setViewVersion((v) => v + 1);
+    });
+  }, [
+    effectiveMaxBounds,
+    isMapReady,
+    points,
+    selectedId,
+    selectionFocusNonce,
+    showGermanyClusters,
+  ]);
 
   const clearLocationWatch = useCallback(() => {
     if (

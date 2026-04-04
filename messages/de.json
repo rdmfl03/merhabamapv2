@@ -371,6 +371,7 @@
       "saved": "Gespeichert",
       "saving": "Wird aktualisiert",
       "signIn": "Anmelden",
+      "showOnMap": "Auf der Stadt-Karte anzeigen",
       "fallbackDescription": "Weitere Informationen folgen."
     },
     "imageAttribution": {
@@ -556,6 +557,7 @@
       "saved": "Gespeichert",
       "saving": "Wird aktualisiert",
       "signIn": "Anmelden",
+      "showOnMap": "Auf der Stadt-Karte anzeigen",
       "fallbackDescription": "Weitere Eventinformationen folgen."
     },
     "pickCity": {

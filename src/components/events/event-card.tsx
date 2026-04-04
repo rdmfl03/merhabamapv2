@@ -1,4 +1,7 @@
-import { CalendarDays, ExternalLink, MapPin, Star } from "lucide-react";
+"use client";
+
+import { CalendarDays, ExternalLink, Map, MapPin, Star } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { EventCoverImage } from "@/components/events/event-cover-image";
 import { EventSaveButton } from "@/components/events/event-save-button";
@@ -7,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "@/i18n/navigation";
 import { getEventImageFallbackKey } from "@/lib/category-fallback-visual";
+import { buildDiscoveryMapPathForEvent } from "@/lib/discovery-map-deep-link";
 import {
   formatEventDateRange,
   formatEventDayBadge,
@@ -47,7 +51,9 @@ export function EventCard({
   participationLabel,
   labels,
 }: EventCardProps) {
+  const t = useTranslations("events");
   const externalUrl = getSafeExternalUrl(event.externalUrl);
+  const mapCitySlug = event.city.slug?.trim() ?? "";
   const image = resolveEventImage(event);
   const venueRating = getEventVenueRatingSummary(event);
 
@@ -118,22 +124,40 @@ export function EventCard({
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <EventSaveButton
-            eventId={event.id}
-            locale={locale}
-            returnPath={returnPath}
-            isSaved={event.isSaved}
-            isAuthenticated={isAuthenticated}
-            signInHref={`/${locale}/auth/signin?next=${encodeURIComponent(returnPath)}`}
-            labels={{
-              save: labels.save,
-              saved: labels.saved,
-              saving: labels.saving,
-              signIn: labels.signIn,
-            }}
-          />
+          <div className="flex flex-wrap items-center gap-2">
+            {mapCitySlug ? (
+              <Button
+                size="sm"
+                variant="default"
+                className="border-0 bg-cyan-600 px-2.5 text-white shadow-sm hover:bg-cyan-700 focus-visible:ring-cyan-500"
+                asChild
+              >
+                <Link
+                  href={buildDiscoveryMapPathForEvent(mapCitySlug, event.id)}
+                  aria-label={t("card.showOnMap")}
+                  title={t("card.showOnMap")}
+                >
+                  <Map className="h-4 w-4" aria-hidden />
+                </Link>
+              </Button>
+            ) : null}
+            <EventSaveButton
+              eventId={event.id}
+              locale={locale}
+              returnPath={returnPath}
+              isSaved={event.isSaved}
+              isAuthenticated={isAuthenticated}
+              signInHref={`/${locale}/auth/signin?next=${encodeURIComponent(returnPath)}`}
+              labels={{
+                save: labels.save,
+                saved: labels.saved,
+                saving: labels.saving,
+                signIn: labels.signIn,
+              }}
+            />
+          </div>
 
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             {externalUrl ? (
               <Button variant="outline" size="sm" asChild>
                 <a href={externalUrl} target="_blank" rel="noreferrer">

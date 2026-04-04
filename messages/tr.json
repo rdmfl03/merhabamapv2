@@ -371,6 +371,7 @@
       "saved": "Kaydedildi",
       "saving": "Güncelleniyor",
       "signIn": "Giriş yap",
+      "showOnMap": "Şehir haritasında göster",
       "fallbackDescription": "Bu mekan için yakında daha fazla bilgi eklenecek."
     },
     "imageAttribution": {
@@ -556,6 +557,7 @@
       "saved": "Kaydedildi",
       "saving": "Güncelleniyor",
       "signIn": "Giriş yap",
+      "showOnMap": "Şehir haritasında göster",
       "fallbackDescription": "Bu etkinlik için yakında daha fazla bilgi eklenecek."
     },
     "pickCity": {
