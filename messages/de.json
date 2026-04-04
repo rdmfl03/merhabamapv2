@@ -372,7 +372,8 @@
       "saving": "Wird aktualisiert",
       "signIn": "Anmelden",
       "showOnMap": "Auf der Stadt-Karte anzeigen",
-      "fallbackDescription": "Weitere Informationen folgen."
+      "fallbackDescription": "Weitere Informationen folgen.",
+      "googlePlacesRatingHint": "Bewertung u. a. aus Google Places (siehe Detailseite)."
     },
     "imageAttribution": {
       "license": "Lizenz",
@@ -416,6 +417,10 @@
     "detail": {
       "fallbackDescription": "Für diesen Ort ist noch keine Beschreibung verfügbar.",
       "userSubmittedAttribution": "Von Nutzer:in über das Einreichungsformular vorgeschlagen.",
+      "googlePlacesDataNotice": "Die Bewertungszahlen stammen aus Google Places (Stand laut MerhabaMap-Datenbank).",
+      "googlePlacesRatingAsideTitle": "Google Places",
+      "googlePlacesReviewCountLabel": "Bewertungen",
+      "googlePlacesUpdatedLabel": "Stand",
       "curationHintTitle": "Vor Veröffentlichung manuell geprüft",
       "curationHintDescription": "Dieser Eintrag wurde vor der Veröffentlichung von MerhabaMap manuell geprüft und freigegeben.",
       "infoTitle": "Informationen",

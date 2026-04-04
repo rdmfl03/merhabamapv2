@@ -1,5 +1,8 @@
 import { prisma } from "@/lib/prisma";
-import { publicPlaceSelect } from "@/server/queries/places/shared";
+import {
+  publicPlaceRecordForFlight,
+  publicPlaceSelectWithAi,
+} from "@/server/queries/places/shared";
 
 export async function countSavedPlacesForUser(userId: string) {
   return prisma.savedPlace.count({ where: { userId } });
@@ -11,13 +14,10 @@ export async function getSavedPlaces(userId: string) {
     orderBy: { createdAt: "desc" },
     select: {
       place: {
-        select: publicPlaceSelect,
+        select: publicPlaceSelectWithAi,
       },
     },
   });
 
-  return saved.map((entry) => ({
-    ...entry.place,
-    isSaved: true,
-  }));
+  return saved.map((entry) => publicPlaceRecordForFlight(entry.place, true));
 }

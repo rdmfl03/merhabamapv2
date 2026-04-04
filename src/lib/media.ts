@@ -43,18 +43,27 @@ export type ResolvedEntityImage = {
   imageAttributionRequired?: boolean | null;
 };
 
+/**
+ * Google-`media_assets` werden in der öffentlichen UI nicht als Bildquelle genutzt
+ * (einheitlich: Google-Cover über `place_rating_sources` + `/api/google-photo?placeId=` in `resolvePlaceImage`).
+ */
 function canDisplayPrimaryOrGalleryAsset(asset: MediaAssetLike | null | undefined) {
-  return Boolean(
-    asset &&
-      asset.status === "ACTIVE" &&
-      asset.role !== "FALLBACK" &&
-      asset.rightsStatus === "DISPLAY_ALLOWED",
-  );
+  if (!asset || asset.role === "FALLBACK" || asset.rightsStatus !== "DISPLAY_ALLOWED") {
+    return false;
+  }
+  if (asset.sourceProvider === "GOOGLE") {
+    return false;
+  }
+  if (asset.status === "ACTIVE") {
+    return true;
+  }
+  return asset.status === "PENDING_REVIEW";
 }
 
 function canDisplayFallbackAsset(asset: MediaAssetLike | null | undefined) {
   return Boolean(
     asset &&
+      asset.sourceProvider !== "GOOGLE" &&
       asset.status === "ACTIVE" &&
       asset.role === "FALLBACK" &&
       (asset.rightsStatus === "DISPLAY_ALLOWED" ||
@@ -98,12 +107,17 @@ function normalizeDisplayableUrl(url: string | null | undefined): string | null 
   return trimmed && isDisplayableMediaUrl(trimmed) ? trimmed : null;
 }
 
+export function resolveMediaAssetDisplayUrl(asset: MediaAssetLike): string {
+  return asset.assetUrl;
+}
+
 function toResolvedImage(
   asset: MediaAssetLike,
   sourceKind: "primary_asset" | "fallback_asset",
 ): ResolvedEntityImage {
+  const url = resolveMediaAssetDisplayUrl(asset);
   return {
-    url: asset.assetUrl,
+    url,
     altText: asset.altText ?? null,
     isFallback: sourceKind === "fallback_asset",
     sourceKind,
@@ -120,23 +134,66 @@ function toResolvedImage(
   };
 }
 
+function mediaAssetCoverRank(role: string): number {
+  if (role === "PRIMARY_CANDIDATE") {
+    return 0;
+  }
+  if (role === "GALLERY") {
+    return 1;
+  }
+  if (role === "FALLBACK") {
+    return 2;
+  }
+  return 3;
+}
+
+function pickDisplayableCoverFromMediaAssets(
+  assets: MediaAssetLike[] | null | undefined,
+): MediaAssetLike | null {
+  if (!assets?.length) {
+    return null;
+  }
+  const candidates = assets
+    .filter((a) => canDisplayPrimaryOrGalleryAsset(a))
+    .filter((a) => isDisplayableMediaUrl(resolveMediaAssetDisplayUrl(a)))
+    .sort((a, b) => {
+      const roleDiff = mediaAssetCoverRank(a.role) - mediaAssetCoverRank(b.role);
+      if (roleDiff !== 0) {
+        return roleDiff;
+      }
+      return (a.sortOrder ?? 0) - (b.sortOrder ?? 0);
+    });
+  return candidates[0] ?? null;
+}
+
 export function resolveEntityImage(args: {
   primaryImageAsset?: MediaAssetLike | null;
   fallbackImageAsset?: MediaAssetLike | null;
   legacyImageUrl?: string | null;
+  /** Wenn kein Primary/Fallback gesetzt ist: erstes geeignetes Medien-Asset (z. B. Google PRIMARY_CANDIDATE). */
+  candidateMediaAssets?: MediaAssetLike[] | null;
 }): ResolvedEntityImage | null {
+  const primary = args.primaryImageAsset;
   if (
-    canDisplayPrimaryOrGalleryAsset(args.primaryImageAsset) &&
-    isDisplayableMediaUrl(args.primaryImageAsset?.assetUrl)
+    primary &&
+    canDisplayPrimaryOrGalleryAsset(primary) &&
+    isDisplayableMediaUrl(resolveMediaAssetDisplayUrl(primary))
   ) {
-    return toResolvedImage(args.primaryImageAsset!, "primary_asset");
+    return toResolvedImage(primary, "primary_asset");
   }
 
+  const fallback = args.fallbackImageAsset;
   if (
-    canDisplayFallbackAsset(args.fallbackImageAsset) &&
-    isDisplayableMediaUrl(args.fallbackImageAsset?.assetUrl)
+    fallback &&
+    canDisplayFallbackAsset(fallback) &&
+    isDisplayableMediaUrl(resolveMediaAssetDisplayUrl(fallback))
   ) {
-    return toResolvedImage(args.fallbackImageAsset!, "fallback_asset");
+    return toResolvedImage(fallback, "fallback_asset");
+  }
+
+  const cover = pickDisplayableCoverFromMediaAssets(args.candidateMediaAssets);
+  if (cover) {
+    return toResolvedImage(cover, "primary_asset");
   }
 
   const legacyImageUrl = normalizeLegacyImage(args.legacyImageUrl);
@@ -175,14 +232,15 @@ export function getGalleryMediaAssets(args: {
   const galleryAssets =
     args.mediaAssets
       ?.filter((asset) => canDisplayPrimaryOrGalleryAsset(asset))
-      .filter((asset) => isDisplayableMediaUrl(asset.assetUrl))
+      .filter((asset) => isDisplayableMediaUrl(resolveMediaAssetDisplayUrl(asset)))
       .filter((asset) => !excludedIds.has(asset.id ?? ""))
       .filter((asset) => {
-        if (seenUrls.has(asset.assetUrl)) {
+        const u = resolveMediaAssetDisplayUrl(asset);
+        if (seenUrls.has(u)) {
           return false;
         }
 
-        seenUrls.add(asset.assetUrl);
+        seenUrls.add(u);
         return true;
       })
       .map((asset) => toResolvedImage(asset, "primary_asset")) ?? [];

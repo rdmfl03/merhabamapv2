@@ -11,6 +11,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "@/i18n/navigation";
 import { getPlaceImageFallbackKey } from "@/lib/category-fallback-visual";
 import { buildDiscoveryMapPathForPlace } from "@/lib/discovery-map-deep-link";
+import { getGooglePlacesRatingSnapshotFromPlace } from "@/lib/google-places-display";
 import {
   formatPlaceRatingSourceCaption,
   getPlaceDisplayRatingSummary,
@@ -64,6 +65,7 @@ export function PlaceCard({
   const attributionLabels = imageAttributionLabels ?? attributionLabelsForLocale(locale);
   const ratingSummary = getPlaceDisplayRatingSummary(place);
   const ratingSourcesLine = formatPlaceRatingSourceCaption(locale, ratingSummary);
+  const googlePlacesSnap = getGooglePlacesRatingSnapshotFromPlace(place);
 
   return (
     <Card className="overflow-hidden bg-white/90">
@@ -148,6 +150,11 @@ export function PlaceCard({
               </div>
               {ratingSourcesLine ? (
                 <p className="text-xs text-muted-foreground">{ratingSourcesLine}</p>
+              ) : null}
+              {googlePlacesSnap && !ratingSourcesLine ? (
+                <p className="text-xs text-muted-foreground">
+                  {t("card.googlePlacesRatingHint")}
+                </p>
               ) : null}
             </div>
           ) : null}

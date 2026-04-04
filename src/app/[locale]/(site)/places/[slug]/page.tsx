@@ -29,7 +29,15 @@ import {
   parseOpeningHours,
   resolvePlaceImage,
 } from "@/lib/places";
+import {
+  PlaceGooglePlacesFootnote,
+  PlaceGooglePlacesRatingAside,
+} from "@/components/places/place-google-places-rating";
 import { getPlaceImageFallbackKey } from "@/lib/category-fallback-visual";
+import {
+  getGooglePlacesRatingSnapshotFromPlace,
+  isAggregatedRatingFromGoogleOnly,
+} from "@/lib/google-places-display";
 import { buildLocalizedUrl } from "@/lib/seo/site";
 import { buildPlaceSchema } from "@/lib/seo/structured-data";
 import { GuestConversionHint } from "@/components/account/guest-conversion-hint";
@@ -148,6 +156,15 @@ export default async function PlaceDetailPage({
     locale,
     safeRatingSummary,
   );
+  const googlePlacesSnap = getGooglePlacesRatingSnapshotFromPlace(place);
+  const showGooglePlacesFootnote =
+    googlePlacesSnap != null &&
+    safeRatingSummary != null &&
+    isAggregatedRatingFromGoogleOnly(safeRatingSummary);
+  const showGooglePlacesAside =
+    googlePlacesSnap != null &&
+    (safeRatingSummary == null ||
+      (safeRatingSummary.sources?.length ?? 0) > 1);
 
   return (
     <div className="mx-auto max-w-6xl space-y-8 px-4 py-10 sm:py-12">
@@ -258,7 +275,24 @@ export default async function PlaceDetailPage({
                 {ratingSourcesAttribution ? (
                   <p className="mt-1 text-xs text-muted-foreground">{ratingSourcesAttribution}</p>
                 ) : null}
+                {showGooglePlacesFootnote ? (
+                  <PlaceGooglePlacesFootnote
+                    text={t("detail.googlePlacesDataNotice")}
+                  />
+                ) : null}
               </div>
+            ) : null}
+
+            {showGooglePlacesAside && googlePlacesSnap ? (
+              <PlaceGooglePlacesRatingAside
+                locale={locale}
+                snapshot={googlePlacesSnap}
+                labels={{
+                  title: t("detail.googlePlacesRatingAsideTitle"),
+                  reviews: t("detail.googlePlacesReviewCountLabel"),
+                  updatedLabel: t("detail.googlePlacesUpdatedLabel"),
+                }}
+              />
             ) : null}
 
             {showCurationHint ? (
