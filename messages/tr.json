@@ -372,7 +372,8 @@
       "saving": "Güncelleniyor",
       "signIn": "Giriş yap",
       "showOnMap": "Şehir haritasında göster",
-      "fallbackDescription": "Bu mekan için yakında daha fazla bilgi eklenecek."
+      "fallbackDescription": "Bu mekan için yakında daha fazla bilgi eklenecek.",
+      "googlePlacesRatingHint": "Değerlendirme kısmen Google Places kaynaklıdır (ayrıntılar için mekan sayfası)."
     },
     "imageAttribution": {
       "license": "Lisans",
@@ -416,6 +417,10 @@
     "detail": {
       "fallbackDescription": "Bu mekan için henüz açıklama bulunmuyor.",
       "userSubmittedAttribution": "Kullanıcı öneri formu üzerinden gönderildi.",
+      "googlePlacesDataNotice": "Değerlendirme sayıları Google Places kaynaklıdır (MerhabaMap veritabanındaki güncelliğe göre).",
+      "googlePlacesRatingAsideTitle": "Google Places",
+      "googlePlacesReviewCountLabel": "değerlendirme",
+      "googlePlacesUpdatedLabel": "Güncelleme",
       "curationHintTitle": "Yayınlanmadan önce manuel olarak incelendi",
       "curationHintDescription": "Bu kayıt, yayınlanmadan önce MerhabaMap tarafından manuel olarak incelendi ve onaylandı.",
       "infoTitle": "Bilgiler",

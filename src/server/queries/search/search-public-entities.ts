@@ -13,8 +13,8 @@ import type { ListedPlace } from "@/server/queries/places/list-places";
 import {
   buildPublicPlaceWhere,
   publicPlaceRecordForFlight,
-  publicPlaceSelectWithAiDiscoveryMap,
-  type PublicPlaceRecordWithAiDiscoveryMap,
+  publicPlaceSelectWithAi,
+  type PublicPlaceRecordWithAi,
 } from "@/server/queries/places/shared";
 
 /** Short queries avoid accidental full scans. */
@@ -94,7 +94,7 @@ export async function searchPublicPlacesAndEvents(args: {
       where: placeWhere,
       orderBy: [{ name: "asc" }],
       take: MAX_PLACES,
-      select: publicPlaceSelectWithAiDiscoveryMap,
+      select: publicPlaceSelectWithAi,
     }),
     prisma.event.findMany({
       where: eventWhere,
@@ -113,7 +113,7 @@ export async function searchPublicPlacesAndEvents(args: {
 }
 
 async function mapPlacesWithSaved(
-  rows: PublicPlaceRecordWithAiDiscoveryMap[],
+  rows: PublicPlaceRecordWithAi[],
   userId: string | null,
 ): Promise<ListedPlace[]> {
   if (rows.length === 0) {

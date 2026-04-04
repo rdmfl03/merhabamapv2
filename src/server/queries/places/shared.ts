@@ -38,6 +38,22 @@ export const publicMediaAssetSelect = Prisma.validator<Prisma.MediaAssetSelect>(
   observedAt: true,
 });
 
+/**
+ * Öffentliche Medien für Listen/Detail (ohne Google): Google-Cover läuft nur über
+ * `place_rating_sources.external_ref` + `/api/google-photo?placeId=` — keine Sonderrolle für Google-`media_assets`.
+ */
+export const publicPlaceMediaAssetVisibilityWhere =
+  Prisma.validator<Prisma.MediaAssetWhereInput>()({
+    NOT: { sourceProvider: "GOOGLE" },
+    OR: [
+      { status: "ACTIVE" },
+      {
+        status: "PENDING_REVIEW",
+        rightsStatus: "DISPLAY_ALLOWED",
+      },
+    ],
+  });
+
 export const publicPlaceRatingSourceSelect =
   Prisma.validator<Prisma.PlaceRatingSourceSelect>()({
     id: true,
@@ -134,9 +150,7 @@ export const publicPlaceSelect = Prisma.validator<Prisma.PlaceSelect>()({
 export const publicPlaceDetailSelect = Prisma.validator<Prisma.PlaceSelect>()({
   ...publicPlaceSelect,
   mediaAssets: {
-    where: {
-      status: "ACTIVE",
-    },
+    where: publicPlaceMediaAssetVisibilityWhere,
     orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
     select: publicMediaAssetSelect,
   },
@@ -152,6 +166,13 @@ export const publicPlaceSelectWithAi = Prisma.validator<Prisma.PlaceSelect>()({
   aiReviewStatus: true,
   aiConfidenceScore: true,
   createdAt: true,
+  mediaAssets: {
+    where: publicPlaceMediaAssetVisibilityWhere,
+    orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+    /** Mehr als ein Eintrag: erstes nach sortOrder kann z. B. ohne gültiges Google-`external_ref` sein. */
+    take: 16,
+    select: publicMediaAssetSelect,
+  },
 });
 
 /**

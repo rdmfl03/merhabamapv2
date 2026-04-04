@@ -1,6 +1,10 @@
 import type { Locale } from "@prisma/client";
 
 import { getGalleryMediaAssets, resolveEntityImage, type ResolvedEntityImage } from "@/lib/media";
+import {
+  buildGooglePlaceFirstPhotoProxyUrl,
+  getGooglePlaceIdFromRatingSourcesForPhoto,
+} from "@/lib/google-places-photo-resource";
 import { collapsePlaceCategoryFilterTokens } from "@/lib/place-category-filter-groups";
 import {
   PLACE_CATEGORY_SEED_ROWS,
@@ -70,6 +74,7 @@ type PlaceImageStateLike = {
   primaryImageAsset?: PlaceMediaAssetLike | null;
   fallbackImageAsset?: PlaceMediaAssetLike | null;
   mediaAssets?: PlaceMediaAssetLike[] | null;
+  placeRatingSources?: PlaceRatingSourceLike[] | null;
 };
 
 type PlaceRatingSummaryLike = {
@@ -263,11 +268,35 @@ function getActiveRatingSourcesForAttribution(place: PlaceRatingSummaryLike) {
 }
 
 export function resolvePlaceImage(place: PlaceImageStateLike): ResolvedEntityImage | null {
-  return resolveEntityImage({
+  const fromDb = resolveEntityImage({
     primaryImageAsset: place.primaryImageAsset,
     fallbackImageAsset: place.fallbackImageAsset,
     legacyImageUrl: getPlaceImage(place.images),
+    candidateMediaAssets: place.mediaAssets,
   });
+  if (fromDb) {
+    return fromDb;
+  }
+  const googlePlaceId = getGooglePlaceIdFromRatingSourcesForPhoto(place.placeRatingSources);
+  if (!googlePlaceId) {
+    return null;
+  }
+  return {
+    url: buildGooglePlaceFirstPhotoProxyUrl(googlePlaceId),
+    altText: null,
+    isFallback: false,
+    sourceKind: "legacy",
+    sourceProvider: "GOOGLE",
+    attributionText: null,
+    attributionUrl: null,
+    assetId: null,
+    sourceUrl: null,
+    imageLicense: null,
+    imageDetailUrl: null,
+    imageAttributionText: null,
+    imageSource: "GOOGLE",
+    imageAttributionRequired: null,
+  };
 }
 
 export function getPlaceGalleryImages(place: PlaceImageStateLike) {
