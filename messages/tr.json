@@ -1484,7 +1484,7 @@
       "resultsSummary": "{count} görünür sonuç",
       "resultsSummaryUnit": "görünür sonuç",
       "viewPlace": "Mekanı aç",
-      "popupPlaceRating": "Puan",
+      "popupPlaceRatingUnavailableAria": "Toplanmış puan bilgisi yok",
       "viewEvent": "Etkinliği aç",
       "locateMe": "Konumumu göster",
       "locating": "Konum belirleniyor",

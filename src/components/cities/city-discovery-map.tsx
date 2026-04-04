@@ -190,7 +190,7 @@ type CityDiscoveryMapProps = {
   listRatingReviewsSuffix: string;
   resultsSummaryUnitLabel: string;
   viewPlaceLabel: string;
-  placePopupRatingCaption: string;
+  placePopupRatingUnavailableAria: string;
   viewEventLabel: string;
   locateMeLabel: string;
   locatingLabel: string;
@@ -515,7 +515,7 @@ export function CityDiscoveryMap({
   listRatingReviewsSuffix,
   resultsSummaryUnitLabel,
   viewPlaceLabel,
-  placePopupRatingCaption,
+  placePopupRatingUnavailableAria,
   viewEventLabel,
   locateMeLabel,
   locatingLabel,
@@ -879,10 +879,15 @@ export function CityDiscoveryMap({
               maximumFractionDigits: 1,
             })} / 5`
           : null;
+      const mapRatingReviewsLine =
+        mapRatingLabel != null && point.mapRatingReviewCount != null
+          ? `(${new Intl.NumberFormat(ratingLocale).format(point.mapRatingReviewCount)})`
+          : null;
       return {
         ...base,
         mapAddressLine: point.mapAddressLine,
         mapRatingLabel,
+        mapRatingReviewsLine,
       };
     });
   }, [filtered, locale]);
@@ -1167,7 +1172,7 @@ export function CityDiscoveryMap({
             legendEvents={legendEvents}
             resultsSummaryUnitLabel={resultsSummaryUnitLabel}
             viewPlaceLabel={viewPlaceLabel}
-            placePopupRatingCaption={placePopupRatingCaption}
+            placePopupRatingUnavailableAria={placePopupRatingUnavailableAria}
             viewEventLabel={viewEventLabel}
             locateMeLabel={locateMeLabel}
             locatingLabel={locatingLabel}

@@ -23,4 +23,6 @@ export type CityMapPoint = {
   mapAddressLine?: string | null;
   /** Nur Orte: z. B. „4,2 / 5“, ohne Zusatztexte. */
   mapRatingLabel?: string | null;
+  /** Nur Orte: Kompakt fürs Popup, z. B. „(1668)“ ohne Wortlaut. */
+  mapRatingReviewsLine?: string | null;
 };

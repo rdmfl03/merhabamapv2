@@ -1475,7 +1475,7 @@
       "resultsSummary": "{count} sichtbare Treffer",
       "resultsSummaryUnit": "sichtbare Treffer",
       "viewPlace": "Ort öffnen",
-      "popupPlaceRating": "Bewertung",
+      "popupPlaceRatingUnavailableAria": "Keine aggregierte Bewertung vorhanden",
       "viewEvent": "Event öffnen",
       "locateMe": "Meinen Standort anzeigen",
       "locating": "Standort wird ermittelt",

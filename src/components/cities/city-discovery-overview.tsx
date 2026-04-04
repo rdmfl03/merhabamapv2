@@ -81,10 +81,10 @@ type CityDiscoveryOverviewProps = {
     resetFilters: string;
     resultsTitle: string;
     listRatingReviewsSuffix: string;
-    resultsSummaryUnit: string;
-    viewPlace: string;
-    popupPlaceRating: string;
-    viewEvent: string;
+  resultsSummaryUnit: string;
+  viewPlace: string;
+  popupPlaceRatingUnavailableAria: string;
+  viewEvent: string;
     locateMe: string;
     locating: string;
     myLocation: string;
@@ -225,7 +225,7 @@ export function CityDiscoveryOverview({
           listRatingReviewsSuffix={labels.listRatingReviewsSuffix}
           resultsSummaryUnitLabel={labels.resultsSummaryUnit}
           viewPlaceLabel={labels.viewPlace}
-          placePopupRatingCaption={labels.popupPlaceRating}
+          placePopupRatingUnavailableAria={labels.popupPlaceRatingUnavailableAria}
           viewEventLabel={labels.viewEvent}
           locateMeLabel={labels.locateMe}
           locatingLabel={labels.locating}
