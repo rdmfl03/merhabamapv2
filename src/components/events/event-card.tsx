@@ -24,6 +24,8 @@ type EventCardProps = {
   cityLabel: string;
   returnPath: string;
   isAuthenticated: boolean;
+  /** Shown above the category line (e.g. participation status on profile). */
+  participationLabel?: string;
   labels: {
     details: string;
     save: string;
@@ -42,6 +44,7 @@ export function EventCard({
   cityLabel,
   returnPath,
   isAuthenticated,
+  participationLabel,
   labels,
 }: EventCardProps) {
   const externalUrl = getSafeExternalUrl(event.externalUrl);
@@ -69,6 +72,11 @@ export function EventCard({
       </div>
 
       <CardContent className="space-y-4 p-5">
+        {participationLabel ? (
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brand">
+            {participationLabel}
+          </p>
+        ) : null}
         <div className="space-y-2">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">
             {categoryLabel}

@@ -18,8 +18,11 @@ type FollowingPageProps = {
 export async function generateMetadata({ params }: FollowingPageProps): Promise<Metadata> {
   const { locale, username } = await params;
   const t = await getTranslations({ locale, namespace: "userProfile" });
-  const user = await getPublicUserByUsername(decodeURIComponent(username));
-  if (!user?.username) {
+  const session = await auth();
+  const user = await getPublicUserByUsername(decodeURIComponent(username), {
+    viewerUserId: session?.user?.id ?? null,
+  });
+  if (!user?.username || user.limitedForPrivateViewer) {
     return { title: t("notFoundTitle") };
   }
   return {
@@ -34,15 +37,18 @@ export default async function UserFollowingPage({ params, searchParams }: Follow
   setRequestLocale(locale);
 
   const decoded = decodeURIComponent(usernameParam);
-  const profileUser = await getPublicUserByUsername(decoded);
+  const session = await auth();
+  const viewerId = session?.user?.id ?? null;
 
-  if (!profileUser?.username) {
+  const profileUser = await getPublicUserByUsername(decoded, {
+    viewerUserId: viewerId,
+  });
+
+  if (!profileUser?.username || profileUser.limitedForPrivateViewer) {
     notFound();
   }
 
   const page = Math.max(1, Number.parseInt(sp.page ?? "1", 10) || 1);
-  const session = await auth();
-  const viewerId = session?.user?.id ?? null;
 
   const [t, data] = await Promise.all([
     getTranslations("userProfile"),

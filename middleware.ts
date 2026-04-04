@@ -19,7 +19,6 @@ export default function middleware(request: NextRequest) {
     });
   }
 
-  response.headers.set("x-request-id", crypto.randomUUID());
   return response;
 }
 

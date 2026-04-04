@@ -41,6 +41,12 @@ Before changing anything that may affect runtime, auth, setup, build, deployment
 - prefer sanitizing over deleting
 - stop and report if the safe path is unclear
 
+## Database (for AI / maintainers)
+- **No default local Postgres:** Development and deployments typically use a **remote managed database** (e.g. DigitalOcean). `DATABASE_URL` comes from private env (e.g. `.env.local`), not from the repo. Never commit credentials, connection strings, or hostnames into the public repo.
+- **Apply migrations** against that database with: `npm run db:migrate:deploy` (uses `scripts/run-with-env.mjs` to load env). Do not assume `localhost:5432` is available when running Prisma commands in automation.
+- **HTTP 500 in local dev** with a remote DB often means **Postgres rejected connections** (“too many clients” / connection slots reserved). Use **one** `npm run dev` at a time, prefer the host’s **pooled** URL if available, and/or set `connection_limit` on `DATABASE_URL`. The app applies a conservative default pool cap only when the URL omits `connection_limit`.
+- Unit tests that need a DB may fail without a running database; that is an environment limitation, not necessarily a code defect.
+
 ## Repo-specific rules
 - This repo is Germany-first in scope.
 - Preserve bilingual Turkish/German behavior where relevant.

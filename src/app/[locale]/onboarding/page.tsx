@@ -1,17 +1,19 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { redirect } from "next/navigation";
 
-import { OnboardingForm } from "@/components/onboarding/onboarding-form";
+import { OnboardingBasicsForm } from "@/components/onboarding/onboarding-basics-form";
 import { robotsNoIndex } from "@/lib/seo/robots-meta";
 import { requireAuthenticatedUser } from "@/server/actions/user/shared";
-import { getActiveCities } from "@/server/queries/user/get-active-cities";
+import { getGermanCitiesForForms } from "@/server/queries/user/get-german-cities-for-forms";
 import { getCurrentUserProfile } from "@/server/queries/user/get-current-user-profile";
 import { getLocalizedCityDisplayName } from "@/lib/cities/city-display-name";
-import { interestValues, parseUserInterests } from "@/lib/user-preferences";
 
 type OnboardingPageProps = {
   params: Promise<{ locale: "de" | "tr" }>;
 };
+
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: OnboardingPageProps): Promise<Metadata> {
   const { locale } = await params;
@@ -29,60 +31,66 @@ export default async function OnboardingPage({ params }: OnboardingPageProps) {
 
   const user = await requireAuthenticatedUser(locale);
   const [t, cities, profile] = await Promise.all([
-    getTranslations("onboarding"),
-    getActiveCities(),
+    getTranslations({ locale, namespace: "onboarding" }),
+    getGermanCitiesForForms(),
     getCurrentUserProfile(user.id),
   ]);
 
-  const selectedInterests = parseUserInterests(profile?.interestsJson);
+  if (profile?.onboardingCompletedAt) {
+    redirect(
+      profile.username
+        ? `/${locale}/user/${profile.username}`
+        : `/${locale}/home`,
+    );
+  }
 
   return (
-    <div className="mx-auto max-w-4xl space-y-8 px-4 py-12">
+    <div className="mx-auto max-w-xl space-y-8 px-4 pb-12 pt-14 sm:px-6 sm:pb-16 sm:pt-16">
       <div className="space-y-3">
         <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand">
           {t("eyebrow")}
         </p>
-        <h1 className="font-display text-4xl text-foreground sm:text-5xl">
+        <h1 className="font-display text-3xl text-foreground sm:text-4xl">
           {t("title")}
         </h1>
-        <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
+        <p className="text-sm leading-6 text-muted-foreground">
           {t("description")}
+        </p>
+        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          {t("stepIndicator", { current: 1, total: 3 })}
         </p>
       </div>
 
-      <OnboardingForm
+      <OnboardingBasicsForm
         locale={locale}
-        currentLocale={profile?.preferredLocale ?? locale}
+        defaultPreferredLocale={profile?.preferredLocale ?? locale}
         cities={cities.map((city) => ({
           id: city.id,
           slug: city.slug,
           label: getLocalizedCityDisplayName(locale, city),
         }))}
-        interests={interestValues.map((interest) => ({
-          value: interest,
-          label: t(`interests.${interest.toLowerCase()}`),
-        }))}
-        selectedInterests={selectedInterests}
         selectedCityId={profile?.onboardingCity?.id}
+        defaultUsername={profile?.username}
         labels={{
           languageTitle: t("languageTitle"),
+          languageDescription: t("languageDescription"),
+          usernameTitle: t("usernameTitle"),
+          usernameHint: t("usernameHint"),
+          usernamePlaceholder: t("usernamePlaceholder"),
+          usernameAvailableHint: t("usernameAvailableHint"),
+          usernameChecking: t("usernameChecking"),
           cityTitle: t("cityTitle"),
-          interestsTitle: t("interestsTitle"),
-          submit: t("submit"),
-          afterSubmitHint: t("afterSubmitHint"),
-          success: t("success"),
+          submit: t("continueToPlaces"),
+          afterSubmitHint: t("afterSubmitBasicsHint"),
+          success: t("basicsSaved"),
           error: t("error"),
+          errorUsernameTaken: t("errorUsernameTaken"),
+          errorUsernameInvalid: t("errorUsernameInvalid"),
+          errorCityInvalid: t("errorCityInvalid"),
+          errorLocaleInvalid: t("errorLocaleInvalid"),
+          errorSaveFailed: t("errorSaveFailed"),
         }}
       />
-
-      {selectedInterests.length > 0 ? (
-        <div className="rounded-[1.75rem] border border-border bg-white/90 p-6 shadow-soft">
-          <p className="text-sm font-medium text-foreground">{t("existingSelections")}</p>
-          <p className="mt-2 text-sm text-muted-foreground">
-            {selectedInterests.map((interest) => t(`interests.${interest.toLowerCase()}`)).join(", ")}
-          </p>
-        </div>
-      ) : null}
     </div>
   );
 }

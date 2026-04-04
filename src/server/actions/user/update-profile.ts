@@ -6,6 +6,7 @@ import { cookies } from "next/headers";
 import { LOCALE_COOKIE_NAME } from "@/i18n/locale";
 import { prisma } from "@/lib/prisma";
 import { stringifyUserInterests } from "@/lib/user-preferences";
+import { ensureCityFollowForOnboardingCity } from "@/server/cities/ensure-onboarding-city-follow";
 import { profileUpdateSchema } from "@/lib/validators/user";
 
 import { idleUserFormState, type UserFormState } from "./state";
@@ -26,6 +27,8 @@ export async function updateProfile(
     preferredLocale: formData.get("preferredLocale"),
     cityId: formData.get("cityId"),
     interests: formData.getAll("interests"),
+    profileVisibility: formData.get("profileVisibility"),
+    bio: formData.get("bio"),
   });
 
   if (!parsed.success) {
@@ -58,8 +61,12 @@ export async function updateProfile(
       preferredLocale: parsed.data.preferredLocale,
       onboardingCityId: parsed.data.cityId,
       interestsJson: stringifyUserInterests(parsed.data.interests),
+      profileVisibility: parsed.data.profileVisibility,
+      profileBio: parsed.data.bio ?? null,
     },
   });
+
+  await ensureCityFollowForOnboardingCity(user.id);
 
   const cookieStore = await cookies();
   cookieStore.set(LOCALE_COOKIE_NAME, parsed.data.preferredLocale, {
@@ -68,7 +75,20 @@ export async function updateProfile(
     httpOnly: false,
   });
 
-  revalidatePath(`/${parsed.data.locale}/profile`);
+  const loc = parsed.data.locale;
+  revalidatePath(`/${loc}/profile`);
+
+  const handleRow = await prisma.user.findUnique({
+    where: { id: user.id },
+    select: { username: true },
+  });
+  const handle = handleRow?.username?.trim();
+  if (handle) {
+    const userPath = encodeURIComponent(handle);
+    revalidatePath(`/${loc}/user/${userPath}`);
+    revalidatePath(`/${loc}/user/${userPath}/followers`);
+    revalidatePath(`/${loc}/user/${userPath}/following`);
+  }
 
   return { status: "success", message: "profile_updated" };
 }

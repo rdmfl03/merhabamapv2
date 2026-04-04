@@ -199,7 +199,7 @@ export const authConfig = {
 
       return token;
     },
-    session({ session, token }) {
+    async session({ session, token }) {
       if (session.user) {
         session.user.id = token.sub ?? "";
         session.user.role = (token.role as Role | undefined) ?? "USER";
@@ -208,6 +208,24 @@ export const authConfig = {
         );
         session.user.preferredLocale =
           (token.preferredLocale as "de" | "tr" | null | undefined) ?? null;
+
+        if (token.sub) {
+          const row = await prisma.user.findUnique({
+            where: { id: token.sub },
+            select: {
+              onboardingCompletedAt: true,
+              preferredLocale: true,
+              role: true,
+            },
+          });
+
+          if (row) {
+            session.user.onboardingCompletedAt = row.onboardingCompletedAt;
+            session.user.preferredLocale =
+              (row.preferredLocale as "de" | "tr" | null | undefined) ?? null;
+            session.user.role = row.role;
+          }
+        }
       }
 
       return session;

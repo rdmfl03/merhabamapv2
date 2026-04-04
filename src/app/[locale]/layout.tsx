@@ -3,10 +3,9 @@ import { getMessages, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 
 import { auth } from "@/auth";
-import { Footer } from "@/components/layout/footer";
-import { Header } from "@/components/layout/header";
 import { OnboardingGuard } from "@/components/onboarding-guard";
-import { isAppLocale, routing } from "@/i18n/routing";
+import { ProfileNavLocaleProvider } from "@/components/i18n/profile-nav-locale-context";
+import { isAppLocale, routing, type AppLocale } from "@/i18n/routing";
 
 type LocaleLayoutProps = {
   children: React.ReactNode;
@@ -28,7 +27,8 @@ export default async function LocaleLayout({
   }
 
   setRequestLocale(locale);
-  const messages = await getMessages();
+  /** Explicit `locale` avoids relying on request-locale resolution order (Header/Footer run in nested layouts). */
+  const messages = await getMessages({ locale });
   let session = null;
 
   try {
@@ -39,15 +39,26 @@ export default async function LocaleLayout({
   const needsOnboarding =
     Boolean(session?.user?.id) && !session?.user?.onboardingCompletedAt;
 
+  const profileNavLocale: AppLocale | null =
+    session?.user?.id != null
+      ? session.user.preferredLocale === "de" || session.user.preferredLocale === "tr"
+        ? session.user.preferredLocale
+        : routing.defaultLocale
+      : null;
+
+  const navigationBaseLocale: AppLocale = profileNavLocale ?? locale;
+
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
-      <OnboardingGuard needsOnboarding={needsOnboarding} locale={locale}>
-        <div className="flex min-h-screen flex-col">
-          <Header />
-          <main className="flex-1 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))]">{children}</main>
-          <Footer />
-        </div>
-      </OnboardingGuard>
+      <ProfileNavLocaleProvider value={profileNavLocale}>
+        <OnboardingGuard
+          needsOnboarding={needsOnboarding}
+          locale={locale}
+          navigationBaseLocale={navigationBaseLocale}
+        >
+          <div className="min-h-screen">{children}</div>
+        </OnboardingGuard>
+      </ProfileNavLocaleProvider>
     </NextIntlClientProvider>
   );
 }

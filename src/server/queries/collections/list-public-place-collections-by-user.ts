@@ -7,6 +7,12 @@ export type PublicPlaceCollectionCard = {
   itemCount: number;
 };
 
+export async function countPublicPlaceCollectionsByUser(profileUserId: string) {
+  return prisma.placeCollection.count({
+    where: { userId: profileUserId, visibility: "PUBLIC" },
+  });
+}
+
 export async function listPublicPlaceCollectionsByUser(
   profileUserId: string,
 ): Promise<PublicPlaceCollectionCard[]> {

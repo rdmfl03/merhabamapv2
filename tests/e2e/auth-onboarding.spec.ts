@@ -18,10 +18,22 @@ test("onboarding-incomplete user is redirected and can complete onboarding", asy
   );
 
   await page.locator('input[name="preferredLocale"][value="de"]').check();
+  await page.locator('input[name="username"]').fill("demo_fresh");
   await page.locator('select[name="cityId"]').selectOption({ index: 0 });
-  await page.locator('input[name="interests"][value="FOOD"]').check();
+  await page.getByRole("button", { name: "Weiter zu Ort-Interessen" }).click();
+
+  await page.waitForURL(/\/de\/onboarding\/places$/);
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Orte von Interesse");
+
+  await page.locator('input[name="placeCategoryGroups"]').first().check();
+  await page.getByRole("button", { name: "Weiter zu Event-Interessen" }).click();
+
+  await page.waitForURL(/\/de\/onboarding\/events$/);
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Events von Interesse");
+
+  await page.locator('input[name="eventCategories"][value="CONCERT"]').check();
   await page.getByRole("button", { name: "Weiter zu MerhabaMap" }).click();
 
-  await page.waitForURL(/\/de\/places\?city=/);
-  await expect(page).toHaveURL(/\/de\/places\?city=/);
+  await page.waitForURL(/\/de\/user\/demo_fresh/);
+  await expect(page).toHaveURL(/\/de\/user\/demo_fresh/);
 });

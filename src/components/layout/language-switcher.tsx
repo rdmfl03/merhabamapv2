@@ -1,8 +1,7 @@
 "use client";
 
-import type { Route } from "next";
 import { useLocale } from "next-intl";
-import { useParams, usePathname, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 
 import { buildLocalizedPath, LOCALE_COOKIE_NAME } from "@/i18n/locale";
 import { type AppLocale } from "@/i18n/routing";
@@ -13,24 +12,25 @@ const localeOptions = [
   { code: "tr", label: "TR" },
 ] as const;
 
+/**
+ * Full browser navigation (not App Router `router.replace`): with `typedRoutes: true`, client-side
+ * `replace()` can ignore or reject many hrefs (dynamic segments, query), so the locale never changed.
+ */
 export function LanguageSwitcher() {
   const locale = useLocale();
   const params = useParams<{ locale?: string }>();
-  const pathname = usePathname();
-  const router = useRouter();
   const activeLocale = params?.locale === "tr" || params?.locale === "de" ? params.locale : locale;
 
   function switchLocale(nextLocale: AppLocale) {
+    if (typeof window === "undefined") return;
+
     document.cookie = `${LOCALE_COOKIE_NAME}=${nextLocale}; Path=/; Max-Age=31536000; SameSite=Lax`;
 
-    const targetPath = buildLocalizedPath(nextLocale, pathname);
-    // Kein useSearchParams: vermeidet Next.js CSR-Bailout / fehlende Suspense-Grenze (mehrfache Dev-Issues).
-    const query =
-      typeof window !== "undefined"
-        ? new URLSearchParams(window.location.search).toString()
-        : "";
-    const href = (query ? `${targetPath}?${query}` : targetPath) as Route;
-    router.replace(href);
+    const targetPath = buildLocalizedPath(nextLocale, window.location.pathname);
+    const search = window.location.search;
+    const hash = window.location.hash;
+
+    window.location.assign(`${targetPath}${search}${hash}`);
   }
 
   return (

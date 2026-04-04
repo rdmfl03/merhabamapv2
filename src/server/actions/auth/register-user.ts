@@ -8,7 +8,7 @@ import {
   isSignupInviteCodeValid,
   isUserRegistrationEnabled,
 } from "@/lib/auth/config";
-import { registrationSchema } from "@/lib/validators/auth";
+import { mapRegistrationZodIssuesToMessage, registrationSchema } from "@/lib/validators/auth";
 
 import { idleAuthActionState, type AuthActionState } from "./state";
 
@@ -38,10 +38,9 @@ export async function registerUser(
   });
 
   if (!parsed.success) {
-    const issue = parsed.error.issues[0];
     return {
       status: "error",
-      message: issue?.message === "password_mismatch" ? "password_mismatch" : "validation_error",
+      message: mapRegistrationZodIssuesToMessage(parsed.error.issues),
     };
   }
 

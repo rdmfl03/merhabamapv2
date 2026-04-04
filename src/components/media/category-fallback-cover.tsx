@@ -55,6 +55,30 @@ const FALLBACK_ICONS: Record<CategoryFallbackVisualKey, LucideIcon> = {
   business_event: Briefcase,
 };
 
+/** Compact gradient + icon chip for lists (e.g. onboarding category pickers). */
+export function CategoryVisualKeyChip({
+  visualKey,
+  className = "",
+}: {
+  visualKey: CategoryFallbackVisualKey;
+  className?: string;
+}) {
+  const gradient = CATEGORY_FALLBACK_GRADIENT[visualKey] ?? CATEGORY_FALLBACK_GRADIENT.default;
+  const Icon = FALLBACK_ICONS[visualKey] ?? FALLBACK_ICONS.default;
+  return (
+    <span
+      className={`flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border/60 shadow-sm ${className}`}
+      style={{ background: gradient }}
+      aria-hidden
+    >
+      <Icon
+        className="h-5 w-5 text-[hsl(357_91%_46%)] opacity-[0.65]"
+        strokeWidth={1.5}
+      />
+    </span>
+  );
+}
+
 type CategoryFallbackCoverProps = {
   visualKey: CategoryFallbackVisualKey;
   variant: "card" | "hero";

@@ -1,14 +1,16 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
+import { ProfileAvatarSettings } from "@/components/profile/profile-avatar-settings";
 import { ProfileForm } from "@/components/profile/profile-form";
+import { UserProfileAvatar } from "@/components/social/user-profile-avatar";
 import { robotsNoIndex } from "@/lib/seo/robots-meta";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "@/i18n/navigation";
 import { getLocalizedCityDisplayName } from "@/lib/cities/city-display-name";
 import { interestValues, parseUserInterests } from "@/lib/user-preferences";
 import { requireAuthenticatedUser } from "@/server/actions/user/shared";
-import { getActiveCities } from "@/server/queries/user/get-active-cities";
+import { getGermanCitiesForForms } from "@/server/queries/user/get-german-cities-for-forms";
 import { getCurrentUserProfile } from "@/server/queries/user/get-current-user-profile";
 
 type ProfilePageProps = {
@@ -33,7 +35,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   const [t, profile, cities] = await Promise.all([
     getTranslations("profile"),
     getCurrentUserProfile(user.id),
-    getActiveCities(),
+    getGermanCitiesForForms(),
   ]);
 
   if (!profile) {
@@ -42,6 +44,10 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 
   const interests = parseUserInterests(profile.interestsJson);
   const citySlug = profile.onboardingCity?.slug;
+  const avatarHandle =
+    profile.username?.trim() ||
+    profile.email?.split("@")[0]?.trim() ||
+    "user";
 
   return (
     <div className="mx-auto max-w-5xl space-y-8 px-4 py-12">
@@ -57,9 +63,12 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
         <Card className="bg-white/90">
           <CardContent className="space-y-4 p-6">
             <div className="flex items-center gap-4">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-brand-soft text-xl font-semibold text-brand">
-                {(profile.name ?? profile.email ?? "M").slice(0, 1).toUpperCase()}
-              </div>
+              <UserProfileAvatar
+                imageUrl={profile.image}
+                name={profile.name}
+                username={avatarHandle}
+                size="md"
+              />
               <div>
                 <p className="font-semibold text-foreground">
                   {profile.name ?? t("fallbackName")}
@@ -67,6 +76,27 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                 <p className="text-sm text-muted-foreground">{profile.email}</p>
               </div>
             </div>
+            <ProfileAvatarSettings
+              locale={locale}
+              username={avatarHandle}
+              name={profile.name}
+              imageUrl={profile.image}
+              labels={{
+                title: t("avatar.title"),
+                hint: t("avatar.hint"),
+                chooseFile: t("avatar.chooseFile"),
+                remove: t("avatar.remove"),
+                successUpload: t("avatar.successUpload"),
+                successClear: t("avatar.successClear"),
+                errors: {
+                  default: t("avatar.errors.default"),
+                  missing: t("avatar.errors.missing"),
+                  tooLarge: t("avatar.errors.tooLarge"),
+                  invalid: t("avatar.errors.invalid"),
+                  saveFailed: t("avatar.errors.saveFailed"),
+                },
+              }}
+            />
             <div className="space-y-2 text-sm text-muted-foreground">
               <p>
                 <span className="font-medium text-foreground">{t("summary.language")}:</span>{" "}
@@ -128,6 +158,8 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
             preferredLocale: profile.preferredLocale,
             cityId: profile.onboardingCity?.id,
             interests,
+            profileVisibility: profile.profileVisibility,
+            bio: profile.profileBio,
           }}
           cities={cities.map((city) => ({
             id: city.id,
@@ -144,6 +176,12 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
             language: t("form.language"),
             city: t("form.city"),
             interests: t("form.interests"),
+            profileVisibility: t("form.profileVisibility"),
+            profileVisibilityPublic: t("form.profileVisibilityPublic"),
+            profileVisibilityPrivate: t("form.profileVisibilityPrivate"),
+            profileVisibilityHint: t("form.profileVisibilityHint"),
+            bio: t("form.bio"),
+            bioHint: t("form.bioHint"),
             submit: t("form.submit"),
             success: t("form.success"),
             errors: {

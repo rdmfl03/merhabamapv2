@@ -1,7 +1,8 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
+import { AuthFormAlert } from "@/components/auth/auth-form-alert";
 import { DemoAccountsCard } from "@/components/dev/demo-accounts-card";
-import { SignInForm } from "@/app/[locale]/auth/signin/sign-in-form";
+import { SignInForm } from "./sign-in-form";
 import { Card, CardContent } from "@/components/ui/card";
 import { isDevDemoUiEnabled } from "@/lib/dev/runtime";
 import { Link } from "@/i18n/navigation";
@@ -26,8 +27,8 @@ export default async function SignInPage({
     typeof rawSearchParams.next === "string" ? rawSearchParams.next : undefined;
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-12">
-      <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+    <div className="flex justify-center px-4 py-12">
+      <div className="w-full max-w-xl space-y-6">
         <Card className="bg-white/90">
           <CardContent className="space-y-5 p-6">
             <div className="space-y-3">
@@ -40,7 +41,7 @@ export default async function SignInPage({
               </p>
             </div>
 
-            {error ? <p className="text-sm text-brand">{t("signInError")}</p> : null}
+            {error ? <AuthFormAlert variant="error">{t("signInError")}</AuthFormAlert> : null}
 
             <SignInForm
               locale={locale}

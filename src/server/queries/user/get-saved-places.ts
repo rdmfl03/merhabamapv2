@@ -1,6 +1,10 @@
 import { prisma } from "@/lib/prisma";
 import { publicPlaceSelect } from "@/server/queries/places/shared";
 
+export async function countSavedPlacesForUser(userId: string) {
+  return prisma.savedPlace.count({ where: { userId } });
+}
+
 export async function getSavedPlaces(userId: string) {
   const saved = await prisma.savedPlace.findMany({
     where: { userId },

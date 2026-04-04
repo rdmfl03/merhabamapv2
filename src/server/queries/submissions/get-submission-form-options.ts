@@ -1,17 +1,6 @@
-import type { EventCategory } from "@prisma/client";
-
 import { appConfig } from "@/lib/app-config";
+import { EVENT_CATEGORY_VALUES } from "@/lib/event-category-values";
 import { prisma } from "@/lib/prisma";
-
-const eventCategories: EventCategory[] = [
-  "CONCERT",
-  "CULTURE",
-  "STUDENT",
-  "COMMUNITY",
-  "FAMILY",
-  "BUSINESS",
-  "RELIGIOUS",
-];
 
 export async function getSubmissionFormOptions() {
   const [cities, placeCategories, existingPlaces, existingEvents] = await Promise.all([
@@ -75,7 +64,7 @@ export async function getSubmissionFormOptions() {
   return {
     cities,
     placeCategories,
-    eventCategories,
+    eventCategories: [...EVENT_CATEGORY_VALUES],
     existingPlaces,
     existingEvents,
   };

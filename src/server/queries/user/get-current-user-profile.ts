@@ -9,10 +9,14 @@ export async function getCurrentUserProfile(userId: string) {
       name: true,
       username: true,
       image: true,
+      profileBio: true,
       role: true,
       preferredLocale: true,
       onboardingCompletedAt: true,
       interestsJson: true,
+      preferredPlaceCategoryIdsJson: true,
+      preferredEventCategoriesJson: true,
+      profileVisibility: true,
       onboardingCity: {
         select: {
           id: true,

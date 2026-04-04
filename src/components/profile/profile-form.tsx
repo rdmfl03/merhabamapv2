@@ -1,10 +1,12 @@
 "use client";
 
+import type { ProfileVisibility } from "@prisma/client";
 import { useActionState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { updateProfile } from "@/server/actions/user/update-profile";
 import { idleUserFormState } from "@/server/actions/user/state";
 import type { UserInterest } from "@/lib/user-preferences";
@@ -18,6 +20,8 @@ type ProfileFormProps = {
     preferredLocale?: "de" | "tr" | null;
     cityId?: string | null;
     interests: UserInterest[];
+    profileVisibility: ProfileVisibility;
+    bio?: string | null;
   };
   cities: Array<{ id: string; label: string }>;
   interests: Array<{ value: UserInterest; label: string }>;
@@ -28,6 +32,12 @@ type ProfileFormProps = {
     language: string;
     city: string;
     interests: string;
+    profileVisibility: string;
+    profileVisibilityPublic: string;
+    profileVisibilityPrivate: string;
+    profileVisibilityHint: string;
+    bio: string;
+    bioHint: string;
     submit: string;
     success: string;
     errors: {
@@ -81,6 +91,17 @@ export function ProfileForm({
             <Input value={profile.email ?? ""} readOnly disabled />
           </label>
 
+          <label className="space-y-2 text-sm">
+            <span className="font-medium text-foreground">{labels.bio}</span>
+            <Textarea
+              name="bio"
+              defaultValue={profile.bio ?? ""}
+              maxLength={280}
+              rows={4}
+            />
+            <span className="text-xs text-muted-foreground">{labels.bioHint}</span>
+          </label>
+
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="space-y-2 text-sm">
               <span className="font-medium text-foreground">{labels.language}</span>
@@ -128,6 +149,31 @@ export function ProfileForm({
               ))}
             </div>
           </div>
+
+          <fieldset className="space-y-3 rounded-2xl border border-border bg-muted/20 p-4">
+            <legend className="px-1 text-sm font-medium text-foreground">{labels.profileVisibility}</legend>
+            <p className="text-xs text-muted-foreground">{labels.profileVisibilityHint}</p>
+            <div className="flex flex-col gap-3 sm:flex-row sm:gap-6">
+              <label className="flex cursor-pointer items-center gap-2 text-sm">
+                <input
+                  type="radio"
+                  name="profileVisibility"
+                  value="PUBLIC"
+                  defaultChecked={profile.profileVisibility === "PUBLIC"}
+                />
+                <span>{labels.profileVisibilityPublic}</span>
+              </label>
+              <label className="flex cursor-pointer items-center gap-2 text-sm">
+                <input
+                  type="radio"
+                  name="profileVisibility"
+                  value="PRIVATE"
+                  defaultChecked={profile.profileVisibility === "PRIVATE"}
+                />
+                <span>{labels.profileVisibilityPrivate}</span>
+              </label>
+            </div>
+          </fieldset>
 
           {state.status === "success" ? (
             <p className="text-sm text-green-700">{labels.success}</p>

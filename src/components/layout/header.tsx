@@ -27,15 +27,14 @@ export async function Header() {
     session = null;
   }
 
-  const headerUsername =
+  const headerAccount =
     session?.user?.id != null
-      ? (
-          await prisma.user.findUnique({
-            where: { id: session.user.id },
-            select: { username: true },
-          })
-        )?.username?.trim() ?? null
+      ? await prisma.user.findUnique({
+          where: { id: session.user.id },
+          select: { username: true, name: true, image: true },
+        })
       : null;
+  const headerUsername = headerAccount?.username?.trim() ?? null;
 
   const authButtons = session?.user ? (
     <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5 sm:gap-2">
@@ -45,7 +44,12 @@ export async function Header() {
         </Button>
       ) : null}
       <HeaderNotificationsLink userId={session.user.id} />
-      <HeaderAccountMenu locale={locale} username={headerUsername} />
+      <HeaderAccountMenu
+        locale={locale}
+        username={headerUsername}
+        displayName={headerAccount?.name?.trim() || null}
+        imageUrl={headerAccount?.image?.trim() || null}
+      />
     </div>
   ) : (
     <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5 sm:gap-2">

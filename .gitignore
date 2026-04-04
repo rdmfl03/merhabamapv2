@@ -19,6 +19,9 @@
 /.next/
 /out/
 
+# user-uploaded assets (avatars, etc.)
+/public/uploads/
+
 # production
 /build
 

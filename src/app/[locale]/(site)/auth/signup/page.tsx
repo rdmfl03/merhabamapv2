@@ -44,8 +44,8 @@ export default async function SignUpPage({ params, searchParams }: SignUpPagePro
   const canRegister = registrationEnabled || inviteOnlyEnabled;
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-12">
-      <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+    <div className="flex justify-center px-4 py-12">
+      <div className="w-full max-w-xl">
         <Card className="bg-white/90">
           <CardContent className="space-y-5 p-6">
             <div className="space-y-3">
@@ -72,6 +72,17 @@ export default async function SignUpPage({ params, searchParams }: SignUpPagePro
                   submit: t("signUpButton"),
                   success: t("signUpSuccess"),
                   validationError: t("signUpError"),
+                  passwordTooShort: t("signUpPasswordTooShort"),
+                  passwordTooLong: t("signUpPasswordTooLong"),
+                  passwordNeedsUppercase: t("signUpPasswordNeedsUppercase"),
+                  passwordNeedsLowercase: t("signUpPasswordNeedsLowercase"),
+                  passwordNeedsNumber: t("signUpPasswordNeedsNumber"),
+                  emailInvalid: t("signUpEmailInvalid"),
+                  emailTooLong: t("signUpEmailTooLong"),
+                  nameTooLong: t("signUpNameTooLong"),
+                  confirmPasswordTooShort: t("signUpConfirmPasswordTooShort"),
+                  confirmPasswordTooLong: t("signUpConfirmPasswordTooLong"),
+                  inviteCodeTooLong: t("signUpInviteCodeTooLong"),
                   emailInUse: t("signUpEmailInUse"),
                   passwordMismatch: t("passwordMismatch"),
                   inviteCodeInvalid: t("inviteCodeInvalid"),
@@ -103,16 +114,6 @@ export default async function SignUpPage({ params, searchParams }: SignUpPagePro
                 {t("goToSignin")}
               </Link>
             </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white/90">
-          <CardContent className="space-y-4 p-6">
-            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-brand">
-              {t("verifyEmailTitle")}
-            </p>
-            <h2 className="font-display text-3xl text-foreground">{t("signUpInfoTitle")}</h2>
-            <p className="text-sm leading-6 text-muted-foreground">{t("signUpInfoDescription")}</p>
           </CardContent>
         </Card>
       </div>

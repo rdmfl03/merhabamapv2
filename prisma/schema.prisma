@@ -68,10 +68,14 @@ model User {
   name                  String?
   username              String?            @unique
   image                 String?
+  profileBio            String?            @map("profile_bio") @db.VarChar(280)
   role                  Role               @default(USER)
   preferredLocale       Locale?            @map("preferred_locale")
   onboardingCompletedAt DateTime?          @map("onboarding_completed_at")
   interestsJson         String?            @map("interests_json")
+  preferredPlaceCategoryIdsJson String?    @map("preferred_place_category_ids_json")
+  preferredEventCategoriesJson  String?    @map("preferred_event_categories_json")
+  profileVisibility     ProfileVisibility    @default(PUBLIC) @map("profile_visibility")
   onboardingCityId      String?            @map("onboarding_city_id")
   createdAt             DateTime           @default(now()) @map("created_at")
   updatedAt             DateTime           @updatedAt @map("updated_at")
@@ -904,6 +908,11 @@ enum EventParticipationStatus {
 enum PlaceCollectionVisibility {
   PRIVATE
   PUBLIC
+}
+
+enum ProfileVisibility {
+  PUBLIC
+  PRIVATE
 }
 
 enum MediaAssetRole {

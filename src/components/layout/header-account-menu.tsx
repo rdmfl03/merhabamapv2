@@ -1,10 +1,10 @@
 "use client";
 
-import { Settings } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 
 import { signOutFromApp } from "@/server/actions/auth/sign-out-action";
+import { UserProfileAvatar } from "@/components/social/user-profile-avatar";
 import { Button } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
@@ -13,12 +13,19 @@ import type { AppLocale } from "@/i18n/routing";
 type HeaderAccountMenuProps = {
   locale: AppLocale;
   username: string | null;
+  displayName: string | null;
+  imageUrl: string | null;
 };
 
 const menuItemClass =
   "block w-full rounded-xl px-3 py-2.5 text-left text-sm text-foreground outline-none transition-colors hover:bg-muted/80 focus-visible:bg-muted/80 focus-visible:ring-2 focus-visible:ring-brand/35";
 
-export function HeaderAccountMenu({ locale, username }: HeaderAccountMenuProps) {
+export function HeaderAccountMenu({
+  locale,
+  username,
+  displayName,
+  imageUrl,
+}: HeaderAccountMenuProps) {
   const t = useTranslations("common");
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -50,6 +57,7 @@ export function HeaderAccountMenu({ locale, username }: HeaderAccountMenuProps) 
 
   const trimmed = username?.trim() ?? "";
   const hasPublicProfile = trimmed.length > 0;
+  const avatarFallback = trimmed || displayName || "user";
 
   return (
     <div ref={containerRef} className="relative shrink-0">
@@ -58,7 +66,7 @@ export function HeaderAccountMenu({ locale, username }: HeaderAccountMenuProps) 
         type="button"
         variant="outline"
         size="sm"
-        className="h-9 w-9 shrink-0 p-0 sm:h-10 sm:w-10"
+        className="h-9 w-9 shrink-0 overflow-hidden rounded-full p-0 sm:h-10 sm:w-10"
         aria-expanded={open}
         aria-haspopup="menu"
         aria-controls={menuId}
@@ -66,7 +74,13 @@ export function HeaderAccountMenu({ locale, username }: HeaderAccountMenuProps) 
         aria-label={t("accountMenuAria")}
         onClick={() => setOpen((v) => !v)}
       >
-        <Settings className="h-[1.15rem] w-[1.15rem]" aria-hidden />
+        <UserProfileAvatar
+          imageUrl={imageUrl}
+          name={displayName}
+          username={avatarFallback}
+          size="sm"
+          className="h-full w-full min-h-0 min-w-0 rounded-none ring-0"
+        />
       </Button>
 
       {open ? (
@@ -87,11 +101,7 @@ export function HeaderAccountMenu({ locale, username }: HeaderAccountMenuProps) 
             >
               {t("menuPublicProfile")}
             </Link>
-          ) : (
-            <Link href="/profile" role="menuitem" className={menuItemClass} onClick={close}>
-              {t("menuPublicProfileSetup")}
-            </Link>
-          )}
+          ) : null}
           <Link href="/profile" role="menuitem" className={menuItemClass} onClick={close}>
             {t("menuSettings")}
           </Link>

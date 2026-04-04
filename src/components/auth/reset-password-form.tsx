@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 
+import { AuthFormAlert } from "@/components/auth/auth-form-alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { resetPassword } from "@/server/actions/auth/reset-password";
@@ -40,22 +41,24 @@ export function ResetPasswordForm({
           : null;
 
   return (
-    <form action={formAction} className="space-y-4 rounded-3xl border border-border bg-white p-6 shadow-soft">
+    <form
+      action={formAction}
+      noValidate
+      className="space-y-4 rounded-3xl border border-border bg-white p-6 shadow-soft"
+    >
       <input type="hidden" name="locale" value={locale} />
       <input type="hidden" name="token" value={token} />
       <label className="block space-y-2 text-sm">
         <span className="font-medium text-foreground">{labels.password}</span>
-        <Input type="password" name="password" required autoComplete="new-password" />
+        <Input type="password" name="password" autoComplete="new-password" />
       </label>
       <label className="block space-y-2 text-sm">
         <span className="font-medium text-foreground">{labels.confirmPassword}</span>
-        <Input type="password" name="confirmPassword" required autoComplete="new-password" />
+        <Input type="password" name="confirmPassword" autoComplete="new-password" />
       </label>
 
       {message ? (
-        <p className={`text-sm ${state.status === "success" ? "text-green-700" : "text-brand"}`}>
-          {message}
-        </p>
+        <AuthFormAlert variant={state.status === "success" ? "success" : "error"}>{message}</AuthFormAlert>
       ) : null}
 
       <Button className="w-full" type="submit" disabled={pending}>

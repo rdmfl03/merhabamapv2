@@ -1,4 +1,8 @@
-import { resetPasswordSchema, registrationSchema } from "@/lib/validators/auth";
+import {
+  mapRegistrationZodIssuesToMessage,
+  registrationSchema,
+  resetPasswordSchema,
+} from "@/lib/validators/auth";
 import {
   eventReportSchema,
   eventsFilterSchema,
@@ -14,7 +18,13 @@ import {
   entityCommentReportSchema,
   placeCollectionReportSchema,
 } from "@/lib/validators/social-content-report";
-import { onboardingSchema, profileUpdateSchema } from "@/lib/validators/user";
+import {
+  onboardingBasicsSchema,
+  onboardingCategoriesSchema,
+  onboardingEventCategoriesSchema,
+  onboardingPlaceCategoriesSchema,
+  profileUpdateSchema,
+} from "@/lib/validators/user";
 
 const cityId = "cjld2cjxh0000qzrmn831i7rn";
 const placeId = "cjld2cyuq0000t3rmniod1foy";
@@ -23,24 +33,71 @@ const commentId = "cjld2d0h00002qzrmn5qx6jex";
 const collectionId = "cjld2d0h00003qzrmn5qx6jex";
 
 describe("validators", () => {
-  it("validates onboarding payloads with at least one interest", () => {
+  it("validates onboarding basics without interests", () => {
     expect(
-      onboardingSchema.safeParse({
+      onboardingBasicsSchema.safeParse({
         locale: "de",
         preferredLocale: "de",
+        username: "valid_user",
         cityId,
-        interests: ["FOOD"],
       }).success,
     ).toBe(true);
 
     expect(
-      onboardingSchema.safeParse({
+      onboardingBasicsSchema.safeParse({
         locale: "de",
         preferredLocale: "de",
+        username: "ab",
         cityId,
-        interests: [],
       }).success,
     ).toBe(false);
+
+    expect(
+      onboardingBasicsSchema.safeParse({
+        locale: "de",
+        preferredLocale: "de",
+        username: "valid_user",
+        cityId: "550e8400-e29b-41d4-a716-446655440000",
+      }).success,
+    ).toBe(true);
+  });
+
+  it("validates onboarding place and event steps", () => {
+    expect(
+      onboardingPlaceCategoriesSchema.safeParse({
+        locale: "de",
+        placeCategoryGroups: ["dining"],
+      }).success,
+    ).toBe(true);
+
+    expect(
+      onboardingPlaceCategoriesSchema.safeParse({
+        locale: "de",
+        placeCategoryGroups: [],
+      }).success,
+    ).toBe(false);
+
+    expect(
+      onboardingEventCategoriesSchema.safeParse({
+        locale: "de",
+        eventCategories: ["CONCERT"],
+      }).success,
+    ).toBe(true);
+
+    expect(
+      onboardingEventCategoriesSchema.safeParse({
+        locale: "de",
+        eventCategories: [],
+      }).success,
+    ).toBe(false);
+
+    expect(
+      onboardingCategoriesSchema.safeParse({
+        locale: "de",
+        placeCategoryGroups: ["dining"],
+        eventCategories: ["CONCERT"],
+      }).success,
+    ).toBe(true);
   });
 
   it("rejects invalid usernames in profile updates", () => {
@@ -52,6 +109,7 @@ describe("validators", () => {
         preferredLocale: "de",
         cityId,
         interests: ["FOOD"],
+        profileVisibility: "PUBLIC",
       }).success,
     ).toBe(false);
   });
@@ -75,6 +133,52 @@ describe("validators", () => {
         confirmPassword: "DifferentPass123",
       }).success,
     ).toBe(false);
+  });
+
+  it("maps registration Zod issues to stable user-facing message keys", () => {
+    const shortPassword = registrationSchema.safeParse({
+      locale: "de",
+      email: "a@b.de",
+      password: "short",
+      confirmPassword: "short",
+    });
+    expect(shortPassword.success).toBe(false);
+    if (!shortPassword.success) {
+      expect(mapRegistrationZodIssuesToMessage(shortPassword.error.issues)).toBe("password_too_short");
+    }
+
+    const badEmail = registrationSchema.safeParse({
+      locale: "de",
+      email: "not-email",
+      password: "SecurePass123",
+      confirmPassword: "SecurePass123",
+    });
+    expect(badEmail.success).toBe(false);
+    if (!badEmail.success) {
+      expect(mapRegistrationZodIssuesToMessage(badEmail.error.issues)).toBe("email_invalid");
+    }
+
+    const needsUpper = registrationSchema.safeParse({
+      locale: "de",
+      email: "a@b.de",
+      password: "securepass123",
+      confirmPassword: "securepass123",
+    });
+    expect(needsUpper.success).toBe(false);
+    if (!needsUpper.success) {
+      expect(mapRegistrationZodIssuesToMessage(needsUpper.error.issues)).toBe("password_needs_uppercase");
+    }
+
+    const mismatch = registrationSchema.safeParse({
+      locale: "de",
+      email: "a@b.de",
+      password: "SecurePass123",
+      confirmPassword: "SecurePass124",
+    });
+    expect(mismatch.success).toBe(false);
+    if (!mismatch.success) {
+      expect(mapRegistrationZodIssuesToMessage(mismatch.error.issues)).toBe("password_mismatch");
+    }
   });
 
   it("validates claim and report payloads", () => {

@@ -30,7 +30,10 @@ type PlaceCategoryLike = {
   } | null;
 };
 
-const PLACE_SLUG_TO_KEY: Record<string, CategoryFallbackVisualKey> = {
+/** Maps `place_category.slug` → shared visual / onboarding group key (places only). */
+export const PLACE_SLUG_TO_VISUAL_KEY: Readonly<
+  Record<string, CategoryFallbackVisualKey>
+> = {
   restaurants: "dining",
   gastronomy: "dining",
   catering: "dining",
@@ -53,11 +56,11 @@ const PLACE_SLUG_TO_KEY: Record<string, CategoryFallbackVisualKey> = {
   health: "wellness",
   advisory: "advice",
   childcare: "family",
-};
+} as const;
 
 export function getPlaceImageFallbackKey(place: PlaceCategoryLike): CategoryFallbackVisualKey {
   const slug = place.category?.slug?.trim().toLowerCase() ?? "";
-  return PLACE_SLUG_TO_KEY[slug] ?? "default";
+  return PLACE_SLUG_TO_VISUAL_KEY[slug] ?? "default";
 }
 
 export function getEventImageFallbackKey(category: EventCategory): CategoryFallbackVisualKey {
