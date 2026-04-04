@@ -237,7 +237,7 @@ export const publicPlaceSelectWithAiDiscoveryMap = Prisma.validator<Prisma.Place
 
 /**
  * Minimaler Select nur für City-Map-Pins/API.
- * Kein Telefon, keine Website, keine Medien-/Image-Felder, keine Hours.
+ * Medien nur für serverseitig aufgelöstes Popup-Cover (`coverImageUrl` in Flight-Record).
  */
 export const publicPlaceSelectWithAiMapPin = Prisma.validator<Prisma.PlaceSelect>()({
   id: true,
@@ -252,6 +252,26 @@ export const publicPlaceSelectWithAiMapPin = Prisma.validator<Prisma.PlaceSelect
   displayRatingValue: true,
   displayRatingCount: true,
   ratingSourceCount: true,
+  ratingSummaryUpdatedAt: true,
+  images: true,
+  primaryImageAsset: {
+    select: publicMediaAssetSelect,
+  },
+  fallbackImageAsset: {
+    select: publicMediaAssetSelect,
+  },
+  mediaAssets: {
+    where: publicPlaceMediaAssetVisibilityWhere,
+    orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+    take: 12,
+    select: publicMediaAssetSelect,
+  },
+  placeRatingSources: {
+    where: { provider: "GOOGLE", status: "ACTIVE" },
+    take: 3,
+    orderBy: [{ observedAt: "desc" }, { createdAt: "desc" }],
+    select: publicPlaceRatingSourceSelect,
+  },
   verificationStatus: true,
   aiReviewStatus: true,
   aiConfidenceScore: true,

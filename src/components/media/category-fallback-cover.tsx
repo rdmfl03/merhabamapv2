@@ -30,6 +30,7 @@ import {
   CATEGORY_FALLBACK_GRADIENT,
   type CategoryFallbackVisualKey,
 } from "@/lib/category-fallback-visual";
+import { cn } from "@/lib/utils";
 
 const FALLBACK_ICONS: Record<CategoryFallbackVisualKey, LucideIcon> = {
   default: MapPin,
@@ -67,7 +68,10 @@ export function CategoryVisualKeyChip({
   const Icon = FALLBACK_ICONS[visualKey] ?? FALLBACK_ICONS.default;
   return (
     <span
-      className={`flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border/60 shadow-sm ${className}`}
+      className={cn(
+        "flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border/60 shadow-sm",
+        className,
+      )}
       style={{ background: gradient }}
       aria-hidden
     >

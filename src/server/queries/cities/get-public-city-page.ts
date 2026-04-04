@@ -6,6 +6,8 @@ import { prisma } from "@/lib/prisma";
 import { getGermanyMapClusters } from "@/server/queries/cities/get-germany-map-clusters";
 import { computeCategoryAdjustedScore, getPlaceScoreRatingCount } from "@/lib/places";
 import { compareByAiRanking } from "@/server/queries/ai-shared";
+import { resolveEventImage } from "@/lib/events";
+import { resolvePlaceImage } from "@/lib/places";
 import {
   buildPublicEventWhere,
   publicEventRecordForFlight,
@@ -16,6 +18,7 @@ import {
 } from "@/server/queries/events/shared";
 import {
   buildPublicPlaceWhere,
+  normalizePlaceRatingSourcesForClient,
   publicPlaceRecordForFlight,
   publicPlaceSelectWithAi,
   publicPlaceSelectWithAiDiscoveryMap,
@@ -48,6 +51,8 @@ export type PublicDiscoveryMapPlaceRecord = {
     nameDe: string;
     nameTr: string;
   };
+  /** Server-aufgelöstes Cover (Liste/Detail-Logik), für Map-Popup-Thumbnails. */
+  coverImageUrl: string | null;
 };
 
 export type PublicDiscoveryMapEventRecord = {
@@ -61,6 +66,7 @@ export type PublicDiscoveryMapEventRecord = {
   category: PublicEventRecordWithAi["category"];
   startsAt: Date;
   endsAt: Date | null;
+  coverImageUrl: string | null;
 };
 
 const GERMANY_MAP_VIRTUAL_CITY = {
@@ -98,6 +104,17 @@ async function loadFeaturedPlacesFull(
 function mapPlaceRecordForDiscoveryMap(
   place: PublicPlaceRecordWithAiMapPin | PublicPlaceRecordWithAiDiscoveryMap,
 ): PublicDiscoveryMapPlaceRecord {
+  const sourcesRaw =
+    "placeRatingSources" in place ? place.placeRatingSources : undefined;
+  const cover = resolvePlaceImage({
+    images: "images" in place ? place.images : null,
+    primaryImageAsset:
+      "primaryImageAsset" in place ? place.primaryImageAsset : null,
+    fallbackImageAsset:
+      "fallbackImageAsset" in place ? place.fallbackImageAsset : null,
+    mediaAssets: "mediaAssets" in place ? place.mediaAssets : null,
+    placeRatingSources: normalizePlaceRatingSourcesForClient(sourcesRaw),
+  });
   return {
     id: place.id,
     slug: place.slug,
@@ -122,12 +139,20 @@ function mapPlaceRecordForDiscoveryMap(
       nameDe: place.city.nameDe,
       nameTr: place.city.nameTr,
     },
+    coverImageUrl: cover?.url ?? null,
   };
 }
 
 function mapEventRecordForDiscoveryMap(
   event: PublicEventRecordWithAi | PublicEventRecordWithAiMapPin,
 ): PublicDiscoveryMapEventRecord {
+  const cover = resolveEventImage({
+    primaryImageAsset:
+      "primaryImageAsset" in event ? event.primaryImageAsset : null,
+    fallbackImageAsset:
+      "fallbackImageAsset" in event ? event.fallbackImageAsset : null,
+    imageUrl: "imageUrl" in event ? event.imageUrl : null,
+  });
   return {
     id: event.id,
     slug: event.slug,
@@ -139,6 +164,7 @@ function mapEventRecordForDiscoveryMap(
     category: event.category,
     startsAt: event.startsAt,
     endsAt: event.endsAt,
+    coverImageUrl: cover?.url ?? null,
   };
 }
 
@@ -415,7 +441,8 @@ async function getDiscoveryMapPinsForCitySlugUncached(citySlug: string) {
 
 const getDiscoveryMapPinsForCitySlugCached = unstable_cache(
   async (citySlug: string) => getDiscoveryMapPinsForCitySlugUncached(citySlug),
-  ["discovery:city-map-pins"],
+  /** Version bump when pin payload shape changes (e.g. `coverImageUrl`). */
+  ["discovery:city-map-pins", "v2-cover-image"],
   { revalidate: 300 },
 );
 

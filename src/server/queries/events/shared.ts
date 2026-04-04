@@ -108,7 +108,7 @@ export const publicEventSelectWithAi = Prisma.validator<Prisma.EventSelect>()({
 
 /**
  * Minimaler Select nur für City-Map-Pins/API.
- * Keine Venue-/Image-/URL-Zusatzfelder, nur das, was Marker, Popup und Liste brauchen.
+ * Bildfelder nur für serverseitig aufgelöstes Popup-Cover (`coverImageUrl`).
  */
 export const publicEventSelectWithAiMapPin = Prisma.validator<Prisma.EventSelect>()({
   id: true,
@@ -121,6 +121,13 @@ export const publicEventSelectWithAiMapPin = Prisma.validator<Prisma.EventSelect
   longitude: true,
   startsAt: true,
   endsAt: true,
+  imageUrl: true,
+  primaryImageAsset: {
+    select: publicEventMediaAssetSelect,
+  },
+  fallbackImageAsset: {
+    select: publicEventMediaAssetSelect,
+  },
   aiReviewStatus: true,
   aiConfidenceScore: true,
   createdAt: true,

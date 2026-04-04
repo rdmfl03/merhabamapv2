@@ -9,7 +9,10 @@ import {
   CITY_DISCOVERY_MAP_MIN_ZOOM,
   maxBoundsFromCenterRadiusKm,
 } from "@/lib/cities/city-map-max-bounds";
+import { CategoryVisualKeyChip } from "@/components/media/category-fallback-cover";
+import type { CategoryFallbackVisualKey } from "@/lib/category-fallback-visual";
 import { STADIA_ATTRIBUTION, STADIA_PROXY_TILE_URL } from "@/lib/map-config";
+import { isDisplayableMediaUrl } from "@/lib/media";
 import { cn } from "@/lib/utils";
 import { Link } from "@/i18n/navigation";
 
@@ -127,47 +130,70 @@ function mapPopupDescriptionLine(point: CityMapPoint): string | null {
 const mapPopupCtaClassName =
   "merhaba-map-popup-cta inline-flex items-center justify-center gap-1.5 rounded-full bg-[#e30a17] px-3 py-2 text-xs font-semibold text-white shadow-[0_6px_14px_rgba(227,10,23,0.18)] transition-[transform,background-color,box-shadow] duration-200 hover:bg-[#cc0915] hover:shadow-[0_8px_18px_rgba(227,10,23,0.24)] active:scale-[0.98]";
 
+function MapPopupMediaThumb({
+  imageUrl,
+  fallbackVisualKey,
+}: {
+  imageUrl: string | null | undefined;
+  fallbackVisualKey: CategoryFallbackVisualKey;
+}) {
+  const trimmed = imageUrl?.trim();
+  const ok = Boolean(trimmed && isDisplayableMediaUrl(trimmed));
+  return (
+    <div className="relative h-[4.25rem] w-[4.25rem] shrink-0 overflow-hidden rounded-xl border border-slate-200/80 bg-slate-100 shadow-[0_2px_8px_rgba(15,23,42,0.06)]">
+      {ok && trimmed ? (
+        // eslint-disable-next-line @next/next/no-img-element -- proxy/remote URLs; small map popup
+        <img
+          src={trimmed}
+          alt=""
+          className="h-full w-full object-cover"
+          loading="lazy"
+          decoding="async"
+        />
+      ) : (
+        <CategoryVisualKeyChip
+          visualKey={fallbackVisualKey}
+          className="h-full w-full rounded-none border-0 shadow-none"
+        />
+      )}
+    </div>
+  );
+}
+
 function GermanyClusterMapCard({
   cluster,
   legendPlaces,
   legendEvents,
   revealLabel,
   onOpenCity,
-  onClose,
+  onClose: _onClose,
 }: {
   cluster: GermanyCityClusterMarker;
   legendPlaces: string;
   legendEvents: string;
   revealLabel: string;
   onOpenCity: () => void;
+  /** Unchanged API; cluster popup closes via outside click like entity popups. */
   onClose: () => void;
 }) {
   return (
-    <div className="merhaba-map-cluster-popup relative rounded-[1.5rem] border border-white/85 bg-white/96 px-4 py-4 text-center shadow-[0_20px_48px_rgba(15,23,42,0.16)] backdrop-blur-md">
-      <button
-        type="button"
-        onClick={onClose}
-        aria-label="Close city preview"
-        className="absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-200/90 bg-white/90 text-slate-500 transition hover:bg-slate-50 hover:text-slate-700"
-      >
-        <span aria-hidden className="text-lg leading-none">×</span>
-      </button>
-      <h3 className="w-full px-10 text-center text-[1.05rem] font-semibold leading-tight tracking-tight text-slate-900">
+    <div className="merhaba-map-cluster-popup relative w-full rounded-[1.35rem] border border-white/85 bg-white/96 px-3 py-3 text-center shadow-[0_20px_48px_rgba(15,23,42,0.16)] backdrop-blur-md">
+      <h3 className="w-full px-1 text-center text-[1rem] font-semibold leading-tight tracking-tight text-slate-900">
         {cluster.label}
       </h3>
-      <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
-        <span className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-semibold leading-tight text-slate-700">
+      <div className="mt-2.5 flex flex-wrap items-center justify-center gap-1.5">
+        <span className="inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-full border border-slate-200 bg-slate-50 px-2 py-1 text-[10px] font-semibold leading-tight text-slate-700">
           <MapPin className="h-3 w-3 shrink-0 text-[#e30a17]" aria-hidden />
           <span className="tabular-nums text-slate-900">{cluster.placeCount}</span>
           <span className="font-medium text-slate-500">{legendPlaces}</span>
         </span>
-        <span className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-semibold leading-tight text-slate-700">
+        <span className="inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-full border border-slate-200 bg-slate-50 px-2 py-1 text-[10px] font-semibold leading-tight text-slate-700">
           <CalendarDays className="h-3 w-3 shrink-0 text-slate-600" aria-hidden />
           <span className="tabular-nums text-slate-900">{cluster.eventCount}</span>
           <span className="font-medium text-slate-500">{legendEvents}</span>
         </span>
       </div>
-      <button type="button" className={`${mapPopupCtaClassName} mt-4 w-full`} onClick={onOpenCity}>
+      <button type="button" className={`${mapPopupCtaClassName} mt-3 w-full`} onClick={onOpenCity}>
         <span>{revealLabel}</span>
         <ChevronRight className="h-4 w-4 shrink-0 opacity-95" aria-hidden />
       </button>
@@ -179,142 +205,134 @@ function MapEntityCard({
   point,
   ctaLabel,
   placeRatingUnavailableAria,
-  onClose,
+  onClose: _onClose,
 }: {
   point: CityMapPoint;
   ctaLabel: string;
   placeRatingUnavailableAria: string;
+  /** Still passed by parent for API stability; selection clears on outside click only. */
   onClose: () => void;
 }) {
   const descriptionLine = mapPopupDescriptionLine(point);
   const teaserLine =
-    descriptionLine && descriptionLine.length > 88
-      ? `${descriptionLine.slice(0, 85).trimEnd()}...`
+    descriptionLine && descriptionLine.length > 72
+      ? `${descriptionLine.slice(0, 69).trimEnd()}...`
       : descriptionLine;
+
+  const thumbKey = point.fallbackVisualKey ?? "default";
 
   if (point.kind === "place") {
     const addressLine = point.mapAddressLine?.trim() || point.meta;
     const hasRating = Boolean(point.mapRatingLabel?.trim());
     return (
-      <div className="merhaba-map-entity-popup merhaba-map-popup-surface relative min-w-[11.5rem] max-w-[22rem]">
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label="Close details"
-          className="absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-200/90 bg-white/90 text-slate-500 transition hover:bg-slate-50 hover:text-slate-700"
-        >
-          <span aria-hidden className="text-lg leading-none">×</span>
-        </button>
-        <div className="pr-10 space-y-3">
-          <div className="space-y-3">
-            <div className="space-y-2">
-              <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#c90814]">
-                {point.categoryLabel}
-              </p>
-              <div className="flex items-start justify-between gap-2">
-                <h4 className="min-w-0 flex-1 pr-1 text-[0.98rem] font-semibold leading-tight tracking-tight text-slate-950">
-                  {point.label}
-                </h4>
-                <p
+      <div className="merhaba-map-entity-popup merhaba-map-popup-surface relative min-w-[12.5rem] max-w-[20rem] px-3 py-2">
+        <div className="flex gap-2.5">
+          <div className="flex w-[4.25rem] shrink-0 flex-col items-stretch gap-1.5">
+            <MapPopupMediaThumb imageUrl={point.imageUrl} fallbackVisualKey={thumbKey} />
+            <p
+              className={cn(
+                "flex flex-col items-center gap-0.5 rounded-full border px-1 py-1 text-center text-[9px] leading-tight",
+                hasRating
+                  ? "border-amber-200 bg-amber-50/80 text-slate-700"
+                  : "border-slate-200/90 bg-slate-50/90 text-slate-500",
+              )}
+              {...(!hasRating
+                ? { "aria-label": placeRatingUnavailableAria }
+                : {
+                    "aria-label": [point.mapRatingLabel, point.mapRatingReviewsLine]
+                      .filter(Boolean)
+                      .join(" "),
+                  })}
+            >
+              <span className="inline-flex items-center justify-center gap-0.5">
+                <Star
                   className={cn(
-                    "inline-flex max-w-[min(13rem,42vw)] shrink-0 flex-wrap items-center justify-end gap-x-1 gap-y-0.5 rounded-full border px-2 py-0.5 text-[11px] leading-tight",
+                    "h-3 w-3 shrink-0",
                     hasRating
-                      ? "border-amber-200 bg-amber-50/80 text-slate-700"
-                      : "border-slate-200/90 bg-slate-50/90 text-slate-500",
+                      ? "fill-amber-400 text-amber-500"
+                      : "fill-slate-200 text-slate-300",
                   )}
-                  {...(!hasRating
-                    ? { "aria-label": placeRatingUnavailableAria }
-                    : {
-                        "aria-label": [point.mapRatingLabel, point.mapRatingReviewsLine]
-                          .filter(Boolean)
-                          .join(" "),
-                      })}
+                  aria-hidden
+                />
+                <span
+                  className={cn(
+                    "font-semibold tabular-nums",
+                    hasRating ? "text-slate-900" : "text-slate-500",
+                  )}
+                  {...(!hasRating ? { "aria-hidden": true } : {})}
                 >
-                  <Star
-                    className={cn(
-                      "h-3.5 w-3.5 shrink-0",
-                      hasRating
-                        ? "fill-amber-400 text-amber-500"
-                        : "fill-slate-200 text-slate-300",
-                    )}
-                    aria-hidden
-                  />
-                  <span
-                    className={cn(
-                      "font-semibold tabular-nums",
-                      hasRating ? "text-slate-900" : "text-slate-500",
-                    )}
-                    {...(!hasRating ? { "aria-hidden": true } : {})}
-                  >
-                    {hasRating ? point.mapRatingLabel : "—"}
-                  </span>
-                  {hasRating && point.mapRatingReviewsLine ? (
-                    <span className="font-normal text-slate-500">{point.mapRatingReviewsLine}</span>
-                  ) : null}
-                </p>
-              </div>
-              <p className="flex items-start gap-2 text-[12px] leading-5 text-slate-600">
-                <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" aria-hidden />
-                <span>{addressLine}</span>
-              </p>
-            </div>
-
-            {teaserLine ? (
-              <p className="line-clamp-3 text-[12px] leading-5 text-slate-600">
-                {teaserLine}
-              </p>
-            ) : null}
-
-            <div className="pt-0.5">
-              <Link href={point.href} className={mapPopupCtaClassName}>
-                <span>{ctaLabel}</span>
-                <ChevronRight className="h-4 w-4 shrink-0 opacity-95" aria-hidden />
-              </Link>
-            </div>
+                  {hasRating ? point.mapRatingLabel : "—"}
+                </span>
+              </span>
+              {hasRating && point.mapRatingReviewsLine ? (
+                <span className="font-normal tabular-nums text-slate-500">
+                  {point.mapRatingReviewsLine}
+                </span>
+              ) : null}
+            </p>
           </div>
+          <div className="min-w-0 flex-1 space-y-1.5">
+            <p className="text-[10px] font-bold uppercase leading-tight tracking-[0.16em] text-[#c90814]">
+              {point.categoryLabel}
+            </p>
+            <h4 className="text-[0.95rem] font-semibold leading-snug tracking-tight text-slate-950">
+              {point.label}
+            </h4>
+            <p className="flex items-start gap-1.5 text-[11px] leading-snug text-slate-600">
+              <MapPin className="mt-0.5 h-3 w-3 shrink-0 text-slate-400" aria-hidden />
+              <span>{addressLine}</span>
+            </p>
+          </div>
+        </div>
+
+        {teaserLine ? (
+          <p className="mt-2 line-clamp-2 text-[11px] leading-snug text-slate-600">
+            {teaserLine}
+          </p>
+        ) : null}
+
+        <div className="mt-2">
+          <Link
+            href={point.href}
+            className={cn(mapPopupCtaClassName, "w-full justify-center")}
+          >
+            <span>{ctaLabel}</span>
+            <ChevronRight className="h-4 w-4 shrink-0 opacity-95" aria-hidden />
+          </Link>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="merhaba-map-entity-popup merhaba-map-popup-surface relative min-w-[11.5rem] max-w-[22rem]">
-      <button
-        type="button"
-        onClick={onClose}
-        aria-label="Close details"
-        className="absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-200/90 bg-white/90 text-slate-500 transition hover:bg-slate-50 hover:text-slate-700"
-      >
-        <span aria-hidden className="text-lg leading-none">×</span>
-      </button>
-      <div className="pr-10 space-y-3">
-        <div className="space-y-3">
-          <div className="space-y-2">
-            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#c90814]">
-              {point.categoryLabel}
-            </p>
-            <h4 className="text-[0.98rem] font-semibold leading-tight tracking-tight text-slate-950">
-              {point.label}
-            </h4>
-            <p className="flex items-start gap-2 text-[12px] leading-5 text-slate-600">
-              <CalendarDays className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" aria-hidden />
-              <span>{point.meta}</span>
-            </p>
-          </div>
-
-          {teaserLine ? (
-            <p className="line-clamp-3 text-[12px] leading-5 text-slate-600">
-              {teaserLine}
-            </p>
-          ) : null}
-
-          <div className="pt-0.5">
-            <Link href={point.href} className={mapPopupCtaClassName}>
-              <span>{ctaLabel}</span>
-              <ChevronRight className="h-4 w-4 shrink-0 opacity-95" aria-hidden />
-            </Link>
-          </div>
+    <div className="merhaba-map-entity-popup merhaba-map-popup-surface relative min-w-[12.5rem] max-w-[20rem] px-3 py-2">
+      <div className="flex gap-2.5">
+        <MapPopupMediaThumb imageUrl={point.imageUrl} fallbackVisualKey={thumbKey} />
+        <div className="min-w-0 flex-1 space-y-1.5">
+          <p className="text-[10px] font-bold uppercase leading-tight tracking-[0.16em] text-[#c90814]">
+            {point.categoryLabel}
+          </p>
+          <h4 className="text-[0.95rem] font-semibold leading-snug tracking-tight text-slate-950">
+            {point.label}
+          </h4>
+          <p className="flex items-start gap-1.5 text-[11px] leading-snug text-slate-600">
+            <CalendarDays className="mt-0.5 h-3 w-3 shrink-0 text-slate-400" aria-hidden />
+            <span>{point.meta}</span>
+          </p>
         </div>
+      </div>
+
+      {teaserLine ? (
+        <p className="mt-2 line-clamp-2 text-[11px] leading-snug text-slate-600">
+          {teaserLine}
+        </p>
+      ) : null}
+
+      <div className="mt-2">
+        <Link href={point.href} className={cn(mapPopupCtaClassName, "w-full justify-center")}>
+          <span>{ctaLabel}</span>
+          <ChevronRight className="h-4 w-4 shrink-0 opacity-95" aria-hidden />
+        </Link>
       </div>
     </div>
   );
@@ -1420,8 +1438,8 @@ export function CityDiscoveryLeafletMap({
       computePopupOverlayPosition({
         anchor: activeGermanyClusterAnchor,
         mapSize: mapViewportSize,
-        cardWidth: 304,
-        cardHeight: 196,
+        cardWidth: 248,
+        cardHeight: 176,
         gap: 26,
       }),
     [activeGermanyClusterAnchor, mapViewportSize],
