@@ -407,6 +407,11 @@
     },
     "narrowResults": "Nur {count, number} Orte gefunden. Wenn du mehr entdecken möchtest, lockere die Filter ein wenig.",
     "narrowResultsAction": "Mehr Orte in {city} ansehen",
+    "resultsView": {
+      "grid": "Kachelansicht",
+      "list": "Listenansicht",
+      "group": "Darstellung der Suchergebnisse"
+    },
     "detail": {
       "fallbackDescription": "Für diesen Ort ist noch keine Beschreibung verfügbar.",
       "userSubmittedAttribution": "Von Nutzer:in über das Einreichungsformular vorgeschlagen.",
@@ -571,6 +576,11 @@
     },
     "narrowResults": "Nur {count, number} Events gefunden. Wenn du mehr sehen möchtest, erweitere die Filter etwas.",
     "narrowResultsAction": "Mehr Events in {city} ansehen",
+    "resultsView": {
+      "grid": "Kachelansicht",
+      "list": "Listenansicht",
+      "group": "Darstellung der Suchergebnisse"
+    },
     "detail": {
       "fallbackDescription": "Für dieses Event ist noch keine Beschreibung verfügbar.",
       "userSubmittedAttribution": "Von Nutzer:in über das Einreichungsformular vorgeschlagen.",

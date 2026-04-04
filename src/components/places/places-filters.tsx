@@ -12,6 +12,8 @@ type FilterOption = {
 
 type PlacesFiltersProps = {
   locale: "de" | "tr";
+  /** Preserve `?layout=grid` when submitting the filter form. */
+  preserveGridLayout?: boolean;
   values: {
     city?: string;
     categories?: string[];
@@ -41,6 +43,7 @@ type PlacesFiltersProps = {
 
 export function PlacesFilters({
   locale,
+  preserveGridLayout = false,
   values,
   cities,
   categories,
@@ -52,6 +55,7 @@ export function PlacesFilters({
       action={`/${locale}/places`}
       className="grid gap-2.5 rounded-[1.4rem] border border-border bg-white/95 p-3 shadow-soft sm:grid-cols-2 xl:grid-cols-[1.2fr_0.8fr_0.8fr_0.8fr_auto_auto]"
     >
+      {preserveGridLayout ? <input type="hidden" name="layout" value="grid" /> : null}
       <label className="relative block">
         <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input

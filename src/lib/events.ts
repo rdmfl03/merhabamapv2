@@ -66,6 +66,7 @@ export function buildEventsPath(
     date?: string;
     q?: string;
     sort?: string;
+    layout?: "grid";
   },
 ) {
   const search = new URLSearchParams();
@@ -79,10 +80,28 @@ export function buildEventsPath(
   if (filters?.date) search.set("date", filters.date);
   if (filters?.q) search.set("q", filters.q);
   if (filters?.sort) search.set("sort", filters.sort);
+  if (filters?.layout === "grid") {
+    search.set("layout", "grid");
+  }
 
   const query = search.toString();
 
   return query ? `/${locale}/events?${query}` : `/${locale}/events`;
+}
+
+/** Path for `Link` from `@/i18n/navigation` (locale prefix is added by next-intl). */
+export function buildEventsNavPath(
+  locale: "de" | "tr",
+  filters?: {
+    city?: string;
+    categories?: string[];
+    date?: string;
+    q?: string;
+    sort?: string;
+    layout?: "grid";
+  },
+) {
+  return buildEventsPath(locale, filters).replace(new RegExp(`^/${locale}`), "");
 }
 
 const berlinDateFormatter = new Intl.DateTimeFormat("en-CA", {

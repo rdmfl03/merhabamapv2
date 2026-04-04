@@ -407,6 +407,11 @@
     },
     "narrowResults": "Yalnızca {count, number} mekan bulundu. Daha fazlasını görmek istersen filtreleri biraz gevşet.",
     "narrowResultsAction": "{city} içinde daha fazla mekan gör",
+    "resultsView": {
+      "grid": "Izgara görünümü",
+      "list": "Liste görünümü",
+      "group": "Arama sonuçlarının görünümü"
+    },
     "detail": {
       "fallbackDescription": "Bu mekan için henüz açıklama bulunmuyor.",
       "userSubmittedAttribution": "Kullanıcı öneri formu üzerinden gönderildi.",
@@ -571,6 +576,11 @@
     },
     "narrowResults": "Yalnızca {count, number} etkinlik bulundu. Daha fazlasını görmek istersen filtreleri biraz genişlet.",
     "narrowResultsAction": "{city} içinde daha fazla etkinlik gör",
+    "resultsView": {
+      "grid": "Izgara görünümü",
+      "list": "Liste görünümü",
+      "group": "Arama sonuçlarının görünümü"
+    },
     "detail": {
       "fallbackDescription": "Bu etkinlik için henüz açıklama bulunmuyor.",
       "userSubmittedAttribution": "Kullanıcı öneri formu üzerinden gönderildi.",

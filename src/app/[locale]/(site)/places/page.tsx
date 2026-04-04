@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { auth } from "@/auth";
+import { ListingResultsViewLinks } from "@/components/listing/listing-results-view-links";
 import { PlaceCard } from "@/components/places/place-card";
 import { PlacesFilters } from "@/components/places/places-filters";
 import { PlacesSavedFilterShell } from "@/components/places/places-saved-filter-shell";
+import { ProfileSavedPlaceListRow } from "@/components/social/profile-saved-list-rows";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "@/i18n/navigation";
@@ -22,6 +24,7 @@ import {
   getLocalizedPlaceCategoryLabel,
   getLocalizedText,
 } from "@/lib/places";
+import { parseListingResultsLayout } from "@/lib/listing-results-layout";
 import { parsePlacesFiltersFromSearchParams } from "@/lib/validators/places";
 import { getCategoryIdsEligibleForBrowse } from "@/server/queries/categories/category-browse-eligibility";
 import { getPlaceFilters } from "@/server/queries/places/get-place-filters";
@@ -98,6 +101,8 @@ export default async function PlacesPage({
 
   const rawSearchParams = await searchParams;
   const filters = parsePlacesFiltersFromSearchParams(rawSearchParams);
+  const resultsLayout = parseListingResultsLayout(rawSearchParams);
+  const gridLayoutOnly = resultsLayout === "grid" ? { layout: "grid" as const } : {};
 
   let session = null;
 
@@ -266,6 +271,7 @@ export default async function PlacesPage({
 
       <PlacesFilters
         locale={locale}
+        preserveGridLayout={resultsLayout === "grid"}
         values={filters}
         cities={filterData.cities.map((city) => ({
           slug: city.slug,
@@ -384,7 +390,7 @@ export default async function PlacesPage({
             </Card>
           ) : (
             <section className="space-y-3">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <p className="text-sm text-muted-foreground">
                   {city
                     ? t("pagination.showingRangeCity", {
@@ -411,6 +417,16 @@ export default async function PlacesPage({
                     <span>{` · ${t("resultsSort", { sort: activeSortLabel })}`}</span>
                   ) : null}
                 </p>
+                <ListingResultsViewLinks
+                  listHref={buildPlacesNavPath(locale, { ...filters })}
+                  gridHref={buildPlacesNavPath(locale, { ...filters, layout: "grid" })}
+                  activeLayout={resultsLayout}
+                  labels={{
+                    grid: t("resultsView.grid"),
+                    list: t("resultsView.list"),
+                    group: t("resultsView.group"),
+                  }}
+                />
               </div>
               {hasNarrowResults ? (
                 <div className="flex flex-col gap-2 rounded-2xl border border-border/80 bg-white/90 px-4 py-3 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
@@ -425,40 +441,77 @@ export default async function PlacesPage({
                   ) : null}
                 </div>
               ) : null}
-              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                {places.map((place) => (
-                  <PlaceCard
-                    key={place.id}
-                    place={place}
-                    locale={locale}
-                    description={getLocalizedText(
-                      { de: place.descriptionDe, tr: place.descriptionTr },
-                      locale,
-                      t("card.fallbackDescription"),
-                    )}
-                    categoryLabel={
-                      getLocalizedPlaceCategoryLabel(place.category, locale)
-                    }
-                    categoryHref={
-                      browseEligibleCategoryIds.includes(place.category.id)
-                        ? `/categories/${encodeURIComponent(place.category.slug)}`
-                        : undefined
-                    }
-                    cityLabel={getLocalizedCityDisplayName(locale, place.city)}
-                    returnPath={currentPath}
-                    isAuthenticated={Boolean(session?.user?.id)}
-                    labels={{
-                      details: t("card.details"),
-                      save: t("card.save"),
-                      saved: t("card.saved"),
-                      saving: t("card.saving"),
-                      signIn: t("card.signIn"),
-                      verified: t("badges.verified"),
-                    }}
-                    imageAttributionLabels={imageAttributionLabels}
-                  />
-                ))}
-              </div>
+              {resultsLayout === "list" ? (
+                <div className="overflow-hidden rounded-2xl border border-border/80 bg-white/90 shadow-sm">
+                  <ul className="divide-y divide-border/70">
+                    {places.map((place) => (
+                      <ProfileSavedPlaceListRow
+                        key={place.id}
+                        place={place}
+                        locale={locale}
+                        description={getLocalizedText(
+                          { de: place.descriptionDe, tr: place.descriptionTr },
+                          locale,
+                          t("card.fallbackDescription"),
+                        )}
+                        categoryLabel={getLocalizedPlaceCategoryLabel(place.category, locale)}
+                        categoryHref={
+                          browseEligibleCategoryIds.includes(place.category.id)
+                            ? `/categories/${encodeURIComponent(place.category.slug)}`
+                            : undefined
+                        }
+                        cityLabel={getLocalizedCityDisplayName(locale, place.city)}
+                        returnPath={currentPath}
+                        isAuthenticated={Boolean(session?.user?.id)}
+                        signInHref={`/${locale}/auth/signin?next=${encodeURIComponent(currentPath)}`}
+                        labels={{
+                          details: t("card.details"),
+                          save: t("card.save"),
+                          saved: t("card.saved"),
+                          saving: t("card.saving"),
+                          signIn: t("card.signIn"),
+                          verified: t("badges.verified"),
+                        }}
+                      />
+                    ))}
+                  </ul>
+                </div>
+              ) : (
+                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                  {places.map((place) => (
+                    <PlaceCard
+                      key={place.id}
+                      place={place}
+                      locale={locale}
+                      description={getLocalizedText(
+                        { de: place.descriptionDe, tr: place.descriptionTr },
+                        locale,
+                        t("card.fallbackDescription"),
+                      )}
+                      categoryLabel={
+                        getLocalizedPlaceCategoryLabel(place.category, locale)
+                      }
+                      categoryHref={
+                        browseEligibleCategoryIds.includes(place.category.id)
+                          ? `/categories/${encodeURIComponent(place.category.slug)}`
+                          : undefined
+                      }
+                      cityLabel={getLocalizedCityDisplayName(locale, place.city)}
+                      returnPath={currentPath}
+                      isAuthenticated={Boolean(session?.user?.id)}
+                      labels={{
+                        details: t("card.details"),
+                        save: t("card.save"),
+                        saved: t("card.saved"),
+                        saving: t("card.saving"),
+                        signIn: t("card.signIn"),
+                        verified: t("badges.verified"),
+                      }}
+                      imageAttributionLabels={imageAttributionLabels}
+                    />
+                  ))}
+                </div>
+              )}
               {listResult.pageCount > 1 ? (
                 <nav
                   className="flex flex-col items-stretch gap-3 border-t border-border/60 pt-4 sm:flex-row sm:items-center sm:justify-between"
@@ -471,6 +524,7 @@ export default async function PlacesPage({
                           href={buildPlacesNavPath(locale, {
                             ...filters,
                             page: listResult.page - 1,
+                            ...gridLayoutOnly,
                           })}
                         >
                           {t("pagination.previous")}
@@ -483,6 +537,7 @@ export default async function PlacesPage({
                           href={buildPlacesNavPath(locale, {
                             ...filters,
                             page: listResult.page + 1,
+                            ...gridLayoutOnly,
                           })}
                         >
                           {t("pagination.next")}
@@ -503,6 +558,7 @@ export default async function PlacesPage({
                           href={buildPlacesNavPath(locale, {
                             ...filters,
                             page: p > 1 ? p : undefined,
+                            ...gridLayoutOnly,
                           })}
                         >
                           {p}

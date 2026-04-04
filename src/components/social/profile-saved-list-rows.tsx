@@ -31,6 +31,7 @@ export function ProfileSavedPlaceListRow({
   locale,
   description,
   categoryLabel,
+  categoryHref,
   cityLabel,
   returnPath,
   isAuthenticated,
@@ -41,6 +42,8 @@ export function ProfileSavedPlaceListRow({
   locale: "de" | "tr";
   description: string;
   categoryLabel: string;
+  /** When set, category label links to public category browse. */
+  categoryHref?: string;
   cityLabel: string;
   returnPath: string;
   isAuthenticated: boolean;
@@ -68,7 +71,15 @@ export function ProfileSavedPlaceListRow({
       </Link>
       <div className="flex min-w-0 flex-1 flex-col justify-between gap-3">
         <div className="min-w-0 space-y-1">
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brand">{categoryLabel}</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brand">
+            {categoryHref ? (
+              <Link href={categoryHref} className="underline-offset-2 hover:underline">
+                {categoryLabel}
+              </Link>
+            ) : (
+              categoryLabel
+            )}
+          </p>
           <h3 className="text-base font-semibold text-foreground">
             <Link href={`/places/${place.slug}`} className="underline-offset-2 hover:underline">
               {place.name}

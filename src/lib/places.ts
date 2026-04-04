@@ -579,6 +579,7 @@ export function buildPlacesPath(
     q?: string;
     sort?: string;
     page?: number;
+    layout?: "grid";
   },
 ) {
   const search = new URLSearchParams();
@@ -600,6 +601,9 @@ export function buildPlacesPath(
   if (filters?.page != null && filters.page > 1) {
     search.set("page", String(filters.page));
   }
+  if (filters?.layout === "grid") {
+    search.set("layout", "grid");
+  }
 
   const query = search.toString();
 
@@ -615,6 +619,7 @@ export function buildPlacesNavPath(
     q?: string;
     sort?: string;
     page?: number;
+    layout?: "grid";
   },
 ) {
   return buildPlacesPath(locale, filters).replace(new RegExp(`^/${locale}`), "");
