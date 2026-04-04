@@ -1,32 +1,12 @@
 "use client";
 
-import { useFormStatus } from "react-dom";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { toggleSavePlace } from "@/server/actions/places/toggle-save-place";
 import { Button } from "@/components/ui/button";
 import { GuestCtaInsightLink } from "@/components/product-insights/guest-cta-insight-link";
 import { guestAuthSignUpHrefFromSignIn } from "@/lib/auth/guest-auth-links";
-
-function SaveSubmitButton({
-  isSaved,
-  labels,
-}: {
-  isSaved: boolean;
-  labels: {
-    save: string;
-    saved: string;
-    saving: string;
-  };
-}) {
-  const { pending } = useFormStatus();
-
-  return (
-    <Button type="submit" variant={isSaved ? "outline" : "default"} size="sm">
-      {pending ? labels.saving : isSaved ? labels.saved : labels.save}
-    </Button>
-  );
-}
 
 type PlaceSaveButtonProps = {
   placeId: string;
@@ -47,12 +27,18 @@ export function PlaceSaveButton({
   placeId,
   locale,
   returnPath,
-  isSaved,
+  isSaved: isSavedProp,
   isAuthenticated,
   signInHref,
   labels,
 }: PlaceSaveButtonProps) {
   const tGuest = useTranslations("guestConversion");
+  const [isSaved, setIsSaved] = useState(isSavedProp);
+  const [pending, setPending] = useState(false);
+
+  useEffect(() => {
+    setIsSaved(isSavedProp);
+  }, [isSavedProp]);
 
   if (!isAuthenticated) {
     const signUpHref = guestAuthSignUpHrefFromSignIn(signInHref);
@@ -73,11 +59,30 @@ export function PlaceSaveButton({
   }
 
   return (
-    <form action={toggleSavePlace}>
+    <form
+      onSubmit={async (e) => {
+        e.preventDefault();
+        if (pending) {
+          return;
+        }
+        setPending(true);
+        try {
+          const formData = new FormData(e.currentTarget);
+          const result = await toggleSavePlace(formData);
+          if (result && result.ok) {
+            setIsSaved(result.isSaved);
+          }
+        } finally {
+          setPending(false);
+        }
+      }}
+    >
       <input type="hidden" name="locale" value={locale} />
       <input type="hidden" name="placeId" value={placeId} />
       <input type="hidden" name="returnPath" value={returnPath} />
-      <SaveSubmitButton isSaved={isSaved} labels={labels} />
+      <Button type="submit" variant={isSaved ? "outline" : "default"} size="sm" disabled={pending}>
+        {pending ? labels.saving : isSaved ? labels.saved : labels.save}
+      </Button>
     </form>
   );
 }

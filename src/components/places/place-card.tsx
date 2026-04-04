@@ -1,4 +1,7 @@
-import { MapPin, Star } from "lucide-react";
+"use client";
+
+import { Map, MapPin, Star } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { PlaceCoverImage } from "@/components/places/place-cover-image";
 import { PlaceSaveButton } from "@/components/places/place-save-button";
@@ -7,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "@/i18n/navigation";
 import { getPlaceImageFallbackKey } from "@/lib/category-fallback-visual";
+import { buildDiscoveryMapPathForPlace } from "@/lib/discovery-map-deep-link";
 import {
   formatPlaceRatingSourceCaption,
   getPlaceDisplayRatingSummary,
@@ -54,7 +58,9 @@ export function PlaceCard({
   labels,
   imageAttributionLabels,
 }: PlaceCardProps) {
+  const t = useTranslations("places");
   const image = resolvePlaceImage(place);
+  const mapCitySlug = place.city.slug?.trim() ?? "";
   const attributionLabels = imageAttributionLabels ?? attributionLabelsForLocale(locale);
   const ratingSummary = getPlaceDisplayRatingSummary(place);
   const ratingSourcesLine = formatPlaceRatingSourceCaption(locale, ratingSummary);
@@ -149,21 +155,39 @@ export function PlaceCard({
           <p className="text-sm leading-6 text-muted-foreground">{description}</p>
         </div>
 
-        <div className="flex items-center justify-between gap-3">
-          <PlaceSaveButton
-            placeId={place.id}
-            locale={locale}
-            returnPath={returnPath}
-            isSaved={place.isSaved}
-            isAuthenticated={isAuthenticated}
-            signInHref={`/${locale}/auth/signin?next=${encodeURIComponent(returnPath)}`}
-            labels={{
-              save: labels.save,
-              saved: labels.saved,
-              saving: labels.saving,
-              signIn: labels.signIn,
-            }}
-          />
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-2">
+            {mapCitySlug ? (
+              <Button
+                size="sm"
+                variant="default"
+                className="border-0 bg-cyan-600 px-2.5 text-white shadow-sm hover:bg-cyan-700 focus-visible:ring-cyan-500"
+                asChild
+              >
+                <Link
+                  href={buildDiscoveryMapPathForPlace(mapCitySlug, place.id)}
+                  aria-label={t("card.showOnMap")}
+                  title={t("card.showOnMap")}
+                >
+                  <Map className="h-4 w-4" aria-hidden />
+                </Link>
+              </Button>
+            ) : null}
+            <PlaceSaveButton
+              placeId={place.id}
+              locale={locale}
+              returnPath={returnPath}
+              isSaved={place.isSaved}
+              isAuthenticated={isAuthenticated}
+              signInHref={`/${locale}/auth/signin?next=${encodeURIComponent(returnPath)}`}
+              labels={{
+                save: labels.save,
+                saved: labels.saved,
+                saving: labels.saving,
+                signIn: labels.signIn,
+              }}
+            />
+          </div>
           <Button variant="outline" size="sm" asChild>
             <Link href={`/places/${place.slug}`}>{labels.details}</Link>
           </Button>

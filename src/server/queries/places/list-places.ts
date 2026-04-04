@@ -1,5 +1,6 @@
 import type { Prisma } from "@prisma/client";
 
+import { expandPlaceCategoryFilterTokensForQuery } from "@/lib/place-category-filter-groups";
 import { computeCategoryAdjustedScore, getPlaceScoreRatingCount } from "@/lib/places";
 import { isSpecificListingCity } from "@/lib/listing-city-filter";
 import type { PlacesFilterInput } from "@/lib/validators/places";
@@ -86,6 +87,7 @@ export async function listPlaces(args: {
   userId?: string;
 }): Promise<ListPlacesResult> {
   const where: Prisma.PlaceWhereInput = {};
+  const categorySlugs = expandPlaceCategoryFilterTokensForQuery(args.filters.categories);
 
   if (isSpecificListingCity(args.filters.city)) {
     where.city = {
@@ -93,9 +95,9 @@ export async function listPlaces(args: {
     };
   }
 
-  if (args.filters.categories?.length) {
+  if (categorySlugs?.length) {
     where.category = {
-      slug: { in: args.filters.categories },
+      slug: { in: categorySlugs },
     };
   }
 

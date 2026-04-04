@@ -25,6 +25,11 @@ import {
   getLocalizedText,
 } from "@/lib/places";
 import { parseListingResultsLayout } from "@/lib/listing-results-layout";
+import {
+  buildGroupedPlaceCategoryFilterOptions,
+  collapsePlaceCategoryFilterTokens,
+  isPlaceCategoryMultiSlugVisualKey,
+} from "@/lib/place-category-filter-groups";
 import { parsePlacesFiltersFromSearchParams } from "@/lib/validators/places";
 import { getCategoryIdsEligibleForBrowse } from "@/server/queries/categories/category-browse-eligibility";
 import { getPlaceFilters } from "@/server/queries/places/get-place-filters";
@@ -53,20 +58,27 @@ export async function generateMetadata({
   let categoryLabel: string | null = null;
 
   try {
+    const onboardingT = await getTranslations({ locale, namespace: "onboarding" });
     const filterData = await getPlaceFilters({
       categoryCitySlug: isSpecificListingCity(filters.city) ? filters.city : undefined,
     });
     const city = filterData.cities.find((entry) => entry.slug === filters.city);
-    const catSlugs = filters.categories ?? [];
-    const category =
-      catSlugs.length === 1
-        ? filterData.categories.find((entry) => entry.slug === catSlugs[0])
-        : undefined;
+    const catTokens = collapsePlaceCategoryFilterTokens(filters.categories) ?? [];
 
-    cityLabel = city ? (getLocalizedCityDisplayName(locale, city)) : null;
-    categoryLabel = category
-      ? getLocalizedPlaceCategoryLabel(category, locale)
-      : null;
+    cityLabel = city ? getLocalizedCityDisplayName(locale, city) : null;
+    if (catTokens.length === 1) {
+      const token = catTokens[0]!;
+      if (isPlaceCategoryMultiSlugVisualKey(token)) {
+        categoryLabel = onboardingT(`placeVisualGroup.${token}`);
+      } else {
+        const category = filterData.categories.find((entry) => entry.slug === token);
+        categoryLabel = category
+          ? getLocalizedPlaceCategoryLabel(category, locale)
+          : null;
+      }
+    } else {
+      categoryLabel = null;
+    }
   } catch {
     cityLabel = null;
     categoryLabel = null;
@@ -112,7 +124,10 @@ export default async function PlacesPage({
     session = null;
   }
 
-  const t = await getTranslations("places");
+  const [t, onboardingT] = await Promise.all([
+    getTranslations("places"),
+    getTranslations({ locale, namespace: "onboarding" }),
+  ]);
   let filterData: Awaited<ReturnType<typeof getPlaceFilters>> = {
     cities: [],
     categories: [],
@@ -167,22 +182,31 @@ export default async function PlacesPage({
   const city = filterData.cities.find((entry) => entry.slug === filters.city);
   const listingCityReady = isListingCitySelected(filters.city);
   const scopeAllCities = isListingAllCities(filters.city);
-  type PlaceFilterCategory = (typeof filterData.categories)[number];
-  const selectedCategories = (filters.categories ?? [])
-    .map((slug) => filterData.categories.find((entry) => entry.slug === slug))
-    .filter((entry): entry is PlaceFilterCategory => entry != null);
+  const collapsedCategoryTokens = collapsePlaceCategoryFilterTokens(filters.categories) ?? [];
+  const selectedCategoryLabels = collapsedCategoryTokens.map((token) => {
+    if (isPlaceCategoryMultiSlugVisualKey(token)) {
+      return onboardingT(`placeVisualGroup.${token}`);
+    }
+    const row = filterData.categories.find((entry) => entry.slug === token);
+    return row ? getLocalizedPlaceCategoryLabel(row, locale) : token;
+  });
+  const presentCategorySlugs = new Set(filterData.categories.map((c) => c.slug));
+  const categoryFilterOptions = buildGroupedPlaceCategoryFilterOptions({
+    presentSlugs: presentCategorySlugs,
+    categoryRows: filterData.categories,
+    locale,
+    translateVisualGroup: (key) => onboardingT(`placeVisualGroup.${key}`),
+  });
   const activeFilterItems = [
     scopeAllCities
       ? { key: "city", label: `${t("filters.city")}: ${t("filters.allCities")}` }
       : city
         ? { key: "city", label: `${t("filters.city")}: ${getLocalizedCityDisplayName(locale, city)}` }
         : null,
-    selectedCategories.length > 0
+    selectedCategoryLabels.length > 0
       ? {
           key: "category",
-          label: `${t("filters.category")}: ${selectedCategories
-            .map((c) => getLocalizedPlaceCategoryLabel(c, locale))
-            .join(", ")}`,
+          label: `${t("filters.category")}: ${selectedCategoryLabels.join(", ")}`,
         }
       : null,
     filters.sort && filters.sort !== "recommended"
@@ -272,15 +296,15 @@ export default async function PlacesPage({
       <PlacesFilters
         locale={locale}
         preserveGridLayout={resultsLayout === "grid"}
-        values={filters}
+        values={{
+          ...filters,
+          categories: collapsePlaceCategoryFilterTokens(filters.categories),
+        }}
         cities={filterData.cities.map((city) => ({
           slug: city.slug,
           label: getLocalizedCityDisplayName(locale, city),
         }))}
-        categories={filterData.categories.map((category) => ({
-          slug: category.slug,
-          label: getLocalizedPlaceCategoryLabel(category, locale),
-        }))}
+        categories={categoryFilterOptions}
         labels={{
           searchPlaceholder: t("filters.searchPlaceholder"),
           city: t("filters.city"),

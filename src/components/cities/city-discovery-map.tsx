@@ -3,7 +3,16 @@
 import dynamic from "next/dynamic";
 import type { Route } from "next";
 import type { Dispatch, ErrorInfo, ReactNode, SetStateAction } from "react";
-import { Component, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
+import {
+  Component,
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { useSearchParams } from "next/navigation";
 import {
   CalendarDays,
   ChevronDown,
@@ -28,6 +37,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getLocalizedCityDisplayName } from "@/lib/cities/city-display-name";
 import { CITY_DISCOVERY_MAP_RADIUS_KM } from "@/lib/cities/city-map-max-bounds";
+import {
+  DISCOVERY_MAP_FOCUS_EVENT_PARAM,
+  DISCOVERY_MAP_FOCUS_PLACE_PARAM,
+} from "@/lib/discovery-map-deep-link";
 import type { GermanyMapCluster } from "@/lib/cities/germany-map-cluster";
 import type { DiscoveryMapCityOption } from "@/server/queries/cities/get-discovery-map-cities";
 import type {
@@ -534,14 +547,31 @@ export function CityDiscoveryMap({
   mapLoadErrorRetry,
 }: CityDiscoveryMapProps) {
   const frameClassName = getDiscoveryMapFrameClass(isGermanyNationalMap);
+  const searchParams = useSearchParams();
+  const mapPlaceFocusParam =
+    searchParams.get(DISCOVERY_MAP_FOCUS_PLACE_PARAM)?.trim() ?? "";
+  const mapEventFocusParam =
+    searchParams.get(DISCOVERY_MAP_FOCUS_EVENT_PARAM)?.trim() ?? "";
+  const urlFocusPointId = useMemo(() => {
+    if (mapPlaceFocusParam) {
+      return `place-${mapPlaceFocusParam}`;
+    }
+    if (mapEventFocusParam) {
+      return `event-${mapEventFocusParam}`;
+    }
+    return null;
+  }, [mapEventFocusParam, mapPlaceFocusParam]);
+
   const [cityPickerValue, setCityPickerValue] = useState(selectedCitySlug);
   const [typeFilter, setTypeFilter] = useState<"all" | "place" | "event">("all");
   const [selectedCategoryKeys, setSelectedCategoryKeys] = useState<string[]>([]);
   const [query, setQuery] = useState("");
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectionFocusNonce, setSelectionFocusNonce] = useState(0);
   const [viewportBounds, setViewportBounds] = useState<MapViewportBounds | null>(null);
   const [categoryMenuOpen, setCategoryMenuOpen] = useState(false);
+  const appliedUrlFocusRef = useRef<string | null>(null);
   const pinsCacheRef = useRef<Map<string, DiscoveryMapPinsResponse>>(new Map());
   const [loadedPins, setLoadedPins] = useState<DiscoveryMapPinsResponse | null>(() =>
     selectedCitySlug
@@ -586,6 +616,7 @@ export function CityDiscoveryMap({
     setSelectedId(null);
     setHoveredId(null);
     setCategoryMenuOpen(false);
+    appliedUrlFocusRef.current = null;
   }, [selectedCitySlug]);
 
   useEffect(() => {
@@ -767,6 +798,25 @@ export function CityDiscoveryMap({
     return [...normalizedPlaces, ...normalizedEvents];
   }, [categoryLabels, effectiveEvents, effectivePlaces, locale]);
 
+  useEffect(() => {
+    if (!urlFocusPointId || isGermanyClusterMode) {
+      return;
+    }
+    if (isCityPinsLoading) {
+      return;
+    }
+    const hit = normalized.find((p) => p.id === urlFocusPointId);
+    if (!hit) {
+      return;
+    }
+    if (appliedUrlFocusRef.current === urlFocusPointId) {
+      return;
+    }
+    appliedUrlFocusRef.current = urlFocusPointId;
+    setSelectedId(urlFocusPointId);
+    setSelectionFocusNonce((n) => n + 1);
+  }, [urlFocusPointId, isCityPinsLoading, isGermanyClusterMode, normalized]);
+
   const categoryOptions = useMemo(() => {
     return Array.from(
       new Map(
@@ -854,9 +904,20 @@ export function CityDiscoveryMap({
     );
   }, [filtered, viewportBounds]);
 
+  const mapPointSources = useMemo(() => {
+    const byId = new Map(filtered.map((point) => [point.id, point]));
+    if (urlFocusPointId && !byId.has(urlFocusPointId)) {
+      const hit = normalized.find((p) => p.id === urlFocusPointId);
+      if (hit) {
+        byId.set(hit.id, hit);
+      }
+    }
+    return [...byId.values()];
+  }, [filtered, normalized, urlFocusPointId]);
+
   const mapPoints = useMemo<CityMapPoint[]>(() => {
     const ratingLocale = locale === "tr" ? "tr-TR" : "de-DE";
-    return filtered.map((point) => {
+    return mapPointSources.map((point) => {
       const base: CityMapPoint = {
         id: point.id,
         kind: point.kind,
@@ -890,7 +951,7 @@ export function CityDiscoveryMap({
         mapRatingReviewsLine,
       };
     });
-  }, [filtered, locale]);
+  }, [locale, mapPointSources]);
 
   const hasActiveFilters = Boolean(
     query || selectedCategoryKeys.length > 0 || typeFilter !== "all",
@@ -1189,6 +1250,7 @@ export function CityDiscoveryMap({
             restrictToCityRadiusKm={
               isGermanyClusterMode ? null : CITY_DISCOVERY_MAP_RADIUS_KM
             }
+            selectionFocusNonce={selectionFocusNonce}
           />
         </DiscoveryMapLeafletErrorBoundary>
 
