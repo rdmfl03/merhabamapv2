@@ -5,7 +5,12 @@ import { join } from "node:path";
 
 import { revalidatePath } from "next/cache";
 
-import { MAX_AVATAR_BYTES, validateAvatarBuffer } from "@/lib/user-profile-avatar";
+import { isPublicObjectStorageConfigured, uploadPublicAvatarObject } from "@/lib/object-storage";
+import {
+  MAX_AVATAR_BYTES,
+  avatarContentType,
+  validateAvatarBuffer,
+} from "@/lib/user-profile-avatar";
 import { prisma } from "@/lib/prisma";
 
 import { idleUserFormState, type UserFormState } from "./state";
@@ -40,18 +45,30 @@ export async function uploadProfileAvatar(
     return { status: "error", message: "avatar_invalid" };
   }
 
-  const dir = join(process.cwd(), "public", "uploads", "avatars");
-  await mkdir(dir, { recursive: true });
-
   const safeId = user.id.replace(/[^a-z0-9]/gi, "");
   const fileName = `${safeId}-${Date.now()}.${ext}`;
-  const diskPath = join(dir, fileName);
-  const publicPath = `/uploads/avatars/${fileName}`;
+  const objectKey = `avatars/${fileName}`;
 
-  try {
-    await writeFile(diskPath, buf);
-  } catch {
-    return { status: "error", message: "save_failed" };
+  let publicPath: string;
+
+  if (isPublicObjectStorageConfigured()) {
+    try {
+      publicPath = await uploadPublicAvatarObject(buf, objectKey, avatarContentType(ext));
+    } catch {
+      return { status: "error", message: "save_failed" };
+    }
+  } else {
+    const dir = join(process.cwd(), "public", "uploads", "avatars");
+    await mkdir(dir, { recursive: true });
+
+    const diskPath = join(dir, fileName);
+    publicPath = `/uploads/avatars/${fileName}`;
+
+    try {
+      await writeFile(diskPath, buf);
+    } catch {
+      return { status: "error", message: "save_failed" };
+    }
   }
 
   await prisma.user.update({
