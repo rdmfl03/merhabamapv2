@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+
+export type ToggleSaveEventResult = { ok: true; isSaved: boolean } | { ok: false };
 import { Prisma } from "@prisma/client";
 
 import { auth } from "@/auth";
@@ -13,7 +15,7 @@ import { trackProductInsight } from "@/server/product-insights/track-product-ins
 
 import { sanitizeEventReturnPath } from "./shared";
 
-export async function toggleSaveEvent(formData: FormData) {
+export async function toggleSaveEvent(formData: FormData): Promise<ToggleSaveEventResult> {
   const parsed = saveEventSchema.safeParse({
     locale: formData.get("locale"),
     eventId: formData.get("eventId"),
@@ -21,7 +23,7 @@ export async function toggleSaveEvent(formData: FormData) {
   });
 
   if (!parsed.success) {
-    return;
+    return { ok: false };
   }
 
   const session = await auth();
@@ -42,7 +44,7 @@ export async function toggleSaveEvent(formData: FormData) {
   });
 
   if (!event) {
-    return;
+    return { ok: false };
   }
 
   const existing = await prisma.savedEvent.findUnique({
@@ -109,5 +111,5 @@ export async function toggleSaveEvent(formData: FormData) {
     revalidatePath(`/${parsed.data.locale}/user/${viewerUsername}`);
   }
 
-  redirect(returnPath as Parameters<typeof redirect>[0]);
+  return { ok: true, isSaved: saveAdded };
 }

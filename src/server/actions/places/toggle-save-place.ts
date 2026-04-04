@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+
+export type ToggleSavePlaceResult = { ok: true; isSaved: boolean } | { ok: false };
 import { Prisma } from "@prisma/client";
 
 import { auth } from "@/auth";
@@ -16,7 +18,7 @@ import { trackProductInsight } from "@/server/product-insights/track-product-ins
 
 import { sanitizeReturnPath } from "./shared";
 
-export async function toggleSavePlace(formData: FormData) {
+export async function toggleSavePlace(formData: FormData): Promise<ToggleSavePlaceResult> {
   const parsed = savePlaceSchema.safeParse({
     locale: formData.get("locale"),
     placeId: formData.get("placeId"),
@@ -24,7 +26,7 @@ export async function toggleSavePlace(formData: FormData) {
   });
 
   if (!parsed.success) {
-    return;
+    return { ok: false };
   }
 
   const session = await auth();
@@ -47,7 +49,7 @@ export async function toggleSavePlace(formData: FormData) {
   });
 
   if (!place) {
-    return;
+    return { ok: false };
   }
 
   const existing = await prisma.savedPlace.findUnique({
@@ -132,5 +134,5 @@ export async function toggleSavePlace(formData: FormData) {
     revalidatePath(`/${parsed.data.locale}/user/${viewerUsername}`);
   }
 
-  redirect(returnPath as Parameters<typeof redirect>[0]);
+  return { ok: true, isSaved: saveAdded };
 }

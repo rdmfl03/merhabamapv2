@@ -1,6 +1,7 @@
 import type { Locale } from "@prisma/client";
 
 import { getGalleryMediaAssets, resolveEntityImage, type ResolvedEntityImage } from "@/lib/media";
+import { collapsePlaceCategoryFilterTokens } from "@/lib/place-category-filter-groups";
 import {
   PLACE_CATEGORY_SEED_ROWS,
   type PlaceCategorySlug,
@@ -597,7 +598,8 @@ export function buildPlacesPath(
     search.set("city", filters.city);
   }
   if (filters?.categories?.length) {
-    for (const slug of filters.categories) {
+    const collapsed = collapsePlaceCategoryFilterTokens(filters.categories) ?? filters.categories;
+    for (const slug of collapsed) {
       search.append("category", slug);
     }
   }
