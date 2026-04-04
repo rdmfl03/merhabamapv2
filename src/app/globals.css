@@ -79,25 +79,25 @@ a {
   border-bottom-right-radius: 0;
   border-bottom-left-radius: 0;
   box-sizing: border-box;
-  /* Kurz und rechts unten lesbar, ohne unter Controls oder Rundung zu verschwinden */
-  white-space: nowrap !important;
+  /* Klein aber lesbar (~10px); Stadia: „prominent“ sichtbar, nicht wegdesignen */
+  white-space: normal !important;
   word-break: normal !important;
   line-height: 1.2 !important;
-  padding: 2px 10px 3px 10px !important;
+  padding: 1px 5px 2px 7px !important;
   text-align: right;
-  max-width: none;
+  max-width: min(100%, calc(100vw - 3.5rem));
   overflow: visible;
-  font-size: 0.75rem !important;
+  font-size: 0.625rem !important;
 }
 
 .leaflet-control-attribution {
   background: rgba(255, 255, 255, 0.92) !important;
   border-top-left-radius: 10px;
-  /* Pflicht-Attribution bleibt lesbar; kompakter als Leaflet-Default */
+  /* Pflicht-Attribution: kompakt, weiterhin lesbar (nicht unter ~10px senken) */
   font-size: 0.625rem;
-  line-height: 1.25;
-  max-width: min(100%, 16rem);
-  padding: 2px 6px !important;
+  line-height: 1.2;
+  max-width: min(100%, 18rem);
+  padding: 1px 5px 2px !important;
   white-space: normal;
   word-break: break-word;
 }
@@ -113,15 +113,15 @@ a {
   .leaflet-control-attribution {
     font-size: 0.625rem;
     line-height: 1.2;
-    max-width: min(calc(100vw - 3.25rem), 14rem);
-    padding: 1px 5px !important;
+    max-width: min(calc(100vw - 3.25rem), 16rem);
+    padding: 1px 4px 2px !important;
   }
 
   .leaflet-container.merhaba-discovery-map .leaflet-control-attribution {
-    white-space: nowrap !important;
-    max-width: none;
-    padding: 2px 8px 3px 8px !important;
-    font-size: 0.6875rem !important;
+    white-space: normal !important;
+    max-width: min(100%, calc(100vw - 3.25rem));
+    padding: 1px 5px 2px 6px !important;
+    font-size: 0.625rem !important;
     line-height: 1.2 !important;
   }
 }

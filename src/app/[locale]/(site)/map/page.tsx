@@ -210,7 +210,7 @@ export default async function DiscoveryMapPage({ params, searchParams }: MapPage
           listRatingReviewsSuffix: t("map.listRatingReviewsSuffix"),
           resultsSummaryUnit: t("map.resultsSummaryUnit"),
           viewPlace: t("map.viewPlace"),
-          popupPlaceRating: t("map.popupPlaceRating"),
+          popupPlaceRatingUnavailableAria: t("map.popupPlaceRatingUnavailableAria"),
           viewEvent: t("map.viewEvent"),
           locateMe: t("map.locateMe"),
           locating: t("map.locating"),

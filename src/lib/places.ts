@@ -287,27 +287,36 @@ export function getPlaceDisplayRatingSummary(
   const includedSources = getIncludedRatingSources(place);
   const attributionSources = getActiveRatingSourcesForAttribution(place);
 
-  if (
-    displayValue !== null &&
-    displayCount !== null &&
-    displayCount > 0 &&
-    sourceCount !== null &&
-    sourceCount > 0
-  ) {
+  if (displayValue !== null && displayCount !== null && displayCount > 0) {
+    if (sourceCount !== null && sourceCount > 0) {
+      return {
+        value: displayValue,
+        count: displayCount,
+        sourceCount,
+        updatedAt: place.ratingSummaryUpdatedAt ?? null,
+        sources: attributionSources.map((source) => ({
+          provider: source.provider,
+          ratingValue: toNumber(source.ratingValue) ?? 0,
+          ratingCount: source.ratingCount,
+          scaleMax: toNumber(source.scaleMax) ?? 5,
+          attributionText: source.attributionText ?? null,
+          attributionUrl: source.attributionUrl ?? null,
+          observedAt: normalizeSourceObservedAt(source.observedAt),
+        })),
+      };
+    }
+
+    /**
+     * Denormalisierte Anzeige-Summe ohne nutzbare Quellen-Dimension (z. B. `ratingSourceCount` 0/null
+     * oder schlanke Map-Pin-Payload ohne `placeRatingSources`). Gleiche Zahlen wie in der DB-Spalte —
+     * vorher fiel das durch die strikte `sourceCount > 0`-Bedingung komplett durch.
+     */
     return {
       value: displayValue,
       count: displayCount,
-      sourceCount,
+      sourceCount: 1,
       updatedAt: place.ratingSummaryUpdatedAt ?? null,
-      sources: attributionSources.map((source) => ({
-        provider: source.provider,
-        ratingValue: toNumber(source.ratingValue) ?? 0,
-        ratingCount: source.ratingCount,
-        scaleMax: toNumber(source.scaleMax) ?? 5,
-        attributionText: source.attributionText ?? null,
-        attributionUrl: source.attributionUrl ?? null,
-        observedAt: normalizeSourceObservedAt(source.observedAt),
-      })),
+      sources: [],
     };
   }
 

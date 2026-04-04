@@ -38,7 +38,8 @@ type CityDiscoveryLeafletMapProps = {
   legendEvents: string;
   resultsSummaryUnitLabel: string;
   viewPlaceLabel: string;
-  placePopupRatingCaption: string;
+  /** Screenreader, wenn kein aggregierter Score vorliegt (Stern + „—“ sichtbar). */
+  placePopupRatingUnavailableAria: string;
   viewEventLabel: string;
   locateMeLabel: string;
   locatingLabel: string;
@@ -149,7 +150,7 @@ function GermanyClusterMapCard({
       >
         <span aria-hidden className="text-lg leading-none">×</span>
       </button>
-      <h3 className="pr-10 text-[1.05rem] font-semibold leading-tight tracking-tight text-slate-900">
+      <h3 className="w-full px-10 text-center text-[1.05rem] font-semibold leading-tight tracking-tight text-slate-900">
         {cluster.label}
       </h3>
       <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
@@ -175,12 +176,12 @@ function GermanyClusterMapCard({
 function MapEntityCard({
   point,
   ctaLabel,
-  placeRatingCaption,
+  placeRatingUnavailableAria,
   onClose,
 }: {
   point: CityMapPoint;
   ctaLabel: string;
-  placeRatingCaption?: string;
+  placeRatingUnavailableAria: string;
   onClose: () => void;
 }) {
   const descriptionLine = mapPopupDescriptionLine(point);
@@ -191,9 +192,7 @@ function MapEntityCard({
 
   if (point.kind === "place") {
     const addressLine = point.mapAddressLine?.trim() || point.meta;
-    const ratingAria = placeRatingCaption?.trim()
-      ? `${placeRatingCaption}: ${point.mapRatingLabel ?? ""}`
-      : (point.mapRatingLabel ?? undefined);
+    const hasRating = Boolean(point.mapRatingLabel?.trim());
     return (
       <div className="merhaba-map-entity-popup merhaba-map-popup-surface relative min-w-[11.5rem] max-w-[22rem]">
         <button
@@ -210,27 +209,53 @@ function MapEntityCard({
               <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#c90814]">
                 {point.categoryLabel}
               </p>
-              <h4 className="text-[0.98rem] font-semibold leading-tight tracking-tight text-slate-950">
-                {point.label}
-              </h4>
+              <div className="flex items-start justify-between gap-2">
+                <h4 className="min-w-0 flex-1 pr-1 text-[0.98rem] font-semibold leading-tight tracking-tight text-slate-950">
+                  {point.label}
+                </h4>
+                <p
+                  className={cn(
+                    "inline-flex max-w-[min(13rem,42vw)] shrink-0 flex-wrap items-center justify-end gap-x-1 gap-y-0.5 rounded-full border px-2 py-0.5 text-[11px] leading-tight",
+                    hasRating
+                      ? "border-amber-200 bg-amber-50/80 text-slate-700"
+                      : "border-slate-200/90 bg-slate-50/90 text-slate-500",
+                  )}
+                  {...(!hasRating
+                    ? { "aria-label": placeRatingUnavailableAria }
+                    : {
+                        "aria-label": [point.mapRatingLabel, point.mapRatingReviewsLine]
+                          .filter(Boolean)
+                          .join(" "),
+                      })}
+                >
+                  <Star
+                    className={cn(
+                      "h-3.5 w-3.5 shrink-0",
+                      hasRating
+                        ? "fill-amber-400 text-amber-500"
+                        : "fill-slate-200 text-slate-300",
+                    )}
+                    aria-hidden
+                  />
+                  <span
+                    className={cn(
+                      "font-semibold tabular-nums",
+                      hasRating ? "text-slate-900" : "text-slate-500",
+                    )}
+                    {...(!hasRating ? { "aria-hidden": true } : {})}
+                  >
+                    {hasRating ? point.mapRatingLabel : "—"}
+                  </span>
+                  {hasRating && point.mapRatingReviewsLine ? (
+                    <span className="font-normal text-slate-500">{point.mapRatingReviewsLine}</span>
+                  ) : null}
+                </p>
+              </div>
               <p className="flex items-start gap-2 text-[12px] leading-5 text-slate-600">
                 <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" aria-hidden />
                 <span>{addressLine}</span>
               </p>
             </div>
-
-            {point.mapRatingLabel ? (
-              <p
-                className="inline-flex max-w-full flex-wrap items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50/80 px-2.5 py-1 text-[11px] text-slate-700"
-                aria-label={ratingAria}
-              >
-                <Star className="h-3.5 w-3.5 shrink-0 fill-amber-400 text-amber-500" aria-hidden />
-                {placeRatingCaption ? (
-                  <span className="font-medium text-slate-600">{placeRatingCaption}</span>
-                ) : null}
-                <span className="font-semibold tabular-nums text-slate-900">{point.mapRatingLabel}</span>
-              </p>
-            ) : null}
 
             {teaserLine ? (
               <p className="line-clamp-3 text-[12px] leading-5 text-slate-600">
@@ -779,7 +804,7 @@ export function CityDiscoveryLeafletMap({
   legendEvents,
   resultsSummaryUnitLabel: _resultsSummaryUnitLabel,
   viewPlaceLabel,
-  placePopupRatingCaption,
+  placePopupRatingUnavailableAria,
   viewEventLabel,
   locateMeLabel,
   locatingLabel,
@@ -1652,7 +1677,7 @@ export function CityDiscoveryLeafletMap({
           </div>
         ) : null}
 
-        <div className="pointer-events-none absolute bottom-5 left-5 z-20 flex max-w-[min(100%-2.5rem,20rem)] flex-wrap items-center gap-3 rounded-2xl border border-slate-200/90 bg-white/95 px-3 py-2.5 text-xs font-medium text-slate-700 shadow-lg backdrop-blur-md">
+        <div className="pointer-events-none absolute bottom-5 left-5 z-[1120] flex max-w-[min(100%-2.5rem,20rem)] flex-wrap items-center gap-3 rounded-2xl border border-slate-200/90 bg-white/95 px-3 py-2.5 text-xs font-medium text-slate-700 shadow-lg backdrop-blur-md">
           <div className="flex items-center gap-2">
             <span
               className="box-border flex size-5 shrink-0 items-center justify-center overflow-visible"
@@ -1745,7 +1770,7 @@ export function CityDiscoveryLeafletMap({
               <MapEntityCard
                 point={selectedPoint}
                 ctaLabel={selectedPoint.kind === "place" ? viewPlaceLabel : viewEventLabel}
-                placeRatingCaption={selectedPoint.kind === "place" ? placePopupRatingCaption : undefined}
+                placeRatingUnavailableAria={placePopupRatingUnavailableAria}
                 onClose={() => onSelectChange(null)}
               />
             </div>
