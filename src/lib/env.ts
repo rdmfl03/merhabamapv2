@@ -53,6 +53,8 @@ const envSchema = z
     S3_ENDPOINT: optionalUrlSchema,
     S3_ACCESS_KEY_ID: optionalStringSchema,
     S3_SECRET_ACCESS_KEY: optionalStringSchema,
+    /** Public origin for browser URLs (e.g. DO Spaces CDN base, no trailing slash). */
+    S3_PUBLIC_BASE_URL: optionalUrlSchema,
 
     /** Server-only; Stadia via /api/map-tiles proxy — never NEXT_PUBLIC_*. */
     STADIA_API_KEY: optionalStringSchema,
@@ -99,6 +101,24 @@ const envSchema = z
         code: z.ZodIssueCode.custom,
         message: "EMAIL_TRANSPORT must be configured in production.",
         path: ["EMAIL_TRANSPORT"],
+      });
+    }
+
+    const s3Fields = [
+      value.S3_REGION,
+      value.S3_BUCKET,
+      value.S3_ENDPOINT,
+      value.S3_ACCESS_KEY_ID,
+      value.S3_SECRET_ACCESS_KEY,
+    ];
+    const anyS3 = s3Fields.some(Boolean);
+    const allS3 = s3Fields.every(Boolean);
+    if (anyS3 && !allS3) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          "Object storage: set all of S3_REGION, S3_BUCKET, S3_ENDPOINT, S3_ACCESS_KEY_ID, and S3_SECRET_ACCESS_KEY, or omit them all for local-disk avatar fallback.",
+        path: ["S3_BUCKET"],
       });
     }
 

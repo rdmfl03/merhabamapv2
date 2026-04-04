@@ -2,6 +2,16 @@ const MAX_AVATAR_BYTES = 2 * 1024 * 1024;
 
 export type ValidAvatarExt = "jpg" | "png" | "webp";
 
+const AVATAR_MIME: Record<ValidAvatarExt, string> = {
+  jpg: "image/jpeg",
+  png: "image/png",
+  webp: "image/webp",
+};
+
+export function avatarContentType(ext: ValidAvatarExt): string {
+  return AVATAR_MIME[ext];
+}
+
 export function validateAvatarBuffer(buf: Uint8Array): ValidAvatarExt | null {
   if (buf.length < 12 || buf.length > MAX_AVATAR_BYTES) {
     return null;

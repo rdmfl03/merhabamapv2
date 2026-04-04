@@ -67,13 +67,18 @@ postgresql://USER:PASSWORD@HOST:25060/defaultdb?sslmode=require
 - `EMAIL_VERIFICATION_TOKEN_TTL_HOURS=24`
 - `PASSWORD_RESET_TOKEN_TTL_MINUTES=60`
 
-### Storage (only if used)
+### Storage (profile avatars — DigitalOcean Spaces)
 
-- `S3_REGION`
-- `S3_BUCKET`
-- `S3_ENDPOINT`
-- `S3_ACCESS_KEY_ID`
-- `S3_SECRET_ACCESS_KEY`
+Set **all** of the following in Netlify (Site settings → Environment variables), or set **none** (local-disk fallback only works on a real server filesystem, not typical Netlify serverless).
+
+- `S3_REGION` — e.g. `fra1`
+- `S3_BUCKET` — your Space name
+- `S3_ENDPOINT` — e.g. `https://fra1.digitaloceanspaces.com` (region API endpoint, not the CDN hostname)
+- `S3_ACCESS_KEY_ID` — Spaces access key (secret scope in Netlify)
+- `S3_SECRET_ACCESS_KEY` — Spaces secret (secret scope in Netlify)
+- `S3_PUBLIC_BASE_URL` — browser base URL for objects, e.g. `https://YOUR_BUCKET.fra1.cdn.digitaloceanspaces.com` (no trailing slash; use the **CDN** hostname if you enabled CDN on the Space)
+
+Do **not** commit keys to the repo; production and `main` should only contain **code** and **placeholder** examples (`.env.production.example`).
 
 ### Maps (optional MapTiler “Pastel”)
 
