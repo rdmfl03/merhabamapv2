@@ -29,6 +29,10 @@ const config: Config = {
           foreground: "hsl(var(--brand-foreground))",
           soft: "hsl(var(--brand-soft))",
         },
+        turquoise: {
+          DEFAULT: "var(--turquoise)",
+          dark: "var(--turquoise-hover)",
+        },
       },
       borderRadius: {
         xl: "1.5rem",

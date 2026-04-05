@@ -168,7 +168,7 @@ export function PlaceCard({
               <Button
                 size="sm"
                 variant="default"
-                className="border-0 bg-cyan-600 px-2.5 text-white shadow-sm hover:bg-cyan-700 focus-visible:ring-cyan-500"
+                className="border-0 bg-turquoise px-2.5 text-white shadow-sm hover:bg-turquoise-dark focus-visible:ring-2 focus-visible:ring-turquoise focus-visible:ring-offset-2"
                 asChild
               >
                 <Link
@@ -180,20 +180,22 @@ export function PlaceCard({
                 </Link>
               </Button>
             ) : null}
-            <PlaceSaveButton
-              placeId={place.id}
-              locale={locale}
-              returnPath={returnPath}
-              isSaved={place.isSaved}
-              isAuthenticated={isAuthenticated}
-              signInHref={`/${locale}/auth/signin?next=${encodeURIComponent(returnPath)}`}
-              labels={{
-                save: labels.save,
-                saved: labels.saved,
-                saving: labels.saving,
-                signIn: labels.signIn,
-              }}
-            />
+            {isAuthenticated ? (
+              <PlaceSaveButton
+                placeId={place.id}
+                locale={locale}
+                returnPath={returnPath}
+                isSaved={place.isSaved}
+                isAuthenticated
+                signInHref={`/${locale}/auth/signin?next=${encodeURIComponent(returnPath)}`}
+                labels={{
+                  save: labels.save,
+                  saved: labels.saved,
+                  saving: labels.saving,
+                  signIn: labels.signIn,
+                }}
+              />
+            ) : null}
           </div>
           <Button variant="outline" size="sm" asChild>
             <Link href={`/places/${place.slug}`}>{labels.details}</Link>

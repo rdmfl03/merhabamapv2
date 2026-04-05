@@ -78,6 +78,32 @@ Never use broad staging commands like `git add .` unless explicitly requested.
 Stage only intended files.
 Be extra careful with deletions and untracked files.
 
+## UI — Farbkonvention Türkis (verbindlich)
+
+Wenn in diesem Projekt von **Türkis** die Rede ist (Copy, Tickets, Reviews, AI-Hinweise), ist damit **ausschließlich** diese Farbe gemeint:
+
+- **Hex:** `#30D5C8`  
+- Kein anderes Türkis-, Cyan- oder Teal-Nuance „aus dem Bauch“, kein generisches `tailwind` `cyan-*` / `teal-*`, solange es nicht **explizit** auf `#30D5C8` (bzw. ein dafür definiertes Design-Token) gemappt ist.
+
+**Verwendung:** Türkis ist **nur** für (1) die **kompakten Karten-Einstiegs-Buttons** in Kontextlisten (Orts-/Event-Karten und -Listenzeilen: Icon-Button zur **Discovery-Karte**) und (2) den **„Mein Standort“-Marker** auf der Karte (`.merhaba-location-marker__*` in `globals.css`). Nicht für Fließtext-Links, nicht als Ersatz für **Brand-Rot** (`text-brand` / `--brand`), nicht für beliebige Primär-CTAs, nicht als Hintergrund großer Flächen.
+
+**Nicht verwechseln:**
+
+- **Brand / Akzent rot** (`text-brand`, `bg-brand`, Karten-Popup-CTAs u. a.) bleiben eigenständig (Türkeiflaggen-Rot).
+- **Sonstige Karten-Chrome** (Cluster, Pin-Glyphen, Popover) nutzt eigene Paletten und ist **nicht** automatisch Türkis.
+
+**Technische Abbildung:** `--turquoise` / `--turquoise-hover` in `src/app/globals.css` (Standort-Marker nutzt dieselben RGB-Werte als literale `rgba(48, 213, 200, …)` wegen Parser-Kompatibilität); Tailwind `bg-turquoise`, `hover:bg-turquoise-dark`, `ring-turquoise` in `tailwind.config.ts`.
+
+**Audit — Map-Icon-Buttons (Discovery):**
+
+- `src/components/places/place-card.tsx`
+- `src/components/events/event-card.tsx`
+- `src/components/social/profile-saved-list-rows.tsx` (Ort- und Event-Zeile)
+
+**Audit — „Mein Standort“:** `.merhaba-location-marker__*` in `src/app/globals.css` (nutzt dieselben CSS-Variablen).
+
+Neue oder geänderte UI: nur diese Token verwenden, Brand-Rot unverändert lassen.
+
 ## Definition of done
 A change is only done if:
 - it is public-repo-safe

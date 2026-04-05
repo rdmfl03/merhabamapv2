@@ -98,7 +98,7 @@ export function EventCard({
             <p className="flex items-center gap-2">
               <MapPin className="h-4 w-4" />
               <span>
-                {event.venueName ? `${event.venueName}, ` : ""}
+                {isAuthenticated && event.venueName ? `${event.venueName}, ` : ""}
                 {event.city.slug ? (
                   <Link
                     href={`/cities/${encodeURIComponent(event.city.slug)}`}
@@ -129,7 +129,7 @@ export function EventCard({
               <Button
                 size="sm"
                 variant="default"
-                className="border-0 bg-cyan-600 px-2.5 text-white shadow-sm hover:bg-cyan-700 focus-visible:ring-cyan-500"
+                className="border-0 bg-turquoise px-2.5 text-white shadow-sm hover:bg-turquoise-dark focus-visible:ring-2 focus-visible:ring-turquoise focus-visible:ring-offset-2"
                 asChild
               >
                 <Link
@@ -141,24 +141,26 @@ export function EventCard({
                 </Link>
               </Button>
             ) : null}
-            <EventSaveButton
-              eventId={event.id}
-              locale={locale}
-              returnPath={returnPath}
-              isSaved={event.isSaved}
-              isAuthenticated={isAuthenticated}
-              signInHref={`/${locale}/auth/signin?next=${encodeURIComponent(returnPath)}`}
-              labels={{
-                save: labels.save,
-                saved: labels.saved,
-                saving: labels.saving,
-                signIn: labels.signIn,
-              }}
-            />
+            {isAuthenticated ? (
+              <EventSaveButton
+                eventId={event.id}
+                locale={locale}
+                returnPath={returnPath}
+                isSaved={event.isSaved}
+                isAuthenticated
+                signInHref={`/${locale}/auth/signin?next=${encodeURIComponent(returnPath)}`}
+                labels={{
+                  save: labels.save,
+                  saved: labels.saved,
+                  saving: labels.saving,
+                  signIn: labels.signIn,
+                }}
+              />
+            ) : null}
           </div>
 
           <div className="flex flex-wrap gap-2">
-            {externalUrl ? (
+            {externalUrl && isAuthenticated ? (
               <Button variant="outline" size="sm" asChild>
                 <a href={externalUrl} target="_blank" rel="noreferrer">
                   {labels.external}
